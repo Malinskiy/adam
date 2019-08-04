@@ -18,6 +18,7 @@ package com.android.ddmlib;
 
 import com.android.ddmlib.ClientData.IMethodProfilingHandler;
 import com.android.ddmlib.ClientData.MethodProfilingStatus;
+import com.android.ddmlib.extension.ByteBufferKt;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -106,7 +107,7 @@ final class HandleProfiling extends ChunkHandler {
         buf.putInt(bufferSize);
         buf.putInt(flags);
         buf.putInt(fileName.length());
-        ByteBufferUtil.putString(buf, fileName);
+        ByteBufferKt.putString(buf, fileName);
 
         finishChunkPacket(packet, CHUNK_MPRS, buf.position());
         Log.d("ddm-prof", "Sending " + name(CHUNK_MPRS) + " '" + fileName

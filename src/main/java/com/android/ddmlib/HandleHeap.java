@@ -18,6 +18,7 @@ package com.android.ddmlib;
 
 import com.android.ddmlib.ClientData.AllocationTrackingStatus;
 import com.android.ddmlib.ClientData.IHprofDumpHandler;
+import com.android.ddmlib.extension.ByteBufferKt;
 
 import java.io.IOException;
 import java.nio.BufferUnderflowException;
@@ -236,7 +237,7 @@ final class HandleHeap extends ChunkHandler {
         ByteBuffer buf = getChunkDataBuf(rawBuf);
 
         buf.putInt(fileName.length());
-        ByteBufferUtil.putString(buf, fileName);
+        ByteBufferKt.putString(buf, fileName);
 
         finishChunkPacket(packet, CHUNK_HPDU, buf.position());
         Log.d("ddm-heap", "Sending " + name(CHUNK_HPDU) + " '" + fileName +"'");

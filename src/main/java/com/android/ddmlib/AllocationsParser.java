@@ -17,6 +17,7 @@ package com.android.ddmlib;
 
 
 
+import com.android.ddmlib.extension.ByteBufferKt;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.ByteBuffer;
@@ -81,7 +82,7 @@ public class AllocationsParser {
 
     for (i = 0; i < count; i++) {
       int nameLen = data.getInt();
-      String descriptor = ByteBufferUtil.getString(data, nameLen);
+      String descriptor = ByteBufferKt.getString(data, nameLen);
       strings[i] = descriptorToDot(descriptor);
     }
   }

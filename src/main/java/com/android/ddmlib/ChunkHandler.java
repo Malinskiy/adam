@@ -17,6 +17,7 @@
 package com.android.ddmlib;
 
 import com.android.ddmlib.DebugPortManager.IDebugPortProvider;
+import com.android.ddmlib.extension.ByteBufferKt;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -77,7 +78,7 @@ abstract class ChunkHandler {
 
             errorCode = data.getInt();
             msgLen = data.getInt();
-            msg = ByteBufferUtil.getString(data, msgLen);
+            msg = ByteBufferKt.getString(data, msgLen);
             Log.w("ddms", "WARNING: failure code=" + errorCode + " msg=" + msg);
         } else {
             Log.w("ddms", "WARNING: received unknown chunk " + name(type)
@@ -91,7 +92,7 @@ abstract class ChunkHandler {
    * Utility function to copy a String out of a ByteBuffer.
    */
   public static String getString(ByteBuffer buf, int len) {
-    return ByteBufferUtil.getString(buf, len);
+    return ByteBufferKt.getString(buf, len);
   }
 
   /**

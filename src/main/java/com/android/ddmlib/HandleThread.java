@@ -16,6 +16,8 @@
 
 package com.android.ddmlib;
 
+import com.android.ddmlib.extension.ByteBufferKt;
+
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
@@ -102,7 +104,7 @@ final class HandleThread extends ChunkHandler {
 
         threadId = data.getInt();
         nameLen = data.getInt();
-        name = ByteBufferUtil.getString(data, nameLen);
+        name = ByteBufferKt.getString(data, nameLen);
 
         Log.v("ddm-thread", "THCR: " + threadId + " '" + name + "'");
 
@@ -198,7 +200,7 @@ final class HandleThread extends ChunkHandler {
 
         threadId = data.getInt();
         nameLen = data.getInt();
-        name = ByteBufferUtil.getString(data, nameLen);
+        name = ByteBufferKt.getString(data, nameLen);
 
         Log.v("ddm-thread", "THNM: " + threadId + " '" + name + "'");
 
@@ -234,14 +236,14 @@ final class HandleThread extends ChunkHandler {
             int len, lineNumber;
 
             len = data.getInt();
-            className = ByteBufferUtil.getString(data, len);
+            className = ByteBufferKt.getString(data, len);
             len = data.getInt();
-            methodName = ByteBufferUtil.getString(data, len);
+            methodName = ByteBufferKt.getString(data, len);
             len = data.getInt();
             if (len == 0) {
                 fileName = null;
             } else {
-                fileName = ByteBufferUtil.getString(data, len);
+                fileName = ByteBufferKt.getString(data, len);
             }
             lineNumber = data.getInt();
 

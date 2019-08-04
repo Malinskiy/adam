@@ -16,6 +16,8 @@
 
 package com.android.ddmlib;
 
+import com.android.ddmlib.extension.ByteBufferKt;
+
 import java.io.IOException;
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
@@ -98,8 +100,8 @@ final class HandleHello extends ChunkHandler {
         vmIdentLen = data.getInt();
         appNameLen = data.getInt();
 
-        vmIdent = ByteBufferUtil.getString(data, vmIdentLen);
-        appName = ByteBufferUtil.getString(data, appNameLen);
+        vmIdent = ByteBufferKt.getString(data, vmIdentLen);
+        appName = ByteBufferKt.getString(data, appNameLen);
 
         // Newer devices send user id in the APNM packet.
         int userId = -1;
@@ -124,7 +126,7 @@ final class HandleHello extends ChunkHandler {
         if (data.hasRemaining()) {
             try {
                 int abiLength = data.getInt();
-                abi = ByteBufferUtil.getString(data, abiLength);
+                abi = ByteBufferKt.getString(data, abiLength);
                 validAbi = true;
             } catch (BufferUnderflowException e) {
                 Log.e("ddm-hello", "Insufficient data in HELO chunk to retrieve ABI.");
@@ -136,7 +138,7 @@ final class HandleHello extends ChunkHandler {
         if (data.hasRemaining()) {
             try {
                 int jvmFlagsLength = data.getInt();
-                jvmFlags = ByteBufferUtil.getString(data, jvmFlagsLength);
+                jvmFlags = ByteBufferKt.getString(data, jvmFlagsLength);
                 hasJvmFlags = true;
             } catch (BufferUnderflowException e) {
                 Log.e("ddm-hello", "Insufficient data in HELO chunk to retrieve JVM flags");
@@ -205,7 +207,7 @@ final class HandleHello extends ChunkHandler {
         featureCount = data.getInt();
         for (i = 0; i < featureCount; i++) {
             int len = data.getInt();
-            String feature = ByteBufferUtil.getString(data, len);
+            String feature = ByteBufferKt.getString(data, len);
             client.getClientData().addFeature(feature);
 
             Log.d("ddm-hello", "Feature: " + feature);

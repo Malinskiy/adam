@@ -16,6 +16,8 @@
 
 package com.android.ddmlib;
 
+import com.android.ddmlib.extension.ByteBufferKt;
+
 import java.io.IOException;
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
@@ -76,7 +78,7 @@ final class HandleAppName extends ChunkHandler {
         String appName;
 
         appNameLen = data.getInt();
-        appName = ByteBufferUtil.getString(data, appNameLen);
+        appName = ByteBufferKt.getString(data, appNameLen);
 
         // Newer devices send user id in the APNM packet.
         int userId = -1;
