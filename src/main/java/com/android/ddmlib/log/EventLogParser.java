@@ -19,10 +19,10 @@ package com.android.ddmlib.log;
 import com.android.ddmlib.IDevice;
 import com.android.ddmlib.Log;
 import com.android.ddmlib.MultiLineReceiver;
+import com.android.ddmlib.extension.IntKt;
 import com.android.ddmlib.log.EventContainer.EventValueType;
 import com.android.ddmlib.log.EventValueDescription.ValueType;
 import com.android.ddmlib.log.LogReceiver.LogEntry;
-import com.android.ddmlib.utils.ArrayHelper;
 import com.google.common.base.Charsets;
 
 import java.io.BufferedReader;
@@ -260,7 +260,7 @@ public final class EventLogParser {
 
         int inOffset = 0;
 
-        int tagValue = ArrayHelper.swap32bitFromArray(entry.data, inOffset);
+        int tagValue = IntKt.swap32bitFromArray(entry.data, inOffset);
         inOffset += 4;
 
         String tag = mTagMap.get(tagValue);
@@ -394,7 +394,7 @@ public final class EventLogParser {
 
                 if (eventData.length - offset < 4)
                     return -1;
-                ival = ArrayHelper.swap32bitFromArray(eventData, offset);
+                ival = IntKt.swap32bitFromArray(eventData, offset);
                 offset += 4;
 
                 list.add(ival);
@@ -405,7 +405,7 @@ public final class EventLogParser {
 
                 if (eventData.length - offset < 8)
                     return -1;
-                lval = ArrayHelper.swap64bitFromArray(eventData, offset);
+                lval = IntKt.swap64bitFromArray(eventData, offset);
                 offset += 8;
 
                 list.add(lval);
@@ -416,7 +416,7 @@ public final class EventLogParser {
 
                 if (eventData.length - offset < 4)
                     return -1;
-                strLen = ArrayHelper.swap32bitFromArray(eventData, offset);
+                strLen = IntKt.swap32bitFromArray(eventData, offset);
                 offset += 4;
 
                 if (eventData.length - offset < strLen)

@@ -17,7 +17,7 @@
 package com.android.ddmlib.log;
 
 
-import com.android.ddmlib.utils.ArrayHelper;
+import com.android.ddmlib.extension.IntKt;
 
 import java.security.InvalidParameterException;
 
@@ -223,19 +223,19 @@ public final class LogReceiver {
 
         // create the new entry and fill it.
         LogEntry entry = new LogEntry();
-        entry.len = ArrayHelper.swapU16bitFromArray(data, offset);
+        entry.len = IntKt.swapU16bitFromArray(data, offset);
         
         // we've read only 16 bits, but since there's also a 16 bit padding,
         // we can skip right over both.
         offset += 4;
         
-        entry.pid = ArrayHelper.swap32bitFromArray(data, offset);
+        entry.pid = IntKt.swap32bitFromArray(data, offset);
         offset += 4;
-        entry.tid = ArrayHelper.swap32bitFromArray(data, offset);
+        entry.tid = IntKt.swap32bitFromArray(data, offset);
         offset += 4;
-        entry.sec = ArrayHelper.swap32bitFromArray(data, offset);
+        entry.sec = IntKt.swap32bitFromArray(data, offset);
         offset += 4;
-        entry.nsec = ArrayHelper.swap32bitFromArray(data, offset);
+        entry.nsec = IntKt.swap32bitFromArray(data, offset);
         offset += 4;
         
         // allocate the data

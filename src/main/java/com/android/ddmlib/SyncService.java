@@ -20,7 +20,7 @@ package com.android.ddmlib;
 import com.android.ddmlib.AdbHelper.AdbResponse;
 import com.android.ddmlib.FileListingService.FileEntry;
 import com.android.ddmlib.SyncException.SyncError;
-import com.android.ddmlib.utils.ArrayHelper;
+import com.android.ddmlib.extension.IntKt;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -571,7 +571,7 @@ public class SyncService {
                     throw new SyncException(SyncError.TRANSFER_PROTOCOL_ERROR,
                             readErrorMessage(pullResult, timeOut));
                 }
-                int length = ArrayHelper.swap32bitFromArray(pullResult, 4);
+                int length = IntKt.swap32bitFromArray(pullResult, 4);
                 if (length > SYNC_DATA_MAX) {
                     // buffer overrun!
                     // error and exit
@@ -692,7 +692,7 @@ public class SyncService {
 
                 // now send the data to the device
                 // first write the amount read
-                ArrayHelper.swap32bitsToArray(readCount, getBuffer(), 4);
+                IntKt.swap32bitsToArray(readCount, getBuffer(), 4);
 
                 // now write it
                 AdbHelper.write(mChannel, getBuffer(), readCount+8, timeOut);
@@ -738,7 +738,7 @@ public class SyncService {
     private String readErrorMessage(byte[] result, final int timeOut) throws TimeoutException,
             IOException {
         if (checkResult(result, ID_FAIL)) {
-            int len = ArrayHelper.swap32bitFromArray(result, 4);
+            int len = IntKt.swap32bitFromArray(result, 4);
 
             if (len > 0) {
                 AdbHelper.read(mChannel, getBuffer(), len, timeOut);
@@ -778,9 +778,9 @@ public class SyncService {
             return null;
         }
 
-        final int mode = ArrayHelper.swap32bitFromArray(statResult, 4);
-        final int size = ArrayHelper.swap32bitFromArray(statResult, 8);
-        final int lastModifiedSecs = ArrayHelper.swap32bitFromArray(statResult, 12);
+        final int mode = IntKt.swap32bitFromArray(statResult, 4);
+        final int size = IntKt.swap32bitFromArray(statResult, 8);
+        final int lastModifiedSecs = IntKt.swap32bitFromArray(statResult, 12);
         return new FileStat(mode, size, lastModifiedSecs);
     }
 
@@ -794,7 +794,7 @@ public class SyncService {
         byte[] array = new byte[8];
 
         System.arraycopy(command, 0, array, 0, 4);
-        ArrayHelper.swap32bitsToArray(value, array, 4);
+        IntKt.swap32bitsToArray(value, array, 4);
 
         return array;
     }
@@ -828,7 +828,7 @@ public class SyncService {
         byte[] array = new byte[8 + path.length];
 
         System.arraycopy(command, 0, array, 0, 4);
-        ArrayHelper.swap32bitsToArray(path.length, array, 4);
+        IntKt.swap32bitsToArray(path.length, array, 4);
         System.arraycopy(path, 0, array, 8, path.length);
 
         return array;
@@ -847,7 +847,7 @@ public class SyncService {
         byte[] array = new byte[8 + path.length + modeContent.length];
 
         System.arraycopy(command, 0, array, 0, 4);
-        ArrayHelper.swap32bitsToArray(path.length + modeContent.length, array, 4);
+        IntKt.swap32bitsToArray(path.length + modeContent.length, array, 4);
         System.arraycopy(path, 0, array, 8, path.length);
         System.arraycopy(modeContent, 0, array, 8 + path.length, modeContent.length);
 
