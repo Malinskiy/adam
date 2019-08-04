@@ -17,10 +17,17 @@
 package com.android.ddmlib;
 
 
-import com.android.ddmlib.AdbHelper.AdbResponse;
-import com.android.ddmlib.ClientData.DebuggerStatus;
-import com.android.ddmlib.DebugPortManager.IDebugPortProvider;
-import com.android.ddmlib.IDevice.DeviceState;
+import com.android.ddmlib.emulator.EmulatorConsole;
+import com.android.ddmlib.logging.Log;
+import com.android.ddmlib.model.AdbResponse;
+import com.android.ddmlib.model.IDevice;
+import com.android.ddmlib.model.client.DebuggerStatus;
+import com.android.ddmlib.debug.IDebugPortProvider;
+import com.android.ddmlib.model.IDevice.DeviceState;
+import com.android.ddmlib.exception.AdbCommandRejectedException;
+import com.android.ddmlib.exception.TimeoutException;
+import com.android.ddmlib.preferences.DdmPreferences;
+import com.android.ddmlib.utils.AdbHelper;
 import com.android.ddmlib.utils.DebuggerPorts;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
@@ -62,7 +69,7 @@ import java.util.concurrent.TimeUnit;
  * clients on the device. Note: a single thread monitors jdwp connections from all devices.
  * The different socket connections to adb (one per device) are multiplexed over a single selector.
  */
-final class DeviceMonitor {
+public final class DeviceMonitor {
     private static final String ADB_TRACK_DEVICES_COMMAND = "host:track-devices";
     private static final String ADB_TRACK_JDWP_COMMAND = "track-jdwp";
 
@@ -152,7 +159,7 @@ final class DeviceMonitor {
         return mServer;
     }
 
-    void addClientToDropAndReopen(Client client, int port) {
+    public void addClientToDropAndReopen(Client client, int port) {
         synchronized (mClientsToReopen) {
             Log.d("DeviceMonitor",
                     "Adding " + client + " to list of client to reopen (" + port + ").");

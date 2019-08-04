@@ -15,8 +15,11 @@
  */
 package com.android.ddmlib;
 
-import com.android.ddmlib.PropertyFetcher.GetPropReceiver;
+import com.android.ddmlib.interactor.PropertyFetcher;
+import com.android.ddmlib.model.IDevice;
+import com.android.ddmlib.receiver.GetPropReceiver;
 
+import com.android.ddmlib.exception.ShellCommandUnresponsiveException;
 import junit.framework.TestCase;
 
 import org.easymock.EasyMock;

@@ -17,7 +17,20 @@
 package com.android.ddmlib;
 
 
+import com.android.ddmlib.exception.*;
+import com.android.ddmlib.files.FileListingService;
+import com.android.ddmlib.interactor.BatteryFetcher;
+import com.android.ddmlib.interactor.PropertyFetcher;
+import com.android.ddmlib.interactor.SyncService;
 import com.android.ddmlib.log.LogReceiver;
+import com.android.ddmlib.logging.Log;
+import com.android.ddmlib.model.AdbService;
+import com.android.ddmlib.model.IDevice;
+import com.android.ddmlib.model.RawImage;
+import com.android.ddmlib.model.ScreenRecorderOptions;
+import com.android.ddmlib.preferences.DdmPreferences;
+import com.android.ddmlib.receiver.*;
+import com.android.ddmlib.utils.AdbHelper;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Function;
@@ -50,16 +63,14 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 
 /**
  * A Device. It can be a physical device or an emulator.
  */
-final class Device implements IDevice {
+public final class Device implements IDevice {
     /** Emulator Serial Number regexp. */
-    static final String RE_EMULATOR_SN = "emulator-(\\d+)"; //$NON-NLS-1$
+    public static final String RE_EMULATOR_SN = "emulator-(\\d+)"; //$NON-NLS-1$
 
     /** Serial number of the device */
     private final String mSerialNumber;
@@ -125,50 +136,9 @@ final class Device implements IDevice {
     private int mApiLevel;
     private String mName;
 
-    /**
-     * Output receiver for "pm install package.apk" command line.
-     */
-    private static final class InstallReceiver extends MultiLineReceiver {
-
-        private static final String SUCCESS_OUTPUT = "Success"; //$NON-NLS-1$
-        private static final Pattern FAILURE_PATTERN = Pattern.compile("Failure\\s+\\[(.*)\\]"); //$NON-NLS-1$
-
-        private String mErrorMessage = null;
-
-        public InstallReceiver() {
-        }
-
-        @Override
-        public void processNewLines(String[] lines) {
-            for (String line : lines) {
-                if (!line.isEmpty()) {
-                    if (line.startsWith(SUCCESS_OUTPUT)) {
-                        mErrorMessage = null;
-                    } else {
-                        Matcher m = FAILURE_PATTERN.matcher(line);
-                        if (m.matches()) {
-                            mErrorMessage = m.group(1);
-                        } else {
-                            mErrorMessage = "Unknown failure";
-                        }
-                    }
-                }
-            }
-        }
-
-        @Override
-        public boolean isCancelled() {
-            return false;
-        }
-
-        public String getErrorMessage() {
-            return mErrorMessage;
-        }
-    }
-
     /*
      * (non-Javadoc)
-     * @see com.android.ddmlib.IDevice#getSerialNumber()
+     * @see com.android.ddmlib.model.IDevice#getSerialNumber()
      */
     @NotNull
     @Override
@@ -266,7 +236,7 @@ final class Device implements IDevice {
 
     /*
      * (non-Javadoc)
-     * @see com.android.ddmlib.IDevice#getState()
+     * @see com.android.ddmlib.model.IDevice#getState()
      */
     @Override
     public DeviceState getState() {
@@ -283,7 +253,7 @@ final class Device implements IDevice {
 
     /*
      * (non-Javadoc)
-     * @see com.android.ddmlib.IDevice#getProperties()
+     * @see com.android.ddmlib.model.IDevice#getProperties()
      */
     @Override
     public Map<String, String> getProperties() {
@@ -292,7 +262,7 @@ final class Device implements IDevice {
 
     /*
      * (non-Javadoc)
-     * @see com.android.ddmlib.IDevice#getPropertyCount()
+     * @see com.android.ddmlib.model.IDevice#getPropertyCount()
      */
     @Override
     public int getPropertyCount() {
@@ -301,7 +271,7 @@ final class Device implements IDevice {
 
     /*
      * (non-Javadoc)
-     * @see com.android.ddmlib.IDevice#getProperty(java.lang.String)
+     * @see com.android.ddmlib.model.IDevice#getProperty(java.lang.String)
      */
     @Override
     public String getProperty(String name) {
@@ -325,7 +295,7 @@ final class Device implements IDevice {
 
     @Override
     public String getPropertyCacheOrSync(String name) throws TimeoutException,
-            AdbCommandRejectedException, ShellCommandUnresponsiveException, IOException {
+                                                             AdbCommandRejectedException, ShellCommandUnresponsiveException, IOException {
         Future<String> future = mPropFetcher.getProperty(name);
         try {
             return future.get();
@@ -478,7 +448,7 @@ final class Device implements IDevice {
 
     /*
      * (non-Javadoc)
-     * @see com.android.ddmlib.IDevice#isOnline()
+     * @see com.android.ddmlib.model.IDevice#isOnline()
      */
     @Override
     public boolean isOnline() {
@@ -487,7 +457,7 @@ final class Device implements IDevice {
 
     /*
      * (non-Javadoc)
-     * @see com.android.ddmlib.IDevice#isEmulator()
+     * @see com.android.ddmlib.model.IDevice#isEmulator()
      */
     @Override
     public boolean isEmulator() {
@@ -496,7 +466,7 @@ final class Device implements IDevice {
 
     /*
      * (non-Javadoc)
-     * @see com.android.ddmlib.IDevice#isOffline()
+     * @see com.android.ddmlib.model.IDevice#isOffline()
      */
     @Override
     public boolean isOffline() {
@@ -505,7 +475,7 @@ final class Device implements IDevice {
 
     /*
      * (non-Javadoc)
-     * @see com.android.ddmlib.IDevice#isBootLoader()
+     * @see com.android.ddmlib.model.IDevice#isBootLoader()
      */
     @Override
     public boolean isBootLoader() {
@@ -514,7 +484,7 @@ final class Device implements IDevice {
 
     /*
      * (non-Javadoc)
-     * @see com.android.ddmlib.IDevice#getSyncService()
+     * @see com.android.ddmlib.model.IDevice#getSyncService()
      */
     @Override
     public SyncService getSyncService()
@@ -529,7 +499,7 @@ final class Device implements IDevice {
 
     /*
      * (non-Javadoc)
-     * @see com.android.ddmlib.IDevice#getFileListingService()
+     * @see com.android.ddmlib.model.IDevice#getFileListingService()
      */
     @Override
     public FileListingService getFileListingService() {
@@ -551,7 +521,7 @@ final class Device implements IDevice {
     @Override
     public void startScreenRecorder(String remoteFilePath, ScreenRecorderOptions options,
             IShellOutputReceiver receiver) throws TimeoutException, AdbCommandRejectedException,
-            IOException, ShellCommandUnresponsiveException {
+                                                  IOException, ShellCommandUnresponsiveException {
         executeShellCommand(getScreenRecorderCommand(remoteFilePath, options), receiver, 0, null);
     }
 
@@ -597,7 +567,7 @@ final class Device implements IDevice {
             throws TimeoutException, AdbCommandRejectedException, ShellCommandUnresponsiveException,
             IOException {
         AdbHelper.executeRemoteCommand(AndroidDebugBridge.getSocketAddress(), command, this,
-                receiver, DdmPreferences.getTimeOut());
+                                       receiver, DdmPreferences.getTimeOut());
     }
 
     @Override
@@ -808,7 +778,7 @@ final class Device implements IDevice {
             String targetFileName = getFileName(local);
 
             Log.d(targetFileName, String.format("Uploading %1$s onto device '%2$s'",
-                    targetFileName, getSerialNumber()));
+                                                targetFileName, getSerialNumber()));
 
             sync = getSyncService();
             if (sync != null) {
@@ -975,38 +945,6 @@ final class Device implements IDevice {
         }
     }
 
-    /**
-     * Implementation of {@link com.android.ddmlib.MultiLineReceiver} that can receive a
-     * Success message from ADB followed by a session ID.
-     */
-    private static class MultiInstallReceiver extends MultiLineReceiver {
-
-        private static final Pattern successPattern = Pattern.compile("Success: .*\\[(\\d*)\\]");
-
-        @Nullable String sessionId = null;
-
-        @Override
-        public boolean isCancelled() {
-            return false;
-        }
-
-        @Override
-        public void processNewLines(String[] lines) {
-            for (String line : lines) {
-                Matcher matcher = successPattern.matcher(line);
-                if (matcher.matches()) {
-                    sessionId = matcher.group(1);
-                }
-            }
-
-        }
-
-        @Nullable
-        public String getSessionId() {
-            return sessionId;
-        }
-    }
-
     @Nullable
     private String createMultiInstallSession(List<String> apkFileNames,
             @NotNull Collection<String> extraArgs, boolean reinstall)
@@ -1071,8 +1009,8 @@ final class Device implements IDevice {
             inputStream = new BufferedInputStream(new FileInputStream(fileToUpload));
             InstallReceiver receiver = new InstallReceiver();
             AdbHelper.executeRemoteCommand(AndroidDebugBridge.getSocketAddress(),
-                    AdbHelper.AdbService.EXEC, command, this,
-                    receiver, DdmPreferences.getTimeOut(), TimeUnit.MILLISECONDS, inputStream);
+                                           AdbService.EXEC, command, this,
+                                           receiver, DdmPreferences.getTimeOut(), TimeUnit.MILLISECONDS, inputStream);
             if (receiver.getErrorMessage() != null) {
                 Log.e(sessionId, String.format("Error while uploading %1$s : %2$s", fileToUpload.getName(),
                         receiver.getErrorMessage()));
@@ -1175,7 +1113,7 @@ final class Device implements IDevice {
     public void removeRemotePackage(String remoteFilePath) throws InstallException {
         try {
             executeShellCommand(String.format("rm \"%1$s\"", remoteFilePath),
-                    new NullOutputReceiver(), INSTALL_TIMEOUT_MINUTES, TimeUnit.MINUTES);
+                                new NullOutputReceiver(), INSTALL_TIMEOUT_MINUTES, TimeUnit.MINUTES);
         } catch (IOException e) {
             throw new InstallException(e);
         } catch (TimeoutException e) {
@@ -1207,7 +1145,7 @@ final class Device implements IDevice {
 
     /*
      * (non-Javadoc)
-     * @see com.android.ddmlib.IDevice#reboot()
+     * @see com.android.ddmlib.model.IDevice#reboot()
      */
     @Override
     public void reboot(String into)

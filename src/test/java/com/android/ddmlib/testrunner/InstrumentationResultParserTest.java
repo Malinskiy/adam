@@ -16,6 +16,7 @@
 
 package com.android.ddmlib.testrunner;
 
+import com.android.ddmlib.receiver.InstrumentationResultParser;
 import junit.framework.TestCase;
 
 import org.easymock.Capture;

@@ -15,7 +15,7 @@
  */
 package com.android.ddmlib.testrunner;
 
-import com.android.ddmlib.Log;
+import com.android.ddmlib.logging.Log;
 import com.android.ddmlib.testrunner.TestResult.TestStatus;
 
 import java.util.HashMap;

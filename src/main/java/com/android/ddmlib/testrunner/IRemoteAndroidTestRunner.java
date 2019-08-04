@@ -16,10 +16,11 @@
 
 package com.android.ddmlib.testrunner;
 
-import com.android.ddmlib.AdbCommandRejectedException;
-import com.android.ddmlib.IDevice;
-import com.android.ddmlib.ShellCommandUnresponsiveException;
-import com.android.ddmlib.TimeoutException;
+import com.android.ddmlib.exception.AdbCommandRejectedException;
+import com.android.ddmlib.model.IDevice;
+import com.android.ddmlib.exception.ShellCommandUnresponsiveException;
+import com.android.ddmlib.exception.TimeoutException;
+import com.android.ddmlib.receiver.IShellOutputReceiver;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -200,7 +201,7 @@ public interface IRemoteAndroidTestRunner {
      *            never throw.
      * @param maxTimeUnits Units for non-zero {@code maxTimeToOutputResponse} values.
      *
-     * @see IDevice#executeShellCommand(String, com.android.ddmlib.IShellOutputReceiver, int)
+     * @see IDevice#executeShellCommand(String, IShellOutputReceiver, int)
      */
     void setMaxTimeToOutputResponse(long maxTimeToOutputResponse, TimeUnit maxTimeUnits);
 

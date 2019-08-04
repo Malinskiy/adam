@@ -16,6 +16,7 @@
 package com.android.ddmlib;
 
 
+import com.android.ddmlib.model.IDevice;
 import junit.framework.TestCase;
 import org.easymock.EasyMock;
 import org.jetbrains.annotations.NotNull;

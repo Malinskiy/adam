@@ -16,11 +16,11 @@
 
 package com.android.ddmlib;
 
+import com.android.ddmlib.model.AdbVersion;
 import junit.framework.TestCase;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 public class AndroidDebugBridgeTest extends TestCase {

@@ -16,8 +16,13 @@
 
 package com.android.ddmlib;
 
-import com.android.ddmlib.DebugPortManager.IDebugPortProvider;
-import com.android.ddmlib.AndroidDebugBridge.IClientChangeListener;
+import com.android.ddmlib.debug.Debugger;
+import com.android.ddmlib.debug.IDebugPortProvider;
+import com.android.ddmlib.logging.Config;
+import com.android.ddmlib.logging.Log;
+import com.android.ddmlib.model.*;
+import com.android.ddmlib.model.chunk.*;
+import com.android.ddmlib.preferences.DdmPreferences;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -80,7 +85,7 @@ public class Client {
     private int mDebuggerListenPort;
 
     // list of IDs for requests we have sent to the client
-    private HashMap<Integer,ChunkHandler> mOutstandingReqs;
+    private HashMap<Integer, ChunkHandler> mOutstandingReqs;
 
     // chunk handlers stash state data in here
     private ClientData mClientData;
@@ -163,7 +168,7 @@ public class Client {
 
     /** Returns the {@link Device} on which this Client is running.
      */
-    Device getDeviceImpl() {
+    public Device getDeviceImpl() {
         return mDevice;
     }
 
@@ -287,8 +292,8 @@ public class Client {
             HandleProfiling.sendMPSS(this, bufferSize, 0 /*flags*/);
         } else {
             String file = "/sdcard/" +
-                    mClientData.getClientDescription().replaceAll("\\:.*", "") +
-                    DdmConstants.DOT_TRACE;
+                          mClientData.getClientDescription().replaceAll("\\:.*", "") +
+                          DdmConstants.DOT_TRACE;
             HandleProfiling.sendMPRS(this, file, bufferSize, 0 /*flags*/);
         }
     }
@@ -453,7 +458,7 @@ public class Client {
         update(CHANGE_HEAP_MODE);
     }
 
-    void initializeHeapUpdateStatus() throws IOException {
+    public void initializeHeapUpdateStatus() throws IOException {
         setHeapInfoUpdateEnabled(mHeapInfoUpdateEnabled);
     }
 
@@ -640,7 +645,7 @@ public class Client {
      *
      * Equivalent to sendAndConsume(packet, null).
      */
-    void sendAndConsume(JdwpPacket packet) throws IOException {
+    public void sendAndConsume(JdwpPacket packet) throws IOException {
         sendAndConsume(packet, null);
     }
 
@@ -654,7 +659,7 @@ public class Client {
      * Another goal is to avoid unnecessary buffer copies, so we write
      * directly out of the JdwpPacket's ByteBuffer.
      */
-    void sendAndConsume(JdwpPacket packet, ChunkHandler replyHandler)
+    public void sendAndConsume(JdwpPacket packet, ChunkHandler replyHandler)
         throws IOException {
 
         // Fix to avoid a race condition on mChan. This should be better synchronized
@@ -741,7 +746,7 @@ public class Client {
         if (count < 0)
             throw new IOException("read failed");
 
-        if (Log.Config.LOGV) Log.v("ddms", "Read " + count + " bytes from " + this);
+        if (Config.LOGV) Log.v("ddms", "Read " + count + " bytes from " + this);
         //Log.hexDump("ddms", Log.DEBUG, mReadBuffer.array(),
         //    mReadBuffer.arrayOffset(), mReadBuffer.position());
     }
@@ -808,7 +813,7 @@ public class Client {
              * Normal packet traffic.
              */
             if (mReadBuffer.position() != 0) {
-                if (Log.Config.LOGV) Log.v("ddms",
+                if (Config.LOGV) Log.v("ddms",
                     "Checking " + mReadBuffer.position() + " bytes");
             }
             return JdwpPacket.findPacket(mReadBuffer);
@@ -828,7 +833,7 @@ public class Client {
      */
     private void addRequestId(int id, ChunkHandler handler) {
         synchronized (mOutstandingReqs) {
-            if (Log.Config.LOGV) Log.v("ddms",
+            if (Config.LOGV) Log.v("ddms",
                 "Adding req 0x" + Integer.toHexString(id) +" to set");
             mOutstandingReqs.put(id, handler);
         }
@@ -839,7 +844,7 @@ public class Client {
      */
     void removeRequestId(int id) {
         synchronized (mOutstandingReqs) {
-            if (Log.Config.LOGV) Log.v("ddms",
+            if (Config.LOGV) Log.v("ddms",
                 "Removing req 0x" + Integer.toHexString(id) + " from set");
             mOutstandingReqs.remove(id);
         }
@@ -857,7 +862,7 @@ public class Client {
         synchronized (mOutstandingReqs) {
             ChunkHandler handler = mOutstandingReqs.get(id);
             if (handler != null) {
-                if (Log.Config.LOGV) Log.v("ddms",
+                if (Config.LOGV) Log.v("ddms",
                     "Found 0x" + Integer.toHexString(id)
                     + " in request set - " + handler);
                 return handler;
@@ -941,7 +946,7 @@ public class Client {
         return mChan != null;
     }
 
-    void update(int changeMask) {
+    public void update(int changeMask) {
         mDevice.update(this, changeMask);
     }
 }

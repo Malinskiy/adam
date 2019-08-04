@@ -16,7 +16,7 @@
 package com.android.ddmlib.logcat;
 
 
-import com.android.ddmlib.Log.LogLevel;
+import com.android.ddmlib.logging.LogLevel;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;

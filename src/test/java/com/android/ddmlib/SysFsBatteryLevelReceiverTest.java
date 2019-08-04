@@ -16,8 +16,7 @@
 
 package com.android.ddmlib;
 
-import com.android.ddmlib.BatteryFetcher.SysFsBatteryLevelReceiver;
-
+import com.android.ddmlib.receiver.SysFsBatteryLevelReceiver;
 import junit.framework.TestCase;
 
 import java.util.Random;

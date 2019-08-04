@@ -17,8 +17,13 @@
 package com.android.ddmlib;
 
 
-import com.android.ddmlib.DebugPortManager.IDebugPortProvider;
-import com.android.ddmlib.Log.LogLevel;
+import com.android.ddmlib.debug.Debugger;
+import com.android.ddmlib.debug.IDebugPortProvider;
+import com.android.ddmlib.logging.Log;
+import com.android.ddmlib.logging.LogLevel;
+import com.android.ddmlib.model.JdwpPacket;
+import com.android.ddmlib.model.chunk.ChunkHandler;
+import com.android.ddmlib.preferences.DdmPreferences;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -41,7 +46,7 @@ import java.util.Set;
 /**
  * Monitor open connections.
  */
-final class MonitorThread extends Thread {
+final public class MonitorThread extends Thread {
 
     // For broadcasts to message handlers
     //private static final int CLIENT_CONNECTED = 1;
@@ -97,7 +102,7 @@ final class MonitorThread extends Thread {
     /**
      * Get singleton instance of the client monitor thread.
      */
-    static MonitorThread getInstance() {
+    public static MonitorThread getInstance() {
         return sInstance;
     }
 
@@ -105,7 +110,7 @@ final class MonitorThread extends Thread {
     /**
      * Sets or changes the port number for "debug selected".
      */
-    synchronized void setDebugSelectedPort(int port) throws IllegalStateException {
+    public synchronized void setDebugSelectedPort(int port) throws IllegalStateException {
         if (sInstance == null) {
             return;
         }
@@ -177,7 +182,7 @@ final class MonitorThread extends Thread {
     /**
      * Register "handler" as the handler for type "type".
      */
-    synchronized void registerChunkHandler(int type, ChunkHandler handler) {
+    public synchronized void registerChunkHandler(int type, ChunkHandler handler) {
         if (sInstance == null) {
             return;
         }

@@ -17,8 +17,8 @@
 package com.android.ddmlib.logcat;
 
 
-import com.android.ddmlib.IDevice;
-import com.android.ddmlib.Log.LogLevel;
+import com.android.ddmlib.model.IDevice;
+import com.android.ddmlib.logging.LogLevel;
 import com.google.common.primitives.Ints;
 import org.jetbrains.annotations.NotNull;
 

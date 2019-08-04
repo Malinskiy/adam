@@ -15,6 +15,7 @@
  */
 package com.android.ddmlib;
 
+import com.android.ddmlib.model.AdbVersion;
 import junit.framework.TestCase;
 
 public class AdbVersionTest extends TestCase {

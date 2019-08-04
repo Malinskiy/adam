@@ -16,7 +16,11 @@
 
 package com.android.ddmlib;
 
-import com.android.ddmlib.Log.LogLevel;
+import com.android.ddmlib.logging.Log;
+import com.android.ddmlib.logging.LogLevel;
+import com.android.ddmlib.model.*;
+import com.android.ddmlib.model.chunk.*;
+import com.android.ddmlib.preferences.DdmPreferences;
 import com.google.common.base.Joiner;
 import com.google.common.base.Throwables;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -88,72 +92,6 @@ public final class AndroidDebugBridge {
 
     // lock object for synchronization
     private static final Object sLock = sBridgeListeners;
-
-    /**
-     * Classes which implement this interface provide a method that deals
-     * with {@link AndroidDebugBridge} changes.
-     */
-    public interface IDebugBridgeChangeListener {
-        /**
-         * Sent when a new {@link AndroidDebugBridge} is connected.
-         * <p/>
-         * This is sent from a non UI thread.
-         * @param bridge the new {@link AndroidDebugBridge} object.
-         */
-        void bridgeChanged(AndroidDebugBridge bridge);
-    }
-
-    /**
-     * Classes which implement this interface provide methods that deal
-     * with {@link IDevice} addition, deletion, and changes.
-     */
-    public interface IDeviceChangeListener {
-        /**
-         * Sent when the a device is connected to the {@link AndroidDebugBridge}.
-         * <p/>
-         * This is sent from a non UI thread.
-         * @param device the new device.
-         */
-        void deviceConnected(IDevice device);
-
-        /**
-         * Sent when the a device is connected to the {@link AndroidDebugBridge}.
-         * <p/>
-         * This is sent from a non UI thread.
-         * @param device the new device.
-         */
-        void deviceDisconnected(IDevice device);
-
-        /**
-         * Sent when a device data changed, or when clients are started/terminated on the device.
-         * <p/>
-         * This is sent from a non UI thread.
-         * @param device the device that was updated.
-         * @param changeMask the mask describing what changed. It can contain any of the following
-         * values: {@link IDevice#CHANGE_BUILD_INFO}, {@link IDevice#CHANGE_STATE},
-         * {@link IDevice#CHANGE_CLIENT_LIST}
-         */
-        void deviceChanged(IDevice device, int changeMask);
-    }
-
-    /**
-     * Classes which implement this interface provide methods that deal
-     * with {@link Client}  changes.
-     */
-    public interface IClientChangeListener {
-        /**
-         * Sent when an existing client information changed.
-         * <p/>
-         * This is sent from a non UI thread.
-         * @param client the updated client.
-         * @param changeMask the bit mask describing the changed properties. It can contain
-         * any of the following values: {@link Client#CHANGE_INFO},
-         * {@link Client#CHANGE_DEBUGGER_STATUS}, {@link Client#CHANGE_THREAD_MODE},
-         * {@link Client#CHANGE_THREAD_DATA}, {@link Client#CHANGE_HEAP_MODE},
-         * {@link Client#CHANGE_HEAP_DATA}, {@link Client#CHANGE_NATIVE_HEAP_DATA}
-         */
-        void clientChanged(Client client, int changeMask);
-    }
 
     /**
      * Initialized the library only if needed.
@@ -886,7 +824,7 @@ public final class AndroidDebugBridge {
     /**
      * Returns the {@link DeviceMonitor} object.
      */
-    DeviceMonitor getDeviceMonitor() {
+    public DeviceMonitor getDeviceMonitor() {
         return mDeviceMonitor;
     }
 

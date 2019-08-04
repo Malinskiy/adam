@@ -17,13 +17,13 @@
 package com.android.ddmlib.logcat;
 
 
-import com.android.ddmlib.AdbCommandRejectedException;
-import com.android.ddmlib.IDevice;
-import com.android.ddmlib.IShellOutputReceiver;
-import com.android.ddmlib.Log.LogLevel;
-import com.android.ddmlib.MultiLineReceiver;
-import com.android.ddmlib.ShellCommandUnresponsiveException;
-import com.android.ddmlib.TimeoutException;
+import com.android.ddmlib.exception.AdbCommandRejectedException;
+import com.android.ddmlib.model.IDevice;
+import com.android.ddmlib.receiver.IShellOutputReceiver;
+import com.android.ddmlib.logging.LogLevel;
+import com.android.ddmlib.receiver.MultiLineReceiver;
+import com.android.ddmlib.exception.ShellCommandUnresponsiveException;
+import com.android.ddmlib.exception.TimeoutException;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;

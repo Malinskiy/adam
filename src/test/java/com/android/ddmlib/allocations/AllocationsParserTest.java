@@ -15,13 +15,12 @@
  */
 package com.android.ddmlib.allocations;
 
-import com.android.ddmlib.AllocationInfo;
-import com.android.ddmlib.AllocationsParser;
+import com.android.ddmlib.model.allocation.AllocationInfo;
+import com.android.ddmlib.utils.AllocationsParser;
 import com.google.common.base.Charsets;
 import junit.framework.TestCase;
 
 import java.io.IOException;
-import java.net.URL;
 import java.nio.ByteBuffer;
 
 public class AllocationsParserTest extends TestCase {

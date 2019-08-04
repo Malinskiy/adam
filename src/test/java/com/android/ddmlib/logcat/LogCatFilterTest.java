@@ -15,9 +15,7 @@
  */
 package com.android.ddmlib.logcat;
 
-import com.android.ddmlib.Log.LogLevel;
-import com.android.ddmlib.logcat.LogCatFilter;
-import com.android.ddmlib.logcat.LogCatMessage;
+import com.android.ddmlib.logging.LogLevel;
 
 import java.util.List;
 

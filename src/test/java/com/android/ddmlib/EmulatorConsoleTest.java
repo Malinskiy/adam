@@ -15,6 +15,7 @@
  */
 package com.android.ddmlib;
 
+import com.android.ddmlib.emulator.EmulatorConsole;
 import junit.framework.TestCase;
 
 /**
