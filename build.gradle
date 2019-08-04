@@ -1,0 +1,24 @@
+apply plugin: 'java'
+apply plugin: 'jacoco'
+
+group = 'com.android.tools.ddms'
+archivesBaseName = 'ddmlib'
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    compile 'net.sf.kxml:kxml2:2.3.0'
+
+    testCompile 'org.easymock:easymock:3.1'
+    testCompile 'junit:junit:4.12'
+}
+
+sourceSets {
+    main.resources.srcDir 'src/main/java'
+    test.resources.srcDir 'src/test/java'
+}
+
+project.ext.pomName = 'Android Tools ddmlib'
+project.ext.pomDesc = 'Library providing APIs to talk to Android devices'
