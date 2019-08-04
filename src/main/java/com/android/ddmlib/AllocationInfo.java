@@ -16,9 +16,10 @@
 
 package com.android.ddmlib;
 
-import com.android.annotations.NonNull;
-import com.android.annotations.Nullable;
+
 import com.google.common.collect.Lists;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.Comparator;
@@ -47,7 +48,7 @@ public class AllocationInfo implements IStackTraceInfo {
         public AllocationSorter() {
         }
 
-        public void setSortMode(@NonNull SortMode mode) {
+        public void setSortMode(@NotNull SortMode mode) {
             if (mSortMode == mode) {
                 mDescending = !mDescending;
             } else {
@@ -55,12 +56,12 @@ public class AllocationInfo implements IStackTraceInfo {
             }
         }
 
-        public void setSortMode(@NonNull SortMode mode, boolean descending) {
+        public void setSortMode(@NotNull SortMode mode, boolean descending) {
           mSortMode = mode;
           mDescending = descending;
         }
 
-        @NonNull
+        @NotNull
         public SortMode getSortMode() {
             return mSortMode;
         }
@@ -219,12 +220,12 @@ public class AllocationInfo implements IStackTraceInfo {
         return allocatedClassMatches(filter, locale) || !getMatchingStackFrames(filter, fullTrace, locale).isEmpty();
     }
 
-    public boolean allocatedClassMatches(@NonNull String pattern, @NonNull Locale locale) {
+    public boolean allocatedClassMatches(@NotNull String pattern, @NotNull Locale locale) {
       return mAllocatedClass.toLowerCase(locale).contains(pattern.toLowerCase(locale));
     }
 
-    @NonNull
-    public List<String> getMatchingStackFrames(@NonNull String filter, boolean fullTrace, @NonNull Locale locale) {
+    @NotNull
+    public List<String> getMatchingStackFrames(@NotNull String filter, boolean fullTrace, @NotNull Locale locale) {
       filter = filter.toLowerCase(locale);
       // check the top of the stack trace always
       if (mStackTrace.length > 0) {

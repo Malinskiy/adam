@@ -16,10 +16,11 @@
 
 package com.android.ddmlib.logcat;
 
-import com.android.annotations.NonNull;
+
 import com.android.ddmlib.IDevice;
 import com.android.ddmlib.Log.LogLevel;
 import com.google.common.primitives.Ints;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -62,7 +63,7 @@ public final class LogCatMessageParser {
      * @param device device from which these log messages have been received
      * @return list of LogMessage objects parsed from the input
      */
-    @NonNull
+    @NotNull
     public List<LogCatMessage> processLogLines(String[] lines, IDevice device) {
         List<LogCatMessage> messages = new ArrayList<LogCatMessage>(lines.length);
 

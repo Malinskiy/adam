@@ -16,13 +16,14 @@
 
 package com.android.ddmlib.testrunner;
 
-import com.android.annotations.NonNull;
+
 import com.android.ddmlib.AdbCommandRejectedException;
 import com.android.ddmlib.IDevice;
 import com.android.ddmlib.IShellEnabledDevice;
 import com.android.ddmlib.Log;
 import com.android.ddmlib.ShellCommandUnresponsiveException;
 import com.android.ddmlib.TimeoutException;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -292,7 +293,8 @@ public class RemoteAndroidTestRunner implements IRemoteAndroidTestRunner  {
     /**
      * Returns options for the am instrument command.
      */
-    @NonNull public String getRunOptions() {
+    @NotNull
+    public String getRunOptions() {
         return mRunOptions;
     }
 
@@ -300,7 +302,7 @@ public class RemoteAndroidTestRunner implements IRemoteAndroidTestRunner  {
      * Sets options for the am instrument command.
      * See com/android/commands/am/Am.java for full list of options.
      */
-    public void setRunOptions(@NonNull String options) {
+    public void setRunOptions(@NotNull String options) {
         mRunOptions = options;
     }
 

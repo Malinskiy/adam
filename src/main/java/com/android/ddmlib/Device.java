@@ -16,11 +16,9 @@
 
 package com.android.ddmlib;
 
-import com.android.annotations.NonNull;
-import com.android.annotations.Nullable;
-import com.android.annotations.VisibleForTesting;
-import com.android.annotations.concurrency.GuardedBy;
+
 import com.android.ddmlib.log.LogReceiver;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
@@ -29,7 +27,10 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.Atomics;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
+import javax.annotation.concurrent.GuardedBy;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -169,7 +170,7 @@ final class Device implements IDevice {
      * (non-Javadoc)
      * @see com.android.ddmlib.IDevice#getSerialNumber()
      */
-    @NonNull
+    @NotNull
     @Override
     public String getSerialNumber() {
         return mSerialNumber;
@@ -350,14 +351,14 @@ final class Device implements IDevice {
         return null;
     }
 
-    @NonNull
+    @NotNull
     @Override
-    public Future<String> getSystemProperty(@NonNull String name) {
+    public Future<String> getSystemProperty(@NotNull String name) {
         return mPropFetcher.getProperty(name);
     }
 
     @Override
-    public boolean supportsFeature(@NonNull Feature feature) {
+    public boolean supportsFeature(@NotNull Feature feature) {
         switch (feature) {
             case SCREEN_RECORD:
                 if (getApiLevel() < 19) {
@@ -378,7 +379,7 @@ final class Device implements IDevice {
     // However, the smaller set of features we are interested in can be obtained by
     // reading the build characteristics property.
     @Override
-    public boolean supportsFeature(@NonNull HardwareFeature feature) {
+    public boolean supportsFeature(@NotNull HardwareFeature feature) {
         if (mHardwareCharacteristics == null) {
             try {
                 String characteristics = getProperty(PROP_BUILD_CHARACTERISTICS);
@@ -430,7 +431,7 @@ final class Device implements IDevice {
 
     @Nullable
     @Override
-    public String getMountPoint(@NonNull String name) {
+    public String getMountPoint(@NotNull String name) {
         String mount = mMountPoints.get(name);
         if (mount == null) {
             try {
@@ -446,7 +447,7 @@ final class Device implements IDevice {
     }
 
     @Nullable
-    private String queryMountPoint(@NonNull final String name)
+    private String queryMountPoint(@NotNull final String name)
             throws TimeoutException, AdbCommandRejectedException, ShellCommandUnresponsiveException,
             IOException {
 
@@ -554,9 +555,9 @@ final class Device implements IDevice {
         executeShellCommand(getScreenRecorderCommand(remoteFilePath, options), receiver, 0, null);
     }
 
-    @VisibleForTesting(visibility = VisibleForTesting.Visibility.PRIVATE)
-    static String getScreenRecorderCommand(@NonNull String remoteFilePath,
-            @NonNull ScreenRecorderOptions options) {
+    @VisibleForTesting
+    static String getScreenRecorderCommand(@NotNull String remoteFilePath,
+            @NotNull ScreenRecorderOptions options) {
         StringBuilder sb = new StringBuilder();
 
         sb.append("screenrecord");
@@ -738,7 +739,7 @@ final class Device implements IDevice {
     }
 
     /** Sets the socket channel on which a track-jdwp command for this device has been sent. */
-    void setClientMonitoringSocket(@NonNull SocketChannel socketChannel) {
+    void setClientMonitoringSocket(@NotNull SocketChannel socketChannel) {
         mSocketChannel = socketChannel;
     }
 
@@ -1008,7 +1009,7 @@ final class Device implements IDevice {
 
     @Nullable
     private String createMultiInstallSession(List<String> apkFileNames,
-            @NonNull Collection<String> extraArgs, boolean reinstall)
+            @NotNull Collection<String> extraArgs, boolean reinstall)
             throws TimeoutException, AdbCommandRejectedException, ShellCommandUnresponsiveException,
             IOException {
 
@@ -1234,19 +1235,19 @@ final class Device implements IDevice {
         }
     }
 
-    @NonNull
+    @NotNull
     @Override
     public Future<Integer> getBattery() {
         return getBattery(5, TimeUnit.MINUTES);
     }
 
-    @NonNull
+    @NotNull
     @Override
-    public Future<Integer> getBattery(long freshnessTime, @NonNull TimeUnit timeUnit) {
+    public Future<Integer> getBattery(long freshnessTime, @NotNull TimeUnit timeUnit) {
         return mBatteryFetcher.getBattery(freshnessTime, timeUnit);
     }
 
-    @NonNull
+    @NotNull
     @Override
     public List<String> getAbis() {
         /* Try abiList (implemented in L onwards) otherwise fall back to abi and abi2. */

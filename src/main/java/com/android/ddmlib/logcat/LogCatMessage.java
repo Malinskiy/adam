@@ -16,8 +16,9 @@
 
 package com.android.ddmlib.logcat;
 
-import com.android.annotations.NonNull;
+
 import com.android.ddmlib.Log.LogLevel;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Model a single log message output from {@code logcat -v long}.
@@ -37,9 +38,9 @@ public final class LogCatMessage {
     /**
      * Construct an immutable log message object.
      */
-    public LogCatMessage(@NonNull LogLevel logLevel, @NonNull String pid, @NonNull String tid,
-            @NonNull String appName, @NonNull String tag,
-            @NonNull String time, @NonNull String msg) {
+    public LogCatMessage(@NotNull LogLevel logLevel, @NotNull String pid, @NotNull String tid,
+            @NotNull String appName, @NotNull String tag,
+            @NotNull String time, @NotNull String msg) {
         mLogLevel = logLevel;
         mPid = pid;
         mAppName = appName;
@@ -59,37 +60,37 @@ public final class LogCatMessage {
         mTid = Long.toString(tidValue);
     }
 
-    @NonNull
+    @NotNull
     public LogLevel getLogLevel() {
         return mLogLevel;
     }
 
-    @NonNull
+    @NotNull
     public String getPid() {
         return mPid;
     }
 
-    @NonNull
+    @NotNull
     public String getTid() {
         return mTid;
     }
 
-    @NonNull
+    @NotNull
     public String getAppName() {
         return mAppName;
     }
 
-    @NonNull
+    @NotNull
     public String getTag() {
         return mTag;
     }
 
-    @NonNull
+    @NotNull
     public String getTime() {
         return mTime;
     }
 
-    @NonNull
+    @NotNull
     public String getMessage() {
         return mMessage;
     }

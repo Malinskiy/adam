@@ -16,9 +16,9 @@
 
 package com.android.ddmlib;
 
-import com.android.annotations.NonNull;
 import com.android.ddmlib.DebugPortManager.IDebugPortProvider;
 import com.android.ddmlib.AndroidDebugBridge.IClientChangeListener;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.nio.BufferOverflowException;
@@ -215,7 +215,7 @@ public class Client {
     /**
      * Returns the {@link ClientData} object containing this client information.
      */
-    @NonNull
+    @NotNull
     public ClientData getClientData() {
         return mClientData;
     }

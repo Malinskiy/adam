@@ -16,8 +16,8 @@
 
 package com.android.ddmlib;
 
-import com.android.annotations.Nullable;
 import com.android.ddmlib.log.LogReceiver;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -435,7 +435,7 @@ final class AdbHelper {
             String command, IDevice device, IShellOutputReceiver rcvr, long maxTimeToOutputResponse,
             TimeUnit maxTimeUnits,
             @Nullable InputStream is) throws TimeoutException, AdbCommandRejectedException,
-            ShellCommandUnresponsiveException, IOException {
+                                             ShellCommandUnresponsiveException, IOException {
 
         long maxTimeToOutputMs = 0;
         if (maxTimeToOutputResponse > 0) {

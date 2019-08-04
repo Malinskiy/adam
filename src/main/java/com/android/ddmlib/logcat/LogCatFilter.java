@@ -15,8 +15,9 @@
  */
 package com.android.ddmlib.logcat;
 
-import com.android.annotations.NonNull;
+
 import com.android.ddmlib.Log.LogLevel;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -62,8 +63,8 @@ public final class LogCatFilter {
      * @param logLevel value for the logcat message's log level. Only messages of
      * higher priority will be accepted by the filter.
      */
-    public LogCatFilter(@NonNull String name, @NonNull String tag, @NonNull String text,
-            @NonNull String pid, @NonNull String appName, @NonNull LogLevel logLevel) {
+    public LogCatFilter(@NotNull String name, @NotNull String tag, @NotNull String text,
+            @NotNull String pid, @NotNull String appName, @NotNull LogLevel logLevel) {
         mName = name.trim();
         mTag = tag.trim();
         mText = text.trim();
@@ -156,32 +157,32 @@ public final class LogCatFilter {
         return filterSettings;
     }
 
-    @NonNull
+    @NotNull
     public String getName() {
         return mName;
     }
 
-    @NonNull
+    @NotNull
     public String getTag() {
         return mTag;
     }
 
-    @NonNull
+    @NotNull
     public String getText() {
         return mText;
     }
 
-    @NonNull
+    @NotNull
     public String getPid() {
         return mPid;
     }
 
-    @NonNull
+    @NotNull
     public String getAppName() {
         return mAppName;
     }
 
-    @NonNull
+    @NotNull
     public LogLevel getLogLevel() {
         return mLogLevel;
     }

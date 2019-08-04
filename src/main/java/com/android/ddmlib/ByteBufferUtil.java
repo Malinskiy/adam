@@ -15,7 +15,9 @@
  */
 package com.android.ddmlib;
 
-import com.android.annotations.NonNull;
+
+
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -27,8 +29,8 @@ import java.nio.channels.FileChannel;
 
 public class ByteBufferUtil {
 
-  @NonNull
-  public static ByteBuffer mapFile(@NonNull File f, long offset, @NonNull ByteOrder byteOrder) throws IOException {
+  @NotNull
+  public static ByteBuffer mapFile(@NotNull File f, long offset, @NotNull ByteOrder byteOrder) throws IOException {
     FileInputStream dataFile = new FileInputStream(f);
     try {
       FileChannel fc = dataFile.getChannel();
@@ -40,15 +42,15 @@ public class ByteBufferUtil {
     }
   }
 
-  @NonNull
-  public static String getString(@NonNull ByteBuffer buf, int len) {
+  @NotNull
+  public static String getString(@NotNull ByteBuffer buf, int len) {
       char[] data = new char[len];
       for (int i = 0; i < len; i++)
           data[i] = buf.getChar();
       return new String(data);
   }
 
-  public static void putString(@NonNull ByteBuffer buf, @NonNull String str) {
+  public static void putString(@NotNull ByteBuffer buf, @NotNull String str) {
       int len = str.length();
       for (int i = 0; i < len; i++)
           buf.putChar(str.charAt(i));

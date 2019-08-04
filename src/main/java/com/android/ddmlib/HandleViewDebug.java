@@ -16,8 +16,9 @@
 
 package com.android.ddmlib;
 
-import com.android.annotations.NonNull;
-import com.android.annotations.Nullable;
+
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -137,8 +138,8 @@ public final class HandleViewDebug extends ChunkHandler {
         client.sendAndConsume(packet, replyHandler);
     }
 
-    public static void dumpViewHierarchy(@NonNull Client client, @NonNull String viewRoot,
-            boolean skipChildren, boolean includeProperties, @NonNull ViewDumpHandler handler)
+    public static void dumpViewHierarchy(@NotNull Client client, @NotNull String viewRoot,
+            boolean skipChildren, boolean includeProperties, @NotNull ViewDumpHandler handler)
                     throws IOException {
         ByteBuffer buf = allocBuffer(4      // opcode
                 + 4                         // view root length
@@ -158,8 +159,8 @@ public final class HandleViewDebug extends ChunkHandler {
         client.sendAndConsume(packet, handler);
     }
 
-    public static void captureLayers(@NonNull Client client, @NonNull String viewRoot,
-            @NonNull ViewDumpHandler handler) throws IOException {
+    public static void captureLayers(@NotNull Client client, @NotNull String viewRoot,
+            @NotNull ViewDumpHandler handler) throws IOException {
         int bufLen = 8 + viewRoot.length() * 2;
 
         ByteBuffer buf = allocBuffer(bufLen);
@@ -174,8 +175,8 @@ public final class HandleViewDebug extends ChunkHandler {
         client.sendAndConsume(packet, handler);
     }
 
-    private static void sendViewOpPacket(@NonNull Client client, int op, @NonNull String viewRoot,
-            @NonNull String view, @Nullable byte[] extra, @Nullable ViewDumpHandler handler)
+    private static void sendViewOpPacket(@NotNull Client client, int op, @NotNull String viewRoot,
+            @NotNull String view, @Nullable byte[] extra, @Nullable ViewDumpHandler handler)
                     throws IOException {
         int bufLen = 4 +                        // opcode
                 4 + viewRoot.length() * 2 +     // view root strlen + view root
@@ -208,34 +209,34 @@ public final class HandleViewDebug extends ChunkHandler {
         }
     }
 
-    public static void profileView(@NonNull Client client, @NonNull String viewRoot,
-            @NonNull String view, @NonNull ViewDumpHandler handler) throws IOException {
+    public static void profileView(@NotNull Client client, @NotNull String viewRoot,
+            @NotNull String view, @NotNull ViewDumpHandler handler) throws IOException {
         sendViewOpPacket(client, VUOP_PROFILE_VIEW, viewRoot, view, null, handler);
     }
 
-    public static void captureView(@NonNull Client client, @NonNull String viewRoot,
-            @NonNull String view, @NonNull ViewDumpHandler handler) throws IOException {
+    public static void captureView(@NotNull Client client, @NotNull String viewRoot,
+            @NotNull String view, @NotNull ViewDumpHandler handler) throws IOException {
         sendViewOpPacket(client, VUOP_CAPTURE_VIEW, viewRoot, view, null, handler);
     }
 
-    public static void invalidateView(@NonNull Client client, @NonNull String viewRoot,
-            @NonNull String view) throws IOException {
+    public static void invalidateView(@NotNull Client client, @NotNull String viewRoot,
+            @NotNull String view) throws IOException {
         invokeMethod(client, viewRoot, view, "invalidate");
     }
 
-    public static void requestLayout(@NonNull Client client, @NonNull String viewRoot,
-            @NonNull String view) throws IOException {
+    public static void requestLayout(@NotNull Client client, @NotNull String viewRoot,
+            @NotNull String view) throws IOException {
         invokeMethod(client, viewRoot, view, "requestLayout");
     }
 
-    public static void dumpDisplayList(@NonNull Client client, @NonNull String viewRoot,
-            @NonNull String view) throws IOException {
+    public static void dumpDisplayList(@NotNull Client client, @NotNull String viewRoot,
+            @NotNull String view) throws IOException {
         sendViewOpPacket(client, VUOP_DUMP_DISPLAYLIST, viewRoot, view, null,
                 sViewOpNullChunkHandler);
     }
 
-    public static void dumpTheme(@NonNull Client client, @NonNull String viewRoot,
-            @NonNull ViewDumpHandler handler)
+    public static void dumpTheme(@NotNull Client client, @NotNull String viewRoot,
+            @NotNull ViewDumpHandler handler)
             throws IOException {
         ByteBuffer buf = allocBuffer(4      // opcode
                 + 4                         // view root length
@@ -262,8 +263,8 @@ public final class HandleViewDebug extends ChunkHandler {
         }
     }
 
-    public static void invokeMethod(@NonNull Client client, @NonNull String viewRoot,
-            @NonNull String view, @NonNull String method, Object... args) throws IOException {
+    public static void invokeMethod(@NotNull Client client, @NotNull String viewRoot,
+            @NotNull String view, @NotNull String method, Object... args) throws IOException {
         int len = 4 + method.length() * 2;
         if (args != null) {
             // # of args
@@ -320,8 +321,8 @@ public final class HandleViewDebug extends ChunkHandler {
                 sViewOpNullChunkHandler );
     }
 
-    public static void setLayoutParameter(@NonNull Client client, @NonNull String viewRoot,
-            @NonNull String view, @NonNull String parameter, int value) throws IOException {
+    public static void setLayoutParameter(@NotNull Client client, @NotNull String viewRoot,
+            @NotNull String view, @NotNull String parameter, int value) throws IOException {
         int len = 4 + parameter.length() * 2 + 4;
         byte[] extra = new byte[len];
         ByteBuffer b = ByteBuffer.wrap(extra);

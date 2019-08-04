@@ -16,7 +16,9 @@
 
 package com.android.ddmlib;
 
-import com.android.annotations.NonNull;
+
+
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.util.concurrent.Future;
@@ -73,6 +75,6 @@ public interface IShellEnabledDevice {
      * @return a {@link java.util.concurrent.Future} which can be used to retrieve value of property. Future#get() can
      *         return null if property can not be retrieved.
      */
-    @NonNull
-    Future<String> getSystemProperty(@NonNull String name);
+    @NotNull
+    Future<String> getSystemProperty(@NotNull String name);
 }

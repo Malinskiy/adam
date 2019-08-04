@@ -15,10 +15,11 @@
  */
 package com.android.ddmlib;
 
-import com.android.annotations.NonNull;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.SettableFuture;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 import java.util.concurrent.Future;
@@ -107,8 +108,8 @@ class PropertyFetcher {
      * @param name the property name to retrieve
      * @return a {@link Future} that can be used to retrieve the prop value
      */
-    @NonNull
-    public synchronized Future<String> getProperty(@NonNull String name) {
+    @NotNull
+    public synchronized Future<String> getProperty(@NotNull String name) {
         SettableFuture<String> result;
         if (mCacheState.equals(CacheState.FETCHING)) {
             result = addPendingRequest(name);
@@ -153,7 +154,7 @@ class PropertyFetcher {
         propThread.start();
     }
 
-    private synchronized void populateCache(@NonNull Map<String, String> props) {
+    private synchronized void populateCache(@NotNull Map<String, String> props) {
         mCacheState = props.isEmpty() ? CacheState.UNPOPULATED : CacheState.POPULATED;
         if (!props.isEmpty()) {
             mProperties.putAll(props);
@@ -186,7 +187,7 @@ class PropertyFetcher {
         return CacheState.POPULATED.equals(mCacheState);
     }
 
-    private static boolean isRoProp(@NonNull String propName) {
+    private static boolean isRoProp(@NotNull String propName) {
         return propName.startsWith("ro.");
     }
 }

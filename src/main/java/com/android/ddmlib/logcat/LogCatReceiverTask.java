@@ -16,8 +16,7 @@
 
 package com.android.ddmlib.logcat;
 
-import com.android.annotations.NonNull;
-import com.android.annotations.concurrency.GuardedBy;
+
 import com.android.ddmlib.AdbCommandRejectedException;
 import com.android.ddmlib.IDevice;
 import com.android.ddmlib.IShellOutputReceiver;
@@ -25,6 +24,7 @@ import com.android.ddmlib.Log.LogLevel;
 import com.android.ddmlib.MultiLineReceiver;
 import com.android.ddmlib.ShellCommandUnresponsiveException;
 import com.android.ddmlib.TimeoutException;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -49,10 +49,9 @@ public class LogCatReceiverTask implements Runnable {
     private final LogCatMessageParser mParser;
     private final AtomicBoolean mCancelled;
 
-    @GuardedBy("this")
     private final Set<LogCatListener> mListeners = new HashSet<LogCatListener>();
 
-    public LogCatReceiverTask(@NonNull IDevice device) {
+    public LogCatReceiverTask(@NotNull IDevice device) {
         mDevice = device;
 
         mReceiver = new LogCatOutputReceiver();

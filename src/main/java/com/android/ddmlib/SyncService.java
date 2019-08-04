@@ -16,12 +16,13 @@
 
 package com.android.ddmlib;
 
-import com.android.annotations.NonNull;
-import com.android.annotations.Nullable;
+
 import com.android.ddmlib.AdbHelper.AdbResponse;
 import com.android.ddmlib.FileListingService.FileEntry;
 import com.android.ddmlib.SyncException.SyncError;
 import com.android.ddmlib.utils.ArrayHelper;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -761,7 +762,7 @@ public class SyncService {
      * @throws TimeoutException in case of a timeout reading responses from the device.
      */
     @Nullable
-    public FileStat statFile(@NonNull String path) throws TimeoutException, IOException {
+    public FileStat statFile(@NotNull String path) throws TimeoutException, IOException {
         // create the stat request message.
         byte[] msg = createFileReq(ID_STAT, path);
 

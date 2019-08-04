@@ -16,12 +16,13 @@
 
 package com.android.ddmlib;
 
-import com.android.annotations.NonNull;
+
 
 import junit.framework.TestCase;
 
 import org.easymock.EasyMock;
 import org.easymock.IAnswer;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.TimeUnit;
 
@@ -66,7 +67,7 @@ public class DeviceTest extends TestCase {
     }
 
     /** Helper method that sets the mock device to throw the given exception on a shell command */
-    static void injectShellExceptionResponse(@NonNull IDevice mockDevice, @NonNull Exception e)
+    static void injectShellExceptionResponse(@NotNull IDevice mockDevice, @NotNull Exception e)
             throws Exception {
         mockDevice.executeShellCommand(EasyMock.<String>anyObject(),
                 EasyMock.<IShellOutputReceiver>anyObject(),

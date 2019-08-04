@@ -16,19 +16,20 @@
 
 package com.android.ddmlib;
 
-import com.android.annotations.NonNull;
-import com.android.annotations.Nullable;
-import com.android.annotations.VisibleForTesting;
+
 import com.android.ddmlib.AdbHelper.AdbResponse;
 import com.android.ddmlib.ClientData.DebuggerStatus;
 import com.android.ddmlib.DebugPortManager.IDebugPortProvider;
 import com.android.ddmlib.IDevice.DeviceState;
 import com.android.ddmlib.utils.DebuggerPorts;
-import com.android.utils.Pair;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Queues;
 import com.google.common.util.concurrent.Uninterruptibles;
+import kotlin.Pair;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -86,7 +87,7 @@ final class DeviceMonitor {
      * {@link AndroidDebugBridge} object.
      * @param server the running {@link AndroidDebugBridge}.
      */
-    DeviceMonitor(@NonNull AndroidDebugBridge server) {
+    DeviceMonitor(@NotNull AndroidDebugBridge server) {
         mServer = server;
     }
 
@@ -137,7 +138,8 @@ final class DeviceMonitor {
     /**
      * Returns the devices.
      */
-    @NonNull Device[] getDevices() {
+    @NotNull
+    Device[] getDevices() {
         // Since this is a copy of write array list, we don't want to do a compound operation
         // (toArray with an appropriate size) without locking, so we just let the container provide
         // an appropriately sized array
@@ -145,7 +147,7 @@ final class DeviceMonitor {
         return mDevices.toArray(new Device[0]);
     }
 
-    @NonNull
+    @NotNull
     AndroidDebugBridge getServer() {
         return mServer;
     }
@@ -179,7 +181,7 @@ final class DeviceMonitor {
     /**
      * Updates the device list with the new items received from the monitoring service.
      */
-    private void updateDevices(@NonNull List<Device> newList) {
+    private void updateDevices(@NotNull List<Device> newList) {
         DeviceListComparisonResult result = DeviceListComparisonResult.compare(mDevices, newList);
         for (IDevice device : result.removed) {
             removeDevice((Device) device);
@@ -220,7 +222,7 @@ final class DeviceMonitor {
         }
     }
 
-    private void removeDevice(@NonNull Device device) {
+    private void removeDevice(@NotNull Device device) {
         device.clearClientList();
         mDevices.remove(device);
 
@@ -234,7 +236,7 @@ final class DeviceMonitor {
         }
     }
 
-    private static void queryAvdName(@NonNull Device device) {
+    private static void queryAvdName(@NotNull Device device) {
         if (!device.isEmulator()) {
             return;
         }
@@ -251,7 +253,7 @@ final class DeviceMonitor {
      * @param device the device to monitor.
      * @return true if success.
      */
-    private boolean startMonitoringDevice(@NonNull Device device) {
+    private boolean startMonitoringDevice(@NotNull Device device) {
         SocketChannel socketChannel = openAdbConnection();
 
         if (socketChannel != null) {
@@ -268,7 +270,7 @@ final class DeviceMonitor {
                     socketChannel.configureBlocking(false);
 
                     try {
-                        mChannelsToRegister.put(Pair.of(socketChannel, device));
+                        mChannelsToRegister.put(new Pair(socketChannel, device));
                     } catch (InterruptedException e) {
                         // the queue is unbounded, and isn't going to block
                     }
@@ -418,8 +420,8 @@ final class DeviceMonitor {
         } while (!mQuit);
     }
 
-    private static boolean sendDeviceMonitoringRequest(@NonNull SocketChannel socket,
-            @NonNull Device device)
+    private static boolean sendDeviceMonitoringRequest(@NotNull SocketChannel socket,
+            @NotNull Device device)
             throws TimeoutException, AdbCommandRejectedException, IOException {
 
         try {
@@ -442,8 +444,8 @@ final class DeviceMonitor {
         }
     }
 
-    private void processIncomingJdwpData(@NonNull Device device,
-            @NonNull SocketChannel monitorSocket, int length) throws IOException {
+    private void processIncomingJdwpData(@NotNull Device device,
+            @NotNull SocketChannel monitorSocket, int length) throws IOException {
 
         // This methods reads @length bytes from the @monitorSocket channel.
         // These bytes correspond to the pids of the current set of processes on the device.
@@ -508,8 +510,8 @@ final class DeviceMonitor {
     }
 
     /** Opens and creates a new client. */
-    private static void openClient(@NonNull Device device, int pid, int port,
-            @NonNull MonitorThread monitorThread) {
+    private static void openClient(@NotNull Device device, int pid, int port,
+            @NotNull MonitorThread monitorThread) {
 
         SocketChannel clientSocket;
         try {
@@ -540,8 +542,8 @@ final class DeviceMonitor {
     }
 
     /** Creates a client and register it to the monitor thread */
-    private static void createClient(@NonNull Device device, int pid, @NonNull SocketChannel socket,
-            int debuggerPort, @NonNull MonitorThread monitorThread) {
+    private static void createClient(@NotNull Device device, int pid, @NotNull SocketChannel socket,
+            int debuggerPort, @NotNull MonitorThread monitorThread) {
 
         /*
          * Successfully connected to something. Create a Client object, add
@@ -592,7 +594,7 @@ final class DeviceMonitor {
      * @return the length, or 0 (zero) if no data is available from the socket.
      * @throws IOException if the connection failed.
      */
-    private static int readLength(@NonNull SocketChannel socket, @NonNull byte[] buffer)
+    private static int readLength(@NotNull SocketChannel socket, @NotNull byte[] buffer)
             throws IOException {
         String msg = read(socket, buffer);
 
@@ -614,7 +616,7 @@ final class DeviceMonitor {
      * @throws IOException if there was not enough data to fill the buffer
      */
     @Nullable
-    private static String read(@NonNull SocketChannel socket, @NonNull byte[] buffer)
+    private static String read(@NotNull SocketChannel socket, @NotNull byte[] buffer)
             throws IOException {
         ByteBuffer buf = ByteBuffer.wrap(buffer, 0, buffer.length);
 
@@ -636,7 +638,7 @@ final class DeviceMonitor {
 
     private class DeviceListUpdateListener implements DeviceListMonitorTask.UpdateListener {
         @Override
-        public void connectionError(@NonNull Exception e) {
+        public void connectionError(@NotNull Exception e) {
             for (Device device : mDevices) {
                 removeDevice(device);
                 mServer.deviceDisconnected(device);
@@ -644,7 +646,7 @@ final class DeviceMonitor {
         }
 
         @Override
-        public void deviceListUpdate(@NonNull Map<String, DeviceState> devices) {
+        public void deviceListUpdate(@NotNull Map<String, DeviceState> devices) {
             List<Device> l = Lists.newArrayListWithExpectedSize(devices.size());
             for (Map.Entry<String, DeviceState> entry : devices.entrySet()) {
                 l.add(new Device(DeviceMonitor.this, entry.getKey(), entry.getValue()));
@@ -656,21 +658,21 @@ final class DeviceMonitor {
 
     @VisibleForTesting
     static class DeviceListComparisonResult {
-        @NonNull public final Map<IDevice,DeviceState> updated;
-        @NonNull public final List<IDevice> added;
-        @NonNull public final List<IDevice> removed;
+        @NotNull public final Map<IDevice,DeviceState> updated;
+        @NotNull public final List<IDevice> added;
+        @NotNull public final List<IDevice> removed;
 
-        private DeviceListComparisonResult(@NonNull Map<IDevice,DeviceState> updated,
-                @NonNull List<IDevice> added,
-                @NonNull List<IDevice> removed) {
+        private DeviceListComparisonResult(@NotNull Map<IDevice,DeviceState> updated,
+                @NotNull List<IDevice> added,
+                @NotNull List<IDevice> removed) {
             this.updated = updated;
             this.added = added;
             this.removed = removed;
         }
 
-        @NonNull
-        public static DeviceListComparisonResult compare(@NonNull List<? extends IDevice> previous,
-                @NonNull List<? extends IDevice> current) {
+        @NotNull
+        public static DeviceListComparisonResult compare(@NotNull List<? extends IDevice> previous,
+                @NotNull List<? extends IDevice> current) {
             current = Lists.newArrayList(current);
 
             final Map<IDevice,DeviceState> updated = Maps.newHashMapWithExpectedSize(current.size());
@@ -695,8 +697,8 @@ final class DeviceMonitor {
         }
 
         @Nullable
-        private static IDevice find(@NonNull List<? extends IDevice> devices,
-                @NonNull IDevice device) {
+        private static IDevice find(@NotNull List<? extends IDevice> devices,
+                @NotNull IDevice device) {
             for (IDevice d : devices) {
                 if (d.getSerialNumber().equals(device.getSerialNumber())) {
                     return d;
@@ -723,12 +725,12 @@ final class DeviceMonitor {
         private volatile boolean mQuit;
 
         private interface UpdateListener {
-            void connectionError(@NonNull Exception e);
-            void deviceListUpdate(@NonNull Map<String,DeviceState> devices);
+            void connectionError(@NotNull Exception e);
+            void deviceListUpdate(@NotNull Map<String,DeviceState> devices);
         }
 
-        public DeviceListMonitorTask(@NonNull AndroidDebugBridge bridge,
-                @NonNull UpdateListener listener) {
+        public DeviceListMonitorTask(@NotNull AndroidDebugBridge bridge,
+                @NotNull UpdateListener listener) {
             mBridge = bridge;
             mListener = listener;
         }
@@ -804,7 +806,7 @@ final class DeviceMonitor {
             }
         }
 
-        private void handleExceptionInMonitorLoop(@NonNull Exception e) {
+        private void handleExceptionInMonitorLoop(@NotNull Exception e) {
             if (!mQuit) {
                 if (e instanceof TimeoutException) {
                     Log.e("DeviceMonitor", "Adb connection Error: timeout");

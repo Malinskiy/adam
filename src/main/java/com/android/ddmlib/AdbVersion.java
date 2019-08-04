@@ -15,7 +15,9 @@
  */
 package com.android.ddmlib;
 
-import com.android.annotations.NonNull;
+
+
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Locale;
 import java.util.regex.Matcher;
@@ -56,8 +58,8 @@ public class AdbVersion implements Comparable<AdbVersion> {
         return micro - o.micro;
     }
 
-    @NonNull
-    public static AdbVersion parseFrom(@NonNull String input) {
+    @NotNull
+    public static AdbVersion parseFrom(@NotNull String input) {
         Matcher matcher = ADB_VERSION_PATTERN.matcher(input);
         if (matcher.matches()) {
             int major = Integer.parseInt(matcher.group(1));

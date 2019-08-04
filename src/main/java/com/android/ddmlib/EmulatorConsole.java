@@ -16,9 +16,9 @@
 
 package com.android.ddmlib;
 
-import com.android.annotations.NonNull;
-import com.android.annotations.Nullable;
-import com.android.annotations.concurrency.GuardedBy;
+
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -172,7 +172,6 @@ public final class EmulatorConsole {
     private static final Pattern sMinLatencyRegexp = Pattern.compile(
             "\\s+minimum\\s+latency:\\s+(\\d+)\\s+ms", Pattern.CASE_INSENSITIVE); //$NON-NLS-1$
 
-    @GuardedBy(value = "sEmulators")
     private static final HashMap<Integer, EmulatorConsole> sEmulators =
         new HashMap<Integer, EmulatorConsole>();
 
@@ -257,7 +256,7 @@ public final class EmulatorConsole {
     /**
      * Retrieve a console object for this port, creating if necessary.
      */
-    @NonNull
+    @NotNull
     private static EmulatorConsole retrieveConsole(int port) {
         synchronized (sEmulators) {
             EmulatorConsole console = sEmulators.get(port);

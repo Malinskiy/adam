@@ -15,7 +15,9 @@
  */
 package com.android.ddmlib;
 
-import com.android.annotations.NonNull;
+
+
+import org.jetbrains.annotations.NotNull;
 
 import java.nio.ByteBuffer;
 
@@ -112,8 +114,8 @@ public class AllocationsParser {
    *   As with other DDM traffic, strings are sent as a 4-byte length
    *   followed by UTF-16 data.
   */
-  @NonNull
-  public static AllocationInfo[] parse(@NonNull ByteBuffer data) {
+  @NotNull
+  public static AllocationInfo[] parse(@NotNull ByteBuffer data) {
     int messageHdrLen, entryHdrLen, stackFrameLen;
     int numEntries, offsetToStrings;
     int numClassNames, numMethodNames, numFileNames;

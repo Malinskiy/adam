@@ -16,21 +16,16 @@
 
 package com.android.ddmlib.testrunner;
 
-import com.android.SdkConstants;
-import com.android.annotations.NonNull;
+
 import com.android.ddmlib.Log;
 import com.android.ddmlib.Log.LogLevel;
 import com.android.ddmlib.testrunner.TestResult.TestStatus;
+import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Maps;
-
+import org.jetbrains.annotations.NotNull;
 import org.kxml2.io.KXmlSerializer;
 
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -159,8 +154,8 @@ public class XmlTestRunListener implements ITestRunListener {
         try {
             stream = createOutputResultStream(reportDir);
             KXmlSerializer serializer = new KXmlSerializer();
-            serializer.setOutput(stream, SdkConstants.UTF_8);
-            serializer.startDocument(SdkConstants.UTF_8, null);
+            serializer.setOutput(stream, Charsets.UTF_8.name());
+            serializer.startDocument(Charsets.UTF_8.name(), null);
             serializer.setFeature(
                     "http://xmlpull.org/v1/doc/features.html#indent-output", true);
             // TODO: insert build info
@@ -266,7 +261,7 @@ public class XmlTestRunListener implements ITestRunListener {
     /**
      * Get the properties attributes as key value pairs to be included in the test report.
      */
-    @NonNull
+    @NotNull
     protected Map<String, String> getPropertiesAttributes() {
         return  ImmutableMap.of();
     }

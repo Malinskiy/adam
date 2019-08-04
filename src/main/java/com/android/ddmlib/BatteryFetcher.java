@@ -15,8 +15,8 @@
  */
 package com.android.ddmlib;
 
-import com.android.annotations.Nullable;
 import com.google.common.util.concurrent.SettableFuture;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.util.concurrent.Future;

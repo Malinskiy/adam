@@ -16,9 +16,10 @@
 
 package com.android.ddmlib;
 
-import com.android.annotations.NonNull;
-import com.android.annotations.Nullable;
+
 import com.android.ddmlib.HeapSegment.HeapSegmentElement;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
@@ -341,13 +342,13 @@ public class ClientData {
         public final String filename;
         public final byte[] data;
 
-        public HprofData(@NonNull String filename) {
+        public HprofData(@NotNull String filename) {
             type = Type.FILE;
             this.filename = filename;
             this.data = null;
         }
 
-        public HprofData(@NonNull byte[] data) {
+        public HprofData(@NotNull byte[] data) {
             type = Type.DATA;
             this.data = data;
             this.filename = null;
@@ -424,7 +425,7 @@ public class ClientData {
        *             See {@link AllocationsParser#parse(java.nio.ByteBuffer)} for parsing this data.
        * @param client the client for which allocations were tracked.
        */
-      void onSuccess(@NonNull byte[] data, @NonNull Client client);
+      void onSuccess(@NotNull byte[] data, @NotNull Client client);
     }
 
     public void setHprofData(byte[] data) {
@@ -469,7 +470,7 @@ public class ClientData {
         return sMethodProfilingHandler;
     }
 
-    public static void setAllocationTrackingHandler(@NonNull IAllocationTrackingHandler handler) {
+    public static void setAllocationTrackingHandler(@NotNull IAllocationTrackingHandler handler) {
       sAllocationTrackingHandler = handler;
     }
 

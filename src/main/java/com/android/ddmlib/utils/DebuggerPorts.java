@@ -15,13 +15,10 @@
  */
 package com.android.ddmlib.utils;
 
-import com.android.annotations.concurrency.GuardedBy;
-
 import java.util.ArrayList;
 import java.util.List;
 
 public class DebuggerPorts {
-    @GuardedBy("mDebuggerPorts")
     private final List<Integer> mDebuggerPorts = new ArrayList<Integer>();
 
     public DebuggerPorts(int basePort) {

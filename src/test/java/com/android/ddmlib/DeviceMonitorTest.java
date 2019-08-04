@@ -15,11 +15,10 @@
  */
 package com.android.ddmlib;
 
-import com.android.annotations.NonNull;
 
 import junit.framework.TestCase;
-
 import org.easymock.EasyMock;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.List;
@@ -57,7 +56,7 @@ public class DeviceMonitorTest extends TestCase {
         assertEquals("3", result.added.get(0).getSerialNumber());
     }
 
-    private IDevice mockDevice(@NonNull String serial, @NonNull IDevice.DeviceState state) {
+    private IDevice mockDevice(@NotNull String serial, @NotNull IDevice.DeviceState state) {
         IDevice device = EasyMock.createMock(IDevice.class);
         EasyMock.expect(device.getSerialNumber()).andStubReturn(serial);
         EasyMock.expect(device.getState()).andStubReturn(state);

@@ -16,9 +16,10 @@
 
 package com.android.ddmlib;
 
-import com.android.annotations.NonNull;
-import com.android.annotations.Nullable;
+
 import com.android.ddmlib.log.LogReceiver;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.util.List;
@@ -141,7 +142,7 @@ public interface IDevice extends IShellEnabledDevice {
     }
 
     /** Returns the serial number of the device. */
-    @NonNull
+    @NotNull
     String getSerialNumber();
 
     /**
@@ -184,7 +185,7 @@ public interface IDevice extends IShellEnabledDevice {
      * @return the value or <code>null</code> if the property value was not immediately available
      */
     @Nullable
-    String getProperty(@NonNull String name);
+    String getProperty(@NotNull String name);
 
     /**
      * Returns <code>true></code> if properties have been cached
@@ -228,10 +229,10 @@ public interface IDevice extends IShellEnabledDevice {
             AdbCommandRejectedException, ShellCommandUnresponsiveException, IOException;
 
     /** Returns whether this device supports the given software feature. */
-    boolean supportsFeature(@NonNull Feature feature);
+    boolean supportsFeature(@NotNull Feature feature);
 
     /** Returns whether this device supports the given hardware feature. */
-    boolean supportsFeature(@NonNull HardwareFeature feature);
+    boolean supportsFeature(@NotNull HardwareFeature feature);
 
     /**
      * Returns a mount point.
@@ -243,7 +244,7 @@ public interface IDevice extends IShellEnabledDevice {
      * @see #MNT_DATA
      */
     @Nullable
-    String getMountPoint(@NonNull String name);
+    String getMountPoint(@NotNull String name);
 
     /**
      * Returns if the device is ready.
@@ -324,8 +325,8 @@ public interface IDevice extends IShellEnabledDevice {
     /**
      * Initiates screen recording on the device if the device supports {@link Feature#SCREEN_RECORD}.
      */
-    void startScreenRecorder(@NonNull String remoteFilePath,
-            @NonNull ScreenRecorderOptions options, @NonNull IShellOutputReceiver receiver) throws
+    void startScreenRecorder(@NotNull String remoteFilePath,
+            @NotNull ScreenRecorderOptions options, @NotNull IShellOutputReceiver receiver) throws
             TimeoutException, AdbCommandRejectedException, IOException,
             ShellCommandUnresponsiveException;
 
@@ -589,7 +590,7 @@ public interface IDevice extends IShellEnabledDevice {
      * @return a {@link Future} that can be used to query the battery level. The Future will return
      * a {@link ExecutionException} if battery level could not be retrieved.
      */
-    @NonNull
+    @NotNull
     Future<Integer> getBattery();
 
     /**
@@ -603,8 +604,8 @@ public interface IDevice extends IShellEnabledDevice {
      * @return a {@link Future} that can be used to query the battery level. The Future will return
      * a {@link ExecutionException} if battery level could not be retrieved.
      */
-    @NonNull
-    Future<Integer> getBattery(long freshnessTime, @NonNull TimeUnit timeUnit);
+    @NotNull
+    Future<Integer> getBattery(long freshnessTime, @NotNull TimeUnit timeUnit);
 
 
     /**
@@ -612,7 +613,7 @@ public interface IDevice extends IShellEnabledDevice {
      * first ABI being the most preferred.
      * @return the list of ABIs.
      */
-    @NonNull
+    @NotNull
     List<String> getAbis();
 
     /**

@@ -16,12 +16,12 @@
 
 package com.android.ddmlib;
 
-import com.android.annotations.NonNull;
 import com.android.ddmlib.Log.LogLevel;
 import com.google.common.base.Joiner;
 import com.google.common.base.Throwables;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.SettableFuture;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -478,7 +478,7 @@ public final class AndroidDebugBridge {
      * Returns the devices.
      * @see #hasInitialDeviceList()
      */
-    @NonNull
+    @NotNull
     public IDevice[] getDevices() {
         synchronized (sLock) {
             if (mDeviceMonitor != null) {
@@ -612,7 +612,7 @@ public final class AndroidDebugBridge {
         }
     }
 
-    public static ListenableFuture<AdbVersion> getAdbVersion(@NonNull final File adb) {
+    public static ListenableFuture<AdbVersion> getAdbVersion(@NotNull final File adb) {
         final SettableFuture<AdbVersion> future = SettableFuture.create();
         new Thread(new Runnable() {
             @Override
@@ -1166,7 +1166,7 @@ public final class AndroidDebugBridge {
      * @throws IllegalArgumentException when {@code adbServerPort} is not bigger than 0 or it is
      * not a number at all
      */
-    private static int validateAdbServerPort(@NonNull String adbServerPort)
+    private static int validateAdbServerPort(@NotNull String adbServerPort)
             throws IllegalArgumentException {
         try {
             // C tools (adb, emulator) accept hex and octal port numbers, so need to accept them too
