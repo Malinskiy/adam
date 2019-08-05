@@ -30,6 +30,8 @@ import com.android.ddmlib.model.RawImage;
 import com.android.ddmlib.model.ScreenRecorderOptions;
 import com.android.ddmlib.preferences.DdmPreferences;
 import com.android.ddmlib.receiver.*;
+import com.android.ddmlib.receiver.base.IShellOutputReceiver;
+import com.android.ddmlib.receiver.base.MultiLineReceiver;
 import com.android.ddmlib.utils.AdbHelper;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.CharMatcher;

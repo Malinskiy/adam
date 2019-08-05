@@ -16,7 +16,7 @@
 package com.android.ddmlib.receiver;
 
 
-import com.android.ddmlib.receiver.IShellOutputReceiver;
+import com.android.ddmlib.receiver.base.IShellOutputReceiver;
 import com.google.common.base.Charsets;
 
 import java.util.concurrent.CountDownLatch;

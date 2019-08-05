@@ -17,7 +17,7 @@
 package com.android.ddmlib.testrunner;
 
 import com.android.ddmlib.model.IShellEnabledDevice;
-import com.android.ddmlib.receiver.IShellOutputReceiver;
+import com.android.ddmlib.receiver.base.IShellOutputReceiver;
 
 import junit.framework.TestCase;
 

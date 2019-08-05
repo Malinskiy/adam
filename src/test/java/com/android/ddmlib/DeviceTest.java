@@ -20,7 +20,7 @@ package com.android.ddmlib;
 
 import com.android.ddmlib.model.IDevice;
 import com.android.ddmlib.model.ScreenRecorderOptions;
-import com.android.ddmlib.receiver.IShellOutputReceiver;
+import com.android.ddmlib.receiver.base.IShellOutputReceiver;
 import junit.framework.TestCase;
 
 import org.easymock.EasyMock;

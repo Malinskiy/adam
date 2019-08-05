@@ -17,6 +17,8 @@
 package com.android.ddmlib.receiver;
 
 import com.android.ddmlib.logging.Log;
+import com.android.ddmlib.receiver.base.IShellOutputReceiver;
+import com.android.ddmlib.receiver.base.MultiLineReceiver;
 import com.android.ddmlib.testrunner.ITestRunListener;
 import com.android.ddmlib.testrunner.TestIdentifier;
 

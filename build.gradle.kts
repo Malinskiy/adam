@@ -23,11 +23,15 @@ plugins {
 }
 
 dependencies {
-    compile("net.sf.kxml:kxml2:2.3.0")
-    compile("org.jetbrains:annotations:16.0.2")
+    implementation(Libraries.kxml)
+    implementation(Libraries.annotations)
     implementation(kotlin("stdlib-jdk8"))
-    compile("com.google.guava:guava:28.0-jre")
+    implementation(Libraries.guava)
+    implementation(Libraries.coroutines)
+    implementation(Libraries.ktorNetwork)
 
-    testCompile("org.easymock:easymock:3.1")
-    testCompile("junit:junit:4.12")
+
+    testImplementation(TestLibraries.kluent)
+    testImplementation(TestLibraries.easymock)
+    testImplementation(TestLibraries.junit)
 }

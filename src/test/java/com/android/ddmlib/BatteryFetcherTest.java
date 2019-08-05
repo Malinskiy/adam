@@ -18,7 +18,7 @@ package com.android.ddmlib;
 import com.android.ddmlib.exception.ShellCommandUnresponsiveException;
 import com.android.ddmlib.interactor.BatteryFetcher;
 import com.android.ddmlib.model.IDevice;
-import com.android.ddmlib.receiver.IShellOutputReceiver;
+import com.android.ddmlib.receiver.base.IShellOutputReceiver;
 import junit.framework.TestCase;
 
 import org.easymock.EasyMock;

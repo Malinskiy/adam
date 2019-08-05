@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.ddmlib.receiver;
+package com.android.ddmlib.receiver.base;
 
 /**
  * Classes which implement this interface provide methods that deal with out from a remote shell

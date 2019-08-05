@@ -16,6 +16,8 @@
 
 package com.android.ddmlib.receiver;
 
+import com.android.ddmlib.receiver.base.MultiLineReceiver;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 

@@ -22,7 +22,7 @@ import com.android.ddmlib.exception.AdbCommandRejectedException;
 import com.android.ddmlib.exception.ShellCommandUnresponsiveException;
 import com.android.ddmlib.exception.TimeoutException;
 import com.android.ddmlib.preferences.DdmPreferences;
-import com.android.ddmlib.receiver.IShellOutputReceiver;
+import com.android.ddmlib.receiver.base.IShellOutputReceiver;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;

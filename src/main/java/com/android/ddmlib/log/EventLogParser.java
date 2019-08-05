@@ -18,7 +18,7 @@ package com.android.ddmlib.log;
 
 import com.android.ddmlib.model.IDevice;
 import com.android.ddmlib.logging.Log;
-import com.android.ddmlib.receiver.MultiLineReceiver;
+import com.android.ddmlib.receiver.base.MultiLineReceiver;
 import com.android.ddmlib.extension.IntKt;
 import com.android.ddmlib.log.EventContainer.EventValueType;
 import com.android.ddmlib.log.EventValueDescription.ValueType;

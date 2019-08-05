@@ -18,6 +18,7 @@ package com.android.ddmlib.interactor;
 
 
 import com.android.ddmlib.Device;
+import com.android.ddmlib.extension.IntKt;
 import com.android.ddmlib.logging.Log;
 import com.android.ddmlib.model.AdbResponse;
 import com.android.ddmlib.files.FileListingService;
@@ -26,7 +27,6 @@ import com.android.ddmlib.exception.AdbCommandRejectedException;
 import com.android.ddmlib.exception.SyncException;
 import com.android.ddmlib.exception.SyncException.SyncError;
 import com.android.ddmlib.exception.TimeoutException;
-import com.android.ddmlib.extension.IntKt;
 import com.android.ddmlib.preferences.DdmPreferences;
 import com.android.ddmlib.utils.AdbHelper;
 import org.jetbrains.annotations.NotNull;

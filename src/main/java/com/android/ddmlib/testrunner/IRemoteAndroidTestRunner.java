@@ -20,7 +20,7 @@ import com.android.ddmlib.exception.AdbCommandRejectedException;
 import com.android.ddmlib.model.IDevice;
 import com.android.ddmlib.exception.ShellCommandUnresponsiveException;
 import com.android.ddmlib.exception.TimeoutException;
-import com.android.ddmlib.receiver.IShellOutputReceiver;
+import com.android.ddmlib.receiver.base.IShellOutputReceiver;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -30,51 +30,6 @@ import java.util.concurrent.TimeUnit;
  * Interface for running a Android test command remotely and reporting result to a listener.
  */
 public interface IRemoteAndroidTestRunner {
-
-    enum TestSize {
-        /** Run tests annotated with SmallTest */
-        SMALL("small"),
-        /** Run tests annotated with MediumTest */
-        MEDIUM("medium"),
-        /** Run tests annotated with LargeTest */
-        LARGE("large");
-
-        private String mRunnerValue;
-
-        /**
-         * Create a {@link TestSize}.
-         *
-         * @param runnerValue the {@link String} value that represents the size that is passed to
-         * device. Defined on device in android.test.InstrumentationTestRunner.
-         */
-        TestSize(String runnerValue) {
-            mRunnerValue = runnerValue;
-        }
-
-        String getRunnerValue() {
-            return mRunnerValue;
-        }
-
-        /**
-         * Return the {@link TestSize} corresponding to the given Android platform defined value.
-         *
-         * @throws IllegalArgumentException if {@link TestSize} cannot be found.
-         */
-        public static TestSize getTestSize(String value) {
-            // build the error message in the success case too, to avoid two for loops
-            StringBuilder msgBuilder = new StringBuilder("Unknown TestSize ");
-            msgBuilder.append(value);
-            msgBuilder.append(", Must be one of ");
-            for (TestSize size : values()) {
-                if (size.getRunnerValue().equals(value)) {
-                    return size;
-                }
-                msgBuilder.append(size.getRunnerValue());
-                msgBuilder.append(", ");
-            }
-            throw new IllegalArgumentException(msgBuilder.toString());
-        }
-    }
 
     /**
      * Returns the application package name.

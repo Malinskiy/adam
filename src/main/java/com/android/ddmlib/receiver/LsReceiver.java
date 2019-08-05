@@ -22,6 +22,7 @@ import com.android.ddmlib.model.IDevice;
 import com.android.ddmlib.exception.AdbCommandRejectedException;
 import com.android.ddmlib.exception.ShellCommandUnresponsiveException;
 import com.android.ddmlib.exception.TimeoutException;
+import com.android.ddmlib.receiver.base.MultiLineReceiver;
 
 import java.io.IOException;
 import java.util.ArrayList;

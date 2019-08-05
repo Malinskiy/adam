@@ -27,7 +27,7 @@ import com.android.ddmlib.model.AdbService;
 import com.android.ddmlib.model.IDevice;
 import com.android.ddmlib.model.RawImage;
 import com.android.ddmlib.preferences.DdmPreferences;
-import com.android.ddmlib.receiver.IShellOutputReceiver;
+import com.android.ddmlib.receiver.base.IShellOutputReceiver;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
@@ -51,7 +51,7 @@ public final class AdbHelper {
     // public static final long kOkay = 0x59414b4fL;
     // public static final long kFail = 0x4c494146L;
 
-    static final int WAIT_TIME = 5; // spin-wait sleep, in ms
+    public static final int WAIT_TIME = 5; // spin-wait sleep, in ms
 
     public static final String DEFAULT_ENCODING = "ISO-8859-1"; //$NON-NLS-1$
 
@@ -419,99 +419,7 @@ public final class AdbHelper {
             @Nullable InputStream is) throws TimeoutException, AdbCommandRejectedException,
                                              ShellCommandUnresponsiveException, IOException {
 
-        long maxTimeToOutputMs = 0;
-        if (maxTimeToOutputResponse > 0) {
-            if (maxTimeUnits == null) {
-                throw new NullPointerException("Time unit must not be null for non-zero max.");
-            }
-            maxTimeToOutputMs = maxTimeUnits.toMillis(maxTimeToOutputResponse);
-        }
-
-        Log.v("ddms", "execute: running " + command);
-
-        SocketChannel adbChan = null;
-        try {
-            adbChan = SocketChannel.open(adbSockAddr);
-            adbChan.configureBlocking(false);
-
-            // if the device is not -1, then we first tell adb we're looking to
-            // talk
-            // to a specific device
-            setDevice(adbChan, device);
-
-            byte[] request = formAdbRequest(adbService.name().toLowerCase() + ":" + command); //$NON-NLS-1$
-            write(adbChan, request);
-
-            AdbResponse resp = readAdbResponse(adbChan, false /* readDiagString */);
-            if (!resp.okay) {
-                Log.e("ddms", "ADB rejected shell command (" + command + "): " + resp.message);
-                throw new AdbCommandRejectedException(resp.message);
-            }
-
-            byte[] data = new byte[16384];
-
-            // stream the input file if present.
-            if (is != null) {
-                int read;
-                while ((read = is.read(data)) != -1) {
-                    ByteBuffer buf = ByteBuffer.wrap(data, 0, read);
-                    int written = 0;
-                    while (buf.hasRemaining()) {
-                        written += adbChan.write(buf);
-                    }
-                    if (written != read) {
-                        Log.e("ddms",
-                                "ADB write inconsistency, wrote " + written + "expected " + read);
-                        throw new AdbCommandRejectedException("write failed");
-                    }
-                }
-            }
-
-            ByteBuffer buf = ByteBuffer.wrap(data);
-            buf.clear();
-            long timeToResponseCount = 0;
-            while (true) {
-                int count;
-
-                if (rcvr != null && rcvr.isCancelled()) {
-                    Log.v("ddms", "execute: cancelled");
-                    break;
-                }
-
-                count = adbChan.read(buf);
-                if (count < 0) {
-                    // we're at the end, we flush the output
-                    rcvr.flush();
-                    Log.v("ddms", "execute '" + command + "' on '" + device + "' : EOF hit. Read: "
-                            + count);
-                    break;
-                } else if (count == 0) {
-                    try {
-                        int wait = WAIT_TIME * 5;
-                        timeToResponseCount += wait;
-                        if (maxTimeToOutputMs > 0 && timeToResponseCount > maxTimeToOutputMs) {
-                            throw new ShellCommandUnresponsiveException();
-                        }
-                        Thread.sleep(wait);
-                    } catch (InterruptedException ie) {
-                    }
-                } else {
-                    // reset timeout
-                    timeToResponseCount = 0;
-
-                    // send data to receiver if present
-                    if (rcvr != null) {
-                        rcvr.addOutput(buf.array(), buf.arrayOffset(), buf.position());
-                    }
-                    buf.rewind();
-                }
-            }
-        } finally {
-            if (adbChan != null) {
-                adbChan.close();
-            }
-            Log.v("ddms", "execute: returning");
-        }
+        //new RemoteCommandInteractor().executeRemoteCommandSync(adbSockAddr, adbService, command,device,rcvr, maxTimeToOutputResponse, maxTimeUnits, null);
     }
 
     /**

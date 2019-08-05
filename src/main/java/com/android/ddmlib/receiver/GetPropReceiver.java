@@ -17,6 +17,7 @@
 package com.android.ddmlib.receiver;
 
 import com.android.ddmlib.interactor.PropertyFetcher;
+import com.android.ddmlib.receiver.base.MultiLineReceiver;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Maps;
 

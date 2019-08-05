@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.android.ddmlib.receiver;
+package com.android.ddmlib.receiver.base;
 
-import com.android.ddmlib.receiver.IShellOutputReceiver;
+import com.android.ddmlib.receiver.base.IShellOutputReceiver;
 import com.google.common.base.Charsets;
 
 import java.util.ArrayList;

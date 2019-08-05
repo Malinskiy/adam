@@ -15,8 +15,6 @@
  */
 package com.android.ddmlib.testrunner;
 
-import com.android.ddmlib.testrunner.TestResult.TestStatus;
-
 import junit.framework.TestCase;
 
 import java.util.Collections;

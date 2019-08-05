@@ -16,6 +16,8 @@
 
 package com.android.ddmlib.receiver;
 
+import com.android.ddmlib.receiver.base.IShellOutputReceiver;
+
 /**
  * Implementation of {@link IShellOutputReceiver} that does nothing.
  * <p/>This can be used to execute a remote shell command when the output is not needed.

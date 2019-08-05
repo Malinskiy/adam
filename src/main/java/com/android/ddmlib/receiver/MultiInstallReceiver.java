@@ -16,6 +16,7 @@
 
 package com.android.ddmlib.receiver;
 
+import com.android.ddmlib.receiver.base.MultiLineReceiver;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.regex.Matcher;

@@ -23,7 +23,7 @@ import com.android.ddmlib.files.FileListingService;
 import com.android.ddmlib.interactor.SyncService;
 import com.android.ddmlib.log.LogReceiver;
 import com.android.ddmlib.preferences.DdmPreferences;
-import com.android.ddmlib.receiver.IShellOutputReceiver;
+import com.android.ddmlib.receiver.base.IShellOutputReceiver;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
