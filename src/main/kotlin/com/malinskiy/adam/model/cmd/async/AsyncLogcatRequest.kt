@@ -14,24 +14,22 @@
  * limitations under the License.
  */
 
-package com.malinskiy.adam.model.cmd
+package com.malinskiy.adam.model.cmd.async
 
 import java.time.Instant
 
-class LogcatRequest(
+class LogcatRequestAsync(
     since: Instant? = null,
-    continuous: Boolean = true,
     modes: List<LogcatReadMode> = listOf(LogcatReadMode.long),
     buffers: List<LogcatBuffer> = listOf(LogcatBuffer.default),
     pid: Long? = null,
     lastReboot: Boolean? = null,
     filters: List<LogcatFilterSpec> = emptyList()
-) : ShellCommandRequest(
+) : AsyncShellCommandRequest(
     cmd = "logcat" +
-            "${continuous.let { if (it) "" else " -d" }}" +
             "${
             since?.let {
-                if (continuous) " -T ${since.toEpochMilli()}.0" else " -t ${since.toEpochMilli()}.0"
+                " -T ${since.toEpochMilli()}.0"
             } ?: ""
             }" +
             " ${modes.joinToString(separator = " ") { "-v $it" }}" +

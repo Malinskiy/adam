@@ -14,25 +14,55 @@
  * limitations under the License.
  */
 
-package com.malinskiy.adam.model.cmd
+package com.malinskiy.adam.integration
 
-import com.malinskiy.adam.AdbDeviceRule
 import com.malinskiy.adam.extension.readAdbString
+import com.malinskiy.adam.model.cmd.async.LogcatRequestAsync
+import com.malinskiy.adam.model.cmd.sync.GetPropRequest
+import com.malinskiy.adam.model.cmd.sync.GetSinglePropRequest
+import com.malinskiy.adam.model.cmd.sync.ShellCommandRequest
+import com.malinskiy.adam.rule.AdbDeviceRule
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.io.ByteChannel
 import kotlinx.coroutines.runBlocking
+import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldEqual
 import org.junit.Rule
 import org.junit.Test
 
-class ShellCommandRequestTest {
+class E2ETest {
     @get:Rule
     @JvmField
     val adbRule = AdbDeviceRule()
 
     @Test
     fun testEcho() {
+        runBlocking {
+            val response = adbRule.adb.execute(adbRule.deviceSerial, ShellCommandRequest("echo hello"))
+            response shouldEqual "hello\n"
+        }
+    }
+
+    @Test
+    fun testGetProp() {
+        runBlocking {
+            val props = adbRule.adb.execute(adbRule.deviceSerial, GetPropRequest())
+            props["sys.boot_completed"]!! shouldEqual "1"
+        }
+    }
+
+    @Test
+    fun testGetPropSingle() {
+        runBlocking {
+            val response = adbRule.adb.execute(adbRule.deviceSerial, GetSinglePropRequest("sys.boot_completed"))
+            response shouldEqual "1"
+        }
+    }
+
+    @Test
+    fun testNonBlockingLogcat() {
         val channel = ByteChannel(autoFlush = true)
         val result = GlobalScope.async {
             val buffer = StringBuilder()
@@ -42,14 +72,18 @@ class ShellCommandRequestTest {
             buffer.toString()
         }
 
-        runBlocking {
+        val cmdDeferred = GlobalScope.async {
             adbRule.adb.execute(
                 serial = adbRule.deviceSerial,
-                request = ShellCommandRequest("echo hello"),
+                request = LogcatRequestAsync(),
                 response = channel
             )
+        }
+
+        runBlocking {
             val response = result.await()
-            response shouldEqual "hello\n"
+            response.startsWith("--------- beginning of system") shouldBe true
+            cmdDeferred.cancelAndJoin()
         }
     }
 }

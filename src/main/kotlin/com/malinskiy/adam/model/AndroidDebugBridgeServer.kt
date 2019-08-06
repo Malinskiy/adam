@@ -18,12 +18,13 @@ package com.malinskiy.adam.model
 
 import com.android.ddmlib.logging.Log
 import com.malinskiy.adam.Const
-import com.malinskiy.adam.exception.DeviceSelectionException
 import com.malinskiy.adam.exception.RequestRejectedException
 import com.malinskiy.adam.extension.toAndroidChannel
 import com.malinskiy.adam.interactor.DiscoverAdbSocketInteractor
 import com.malinskiy.adam.model.cmd.Request
+import com.malinskiy.adam.model.cmd.ResponseTransformer
 import com.malinskiy.adam.model.cmd.SetDeviceRequest
+import com.malinskiy.adam.model.cmd.SynchronousRequest
 import com.malinskiy.adam.transport.AndroidReadChannel
 import com.malinskiy.adam.transport.AndroidWriteChannel
 import io.ktor.network.selector.ActorSelectorManager
@@ -41,6 +42,8 @@ class AndroidDebugBridgeServer(
 ) {
     private val socketAddress: InetSocketAddress = InetSocketAddress(host, port)
 
+    suspend fun <T: Any?> execute(serial: String, request: SynchronousRequest<T>): T = execute(serial, request, request)
+
     suspend fun execute(serial: String, request: Request, response: ByteWriteChannel) {
         aSocket(ActorSelectorManager(Dispatchers.IO))
             .tcp()
@@ -48,9 +51,24 @@ class AndroidDebugBridgeServer(
                 val readChannel = socket.openReadChannel().toAndroidChannel()
                 val writeChannel = socket.openWriteChannel(autoFlush = true).toAndroidChannel()
 
-                selectDevice(writeChannel, serial, readChannel)
+                processRequest(writeChannel, SetDeviceRequest(serial), readChannel)
                 processRequest(writeChannel, request, readChannel)
                 processResponse(response, readChannel)
+            }
+    }
+
+    suspend fun <T : Any?> execute(serial: String, request: Request, responseTransformer: ResponseTransformer<T>): T {
+        aSocket(ActorSelectorManager(Dispatchers.IO))
+            .tcp()
+            .connect(socketAddress).use { socket ->
+                val readChannel = socket.openReadChannel().toAndroidChannel()
+                val writeChannel = socket.openWriteChannel(autoFlush = true).toAndroidChannel()
+
+                processRequest(writeChannel, SetDeviceRequest(serial), readChannel)
+                processRequest(writeChannel, request, readChannel)
+                val response = processResponse(readChannel)
+
+                return responseTransformer.transform(response)
             }
     }
 
@@ -60,7 +78,7 @@ class AndroidDebugBridgeServer(
     ) {
         val data = ByteArray(16384)
         loop@ do {
-            if (response.isClosedForWrite) break@loop
+            if (response.isClosedForWrite || readChannel.isClosedForRead) break@loop
             val count = readChannel.readAvailable(data, 0, 16384)
             when {
                 count == 0 -> {
@@ -73,6 +91,29 @@ class AndroidDebugBridgeServer(
         } while (count >= 0)
     }
 
+    /**
+     * Since this method will allocate as much memory as needed
+     * one should not use it for streaming requests such as logcat streaming
+     * as to not run out of memory
+     */
+    private suspend fun processResponse(readChannel: AndroidReadChannel): String {
+        val builder = StringBuilder()
+        val data = ByteArray(16384)
+        loop@ do {
+            val count = readChannel.readAvailable(data, 0, 16384)
+            when {
+                count == 0 -> {
+                    continue@loop
+                }
+                count > 0 -> {
+                    builder.append(String(data, 0, count, Const.DEFAULT_TRANSPORT_ENCODING))
+                }
+            }
+        } while (count >= 0)
+
+        return builder.toString()
+    }
+
     private suspend fun processRequest(
         writeChannel: AndroidWriteChannel,
         request: Request,
@@ -83,18 +124,6 @@ class AndroidDebugBridgeServer(
         if (!response.okay) {
             Log.w(TAG, "adb server rejected command ${String(request.serialize(), Const.DEFAULT_TRANSPORT_ENCODING)}")
             throw RequestRejectedException(response.message ?: "no message received")
-        }
-    }
-
-    private suspend fun selectDevice(
-        writeChannel: AndroidWriteChannel,
-        serial: String,
-        readChannel: AndroidReadChannel
-    ) {
-        writeChannel.write(SetDeviceRequest(serial))
-        val response = readChannel.read()
-        if (!response.okay) {
-            throw DeviceSelectionException(response.message ?: "no message received")
         }
     }
 

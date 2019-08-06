@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.malinskiy.adam
+package com.malinskiy.adam.rule
 
 import com.malinskiy.adam.interactor.StartAdbInteractor
 import com.malinskiy.adam.model.AndroidDebugBridgeServerFactory

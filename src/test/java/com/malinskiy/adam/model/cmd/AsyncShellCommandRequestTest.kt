@@ -16,6 +16,14 @@
 
 package com.malinskiy.adam.model.cmd
 
-open class ShellCommandRequest(val cmd: String) : Request() {
-    override fun serialize() = createBaseRequest("shell:$cmd")
+import com.malinskiy.adam.Const
+import com.malinskiy.adam.model.cmd.async.AsyncShellCommandRequest
+import org.amshove.kluent.shouldEqual
+import org.junit.Test
+
+class AsyncShellCommandRequestTest {
+    @Test
+    fun testSimpleCommand() {
+        String(AsyncShellCommandRequest("test").serialize(), Const.DEFAULT_TRANSPORT_ENCODING) shouldEqual "000Ashell:test"
+    }
 }
