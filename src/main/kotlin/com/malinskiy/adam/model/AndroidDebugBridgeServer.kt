@@ -42,18 +42,16 @@ class AndroidDebugBridgeServer(
     private val socketAddress: InetSocketAddress = InetSocketAddress(host, port)
 
     suspend fun execute(serial: String, request: Request, response: ByteWriteChannel) {
-        val socket = aSocket(ActorSelectorManager(Dispatchers.IO))
+        aSocket(ActorSelectorManager(Dispatchers.IO))
             .tcp()
-            .connect(socketAddress)
+            .connect(socketAddress).use { socket ->
+                val readChannel = socket.openReadChannel().toAndroidChannel()
+                val writeChannel = socket.openWriteChannel(autoFlush = true).toAndroidChannel()
 
-        val readChannel = socket.openReadChannel().toAndroidChannel()
-        val writeChannel = socket.openWriteChannel(autoFlush = true).toAndroidChannel()
-
-        selectDevice(writeChannel, serial, readChannel)
-        processRequest(writeChannel, request, readChannel)
-        processResponse(response, readChannel)
-
-        socket.close()
+                selectDevice(writeChannel, serial, readChannel)
+                processRequest(writeChannel, request, readChannel)
+                processResponse(response, readChannel)
+            }
     }
 
     private suspend fun processResponse(

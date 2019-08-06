@@ -14,34 +14,37 @@
  * limitations under the License.
  */
 
-package com.malinskiy.adam
+package com.malinskiy.adam.model.cmd
 
-import com.malinskiy.adam.model.AndroidDebugBridgeServerFactory
-import com.malinskiy.adam.model.cmd.ShellCommandRequest
+import com.malinskiy.adam.AdbDeviceRule
+import com.malinskiy.adam.extension.readAdbString
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.io.ByteChannel
 import kotlinx.coroutines.runBlocking
 import org.amshove.kluent.shouldEqual
+import org.junit.Rule
 import org.junit.Test
 
-class IntegrationTest {
+class ShellCommandRequestTest {
+    @get:Rule
+    @JvmField
+    val adbRule = AdbDeviceRule()
+
     @Test
-    fun testLs() {
-        val adb = AndroidDebugBridgeServerFactory().build()
+    fun testEcho() {
         val channel = ByteChannel(autoFlush = true)
         val result = GlobalScope.async {
             val buffer = StringBuilder()
-            channel.read { it ->
-                val line = Const.DEFAULT_TRANSPORT_ENCODING.decode(it).toString()
-                buffer.append(line)
+            channel.readAdbString { it ->
+                buffer.append(it)
             }
             buffer.toString()
         }
 
         runBlocking {
-            adb.execute(
-                serial = "emulator-5554",
+            adbRule.adb.execute(
+                serial = adbRule.deviceSerial,
                 request = ShellCommandRequest("echo hello"),
                 response = channel
             )

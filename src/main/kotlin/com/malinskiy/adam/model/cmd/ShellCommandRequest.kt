@@ -16,6 +16,6 @@
 
 package com.malinskiy.adam.model.cmd
 
-class ShellCommandRequest(val cmd: String) : Request() {
+open class ShellCommandRequest(val cmd: String) : Request() {
     override fun serialize() = createBaseRequest("shell:$cmd")
 }

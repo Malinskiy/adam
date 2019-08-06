@@ -14,18 +14,25 @@
  * limitations under the License.
  */
 
-package com.malinskiy.adam.extension
+package com.malinskiy.adam.integration
 
-import com.malinskiy.adam.Const
-import com.malinskiy.adam.transport.AndroidReadChannel
-import com.malinskiy.adam.transport.AndroidWriteChannel
-import kotlinx.coroutines.io.ByteReadChannel
-import kotlinx.coroutines.io.ByteWriteChannel
+import com.malinskiy.adam.interactor.StartAdbInteractor
+import com.malinskiy.adam.interactor.StopAdbInteractor
+import kotlinx.coroutines.runBlocking
+import org.junit.Test
 
-fun ByteReadChannel.toAndroidChannel() = AndroidReadChannel(this)
-fun ByteWriteChannel.toAndroidChannel() = AndroidWriteChannel(this)
+class AdbBinaryIntegrationTest {
+    @Test
+    fun testCreateAdbServer() {
+        val startAdbInteractor = StartAdbInteractor()
+        val stopAdbInteractor = StopAdbInteractor()
 
-suspend fun ByteReadChannel.readAdbString(consumer: (String) -> Unit) = read {
-    val line = Const.DEFAULT_TRANSPORT_ENCODING.decode(it).toString()
-    consumer(line)
+        runBlocking {
+            startAdbInteractor.execute()
+            stopAdbInteractor.execute()
+            startAdbInteractor.execute()
+            stopAdbInteractor.execute()
+        }
+
+    }
 }
