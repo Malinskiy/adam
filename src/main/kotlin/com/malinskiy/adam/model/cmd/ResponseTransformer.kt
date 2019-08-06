@@ -19,7 +19,3 @@ package com.malinskiy.adam.model.cmd
 interface ResponseTransformer<T : Any?> {
     fun transform(value: String): T
 }
-
-val NoOpTransformer = object : ResponseTransformer<Any?> {
-    override fun transform(value: String) = value
-}
