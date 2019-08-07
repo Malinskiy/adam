@@ -16,16 +16,23 @@
 
 package com.malinskiy.adam.model.cmd.notimplemented
 
-import com.malinskiy.adam.model.cmd.SynchronousRequest
+import com.malinskiy.adam.Const
+import org.amshove.kluent.shouldEqual
+import org.junit.Test
 
-class RebootRequest(val mode: RebootMode = RebootMode.DEFAULT) : SynchronousRequest<Unit>() {
-    override fun serialize() = createBaseRequest("reboot:${mode.value}")
+class RebootRequestTest {
+    @Test
+    fun testDefault() {
+        RebootRequest().serialize().toString(Const.DEFAULT_TRANSPORT_ENCODING) shouldEqual "0007reboot:"
+    }
 
-    override fun transform(value: String) = Unit
-}
+    @Test
+    fun testBootloader() {
+        RebootRequest(RebootMode.BOOTLOADER).serialize().toString(Const.DEFAULT_TRANSPORT_ENCODING) shouldEqual "0011reboot:bootloader"
+    }
 
-enum class RebootMode(val value: String) {
-    DEFAULT(""),
-    RECOVERY("recovery"),
-    BOOTLOADER("bootloader")
+    @Test
+    fun testRecovery() {
+        RebootRequest(RebootMode.RECOVERY).serialize().toString(Const.DEFAULT_TRANSPORT_ENCODING) shouldEqual "000Freboot:recovery"
+    }
 }
