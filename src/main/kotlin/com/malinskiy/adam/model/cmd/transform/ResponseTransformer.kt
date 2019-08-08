@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 
-package com.malinskiy.adam.model.cmd
+package com.malinskiy.adam.model.cmd.transform
 
 interface ResponseTransformer<T : Any?> {
-    fun transform(value: String): T
+    suspend fun process(count: ByteArray, offset: Int, limit: Int)
+
+    fun transform(): T
 }

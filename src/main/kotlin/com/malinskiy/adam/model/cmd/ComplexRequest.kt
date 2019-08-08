@@ -14,10 +14,15 @@
  * limitations under the License.
  */
 
-package com.malinskiy.adam.model.cmd.sync
+package com.malinskiy.adam.model.cmd
 
-import com.malinskiy.adam.model.cmd.transform.ResponseTransformer
-import com.malinskiy.adam.model.cmd.transform.StringResponseTransformer
+import com.malinskiy.adam.transport.AndroidReadChannel
+import com.malinskiy.adam.transport.AndroidWriteChannel
 
-class ShellCommandRequest(cmd: String) : SyncShellCommandRequest<String>(cmd),
-    ResponseTransformer<String> by StringResponseTransformer()
+/**
+ * This type of request starts with single serialized request
+ * and then proceed to do several reads and writes that have dynamic size
+ */
+abstract class ComplexRequest<T : Any?> : Request() {
+    abstract suspend fun process(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel): T
+}

@@ -16,4 +16,6 @@
 
 package com.malinskiy.adam.model.cmd
 
+import com.malinskiy.adam.model.cmd.transform.ResponseTransformer
+
 abstract class SynchronousRequest<T : Any?> : Request(), ResponseTransformer<T>

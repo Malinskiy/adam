@@ -14,11 +14,9 @@
  * limitations under the License.
  */
 
-package com.malinskiy.adam.model.cmd.notimplemented
+package com.malinskiy.adam.model.cmd.sync
 
 import com.malinskiy.adam.Const
-import com.malinskiy.adam.model.cmd.sync.RebootMode
-import com.malinskiy.adam.model.cmd.sync.RebootRequest
 import org.amshove.kluent.shouldEqual
 import org.junit.Test
 

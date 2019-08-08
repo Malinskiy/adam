@@ -16,6 +16,8 @@
 
 package com.malinskiy.adam.model.cmd.sync
 
-class GetSinglePropRequest(name: String) : SyncShellCommandRequest<String>("getprop $name") {
-    override fun transform(value: String) = value.trim()
-}
+import com.malinskiy.adam.model.cmd.transform.ResponseTransformer
+import com.malinskiy.adam.model.cmd.transform.StringResponseTransformer
+
+class GetSinglePropRequest(name: String) : SyncShellCommandRequest<String>("getprop $name"),
+    ResponseTransformer<String> by StringResponseTransformer()

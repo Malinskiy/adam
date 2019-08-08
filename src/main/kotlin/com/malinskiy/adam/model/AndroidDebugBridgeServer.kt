@@ -21,10 +21,11 @@ import com.malinskiy.adam.Const
 import com.malinskiy.adam.exception.RequestRejectedException
 import com.malinskiy.adam.extension.toAndroidChannel
 import com.malinskiy.adam.interactor.DiscoverAdbSocketInteractor
+import com.malinskiy.adam.model.cmd.ComplexRequest
 import com.malinskiy.adam.model.cmd.Request
-import com.malinskiy.adam.model.cmd.ResponseTransformer
 import com.malinskiy.adam.model.cmd.SetDeviceRequest
 import com.malinskiy.adam.model.cmd.SynchronousRequest
+import com.malinskiy.adam.model.cmd.transform.ResponseTransformer
 import com.malinskiy.adam.transport.AndroidReadChannel
 import com.malinskiy.adam.transport.AndroidWriteChannel
 import io.ktor.network.selector.ActorSelectorManager
@@ -42,7 +43,21 @@ class AndroidDebugBridgeServer(
 ) {
     private val socketAddress: InetSocketAddress = InetSocketAddress(host, port)
 
-    suspend fun <T: Any?> execute(serial: String, request: SynchronousRequest<T>): T = execute(serial, request, request)
+    suspend fun <T : Any?> execute(serial: String, request: ComplexRequest<T>): T {
+        aSocket(ActorSelectorManager(Dispatchers.IO))
+            .tcp()
+            .connect(socketAddress).use { socket ->
+                val readChannel = socket.openReadChannel().toAndroidChannel()
+                val writeChannel = socket.openWriteChannel(autoFlush = true).toAndroidChannel()
+
+                processRequest(writeChannel, SetDeviceRequest(serial), readChannel)
+                processRequest(writeChannel, request, readChannel)
+                return request.process(readChannel, writeChannel)
+            }
+    }
+
+    suspend fun <T : Any?> execute(serial: String, request: SynchronousRequest<T>): T =
+        execute(serial, request, request)
 
     suspend fun execute(serial: String, request: Request, response: ByteWriteChannel) {
         aSocket(ActorSelectorManager(Dispatchers.IO))
@@ -57,7 +72,11 @@ class AndroidDebugBridgeServer(
             }
     }
 
-    suspend fun <T : Any?> execute(serial: String, request: Request, responseTransformer: ResponseTransformer<T>): T {
+    suspend fun <T : Any?> execute(
+        serial: String,
+        request: Request,
+        responseTransformer: ResponseTransformer<T>
+    ): T {
         aSocket(ActorSelectorManager(Dispatchers.IO))
             .tcp()
             .connect(socketAddress).use { socket ->
@@ -66,9 +85,9 @@ class AndroidDebugBridgeServer(
 
                 processRequest(writeChannel, SetDeviceRequest(serial), readChannel)
                 processRequest(writeChannel, request, readChannel)
-                val response = processResponse(readChannel)
+                processResponse(readChannel, responseTransformer)
 
-                return responseTransformer.transform(response)
+                return responseTransformer.transform()
             }
     }
 
@@ -76,10 +95,11 @@ class AndroidDebugBridgeServer(
         response: ByteWriteChannel,
         readChannel: AndroidReadChannel
     ) {
-        val data = ByteArray(16384)
+        val data = ByteArray(Const.MAX_PACKET_LENGTH)
         loop@ do {
             if (response.isClosedForWrite || readChannel.isClosedForRead) break@loop
-            val count = readChannel.readAvailable(data, 0, 16384)
+
+            val count = readChannel.readAvailable(data, 0, Const.MAX_PACKET_LENGTH)
             when {
                 count == 0 -> {
                     continue@loop
@@ -91,27 +111,24 @@ class AndroidDebugBridgeServer(
         } while (count >= 0)
     }
 
-    /**
-     * Since this method will allocate as much memory as needed
-     * one should not use it for streaming requests such as logcat streaming
-     * as to not run out of memory
-     */
-    private suspend fun processResponse(readChannel: AndroidReadChannel): String {
-        val builder = StringBuilder()
-        val data = ByteArray(16384)
+    private suspend fun <T : Any?> processResponse(
+        readChannel: AndroidReadChannel,
+        responseTransformer: ResponseTransformer<T>
+    ) {
+        val data = ByteArray(Const.MAX_PACKET_LENGTH)
         loop@ do {
-            val count = readChannel.readAvailable(data, 0, 16384)
+            if (readChannel.isClosedForRead) break@loop
+
+            val count = readChannel.readAvailable(data, 0, Const.MAX_PACKET_LENGTH)
             when {
                 count == 0 -> {
                     continue@loop
                 }
                 count > 0 -> {
-                    builder.append(String(data, 0, count, Const.DEFAULT_TRANSPORT_ENCODING))
+                    responseTransformer.process(data, 0, count)
                 }
             }
         } while (count >= 0)
-
-        return builder.toString()
     }
 
     private suspend fun processRequest(

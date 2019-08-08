@@ -19,6 +19,8 @@ package com.malinskiy.adam.model.cmd.sync
 import com.malinskiy.adam.model.cmd.async.LogcatBuffer
 import com.malinskiy.adam.model.cmd.async.LogcatFilterSpec
 import com.malinskiy.adam.model.cmd.async.LogcatReadMode
+import com.malinskiy.adam.model.cmd.transform.ResponseTransformer
+import com.malinskiy.adam.model.cmd.transform.StringResponseTransformer
 import java.time.Instant
 
 class SyncLogcatRequest(
@@ -42,6 +44,4 @@ class SyncLogcatRequest(
             "${lastReboot?.let { " -L" } ?: ""}" +
             " ${filters.joinToString(separator = " ") { "${it.tag}:${it.level.name}" }}"
                 .trimEnd()
-) {
-    override fun transform(value: String) = value
-}
+), ResponseTransformer<String> by StringResponseTransformer()

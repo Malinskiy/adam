@@ -22,4 +22,5 @@ object Const {
     const val DEFAULT_ADB_PORT = 5037
 
     const val SERVER_PORT_ENV_VAR = "ANDROID_ADB_SERVER_PORT"
+    const val MAX_PACKET_LENGTH = 16384
 }

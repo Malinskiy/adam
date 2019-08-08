@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-package com.malinskiy.adam.model.cmd.notimplemented
+package com.malinskiy.adam.exception
 
-class ScreenCaptureRequest {
-}
+class UnsupportedImageProtocolException(version: Int?) : RuntimeException("Unsupported version $version")

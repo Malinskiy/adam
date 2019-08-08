@@ -22,7 +22,7 @@ import com.malinskiy.adam.model.cmd.Response
 import kotlinx.coroutines.io.ByteReadChannel
 
 class AndroidReadChannel(private val delegate: ByteReadChannel) : ByteReadChannel by delegate {
-    suspend fun read(length: Int? = null): Response {
+    suspend fun read(): Response {
         val bytes = ByteArray(4)
         delegate.readFully(bytes, 0, 4)
 

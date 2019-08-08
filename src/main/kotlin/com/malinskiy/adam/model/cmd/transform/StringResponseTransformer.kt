@@ -14,10 +14,21 @@
  * limitations under the License.
  */
 
-package com.malinskiy.adam.model.cmd.sync
+package com.malinskiy.adam.model.cmd.transform
 
-import com.malinskiy.adam.model.cmd.transform.ResponseTransformer
-import com.malinskiy.adam.model.cmd.transform.StringResponseTransformer
+import com.malinskiy.adam.Const
 
-class ShellCommandRequest(cmd: String) : SyncShellCommandRequest<String>(cmd),
-    ResponseTransformer<String> by StringResponseTransformer()
+class StringResponseTransformer : ResponseTransformer<String> {
+    private val buffer = ByteArray(Const.MAX_PACKET_LENGTH)
+
+    override suspend fun process(bytes: ByteArray, offset: Int, limit: Int) {
+        val part = String(bytes, 0, limit, Const.DEFAULT_TRANSPORT_ENCODING)
+        builder.append(part)
+    }
+
+    private val builder = StringBuilder()
+
+    override fun transform(): String {
+        return builder.toString().trim()
+    }
+}

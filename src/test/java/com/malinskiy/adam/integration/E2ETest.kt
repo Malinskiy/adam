@@ -20,6 +20,7 @@ import com.malinskiy.adam.extension.readAdbString
 import com.malinskiy.adam.model.cmd.async.LogcatRequestAsync
 import com.malinskiy.adam.model.cmd.sync.GetPropRequest
 import com.malinskiy.adam.model.cmd.sync.GetSinglePropRequest
+import com.malinskiy.adam.model.cmd.sync.ScreenCaptureRequest
 import com.malinskiy.adam.model.cmd.sync.ShellCommandRequest
 import com.malinskiy.adam.rule.AdbDeviceRule
 import kotlinx.coroutines.GlobalScope
@@ -31,6 +32,11 @@ import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldEqual
 import org.junit.Rule
 import org.junit.Test
+import java.awt.image.BufferedImage
+import java.io.File
+import java.io.IOException
+import javax.imageio.ImageIO
+
 
 class E2ETest {
     @get:Rule
@@ -38,10 +44,33 @@ class E2ETest {
     val adbRule = AdbDeviceRule()
 
     @Test
+    fun testScreenCapture() {
+        runBlocking {
+            val image = adbRule.adb.execute(adbRule.deviceSerial, ScreenCaptureRequest())
+
+            val finalImage = BufferedImage(image.width, image.height, BufferedImage.TYPE_INT_ARGB)
+
+            var index = 0
+            val increment = image.bitsPerPixel shr 3
+            for (y in 0 until image.height) {
+                for (x in 0 until image.width) {
+                    val value = image.getARGB(index)
+                    index += increment
+                    finalImage.setRGB(x, y, value)
+                }
+            }
+
+            if (!ImageIO.write(finalImage, "png", File("/tmp/screen.png"))) {
+                throw IOException("Failed to find png writer")
+            }
+        }
+    }
+
+    @Test
     fun testEcho() {
         runBlocking {
             val response = adbRule.adb.execute(adbRule.deviceSerial, ShellCommandRequest("echo hello"))
-            response shouldEqual "hello\n"
+            response shouldEqual "hello"
         }
     }
 
@@ -82,7 +111,7 @@ class E2ETest {
 
         runBlocking {
             val response = result.await()
-            response.startsWith("--------- beginning of system") shouldBe true
+            response.startsWith("--------- beginning of") shouldBe true
             cmdDeferred.cancelAndJoin()
         }
     }

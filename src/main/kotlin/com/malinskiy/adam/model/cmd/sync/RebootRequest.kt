@@ -19,9 +19,11 @@ package com.malinskiy.adam.model.cmd.sync
 import com.malinskiy.adam.model.cmd.SynchronousRequest
 
 class RebootRequest(val mode: RebootMode = RebootMode.DEFAULT) : SynchronousRequest<Unit>() {
+    override suspend fun process(count: ByteArray, offset: Int, limit: Int) = Unit
+
     override fun serialize() = createBaseRequest("reboot:${mode.value}")
 
-    override fun transform(value: String) = Unit
+    override fun transform() = Unit
 }
 
 enum class RebootMode(val value: String) {
