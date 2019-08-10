@@ -23,8 +23,6 @@ import com.malinskiy.adam.interactor.DiscoverAdbSocketInteractor
 import com.malinskiy.adam.request.ComplexRequest
 import com.malinskiy.adam.request.Request
 import com.malinskiy.adam.request.SetDeviceRequest
-import com.malinskiy.adam.request.SynchronousRequest
-import com.malinskiy.adam.request.transform.ResponseTransformer
 import com.malinskiy.adam.transport.AndroidReadChannel
 import com.malinskiy.adam.transport.AndroidWriteChannel
 import io.ktor.network.selector.ActorSelectorManager
@@ -55,9 +53,6 @@ class AndroidDebugBridgeServer(
             }
     }
 
-    suspend fun <T : Any?> execute(serial: String, request: SynchronousRequest<T>): T =
-        execute(serial, request, request)
-
     suspend fun execute(serial: String, request: Request, response: ByteWriteChannel) {
         aSocket(ActorSelectorManager(Dispatchers.IO))
             .tcp()
@@ -68,25 +63,6 @@ class AndroidDebugBridgeServer(
                 processRequest(writeChannel, SetDeviceRequest(serial).serialize(), readChannel)
                 processRequest(writeChannel, request.serialize(), readChannel)
                 processResponse(response, readChannel)
-            }
-    }
-
-    suspend fun <T : Any?> execute(
-        serial: String,
-        request: Request,
-        responseTransformer: ResponseTransformer<T>
-    ): T {
-        aSocket(ActorSelectorManager(Dispatchers.IO))
-            .tcp()
-            .connect(socketAddress).use { socket ->
-                val readChannel = socket.openReadChannel().toAndroidChannel()
-                val writeChannel = socket.openWriteChannel(autoFlush = true).toAndroidChannel()
-
-                processRequest(writeChannel, SetDeviceRequest(serial).serialize(), readChannel)
-                processRequest(writeChannel, request.serialize(), readChannel)
-                processResponse(readChannel, responseTransformer)
-
-                return responseTransformer.transform()
             }
     }
 
@@ -105,26 +81,6 @@ class AndroidDebugBridgeServer(
                 }
                 count > 0 -> {
                     response.writeFully(data, 0, count)
-                }
-            }
-        } while (count >= 0)
-    }
-
-    private suspend fun <T : Any?> processResponse(
-        readChannel: AndroidReadChannel,
-        responseTransformer: ResponseTransformer<T>
-    ) {
-        val data = ByteArray(Const.MAX_PACKET_LENGTH)
-        loop@ do {
-            if (readChannel.isClosedForRead) break@loop
-
-            val count = readChannel.readAvailable(data, 0, Const.MAX_PACKET_LENGTH)
-            when {
-                count == 0 -> {
-                    continue@loop
-                }
-                count > 0 -> {
-                    responseTransformer.process(data, 0, count)
                 }
             }
         } while (count >= 0)
