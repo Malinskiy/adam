@@ -22,8 +22,8 @@ import com.malinskiy.adam.request.SynchronousRequest
 class PortForwardRequest(
     private val local: LocalPortSpec,
     private val remote: RemotePortSpec,
-    private val mode: PortForwardingMode = PortForwardingMode.DEFAULT,
-    serial: String
+    serial: String,
+    private val mode: PortForwardingMode = PortForwardingMode.DEFAULT
 
 ) : SynchronousRequest<Unit>(target = SerialTarget(serial)) {
 
