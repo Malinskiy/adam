@@ -16,8 +16,10 @@
 
 package com.malinskiy.adam.model.cmd.async
 
+import com.malinskiy.adam.model.cmd.NonSpecifiedTarget
 import com.malinskiy.adam.model.cmd.Request
+import com.malinskiy.adam.model.cmd.Target
 
-open class AsyncShellCommandRequest(val cmd: String) : Request() {
+open class AsyncShellCommandRequest(val cmd: String, target: Target = NonSpecifiedTarget) : Request(target) {
     override fun serialize() = createBaseRequest("shell:$cmd")
 }

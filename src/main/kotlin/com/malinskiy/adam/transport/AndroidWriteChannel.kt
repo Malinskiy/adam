@@ -16,14 +16,12 @@
 
 package com.malinskiy.adam.transport
 
-import com.malinskiy.adam.model.cmd.Request
 import kotlinx.coroutines.io.ByteWriteChannel
 import java.nio.ByteBuffer
 
 class AndroidWriteChannel(private val delegate: ByteWriteChannel) : ByteWriteChannel by delegate {
-    suspend fun write(request: Request, length: Int? = null) {
-        val bytes = request.serialize()
-        val requestBuffer = ByteBuffer.wrap(bytes, 0, length ?: bytes.size)
+    suspend fun write(request: ByteArray, length: Int? = null) {
+        val requestBuffer = ByteBuffer.wrap(request, 0, length ?: request.size)
         delegate.writeFully(requestBuffer)
     }
 }

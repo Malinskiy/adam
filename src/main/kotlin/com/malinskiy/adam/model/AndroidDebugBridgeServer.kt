@@ -50,8 +50,8 @@ class AndroidDebugBridgeServer(
                 val readChannel = socket.openReadChannel().toAndroidChannel()
                 val writeChannel = socket.openWriteChannel(autoFlush = true).toAndroidChannel()
 
-                processRequest(writeChannel, SetDeviceRequest(serial), readChannel)
-                processRequest(writeChannel, request, readChannel)
+                processRequest(writeChannel, SetDeviceRequest(serial).serialize(), readChannel)
+                processRequest(writeChannel, request.serialize(), readChannel)
                 return request.process(readChannel, writeChannel)
             }
     }
@@ -66,8 +66,8 @@ class AndroidDebugBridgeServer(
                 val readChannel = socket.openReadChannel().toAndroidChannel()
                 val writeChannel = socket.openWriteChannel(autoFlush = true).toAndroidChannel()
 
-                processRequest(writeChannel, SetDeviceRequest(serial), readChannel)
-                processRequest(writeChannel, request, readChannel)
+                processRequest(writeChannel, SetDeviceRequest(serial).serialize(), readChannel)
+                processRequest(writeChannel, request.serialize(), readChannel)
                 processResponse(response, readChannel)
             }
     }
@@ -83,8 +83,8 @@ class AndroidDebugBridgeServer(
                 val readChannel = socket.openReadChannel().toAndroidChannel()
                 val writeChannel = socket.openWriteChannel(autoFlush = true).toAndroidChannel()
 
-                processRequest(writeChannel, SetDeviceRequest(serial), readChannel)
-                processRequest(writeChannel, request, readChannel)
+                processRequest(writeChannel, SetDeviceRequest(serial).serialize(), readChannel)
+                processRequest(writeChannel, request.serialize(), readChannel)
                 processResponse(readChannel, responseTransformer)
 
                 return responseTransformer.transform()
@@ -133,13 +133,13 @@ class AndroidDebugBridgeServer(
 
     private suspend fun processRequest(
         writeChannel: AndroidWriteChannel,
-        request: Request,
+        request: ByteArray,
         readChannel: AndroidReadChannel
     ) {
         writeChannel.write(request)
         val response = readChannel.read()
         if (!response.okay) {
-            Log.w(TAG, "adb server rejected command ${String(request.serialize(), Const.DEFAULT_TRANSPORT_ENCODING)}")
+            Log.w(TAG, "adb server rejected command ${String(request, Const.DEFAULT_TRANSPORT_ENCODING)}")
             throw RequestRejectedException(response.message ?: "no message received")
         }
     }

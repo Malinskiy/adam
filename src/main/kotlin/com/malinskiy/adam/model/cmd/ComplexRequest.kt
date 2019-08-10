@@ -23,6 +23,6 @@ import com.malinskiy.adam.transport.AndroidWriteChannel
  * This type of request starts with single serialized request
  * and then proceed to do several reads and writes that have dynamic size
  */
-abstract class ComplexRequest<T : Any?> : Request() {
+abstract class ComplexRequest<T : Any?>(target: Target = NonSpecifiedTarget) : Request(target) {
     abstract suspend fun process(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel): T
 }

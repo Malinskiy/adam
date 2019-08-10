@@ -19,7 +19,12 @@ package com.malinskiy.adam.model.cmd
 import com.malinskiy.adam.Const
 import java.io.UnsupportedEncodingException
 
-open abstract class Request {
+open abstract class Request(val target: Target = Host) {
+
+    /**
+     * Some requests require a device serial to be passed to the request itself by means of <host-prefix>
+     * @see https://android.googlesource.com/platform/system/core/+/refs/heads/master/adb/SERVICES.TXT
+     */
     abstract fun serialize(): ByteArray
 
     /**
@@ -28,7 +33,8 @@ open abstract class Request {
      */
     @Throws(UnsupportedEncodingException::class)
     protected fun createBaseRequest(request: String): ByteArray {
-        return String.format("%04X%s", request.length, request)
+        val fullRequest = target.serialize() + request
+        return String.format("%04X%s", fullRequest.length, fullRequest)
             .toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
     }
 }

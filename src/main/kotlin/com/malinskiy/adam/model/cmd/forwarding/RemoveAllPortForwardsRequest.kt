@@ -14,13 +14,15 @@
  * limitations under the License.
  */
 
-package com.malinskiy.adam.model.cmd.sync
+package com.malinskiy.adam.model.cmd.forwarding
 
-import com.malinskiy.adam.model.cmd.NonSpecifiedTarget
+import com.malinskiy.adam.model.cmd.HostSerial
 import com.malinskiy.adam.model.cmd.SynchronousRequest
-import com.malinskiy.adam.model.cmd.Target
 
-open abstract class SyncShellCommandRequest<T : Any?>(val cmd: String, target: Target = NonSpecifiedTarget) :
-    SynchronousRequest<T>(target) {
-    override fun serialize() = createBaseRequest("shell:$cmd")
+class RemoveAllPortForwardsRequest(serial: String) : SynchronousRequest<Unit>(target = HostSerial(serial)) {
+    override fun serialize() = createBaseRequest("killforward-all")
+
+    override suspend fun process(count: ByteArray, offset: Int, limit: Int) = Unit
+
+    override fun transform() = Unit
 }

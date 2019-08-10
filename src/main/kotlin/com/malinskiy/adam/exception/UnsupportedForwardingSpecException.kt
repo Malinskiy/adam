@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-package com.malinskiy.adam.model.cmd.notimplemented
+package com.malinskiy.adam.exception
 
-class PortForwardRequest {
-}
+class UnsupportedForwardingSpecException(type: String) : RuntimeException("Unknown type $type for forwarding spec")

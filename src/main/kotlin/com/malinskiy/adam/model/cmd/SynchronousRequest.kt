@@ -18,4 +18,4 @@ package com.malinskiy.adam.model.cmd
 
 import com.malinskiy.adam.model.cmd.transform.ResponseTransformer
 
-abstract class SynchronousRequest<T : Any?> : Request(), ResponseTransformer<T>
+abstract class SynchronousRequest<T : Any?>(target: Target = NonSpecifiedTarget) : Request(target), ResponseTransformer<T>

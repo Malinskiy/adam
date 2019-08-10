@@ -14,13 +14,8 @@
  * limitations under the License.
  */
 
-package com.malinskiy.adam.model.cmd.sync
+package com.malinskiy.adam.extension
 
-import com.malinskiy.adam.model.cmd.NonSpecifiedTarget
-import com.malinskiy.adam.model.cmd.SynchronousRequest
-import com.malinskiy.adam.model.cmd.Target
+import com.malinskiy.adam.Const
 
-open abstract class SyncShellCommandRequest<T : Any?>(val cmd: String, target: Target = NonSpecifiedTarget) :
-    SynchronousRequest<T>(target) {
-    override fun serialize() = createBaseRequest("shell:$cmd")
-}
+fun ByteArray.toRequestString() = String(this, Const.DEFAULT_TRANSPORT_ENCODING)

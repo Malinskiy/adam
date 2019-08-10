@@ -14,7 +14,19 @@
  * limitations under the License.
  */
 
-package com.malinskiy.adam.model.cmd.notimplemented
+package com.malinskiy.adam.model.cmd.forwarding
 
-class RemovePortForwardRequest {
+import com.malinskiy.adam.model.cmd.HostSerial
+import com.malinskiy.adam.model.cmd.SynchronousRequest
+
+class RemovePortForwardRequest(
+    private val local: LocalTcpPortSpec,
+    private val serial: String
+) : SynchronousRequest<Unit>(target = HostSerial(serial)) {
+    override fun serialize() =
+        createBaseRequest("killforward:${local.toSpec()}")
+
+    override suspend fun process(count: ByteArray, offset: Int, limit: Int) = Unit
+
+    override fun transform() = Unit
 }

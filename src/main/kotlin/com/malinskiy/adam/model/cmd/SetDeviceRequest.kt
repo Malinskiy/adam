@@ -16,6 +16,6 @@
 
 package com.malinskiy.adam.model.cmd
 
-class SetDeviceRequest(val serial: String) : Request() {
-    override fun serialize() = createBaseRequest("host:transport:$serial")
+class SetDeviceRequest(val serial: String) : Request(target = Host) {
+    override fun serialize() = createBaseRequest("transport:$serial")
 }

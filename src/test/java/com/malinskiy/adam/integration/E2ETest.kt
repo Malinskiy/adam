@@ -18,6 +18,7 @@ package com.malinskiy.adam.integration
 
 import com.malinskiy.adam.extension.readAdbString
 import com.malinskiy.adam.model.cmd.async.LogcatRequestAsync
+import com.malinskiy.adam.model.cmd.forwarding.*
 import com.malinskiy.adam.model.cmd.sync.GetPropRequest
 import com.malinskiy.adam.model.cmd.sync.GetSinglePropRequest
 import com.malinskiy.adam.model.cmd.sync.ScreenCaptureRequest
@@ -113,6 +114,58 @@ class E2ETest {
             val response = result.await()
             response.startsWith("--------- beginning of") shouldBe true
             cmdDeferred.cancelAndJoin()
+        }
+    }
+
+    @Test
+    fun testPortForward() {
+        runBlocking {
+            adbRule.adb.execute(
+                adbRule.deviceSerial,
+                PortForwardRequest(LocalTcpPortSpec(12042), RemoteTcpPortSpec(12042), serial = adbRule.deviceSerial)
+            )
+
+            val portForwards = adbRule.adb.execute(
+                adbRule.deviceSerial,
+                ListPortForwardsRequest(adbRule.deviceSerial)
+            )
+
+            portForwards.size shouldEqual 1
+            val rule = portForwards[0]
+            rule.serial shouldEqual adbRule.deviceSerial
+            (rule.localSpec is LocalTcpPortSpec) shouldEqual true
+            (rule.localSpec as LocalTcpPortSpec).port shouldEqual 12042
+
+            (rule.remoteSpec is RemoteTcpPortSpec) shouldEqual true
+            (rule.remoteSpec as RemoteTcpPortSpec).port shouldEqual 12042
+
+            adbRule.adb.execute(adbRule.deviceSerial, RemovePortForwardRequest(LocalTcpPortSpec(12042), serial = adbRule.deviceSerial))
+
+            val afterAllForwards = adbRule.adb.execute(
+                adbRule.deviceSerial,
+                ListPortForwardsRequest(adbRule.deviceSerial)
+            )
+
+            afterAllForwards.size shouldEqual 0
+        }
+    }
+
+    @Test
+    fun testPortForwardKillSingle() {
+        runBlocking {
+            adbRule.adb.execute(
+                adbRule.deviceSerial,
+                PortForwardRequest(LocalTcpPortSpec(12042), RemoteTcpPortSpec(12042), serial = adbRule.deviceSerial)
+            )
+
+            adbRule.adb.execute(adbRule.deviceSerial, RemovePortForwardRequest(LocalTcpPortSpec(12042), serial = adbRule.deviceSerial))
+
+            val portForwards = adbRule.adb.execute(
+                adbRule.deviceSerial,
+                ListPortForwardsRequest(adbRule.deviceSerial)
+            )
+
+            portForwards.size shouldEqual 0
         }
     }
 }
