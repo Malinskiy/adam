@@ -16,8 +16,7 @@
 
 package com.malinskiy.adam.integration
 
-import com.malinskiy.adam.extension.readAdbString
-import com.malinskiy.adam.request.async.LogcatRequestAsync
+import com.malinskiy.adam.request.async.ChanneledLogcatRequest
 import com.malinskiy.adam.request.devices.ListDevicesRequest
 import com.malinskiy.adam.request.forwarding.*
 import com.malinskiy.adam.request.sync.GetPropRequest
@@ -26,9 +25,6 @@ import com.malinskiy.adam.request.sync.ScreenCaptureRequest
 import com.malinskiy.adam.request.sync.ShellCommandRequest
 import com.malinskiy.adam.rule.AdbDeviceRule
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.async
-import kotlinx.coroutines.cancelAndJoin
-import kotlinx.coroutines.io.ByteChannel
 import kotlinx.coroutines.runBlocking
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldEqual
@@ -48,7 +44,10 @@ class E2ETest {
     @Test
     fun testScreenCapture() {
         runBlocking {
-            val image = adbRule.adb.execute(adbRule.deviceSerial, ScreenCaptureRequest())
+            val image = adbRule.adb.execute(
+                ScreenCaptureRequest(),
+                adbRule.deviceSerial
+            )
 
             val finalImage = BufferedImage(image.width, image.height, BufferedImage.TYPE_INT_ARGB)
 
@@ -71,7 +70,10 @@ class E2ETest {
     @Test
     fun testEcho() {
         runBlocking {
-            val response = adbRule.adb.execute(adbRule.deviceSerial, ShellCommandRequest("echo hello"))
+            val response = adbRule.adb.execute(
+                ShellCommandRequest("echo hello"),
+                adbRule.deviceSerial
+            )
             response shouldEqual "hello"
         }
     }
@@ -79,7 +81,10 @@ class E2ETest {
     @Test
     fun testGetProp() {
         runBlocking {
-            val props = adbRule.adb.execute(adbRule.deviceSerial, GetPropRequest())
+            val props = adbRule.adb.execute(
+                GetPropRequest(),
+                adbRule.deviceSerial
+            )
             props["sys.boot_completed"]!! shouldEqual "1"
         }
     }
@@ -87,34 +92,26 @@ class E2ETest {
     @Test
     fun testGetPropSingle() {
         runBlocking {
-            val response = adbRule.adb.execute(adbRule.deviceSerial, GetSinglePropRequest("sys.boot_completed"))
+            val response = adbRule.adb.execute(
+                GetSinglePropRequest("sys.boot_completed"),
+                adbRule.deviceSerial
+            )
             response shouldEqual "1"
         }
     }
 
     @Test
     fun testNonBlockingLogcat() {
-        val channel = ByteChannel(autoFlush = true)
-        val result = GlobalScope.async {
-            val buffer = StringBuilder()
-            channel.readAdbString { it ->
-                buffer.append(it)
-            }
-            buffer.toString()
-        }
-
-        val cmdDeferred = GlobalScope.async {
-            adbRule.adb.execute(
-                serial = adbRule.deviceSerial,
-                request = LogcatRequestAsync(),
-                response = channel
-            )
-        }
-
         runBlocking {
-            val response = result.await()
-            response.startsWith("--------- beginning of") shouldBe true
-            cmdDeferred.cancelAndJoin()
+            val channel = adbRule.adb.execute(
+                serial = adbRule.deviceSerial,
+                request = ChanneledLogcatRequest(),
+                scope = GlobalScope
+            )
+
+            val line = channel.receive()
+            line.startsWith("--------- beginning of") shouldBe true
+            channel.cancel()
         }
     }
 
@@ -122,13 +119,13 @@ class E2ETest {
     fun testPortForward() {
         runBlocking {
             adbRule.adb.execute(
-                adbRule.deviceSerial,
-                PortForwardRequest(LocalTcpPortSpec(12042), RemoteTcpPortSpec(12042), serial = adbRule.deviceSerial)
+                PortForwardRequest(LocalTcpPortSpec(12042), RemoteTcpPortSpec(12042), serial = adbRule.deviceSerial),
+                adbRule.deviceSerial
             )
 
             val portForwards = adbRule.adb.execute(
-                adbRule.deviceSerial,
-                ListPortForwardsRequest(adbRule.deviceSerial)
+                ListPortForwardsRequest(adbRule.deviceSerial),
+                adbRule.deviceSerial
             )
 
             portForwards.size shouldEqual 1
@@ -140,11 +137,10 @@ class E2ETest {
             (rule.remoteSpec is RemoteTcpPortSpec) shouldEqual true
             (rule.remoteSpec as RemoteTcpPortSpec).port shouldEqual 12042
 
-            adbRule.adb.execute(adbRule.deviceSerial, RemovePortForwardRequest(LocalTcpPortSpec(12042), serial = adbRule.deviceSerial))
+            adbRule.adb.execute(RemovePortForwardRequest(LocalTcpPortSpec(12042), serial = adbRule.deviceSerial), adbRule.deviceSerial)
 
             val afterAllForwards = adbRule.adb.execute(
-                adbRule.deviceSerial,
-                ListPortForwardsRequest(adbRule.deviceSerial)
+                ListPortForwardsRequest(adbRule.deviceSerial), adbRule.deviceSerial
             )
 
             afterAllForwards.size shouldEqual 0
@@ -155,15 +151,18 @@ class E2ETest {
     fun testPortForwardKillSingle() {
         runBlocking {
             adbRule.adb.execute(
-                adbRule.deviceSerial,
-                PortForwardRequest(LocalTcpPortSpec(12042), RemoteTcpPortSpec(12042), serial = adbRule.deviceSerial)
+                PortForwardRequest(LocalTcpPortSpec(12042), RemoteTcpPortSpec(12042), serial = adbRule.deviceSerial),
+                adbRule.deviceSerial
             )
 
-            adbRule.adb.execute(adbRule.deviceSerial, RemovePortForwardRequest(LocalTcpPortSpec(12042), serial = adbRule.deviceSerial))
+            adbRule.adb.execute(
+                RemovePortForwardRequest(LocalTcpPortSpec(12042), serial = adbRule.deviceSerial),
+                adbRule.deviceSerial
+            )
 
             val portForwards = adbRule.adb.execute(
-                adbRule.deviceSerial,
-                ListPortForwardsRequest(adbRule.deviceSerial)
+                ListPortForwardsRequest(adbRule.deviceSerial),
+                adbRule.deviceSerial
             )
 
             portForwards.size shouldEqual 0
@@ -173,7 +172,10 @@ class E2ETest {
     @Test
     fun testListDevices() {
         runBlocking {
-            val list = adbRule.adb.execute(adbRule.deviceSerial, ListDevicesRequest())
+            val list = adbRule.adb.execute(
+                ListDevicesRequest(),
+                adbRule.deviceSerial
+            )
 
             list.size shouldEqual 1
             list[0].serial shouldEqual adbRule.deviceSerial

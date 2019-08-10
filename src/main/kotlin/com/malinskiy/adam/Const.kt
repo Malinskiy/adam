@@ -17,6 +17,7 @@
 package com.malinskiy.adam
 
 object Const {
+    const val READ_DELAY = 100L
     val DEFAULT_TRANSPORT_ENCODING = Charsets.ISO_8859_1
     const val DEFAULT_ADB_HOST = "127.0.0.1"
     const val DEFAULT_ADB_PORT = 5037

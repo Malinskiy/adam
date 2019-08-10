@@ -18,14 +18,14 @@ package com.malinskiy.adam.request.async
 
 import java.time.Instant
 
-class LogcatRequestAsync(
+class ChanneledLogcatRequest(
     since: Instant? = null,
     modes: List<LogcatReadMode> = listOf(LogcatReadMode.long),
     buffers: List<LogcatBuffer> = listOf(LogcatBuffer.default),
     pid: Long? = null,
     lastReboot: Boolean? = null,
     filters: List<LogcatFilterSpec> = emptyList()
-) : AsyncShellCommandRequest(
+) : ChanneledShellCommandRequest(
     cmd = "logcat" +
             "${
             since?.let {

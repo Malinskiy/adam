@@ -21,16 +21,18 @@ import com.malinskiy.adam.exception.RequestRejectedException
 import com.malinskiy.adam.extension.toAndroidChannel
 import com.malinskiy.adam.interactor.DiscoverAdbSocketInteractor
 import com.malinskiy.adam.request.ComplexRequest
-import com.malinskiy.adam.request.Request
 import com.malinskiy.adam.request.SetDeviceRequest
+import com.malinskiy.adam.request.async.AsyncChannelRequest
 import com.malinskiy.adam.transport.AndroidReadChannel
 import com.malinskiy.adam.transport.AndroidWriteChannel
 import io.ktor.network.selector.ActorSelectorManager
 import io.ktor.network.sockets.aSocket
 import io.ktor.network.sockets.openReadChannel
 import io.ktor.network.sockets.openWriteChannel
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.io.ByteWriteChannel
+import kotlinx.coroutines.channels.ReceiveChannel
+import kotlinx.coroutines.channels.produce
 import java.net.InetAddress
 import java.net.InetSocketAddress
 
@@ -40,50 +42,43 @@ class AndroidDebugBridgeServer(
 ) {
     private val socketAddress: InetSocketAddress = InetSocketAddress(host, port)
 
-    suspend fun <T : Any?> execute(serial: String, request: ComplexRequest<T>): T {
+    suspend fun <T : Any?> execute(request: ComplexRequest<T>, serial: String? = null): T {
         aSocket(ActorSelectorManager(Dispatchers.IO))
             .tcp()
             .connect(socketAddress).use { socket ->
                 val readChannel = socket.openReadChannel().toAndroidChannel()
                 val writeChannel = socket.openWriteChannel(autoFlush = true).toAndroidChannel()
 
-                processRequest(writeChannel, SetDeviceRequest(serial).serialize(), readChannel)
+                serial?.let {
+                    processRequest(writeChannel, SetDeviceRequest(it).serialize(), readChannel)
+                }
+
                 processRequest(writeChannel, request.serialize(), readChannel)
                 return request.process(readChannel, writeChannel)
             }
     }
 
-    suspend fun execute(serial: String, request: Request, response: ByteWriteChannel) {
-        aSocket(ActorSelectorManager(Dispatchers.IO))
-            .tcp()
-            .connect(socketAddress).use { socket ->
-                val readChannel = socket.openReadChannel().toAndroidChannel()
-                val writeChannel = socket.openWriteChannel(autoFlush = true).toAndroidChannel()
+    fun <T : Any?> execute(request: AsyncChannelRequest<T>, scope: CoroutineScope, serial: String? = null): ReceiveChannel<T> {
+        return scope.produce {
+            aSocket(ActorSelectorManager(Dispatchers.IO))
+                .tcp()
+                .connect(socketAddress).use { socket ->
+                    val readChannel = socket.openReadChannel().toAndroidChannel()
+                    val writeChannel = socket.openWriteChannel(autoFlush = true).toAndroidChannel()
 
-                processRequest(writeChannel, SetDeviceRequest(serial).serialize(), readChannel)
-                processRequest(writeChannel, request.serialize(), readChannel)
-                processResponse(response, readChannel)
-            }
-    }
+                    serial?.let {
+                        processRequest(writeChannel, SetDeviceRequest(it).serialize(), readChannel)
+                    }
 
-    private suspend fun processResponse(
-        response: ByteWriteChannel,
-        readChannel: AndroidReadChannel
-    ) {
-        val data = ByteArray(Const.MAX_PACKET_LENGTH)
-        loop@ do {
-            if (response.isClosedForWrite || readChannel.isClosedForRead) break@loop
+                    processRequest(writeChannel, request.serialize(), readChannel)
 
-            val count = readChannel.readAvailable(data, 0, Const.MAX_PACKET_LENGTH)
-            when {
-                count == 0 -> {
-                    continue@loop
+                    while (true) {
+                        if (isClosedForSend || readChannel.isClosedForRead || writeChannel.isClosedForWrite) return@produce
+                        val element = request.readElement(readChannel, writeChannel)
+                        send(element)
+                    }
                 }
-                count > 0 -> {
-                    response.writeFully(data, 0, count)
-                }
-            }
-        } while (count >= 0)
+        }
     }
 
     private suspend fun processRequest(

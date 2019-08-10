@@ -25,7 +25,7 @@ import java.time.Instant
 class AsyncLogcatRequestTest {
     @Test
     fun testModeArguments() {
-        val cmd = LogcatRequestAsync(
+        val cmd = ChanneledLogcatRequest(
             modes = listOf(LogcatReadMode.long, LogcatReadMode.epoch)
         ).serialize()
 
@@ -34,7 +34,7 @@ class AsyncLogcatRequestTest {
 
     @Test
     fun testBuffers() {
-        val cmd = LogcatRequestAsync(
+        val cmd = ChanneledLogcatRequest(
             buffers = listOf(LogcatBuffer.crash, LogcatBuffer.radio)
         ).serialize()
 
@@ -43,21 +43,21 @@ class AsyncLogcatRequestTest {
 
     @Test
     fun testContinuous() {
-        val cmd = LogcatRequestAsync().serialize()
+        val cmd = ChanneledLogcatRequest().serialize()
 
         String(cmd, Const.DEFAULT_TRANSPORT_ENCODING) shouldEqual "001Fshell:logcat -v long -b default"
     }
 
     @Test
     fun testSinceContinuous() {
-        val cmd = LogcatRequestAsync(since = Instant.ofEpochMilli(10)).serialize()
+        val cmd = ChanneledLogcatRequest(since = Instant.ofEpochMilli(10)).serialize()
 
         String(cmd, Const.DEFAULT_TRANSPORT_ENCODING) shouldEqual "0027shell:logcat -T 10.0 -v long -b default"
     }
 
     @Test
     fun testFilterspec() {
-        val cmd = LogcatRequestAsync(
+        val cmd = ChanneledLogcatRequest(
             filters = listOf(
                 SupressAll,
                 LogcatFilterSpec(

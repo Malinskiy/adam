@@ -19,7 +19,12 @@ package com.malinskiy.adam.request.async
 import com.malinskiy.adam.request.NonSpecifiedTarget
 import com.malinskiy.adam.request.Request
 import com.malinskiy.adam.request.Target
+import com.malinskiy.adam.transport.AndroidReadChannel
+import com.malinskiy.adam.transport.AndroidWriteChannel
 
-open class AsyncShellCommandRequest(val cmd: String, target: Target = NonSpecifiedTarget) : Request(target) {
-    override fun serialize() = createBaseRequest("shell:$cmd")
+abstract class AsyncChannelRequest<T : Any?>(target: Target = NonSpecifiedTarget) : Request(target) {
+    /**
+     * Called after the initial OKAY confirmation
+     */
+    abstract suspend fun readElement(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel): T
 }
