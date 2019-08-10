@@ -18,7 +18,7 @@ package com.malinskiy.adam.transport
 
 import com.android.ddmlib.logging.Log
 import com.malinskiy.adam.Const
-import com.malinskiy.adam.model.cmd.Response
+import com.malinskiy.adam.request.Response
 import kotlinx.coroutines.io.ByteReadChannel
 
 class AndroidReadChannel(private val delegate: ByteReadChannel) : ByteReadChannel by delegate {

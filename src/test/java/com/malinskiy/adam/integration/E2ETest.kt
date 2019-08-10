@@ -17,12 +17,12 @@
 package com.malinskiy.adam.integration
 
 import com.malinskiy.adam.extension.readAdbString
-import com.malinskiy.adam.model.cmd.async.LogcatRequestAsync
-import com.malinskiy.adam.model.cmd.forwarding.*
-import com.malinskiy.adam.model.cmd.sync.GetPropRequest
-import com.malinskiy.adam.model.cmd.sync.GetSinglePropRequest
-import com.malinskiy.adam.model.cmd.sync.ScreenCaptureRequest
-import com.malinskiy.adam.model.cmd.sync.ShellCommandRequest
+import com.malinskiy.adam.request.async.LogcatRequestAsync
+import com.malinskiy.adam.request.forwarding.*
+import com.malinskiy.adam.request.sync.GetPropRequest
+import com.malinskiy.adam.request.sync.GetSinglePropRequest
+import com.malinskiy.adam.request.sync.ScreenCaptureRequest
+import com.malinskiy.adam.request.sync.ShellCommandRequest
 import com.malinskiy.adam.rule.AdbDeviceRule
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async

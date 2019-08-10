@@ -16,8 +16,8 @@
 
 package com.malinskiy.adam.rule
 
+import com.malinskiy.adam.AndroidDebugBridgeServerFactory
 import com.malinskiy.adam.interactor.StartAdbInteractor
-import com.malinskiy.adam.model.AndroidDebugBridgeServerFactory
 import kotlinx.coroutines.runBlocking
 import org.junit.rules.TestRule
 import org.junit.runner.Description
