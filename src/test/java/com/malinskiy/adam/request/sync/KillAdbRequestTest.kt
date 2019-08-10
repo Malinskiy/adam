@@ -14,19 +14,15 @@
  * limitations under the License.
  */
 
-package com.malinskiy.adam.request.forwarding
+package com.malinskiy.adam.request.sync
 
-import com.malinskiy.adam.request.SerialTarget
-import com.malinskiy.adam.request.SynchronousRequest
+import com.malinskiy.adam.Const
+import org.amshove.kluent.shouldEqual
+import org.junit.Test
 
-class RemovePortForwardRequest(
-    private val local: LocalTcpPortSpec,
-    private val serial: String
-) : SynchronousRequest<Unit>(target = SerialTarget(serial)) {
-    override fun serialize() =
-        createBaseRequest("killforward:${local.toSpec()}")
-
-    override suspend fun process(count: ByteArray, offset: Int, limit: Int) = Unit
-
-    override fun transform() = Unit
+class KillAdbRequestTest {
+    @Test
+    fun testSerialization() {
+        String(KillAdbRequest().serialize(), Const.DEFAULT_TRANSPORT_ENCODING) shouldEqual "0009host:kill"
+    }
 }

@@ -16,10 +16,10 @@
 
 package com.malinskiy.adam.request.forwarding
 
-import com.malinskiy.adam.request.HostSerial
+import com.malinskiy.adam.request.SerialTarget
 import com.malinskiy.adam.request.SynchronousRequest
 
-class RemoveAllPortForwardsRequest(serial: String) : SynchronousRequest<Unit>(target = HostSerial(serial)) {
+class RemoveAllPortForwardsRequest(serial: String) : SynchronousRequest<Unit>(target = SerialTarget(serial)) {
     override fun serialize() = createBaseRequest("killforward-all")
 
     override suspend fun process(count: ByteArray, offset: Int, limit: Int) = Unit

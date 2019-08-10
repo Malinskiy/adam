@@ -14,17 +14,13 @@
  * limitations under the License.
  */
 
-package com.malinskiy.adam.request.forwarding
+package com.malinskiy.adam.request.sync
 
-import com.malinskiy.adam.request.SerialTarget
+import com.malinskiy.adam.request.HostTarget
 import com.malinskiy.adam.request.SynchronousRequest
 
-class RemovePortForwardRequest(
-    private val local: LocalTcpPortSpec,
-    private val serial: String
-) : SynchronousRequest<Unit>(target = SerialTarget(serial)) {
-    override fun serialize() =
-        createBaseRequest("killforward:${local.toSpec()}")
+class KillAdbRequest : SynchronousRequest<Unit>(target = HostTarget) {
+    override fun serialize() = createBaseRequest("kill")
 
     override suspend fun process(count: ByteArray, offset: Int, limit: Int) = Unit
 

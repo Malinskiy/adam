@@ -18,12 +18,12 @@ package com.malinskiy.adam.request.forwarding
 
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.request.ComplexRequest
-import com.malinskiy.adam.request.HostSerial
+import com.malinskiy.adam.request.SerialTarget
 import com.malinskiy.adam.transport.AndroidReadChannel
 import com.malinskiy.adam.transport.AndroidWriteChannel
 import java.nio.ByteBuffer
 
-class ListPortForwardsRequest(serial: String) : ComplexRequest<List<PortForwardingRule>>(target = HostSerial(serial)) {
+class ListPortForwardsRequest(serial: String) : ComplexRequest<List<PortForwardingRule>>(target = SerialTarget(serial)) {
     override suspend fun process(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel): List<PortForwardingRule> {
         val sizeBuffer: ByteBuffer = ByteBuffer.allocate(4)
         readChannel.readFully(sizeBuffer)

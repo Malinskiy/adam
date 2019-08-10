@@ -16,19 +16,26 @@
 
 package com.malinskiy.adam.request.forwarding
 
-import com.malinskiy.adam.request.HostSerial
+import com.malinskiy.adam.request.SerialTarget
 import com.malinskiy.adam.request.SynchronousRequest
 
 class PortForwardRequest(
     private val local: LocalPortSpec,
     private val remote: RemotePortSpec,
-    private val serial: String
-) : SynchronousRequest<Unit>(target = HostSerial(serial)) {
+    private val mode: PortForwardingMode = PortForwardingMode.DEFAULT,
+    serial: String
+
+) : SynchronousRequest<Unit>(target = SerialTarget(serial)) {
 
     override fun serialize() =
-        createBaseRequest("forward:${local.toSpec()};${remote.toSpec()}")
+        createBaseRequest("forward${mode.value}:${local.toSpec()};${remote.toSpec()}")
 
     override suspend fun process(count: ByteArray, offset: Int, limit: Int) = Unit
 
     override fun transform() = Unit
+}
+
+enum class PortForwardingMode(val value: String) {
+    DEFAULT(""),
+    NO_REBIND(":norebind")
 }

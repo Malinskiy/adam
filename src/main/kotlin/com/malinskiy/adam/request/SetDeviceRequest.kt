@@ -16,6 +16,6 @@
 
 package com.malinskiy.adam.request
 
-class SetDeviceRequest(val serial: String) : Request(target = Host) {
+class SetDeviceRequest(val serial: String) : Request(target = HostTarget) {
     override fun serialize() = createBaseRequest("transport:$serial")
 }

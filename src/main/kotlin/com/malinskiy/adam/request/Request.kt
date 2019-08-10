@@ -19,7 +19,7 @@ package com.malinskiy.adam.request
 import com.malinskiy.adam.Const
 import java.io.UnsupportedEncodingException
 
-open abstract class Request(val target: Target = Host) {
+open abstract class Request(val target: Target = HostTarget) {
 
     /**
      * Some requests require a device serial to be passed to the request itself by means of <host-prefix>

@@ -25,7 +25,7 @@ sealed class Target {
  * interpreted as 'any single device or emulator connected to/running on
  * the host'.
  */
-object Host : Target() {
+object HostTarget : Target() {
     override fun serialize() = "host:"
 }
 
@@ -34,7 +34,7 @@ object Host : Target() {
  * prefix can be used to indicate that the client is asking the ADB server
  * for information related to a specific device.
  */
-class HostSerial(val serial: String) : Target() {
+class SerialTarget(val serial: String) : Target() {
     override fun serialize() = "host-serial:$serial:"
 }
 
@@ -42,7 +42,7 @@ class HostSerial(val serial: String) : Target() {
  * A variant of host-serial used to target the single USB device connected
  * to the host. This will fail if there is none or more than one.
  */
-object HostUsb : Target() {
+object UsbTarget : Target() {
     override fun serialize() = "host-usb:"
 }
 
@@ -50,7 +50,7 @@ object HostUsb : Target() {
  * A variant of host-serial used to target the single emulator instance
  * running on the host. This will fail if there is none or more than one.
  */
-object HostLocal : Target() {
+object LocalTarget : Target() {
     override fun serialize() = "host-local:"
 }
 
