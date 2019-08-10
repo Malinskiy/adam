@@ -18,6 +18,7 @@ package com.malinskiy.adam.integration
 
 import com.malinskiy.adam.extension.readAdbString
 import com.malinskiy.adam.request.async.LogcatRequestAsync
+import com.malinskiy.adam.request.devices.ListDevicesRequest
 import com.malinskiy.adam.request.forwarding.*
 import com.malinskiy.adam.request.sync.GetPropRequest
 import com.malinskiy.adam.request.sync.GetSinglePropRequest
@@ -166,6 +167,16 @@ class E2ETest {
             )
 
             portForwards.size shouldEqual 0
+        }
+    }
+
+    @Test
+    fun testListDevices() {
+        runBlocking {
+            val list = adbRule.adb.execute(adbRule.deviceSerial, ListDevicesRequest())
+
+            list.size shouldEqual 1
+            list[0].serial shouldEqual adbRule.deviceSerial
         }
     }
 }
