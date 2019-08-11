@@ -18,11 +18,11 @@ package com.malinskiy.adam.transport
 
 import com.android.ddmlib.logging.Log
 import com.malinskiy.adam.Const
-import com.malinskiy.adam.request.Response
+import com.malinskiy.adam.request.TransportResponse
 import kotlinx.coroutines.io.ByteReadChannel
 
 class AndroidReadChannel(private val delegate: ByteReadChannel) : ByteReadChannel by delegate {
-    suspend fun read(): Response {
+    suspend fun read(): TransportResponse {
         val bytes = ByteArray(4)
         delegate.readFully(bytes, 0, 4)
 
@@ -43,7 +43,7 @@ class AndroidReadChannel(private val delegate: ByteReadChannel) : ByteReadChanne
             null
         }
 
-        return Response(ok, message)
+        return TransportResponse(ok, message)
     }
 
     private fun ByteArray.isOkay(): Boolean {

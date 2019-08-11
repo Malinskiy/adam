@@ -24,7 +24,7 @@ import com.malinskiy.adam.transport.AndroidWriteChannel
 import java.nio.ByteBuffer
 
 class ListPortForwardsRequest(serial: String) : ComplexRequest<List<PortForwardingRule>>(target = SerialTarget(serial)) {
-    override suspend fun process(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel): List<PortForwardingRule> {
+    override suspend fun readElement(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel): List<PortForwardingRule> {
         val sizeBuffer: ByteBuffer = ByteBuffer.allocate(4)
         readChannel.readFully(sizeBuffer)
         sizeBuffer.rewind()

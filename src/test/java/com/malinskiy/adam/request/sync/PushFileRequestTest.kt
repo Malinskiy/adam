@@ -14,9 +14,19 @@
  * limitations under the License.
  */
 
-package com.malinskiy.adam.request
+package com.malinskiy.adam.request.sync
 
-class Response(
-    val okay: Boolean,
-    val message: String?
-)
+import com.malinskiy.adam.Const
+import org.amshove.kluent.shouldEqual
+import org.junit.Test
+import java.io.File
+
+class PushFileRequestTest {
+    @Test
+    fun testSerialize() {
+        val testFile = File(javaClass.getResource("/app-debug.apk").toURI())
+        val fileName = testFile.name
+        val bytes = PushFileRequest(testFile, "/data/local/tmp/$fileName").serialize()
+        bytes.toString(Const.DEFAULT_TRANSPORT_ENCODING) shouldEqual "0005sync:"
+    }
+}

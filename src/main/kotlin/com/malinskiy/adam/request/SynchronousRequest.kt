@@ -22,7 +22,7 @@ import com.malinskiy.adam.transport.AndroidReadChannel
 import com.malinskiy.adam.transport.AndroidWriteChannel
 
 abstract class SynchronousRequest<T : Any?>(target: Target = NonSpecifiedTarget) : ComplexRequest<T>(target), ResponseTransformer<T> {
-    override suspend fun process(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel): T {
+    override suspend fun readElement(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel): T {
         val data = ByteArray(Const.MAX_PACKET_LENGTH)
         loop@ do {
             if (writeChannel.isClosedForWrite || readChannel.isClosedForRead) break@loop

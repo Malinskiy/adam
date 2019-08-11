@@ -24,5 +24,14 @@ import com.malinskiy.adam.transport.AndroidWriteChannel
  * and then proceed to do several reads and writes that have dynamic size
  */
 abstract class ComplexRequest<T : Any?>(target: Target = NonSpecifiedTarget) : Request(target) {
-    abstract suspend fun process(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel): T
+    /**
+     * Some requests ignore the initial OKAY/FAIL response and instead stream the actual response
+     * To implement these we allow overriding this method
+     */
+    open suspend fun process(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel): T {
+        handshake(readChannel, writeChannel)
+        return readElement(readChannel, writeChannel)
+    }
+
+    abstract suspend fun readElement(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel): T
 }

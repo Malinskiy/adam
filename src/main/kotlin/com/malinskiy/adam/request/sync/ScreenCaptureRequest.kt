@@ -24,7 +24,7 @@ import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
 class ScreenCaptureRequest : ComplexRequest<RawImage>() {
-    override suspend fun process(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel): RawImage {
+    override suspend fun readElement(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel): RawImage {
         val protocolBuffer: ByteBuffer = ByteBuffer.allocate(4)
         readChannel.readFully(protocolBuffer)
         protocolBuffer.rewind()

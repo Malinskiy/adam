@@ -16,9 +16,18 @@
 
 package com.malinskiy.adam.request
 
+import com.android.ddmlib.logging.Log
+import com.malinskiy.adam.AndroidDebugBridgeServer
 import com.malinskiy.adam.Const
+import com.malinskiy.adam.exception.RequestRejectedException
+import com.malinskiy.adam.transport.AndroidReadChannel
+import com.malinskiy.adam.transport.AndroidWriteChannel
 import java.io.UnsupportedEncodingException
 
+/**
+ * By default all requests are targeted at adb daemon itself
+ * @see [Target]
+ */
 open abstract class Request(val target: Target = HostTarget) {
 
     /**
@@ -26,6 +35,16 @@ open abstract class Request(val target: Target = HostTarget) {
      * @see https://android.googlesource.com/platform/system/core/+/refs/heads/master/adb/SERVICES.TXT
      */
     abstract fun serialize(): ByteArray
+
+    open suspend fun handshake(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel) {
+        val request = serialize()
+        writeChannel.write(request)
+        val response = readChannel.read()
+        if (!response.okay) {
+            Log.w(AndroidDebugBridgeServer.TAG, "adb server rejected command ${String(request, Const.DEFAULT_TRANSPORT_ENCODING)}")
+            throw RequestRejectedException(response.message ?: "no message received")
+        }
+    }
 
     /**
      * If this throws [UnsupportedEncodingException] then all is doomed:
@@ -37,4 +56,6 @@ open abstract class Request(val target: Target = HostTarget) {
         return String.format("%04X%s", fullRequest.length, fullRequest)
             .toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
     }
+
+    protected open fun validate(): Boolean = true
 }

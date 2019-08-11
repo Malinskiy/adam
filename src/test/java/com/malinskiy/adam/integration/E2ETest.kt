@@ -19,10 +19,7 @@ package com.malinskiy.adam.integration
 import com.malinskiy.adam.request.async.ChanneledLogcatRequest
 import com.malinskiy.adam.request.devices.ListDevicesRequest
 import com.malinskiy.adam.request.forwarding.*
-import com.malinskiy.adam.request.sync.GetPropRequest
-import com.malinskiy.adam.request.sync.GetSinglePropRequest
-import com.malinskiy.adam.request.sync.ScreenCaptureRequest
-import com.malinskiy.adam.request.sync.ShellCommandRequest
+import com.malinskiy.adam.request.sync.*
 import com.malinskiy.adam.rule.AdbDeviceRule
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.runBlocking
@@ -179,6 +176,19 @@ class E2ETest {
 
             list.size shouldEqual 1
             list[0].serial shouldEqual adbRule.deviceSerial
+        }
+    }
+
+    @Test
+    fun testGetAdbVersion() {
+        runBlocking {
+            val version = adbRule.adb.execute(GetAdbServerVersionRequest())
+            /**
+             * This will change depending on the local version of adb daemon
+             * Need to figure out how to test this in a stable fashion
+             * Maybe adb service in docker?
+             */
+            version shouldEqual 41
         }
     }
 }

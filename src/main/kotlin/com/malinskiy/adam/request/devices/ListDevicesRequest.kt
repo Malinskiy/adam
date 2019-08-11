@@ -26,7 +26,7 @@ import java.nio.ByteBuffer
 class ListDevicesRequest : ComplexRequest<List<Device>>(target = HostTarget) {
     override fun serialize() = createBaseRequest("devices")
 
-    override suspend fun process(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel): List<Device> {
+    override suspend fun readElement(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel): List<Device> {
         val sizeBuffer: ByteBuffer = ByteBuffer.allocate(4)
         readChannel.readFully(sizeBuffer)
         sizeBuffer.rewind()

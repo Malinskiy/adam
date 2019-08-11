@@ -53,7 +53,6 @@ class AndroidDebugBridgeServer(
                     processRequest(writeChannel, SetDeviceRequest(it).serialize(), readChannel)
                 }
 
-                processRequest(writeChannel, request.serialize(), readChannel)
                 return request.process(readChannel, writeChannel)
             }
     }
@@ -70,7 +69,7 @@ class AndroidDebugBridgeServer(
                         processRequest(writeChannel, SetDeviceRequest(it).serialize(), readChannel)
                     }
 
-                    processRequest(writeChannel, request.serialize(), readChannel)
+                    request.handshake(readChannel, writeChannel)
 
                     while (true) {
                         if (isClosedForSend || readChannel.isClosedForRead || writeChannel.isClosedForWrite) return@produce
