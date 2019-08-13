@@ -16,6 +16,7 @@
 
 package com.malinskiy.adam.integration
 
+import com.malinskiy.adam.request.sync.PullFileRequest
 import com.malinskiy.adam.request.sync.PushFileRequest
 import com.malinskiy.adam.request.sync.ShellCommandRequest
 import com.malinskiy.adam.rule.AdbDeviceRule
@@ -53,6 +54,33 @@ class FileE2ETest {
             println()
 
             val size = adbRule.adb.execute(ShellCommandRequest("stat -c \"%s\" /data/local/tmp/app-debug.apk"), adbRule.deviceSerial)
+            size.toLong() shouldEqual testFile.length()
+        }
+    }
+
+    @Test
+    fun testFilePulling() {
+        runBlocking {
+            val testFile = File("/tmp/build.prop")
+            val channel = adbRule.adb.execute(
+                PullFileRequest("/system/build.prop", testFile),
+                GlobalScope,
+                adbRule.deviceSerial
+            )
+
+            var percentage = 0
+            while (!channel.isClosedForReceive) {
+                val percentageDouble = channel.receiveOrNull() ?: break
+
+                val newPercentage = (percentageDouble * 100).roundToInt()
+                if (newPercentage != percentage) {
+                    print('.')
+                    percentage = newPercentage
+                }
+            }
+            println()
+
+            val size = adbRule.adb.execute(ShellCommandRequest("stat -c \"%s\" /system/build.prop"), adbRule.deviceSerial)
             size.toLong() shouldEqual testFile.length()
         }
     }
