@@ -22,7 +22,7 @@ import com.malinskiy.adam.request.SynchronousRequest
 class KillAdbRequest : SynchronousRequest<Unit>(target = HostTarget) {
     override fun serialize() = createBaseRequest("kill")
 
-    override suspend fun process(count: ByteArray, offset: Int, limit: Int) = Unit
+    override suspend fun process(bytes: ByteArray, offset: Int, limit: Int) = Unit
 
     override fun transform() = Unit
 }

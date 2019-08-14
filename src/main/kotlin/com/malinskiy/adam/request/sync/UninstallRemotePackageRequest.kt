@@ -16,18 +16,23 @@
 
 package com.malinskiy.adam.request.sync
 
-import com.malinskiy.adam.request.SynchronousRequest
+import com.malinskiy.adam.request.transform.ResponseTransformer
+import com.malinskiy.adam.request.transform.StringResponseTransformer
 
-class RebootRequest(val mode: RebootMode = RebootMode.DEFAULT) : SynchronousRequest<Unit>() {
-    override suspend fun process(bytes: ByteArray, offset: Int, limit: Int) = Unit
+/**
+ * @param keepData keep the data and cache directories around after package removal
+ */
+class UninstallRemotePackageRequest(
+    val packageName: String,
+    val keepData: Boolean = false
+) : SyncShellCommandRequest<String>(
+    cmd = StringBuilder().apply {
+        append("pm uninstall ")
 
-    override fun serialize() = createBaseRequest("reboot:${mode.value}")
+        if (keepData) {
+            append("-k ")
+        }
 
-    override fun transform() = Unit
-}
-
-enum class RebootMode(val value: String) {
-    DEFAULT(""),
-    RECOVERY("recovery"),
-    BOOTLOADER("bootloader")
-}
+        append(packageName)
+    }.toString()
+), ResponseTransformer<String> by StringResponseTransformer()

@@ -30,7 +30,7 @@ class PortForwardRequest(
     override fun serialize() =
         createBaseRequest("forward${mode.value}:${local.toSpec()};${remote.toSpec()}")
 
-    override suspend fun process(count: ByteArray, offset: Int, limit: Int) = Unit
+    override suspend fun process(bytes: ByteArray, offset: Int, limit: Int) = Unit
 
     override fun transform() = Unit
 }

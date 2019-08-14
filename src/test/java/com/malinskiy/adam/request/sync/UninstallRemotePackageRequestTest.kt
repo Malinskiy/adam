@@ -16,18 +16,22 @@
 
 package com.malinskiy.adam.request.sync
 
-import com.malinskiy.adam.request.SynchronousRequest
+import com.malinskiy.adam.Const
+import org.amshove.kluent.shouldEqual
+import org.junit.Test
 
-class RebootRequest(val mode: RebootMode = RebootMode.DEFAULT) : SynchronousRequest<Unit>() {
-    override suspend fun process(bytes: ByteArray, offset: Int, limit: Int) = Unit
+class UninstallRemotePackageRequestTest {
+    @Test
+    fun testSerialize() {
+        val bytes = UninstallRemotePackageRequest("com.example").serialize()
 
-    override fun serialize() = createBaseRequest("reboot:${mode.value}")
+        String(bytes, Const.DEFAULT_TRANSPORT_ENCODING) shouldEqual "001Eshell:pm uninstall com.example"
+    }
 
-    override fun transform() = Unit
-}
+    @Test
+    fun testSerializeWithRemoveDataFlag() {
+        val bytes = UninstallRemotePackageRequest("com.example", true).serialize()
 
-enum class RebootMode(val value: String) {
-    DEFAULT(""),
-    RECOVERY("recovery"),
-    BOOTLOADER("bootloader")
+        String(bytes, Const.DEFAULT_TRANSPORT_ENCODING) shouldEqual "0021shell:pm uninstall -k com.example"
+    }
 }
