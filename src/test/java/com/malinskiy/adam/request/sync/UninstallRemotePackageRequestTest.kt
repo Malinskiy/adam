@@ -16,8 +16,9 @@
 
 package com.malinskiy.adam.request.sync
 
+import assertk.assertThat
+import assertk.assertions.isEqualTo
 import com.malinskiy.adam.Const
-import org.amshove.kluent.shouldEqual
 import org.junit.Test
 
 class UninstallRemotePackageRequestTest {
@@ -25,13 +26,17 @@ class UninstallRemotePackageRequestTest {
     fun testSerialize() {
         val bytes = UninstallRemotePackageRequest("com.example").serialize()
 
-        String(bytes, Const.DEFAULT_TRANSPORT_ENCODING) shouldEqual "001Eshell:pm uninstall com.example"
+        val actual = String(bytes, Const.DEFAULT_TRANSPORT_ENCODING)
+        assertThat(actual)
+            .isEqualTo("001Eshell:pm uninstall com.example")
     }
 
     @Test
     fun testSerializeWithRemoveDataFlag() {
         val bytes = UninstallRemotePackageRequest("com.example", true).serialize()
 
-        String(bytes, Const.DEFAULT_TRANSPORT_ENCODING) shouldEqual "0021shell:pm uninstall -k com.example"
+        val actual = String(bytes, Const.DEFAULT_TRANSPORT_ENCODING)
+        assertThat(actual)
+            .isEqualTo("0021shell:pm uninstall -k com.example")
     }
 }

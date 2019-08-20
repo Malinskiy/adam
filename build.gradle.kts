@@ -31,7 +31,8 @@ dependencies {
     implementation(Libraries.ktorNetwork)
 
 
-    testImplementation(TestLibraries.kluent)
+    testImplementation(TestLibraries.assertk)
     testImplementation(TestLibraries.easymock)
     testImplementation(TestLibraries.junit)
+    testImplementation(kotlin("reflect"))
 }

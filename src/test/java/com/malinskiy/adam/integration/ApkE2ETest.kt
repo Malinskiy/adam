@@ -16,6 +16,9 @@
 
 package com.malinskiy.adam.integration
 
+import assertk.assertThat
+import assertk.assertions.contains
+import assertk.assertions.doesNotContain
 import com.malinskiy.adam.request.pm.Package
 import com.malinskiy.adam.request.pm.PmListRequest
 import com.malinskiy.adam.request.sync.InstallRemotePackageRequest
@@ -24,7 +27,6 @@ import com.malinskiy.adam.request.sync.UninstallRemotePackageRequest
 import com.malinskiy.adam.rule.AdbDeviceRule
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.runBlocking
-import org.amshove.kluent.shouldEqual
 import org.junit.Rule
 import org.junit.Test
 import java.io.File
@@ -51,12 +53,14 @@ class ApkE2ETest {
             server.execute(InstallRemotePackageRequest("/data/local/tmp/$fileName", true), serial = adb.deviceSerial)
 
             var packages = server.execute(PmListRequest(), serial = adb.deviceSerial)
-            packages.contains(Package("com.example")) shouldEqual true
+            assertThat(packages)
+                .contains(Package("com.example"))
 
             server.execute(UninstallRemotePackageRequest("com.example"), adb.deviceSerial)
 
             packages = server.execute(PmListRequest(), serial = adb.deviceSerial)
-            packages.contains(Package("com.example")) shouldEqual false
+            assertThat(packages)
+                .doesNotContain(Package("com.example"))
         }
     }
 }

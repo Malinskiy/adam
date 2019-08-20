@@ -18,12 +18,12 @@ package com.malinskiy.adam.request.testrunner
 
 sealed class TestEvent
 
-class TestRunStartedEvent(runName: String, testCount: Int) : TestEvent()
-class TestStarted(id: TestIdentifier) : TestEvent()
-class TestFailed(id: TestIdentifier) : TestEvent()
-class TestAssumptionFailed(id: TestIdentifier, stackTrace: String) : TestEvent()
-class TestIgnored(id: TestIdentifier) : TestEvent()
-class TestEnded(id: TestIdentifier) : TestEvent()
-class TestRunFailed(error: String) : TestEvent()
-class TestRunStopped(elapsedTimeMillis: Long) : TestEvent()
-class TestRunEnded(elapsedTimeMillis: Long, metrics: Map<String, String>) : TestEvent()
+data class TestRunStartedEvent(val runName: String, val testCount: Int) : TestEvent()
+class TestStarted(val id: TestIdentifier) : TestEvent()
+class TestFailed(val id: TestIdentifier, val stackTrace: String) : TestEvent()
+class TestAssumptionFailed(val id: TestIdentifier, val stackTrace: String) : TestEvent()
+class TestIgnored(val id: TestIdentifier) : TestEvent()
+class TestEnded(val id: TestIdentifier, val metrics: Map<String, String>) : TestEvent()
+class TestRunFailed(val error: String) : TestEvent()
+class TestRunStopped(val elapsedTimeMillis: Long) : TestEvent()
+class TestRunEnded(val elapsedTimeMillis: Long, val metrics: Map<String, String>) : TestEvent()

@@ -23,16 +23,25 @@ import com.malinskiy.adam.transport.AndroidWriteChannel
 import kotlinx.coroutines.io.cancel
 import kotlinx.coroutines.io.close
 
+/**
+ * @see https://android.googlesource.com/platform/frameworks/base/+/master/cmds/am/src/com/android/commands/am/Am.java#155
+ */
 class TestRunnerRequest(
     private val testPackage: String,
     private val instrumentOptions: InstrumentOptions,
     private val runnerClass: String = "android.support.test.runner.AndroidJUnitRunner",
-    private val noHiddenApiChecks: Boolean = false
+    private val noHiddenApiChecks: Boolean = false,
+    private val noWindowAnimations: Boolean = false,
+    private val userId: Int? = null,
+    private val abi: String? = null,
+    private val profilingOutputPath: String? = null,
+    private val outputLogPath: String? = null
 ) : AsyncChannelRequest<String>() {
     val buffer = ByteArray(Const.MAX_PACKET_LENGTH)
 
     override suspend fun readElement(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel): String {
         val available = readChannel.readAvailable(buffer, 0, Const.MAX_FILE_PACKET_LENGTH)
+
         return when {
             available > 0 -> {
                 String(buffer, 0, available, Const.DEFAULT_TRANSPORT_ENCODING)
@@ -55,9 +64,28 @@ class TestRunnerRequest(
             append(" --no-hidden-api-checks")
         }
 
+        if (noWindowAnimations) {
+            append(" --no-window-animation")
+        }
+
+        if (userId != null) {
+            append(" --user $userId")
+        }
+
+        if (abi != null) {
+            append(" --abi $abi")
+        }
+
+        if (profilingOutputPath != null) {
+            append(" -p $profilingOutputPath")
+        }
+
+        if (outputLogPath != null) {
+            append(" -f $outputLogPath")
+        }
+
         append(instrumentOptions.toString())
 
         append(" $testPackage/$runnerClass")
     }.toString())
 }
-

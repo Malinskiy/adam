@@ -16,23 +16,30 @@
 
 package com.malinskiy.adam.request.sync
 
+import assertk.assertThat
+import assertk.assertions.isEqualTo
 import com.malinskiy.adam.Const
-import org.amshove.kluent.shouldEqual
 import org.junit.Test
 
 class RebootRequestTest {
     @Test
     fun testDefault() {
-        RebootRequest().serialize().toString(Const.DEFAULT_TRANSPORT_ENCODING) shouldEqual "0007reboot:"
+        val actual = RebootRequest().serialize().toString(Const.DEFAULT_TRANSPORT_ENCODING)
+        assertThat(actual)
+            .isEqualTo("0007reboot:")
     }
 
     @Test
     fun testBootloader() {
-        RebootRequest(RebootMode.BOOTLOADER).serialize().toString(Const.DEFAULT_TRANSPORT_ENCODING) shouldEqual "0011reboot:bootloader"
+        val actual = RebootRequest(RebootMode.BOOTLOADER).serialize().toString(Const.DEFAULT_TRANSPORT_ENCODING)
+        assertThat(actual)
+            .isEqualTo("0011reboot:bootloader")
     }
 
     @Test
     fun testRecovery() {
-        RebootRequest(RebootMode.RECOVERY).serialize().toString(Const.DEFAULT_TRANSPORT_ENCODING) shouldEqual "000Freboot:recovery"
+        val actual = RebootRequest(RebootMode.RECOVERY).serialize().toString(Const.DEFAULT_TRANSPORT_ENCODING)
+        assertThat(actual)
+            .isEqualTo("000Freboot:recovery")
     }
 }

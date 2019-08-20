@@ -16,8 +16,9 @@
 
 package com.malinskiy.adam.request.forwarding
 
+import assertk.assertThat
+import assertk.assertions.isEqualTo
 import com.malinskiy.adam.Const
-import org.amshove.kluent.shouldEqual
 import org.junit.Test
 
 class PortForwardRequestTest {
@@ -25,7 +26,8 @@ class PortForwardRequestTest {
     fun testSerializeDefault() {
         val bytes = PortForwardRequest(LocalTcpPortSpec(80), RemoteTcpPortSpec(80), "emulator-5554").serialize()
 
-        String(bytes, Const.DEFAULT_TRANSPORT_ENCODING) shouldEqual "002Fhost-serial:emulator-5554:forward:tcp:80;tcp:80"
+        assertThat(String(bytes, Const.DEFAULT_TRANSPORT_ENCODING))
+            .isEqualTo("002Fhost-serial:emulator-5554:forward:tcp:80;tcp:80")
     }
 
     @Test
@@ -37,6 +39,7 @@ class PortForwardRequestTest {
             mode = PortForwardingMode.NO_REBIND
         ).serialize()
 
-        String(bytes, Const.DEFAULT_TRANSPORT_ENCODING) shouldEqual "0038host-serial:emulator-5554:forward:norebind:tcp:80;tcp:80"
+        assertThat(String(bytes, Const.DEFAULT_TRANSPORT_ENCODING))
+            .isEqualTo("0038host-serial:emulator-5554:forward:norebind:tcp:80;tcp:80")
     }
 }

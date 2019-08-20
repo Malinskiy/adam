@@ -16,14 +16,16 @@
 
 package com.malinskiy.adam.request
 
+import assertk.assertThat
+import assertk.assertions.isEqualTo
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.request.sync.GetSinglePropRequest
-import org.amshove.kluent.shouldEqual
 import org.junit.Test
 
 class GetSinglePropRequestTest {
     @Test
     fun testGetX() {
-        String(GetSinglePropRequest("x").serialize(), Const.DEFAULT_TRANSPORT_ENCODING) shouldEqual "000Fshell:getprop x"
+        assertThat(String(GetSinglePropRequest("x").serialize(), Const.DEFAULT_TRANSPORT_ENCODING))
+            .isEqualTo("000Fshell:getprop x")
     }
 }

@@ -47,7 +47,9 @@ class TestRunnerE2ETest {
             val channel = rule.adb.execute(
                 TestRunnerRequest(
                     "com.example.test",
-                    InstrumentOptions()
+                    InstrumentOptions(
+                        clazz = listOf("com.example.AbstractFailingTest")
+                    )
                 ), serial = rule.deviceSerial,
                 scope = GlobalScope
             )

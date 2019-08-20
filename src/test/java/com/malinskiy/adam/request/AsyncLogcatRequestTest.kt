@@ -16,9 +16,10 @@
 
 package com.malinskiy.adam.request
 
+import assertk.assertThat
+import assertk.assertions.isEqualTo
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.request.async.*
-import org.amshove.kluent.shouldEqual
 import org.junit.Test
 import java.time.Instant
 
@@ -29,7 +30,8 @@ class AsyncLogcatRequestTest {
             modes = listOf(LogcatReadMode.long, LogcatReadMode.epoch)
         ).serialize()
 
-        String(cmd, Const.DEFAULT_TRANSPORT_ENCODING) shouldEqual "0028shell:logcat -v long -v epoch -b default"
+        assertThat(String(cmd, Const.DEFAULT_TRANSPORT_ENCODING))
+            .isEqualTo("0028shell:logcat -v long -v epoch -b default")
     }
 
     @Test
@@ -38,21 +40,24 @@ class AsyncLogcatRequestTest {
             buffers = listOf(LogcatBuffer.crash, LogcatBuffer.radio)
         ).serialize()
 
-        String(cmd, Const.DEFAULT_TRANSPORT_ENCODING) shouldEqual "0026shell:logcat -v long -b crash -b radio"
+        assertThat(String(cmd, Const.DEFAULT_TRANSPORT_ENCODING))
+            .isEqualTo("0026shell:logcat -v long -b crash -b radio")
     }
 
     @Test
     fun testContinuous() {
         val cmd = ChanneledLogcatRequest().serialize()
 
-        String(cmd, Const.DEFAULT_TRANSPORT_ENCODING) shouldEqual "001Fshell:logcat -v long -b default"
+        assertThat(String(cmd, Const.DEFAULT_TRANSPORT_ENCODING))
+            .isEqualTo("001Fshell:logcat -v long -b default")
     }
 
     @Test
     fun testSinceContinuous() {
         val cmd = ChanneledLogcatRequest(since = Instant.ofEpochMilli(10)).serialize()
 
-        String(cmd, Const.DEFAULT_TRANSPORT_ENCODING) shouldEqual "0027shell:logcat -T 10.0 -v long -b default"
+        assertThat(String(cmd, Const.DEFAULT_TRANSPORT_ENCODING))
+            .isEqualTo("0027shell:logcat -T 10.0 -v long -b default")
     }
 
     @Test
@@ -67,6 +72,7 @@ class AsyncLogcatRequestTest {
             )
         ).serialize()
 
-        String(cmd, Const.DEFAULT_TRANSPORT_ENCODING) shouldEqual "002Dshell:logcat -v long -b default *:S SOMETAG:E"
+        assertThat(String(cmd, Const.DEFAULT_TRANSPORT_ENCODING))
+            .isEqualTo("002Dshell:logcat -v long -b default *:S SOMETAG:E")
     }
 }

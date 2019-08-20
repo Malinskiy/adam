@@ -16,6 +16,8 @@
 
 package com.malinskiy.adam.integration
 
+import assertk.assertThat
+import assertk.assertions.*
 import com.malinskiy.adam.request.async.ChanneledLogcatRequest
 import com.malinskiy.adam.request.devices.ListDevicesRequest
 import com.malinskiy.adam.request.forwarding.*
@@ -23,8 +25,6 @@ import com.malinskiy.adam.request.sync.*
 import com.malinskiy.adam.rule.AdbDeviceRule
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.runBlocking
-import org.amshove.kluent.shouldBe
-import org.amshove.kluent.shouldEqual
 import org.junit.Rule
 import org.junit.Test
 import java.awt.image.BufferedImage
@@ -71,7 +71,7 @@ class E2ETest {
                 ShellCommandRequest("echo hello"),
                 adbRule.deviceSerial
             )
-            response shouldEqual "hello"
+            assertThat(response).isEqualTo("hello")
         }
     }
 
@@ -82,7 +82,7 @@ class E2ETest {
                 GetPropRequest(),
                 adbRule.deviceSerial
             )
-            props["sys.boot_completed"]!! shouldEqual "1"
+            assertThat(props["sys.boot_completed"]).isEqualTo("1")
         }
     }
 
@@ -93,7 +93,7 @@ class E2ETest {
                 GetSinglePropRequest("sys.boot_completed"),
                 adbRule.deviceSerial
             )
-            response shouldEqual "1"
+            assertThat(response).isEqualTo("1")
         }
     }
 
@@ -107,7 +107,7 @@ class E2ETest {
             )
 
             val line = channel.receive()
-            line.startsWith("--------- beginning of") shouldBe true
+            assertThat(line).startsWith("--------- beginning of")
             channel.cancel()
         }
     }
@@ -125,14 +125,14 @@ class E2ETest {
                 adbRule.deviceSerial
             )
 
-            portForwards.size shouldEqual 1
+            assertThat(portForwards).hasSize(1)
             val rule = portForwards[0]
-            rule.serial shouldEqual adbRule.deviceSerial
-            (rule.localSpec is LocalTcpPortSpec) shouldEqual true
-            (rule.localSpec as LocalTcpPortSpec).port shouldEqual 12042
+            assertThat(rule.serial).isEqualTo(adbRule.deviceSerial)
+            assertThat(rule.localSpec).isInstanceOf(LocalTcpPortSpec::class)
+            assertThat((rule.localSpec as LocalTcpPortSpec).port).isEqualTo(12042)
 
-            (rule.remoteSpec is RemoteTcpPortSpec) shouldEqual true
-            (rule.remoteSpec as RemoteTcpPortSpec).port shouldEqual 12042
+            assertThat(rule.remoteSpec).isInstanceOf(RemoteTcpPortSpec::class)
+            assertThat((rule.remoteSpec as RemoteTcpPortSpec).port).isEqualTo(12042)
 
             adbRule.adb.execute(RemovePortForwardRequest(LocalTcpPortSpec(12042), serial = adbRule.deviceSerial), adbRule.deviceSerial)
 
@@ -140,7 +140,7 @@ class E2ETest {
                 ListPortForwardsRequest(adbRule.deviceSerial), adbRule.deviceSerial
             )
 
-            afterAllForwards.size shouldEqual 0
+            assertThat(afterAllForwards).isEmpty()
         }
     }
 
@@ -162,7 +162,7 @@ class E2ETest {
                 adbRule.deviceSerial
             )
 
-            portForwards.size shouldEqual 0
+            assertThat(portForwards).isEmpty()
         }
     }
 
@@ -174,8 +174,8 @@ class E2ETest {
                 adbRule.deviceSerial
             )
 
-            list.size shouldEqual 1
-            list[0].serial shouldEqual adbRule.deviceSerial
+            assertThat(list).hasSize(1)
+            assertThat(list[0].serial).isEqualTo(adbRule.deviceSerial)
         }
     }
 
@@ -188,7 +188,7 @@ class E2ETest {
              * Need to figure out how to test this in a stable fashion
              * Maybe adb service in docker?
              */
-            version shouldEqual 41
+            assertThat(version).isEqualTo(41)
         }
     }
 }

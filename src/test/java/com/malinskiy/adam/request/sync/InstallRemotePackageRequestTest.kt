@@ -16,8 +16,9 @@
 
 package com.malinskiy.adam.request.sync
 
+import assertk.assertThat
+import assertk.assertions.isEqualTo
 import com.malinskiy.adam.Const
-import org.amshove.kluent.shouldEqual
 import org.junit.Test
 
 class InstallRemotePackageRequestTest {
@@ -25,13 +26,15 @@ class InstallRemotePackageRequestTest {
     fun testSerialize() {
         val request = InstallRemotePackageRequest("/data/local/tmp/file.apk", false)
         val value = String(request.serialize(), Const.DEFAULT_TRANSPORT_ENCODING)
-        value shouldEqual "0029shell:pm install /data/local/tmp/file.apk"
+        assertThat(value)
+            .isEqualTo("0029shell:pm install /data/local/tmp/file.apk")
     }
 
     @Test
     fun testReinstall() {
         val request = InstallRemotePackageRequest("/data/local/tmp/file.apk", true)
         val value = String(request.serialize(), Const.DEFAULT_TRANSPORT_ENCODING)
-        value shouldEqual "002Cshell:pm install -r /data/local/tmp/file.apk"
+        assertThat(value)
+            .isEqualTo("002Cshell:pm install -r /data/local/tmp/file.apk")
     }
 }

@@ -16,13 +16,15 @@
 
 package com.malinskiy.adam.request.sync
 
+import assertk.assertThat
+import assertk.assertions.isEqualTo
 import com.malinskiy.adam.Const
-import org.amshove.kluent.shouldEqual
 import org.junit.Test
 
 class GetPropRequestTest {
     @Test
     fun testGetAll() {
-        String(GetPropRequest().serialize(), Const.DEFAULT_TRANSPORT_ENCODING) shouldEqual "000Dshell:getprop"
+        assertThat(String(GetPropRequest().serialize(), Const.DEFAULT_TRANSPORT_ENCODING))
+            .isEqualTo("000Dshell:getprop")
     }
 }

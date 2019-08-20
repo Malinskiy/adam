@@ -16,6 +16,8 @@
 
 package com.malinskiy.adam.integration
 
+import assertk.assertThat
+import assertk.assertions.isEqualTo
 import com.malinskiy.adam.request.sync.PullFileRequest
 import com.malinskiy.adam.request.sync.PushFileRequest
 import com.malinskiy.adam.request.sync.ShellCommandRequest
@@ -23,7 +25,6 @@ import com.malinskiy.adam.request.sync.StatFileRequest
 import com.malinskiy.adam.rule.AdbDeviceRule
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.runBlocking
-import org.amshove.kluent.shouldEqual
 import org.junit.Rule
 import org.junit.Test
 import java.io.File
@@ -55,13 +56,13 @@ class FileE2ETest {
             println()
 
             val size = adbRule.adb.execute(ShellCommandRequest("stat -c \"%s\" /data/local/tmp/app-debug.apk"), adbRule.deviceSerial)
-            size.toLong() shouldEqual testFile.length()
+            assertThat(size.toLong()).isEqualTo(testFile.length())
 
             val stats = adbRule.adb.execute(StatFileRequest("/data/local/tmp/app-debug.apk"), adbRule.deviceSerial)
 
-            stats.size shouldEqual testFile.length().toInt()
+            assertThat(stats.size).isEqualTo(testFile.length().toInt())
             //TODO figure out why 644 is actually pushed as 666
-            stats.mode shouldEqual "100666".toInt(radix = 8)
+            assertThat(stats.mode).isEqualTo("100666".toInt(radix = 8))
         }
     }
 
@@ -88,7 +89,7 @@ class FileE2ETest {
             println()
 
             val size = adbRule.adb.execute(ShellCommandRequest("stat -c \"%s\" /system/build.prop"), adbRule.deviceSerial)
-            size.toLong() shouldEqual testFile.length()
+            assertThat(size.toLong()).isEqualTo(testFile.length())
         }
     }
 }

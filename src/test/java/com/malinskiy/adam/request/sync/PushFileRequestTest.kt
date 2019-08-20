@@ -16,8 +16,9 @@
 
 package com.malinskiy.adam.request.sync
 
+import assertk.assertThat
+import assertk.assertions.isEqualTo
 import com.malinskiy.adam.Const
-import org.amshove.kluent.shouldEqual
 import org.junit.Test
 import java.io.File
 
@@ -27,6 +28,7 @@ class PushFileRequestTest {
         val testFile = File(javaClass.getResource("/app-debug.apk").toURI())
         val fileName = testFile.name
         val bytes = PushFileRequest(testFile, "/data/local/tmp/$fileName").serialize()
-        bytes.toString(Const.DEFAULT_TRANSPORT_ENCODING) shouldEqual "0005sync:"
+        assertThat(bytes.toString(Const.DEFAULT_TRANSPORT_ENCODING))
+            .isEqualTo("0005sync:")
     }
 }

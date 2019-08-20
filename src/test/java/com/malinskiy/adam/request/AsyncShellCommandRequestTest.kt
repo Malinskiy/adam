@@ -16,14 +16,16 @@
 
 package com.malinskiy.adam.request
 
+import assertk.assertThat
+import assertk.assertions.isEqualTo
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.request.async.ChanneledShellCommandRequest
-import org.amshove.kluent.shouldEqual
 import org.junit.Test
 
 class AsyncShellCommandRequestTest {
     @Test
     fun testSimpleCommand() {
-        String(ChanneledShellCommandRequest("test").serialize(), Const.DEFAULT_TRANSPORT_ENCODING) shouldEqual "000Ashell:test"
+        assertThat(String(ChanneledShellCommandRequest("test").serialize(), Const.DEFAULT_TRANSPORT_ENCODING))
+            .isEqualTo("000Ashell:test")
     }
 }
