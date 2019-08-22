@@ -21,10 +21,16 @@ import com.malinskiy.adam.request.Request
 import com.malinskiy.adam.request.Target
 import com.malinskiy.adam.transport.AndroidReadChannel
 import com.malinskiy.adam.transport.AndroidWriteChannel
+import kotlinx.coroutines.channels.SendChannel
 
 abstract class AsyncChannelRequest<T : Any?>(target: Target = NonSpecifiedTarget) : Request(target) {
     /**
      * Called after the initial OKAY confirmation
      */
     abstract suspend fun readElement(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel): T
+
+    /**
+     * Optionally send a message
+     */
+    fun close(channel: SendChannel<T>) = Unit
 }

@@ -76,6 +76,8 @@ class AndroidDebugBridgeServer(
                         val element = request.readElement(readChannel, writeChannel)
                         send(element)
                     }
+
+                    request.close(channel)
                 }
         }
     }

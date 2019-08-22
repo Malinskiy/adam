@@ -17,21 +17,26 @@
 package com.malinskiy.adam.request.transform
 
 import com.malinskiy.adam.Const
-import com.malinskiy.adam.request.testrunner.TestEvent
-import com.malinskiy.adam.request.testrunner.TestRunEnded
+import com.malinskiy.adam.request.testrunner.*
 
-class InstrumentationResponseTransformer : ResponseTransformer<TestEvent?> {
-    val buffer = StringBuffer()
+class InstrumentationResponseTransformer : ResponseTransformer<List<TestEvent>?> {
+    var buffer = StringBuffer()
+
+    var startReported = false
+    var finishReported = false
+    var finished = false
+    var testsExpected = 0
+    var testsExecuted = 0
 
     override suspend fun process(bytes: ByteArray, offset: Int, limit: Int) {
         buffer.append(String(bytes, offset, limit, Const.DEFAULT_TRANSPORT_ENCODING))
     }
 
-    override fun transform(): TestEvent? {
+    override fun transform(): List<TestEvent>? {
         val lines = buffer.lines()
 
         val tokenPosition = lines.indexOfFirst {
-//            it.startsWith(TokenType.INSTRUMENTATION_STATUS_CODE.name) ||
+            it.startsWith(TokenType.INSTRUMENTATION_STATUS_CODE.name) ||
 //                    it.startsWith(TokenType.INSTRUMENTATION_RESULT.name) ||
                     it.startsWith(TokenType.INSTRUMENTATION_CODE.name)
         }
@@ -41,29 +46,135 @@ class InstrumentationResponseTransformer : ResponseTransformer<TestEvent?> {
         }
 
         val atom = lines.subList(0, tokenPosition + 1)
+        buffer = buffer.delete(0, atom.map { it.length }.reduce { acc, i -> acc + i + 1 })
+
         return parse(atom)
     }
 
-    private fun parse(atom: List<String>): TestEvent? {
+    fun close(): List<TestEvent>? {
+        if (finishReported) return null
+
+        return if (!startReported && !finished) {
+            listOf(TestRunFailed("No test results"))
+        } else if (testsExpected > testsExecuted) {
+            listOf(TestRunFailed("Test run failed to complete. Expected $testsExpected tests, executed $testsExecuted"))
+        } else {
+            val events = mutableListOf<TestEvent>()
+            if (!startReported) {
+                events.add(TestRunStartedEvent(0))
+            }
+
+            events.add(TestRunEnded(0, emptyMap()))
+            finishReported = true
+            events
+        }
+    }
+
+    private fun parse(atom: List<String>): List<TestEvent>? {
         val last = atom.last()
         return when {
             last.startsWith(TokenType.INSTRUMENTATION_STATUS_CODE.name) -> {
-                null
+                parseStatusCode(last, atom.subList(0, atom.size - 1))
             }
             last.startsWith(TokenType.INSTRUMENTATION_RESULT.name) -> {
                 null
             }
             last.startsWith(TokenType.INSTRUMENTATION_CODE.name) -> {
+                finished = true
                 parseInstrumentationCode(last, atom)
             }
+            last.startsWith(TokenType.INSTRUMENTATION_FAILED.name) -> {
+                finished = true
+                null
+            }
             else -> null
+        }
+    }
+
+    private fun parseStatusCode(last: String, atom: List<String>): List<TestEvent>? {
+        val value = last.substring(TokenType.INSTRUMENTATION_STATUS_CODE.name.length + 1).trim()
+        val parameters: Map<String, String> = atom.toMap()
+
+        val events = mutableListOf<TestEvent>()
+        /**
+         * Send [TestRunStartedEvent] if not done yet
+         */
+        if (!startReported) {
+            val tests = parameters["numtests"]?.toInt()
+            tests?.let {
+                events.add(TestRunStartedEvent(it))
+                testsExpected = tests
+            }
+            startReported = true
+        }
+
+        val metrics = emptyMap<String, String>()
+
+        when (Status.valueOf(value.toIntOrNull())) {
+            Status.SUCCESS -> {
+                val className = parameters["class"]
+                val testName = parameters["test"]
+                if (className != null && testName != null) {
+                    events.add(TestEnded(TestIdentifier(className, testName), metrics))
+                }
+                testsExecuted += 1
+            }
+            Status.START -> {
+                val className = parameters["class"]
+                val testName = parameters["test"]
+                if (className != null && testName != null) {
+                    events.add(TestStarted(TestIdentifier(className, testName)))
+                }
+            }
+            Status.IN_PROGRESS -> TODO()
+            Status.ERROR -> TODO()
+            Status.FAILURE -> {
+                val className = parameters["class"]
+                val testName = parameters["test"]
+                val stack = parameters["stack"]
+                if (className != null && testName != null && stack != null) {
+                    val id = TestIdentifier(className, testName)
+                    events.add(TestFailed(id, stack))
+                    events.add(TestEnded(id, metrics))
+                }
+                testsExecuted += 1
+            }
+            Status.IGNORED -> {
+                val className = parameters["class"]
+                val testName = parameters["test"]
+                if (className != null && testName != null) {
+                    val id = TestIdentifier(className, testName)
+                    events.add(TestStarted(id))
+                    events.add(TestIgnored(id))
+                    events.add(TestEnded(id, metrics))
+                }
+                testsExecuted += 1
+            }
+            Status.ASSUMPTION_FAILURE -> {
+                val className = parameters["class"]
+                val testName = parameters["test"]
+                val stack = parameters["stack"]
+                if (className != null && testName != null && stack != null) {
+                    val id = TestIdentifier(className, testName)
+                    events.add(TestAssumptionFailed(id, stack))
+                    events.add(TestEnded(id, metrics))
+                }
+                testsExecuted += 1
+            }
+            Status.UNKNOWN -> TODO()
+        }
+
+        return if (events.isNotEmpty()) {
+            events
+        } else {
+            null
         }
     }
 
     private fun parseInstrumentationCode(
         last: String,
         atom: List<String>
-    ): TestRunEnded? {
+    ): List<TestEvent>? {
         val value = last.substring(TokenType.INSTRUMENTATION_CODE.name.length + 1).trim()
         val code = value.toIntOrNull()
         return when (Status.valueOf(code)) {
@@ -78,21 +189,31 @@ class InstrumentationResponseTransformer : ResponseTransformer<TestEvent?> {
                         }
                     }
                 }
-                TestRunEnded(time, metrics)
+                finishReported = true
+                listOf(TestRunEnded(time, metrics))
             }
             else -> null
-    //                    Status.SUCCESS -> {
-    //                        TestRunEnded()
-    //                    }
+            //                    Status.SUCCESS -> {
+            //                        TestRunEnded()
+            //                    }
         }
     }
+}
+
+private fun List<String>.toMap(): Map<String, String> {
+    return this.filter { it.isNotEmpty() }.joinToString(separator = "\n").split("INSTRUMENTATION_STATUS: ").mapNotNull {
+        val split = it.trim().split("=")
+        if (split.size != 2) return@mapNotNull null
+        Pair(split[0], split[1].trim())
+    }.toMap()
 }
 
 enum class TokenType {
     INSTRUMENTATION_STATUS,
     INSTRUMENTATION_STATUS_CODE,
     INSTRUMENTATION_RESULT,
-    INSTRUMENTATION_CODE
+    INSTRUMENTATION_CODE,
+    INSTRUMENTATION_FAILED
 }
 
 enum class Status(val value: Int) {
