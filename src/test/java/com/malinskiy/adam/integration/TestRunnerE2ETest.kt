@@ -54,11 +54,12 @@ class TestRunnerE2ETest {
                 scope = GlobalScope
             )
 
-            while (!channel.isClosedForReceive) {
-                val logPart = channel.receiveOrNull() ?: break
+            var logPart: String? = null
+            do {
+                logPart?.let { print(it) }
+                logPart = channel.receiveOrNull()
+            } while (logPart != null)
 
-                print(logPart)
-            }
             println()
         }
     }

@@ -37,7 +37,6 @@ class InstrumentationResponseTransformer : ResponseTransformer<List<TestEvent>?>
 
         val tokenPosition = lines.indexOfFirst {
             it.startsWith(TokenType.INSTRUMENTATION_STATUS_CODE.name) ||
-//                    it.startsWith(TokenType.INSTRUMENTATION_RESULT.name) ||
                     it.startsWith(TokenType.INSTRUMENTATION_CODE.name)
         }
 
@@ -75,9 +74,6 @@ class InstrumentationResponseTransformer : ResponseTransformer<List<TestEvent>?>
         return when {
             last.startsWith(TokenType.INSTRUMENTATION_STATUS_CODE.name) -> {
                 parseStatusCode(last, atom.subList(0, atom.size - 1))
-            }
-            last.startsWith(TokenType.INSTRUMENTATION_RESULT.name) -> {
-                null
             }
             last.startsWith(TokenType.INSTRUMENTATION_CODE.name) -> {
                 finished = true
@@ -126,9 +122,8 @@ class InstrumentationResponseTransformer : ResponseTransformer<List<TestEvent>?>
                     events.add(TestStarted(TestIdentifier(className, testName)))
                 }
             }
-            Status.IN_PROGRESS -> TODO()
-            Status.ERROR -> TODO()
-            Status.FAILURE -> {
+            Status.IN_PROGRESS -> Unit
+            Status.ERROR, Status.FAILURE -> {
                 val className = parameters["class"]
                 val testName = parameters["test"]
                 val stack = parameters["stack"]
@@ -220,6 +215,9 @@ enum class Status(val value: Int) {
     SUCCESS(0),
     START(1),
     IN_PROGRESS(2),
+    /**
+     * JUnit3 runner code, treated as FAILURE
+     */
     ERROR(-1),
     FAILURE(-2),
     IGNORED(-3),

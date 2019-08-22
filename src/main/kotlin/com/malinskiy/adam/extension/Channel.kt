@@ -16,7 +16,6 @@
 
 package com.malinskiy.adam.extension
 
-import com.malinskiy.adam.Const
 import com.malinskiy.adam.transport.AndroidReadChannel
 import com.malinskiy.adam.transport.AndroidWriteChannel
 import kotlinx.coroutines.io.ByteReadChannel
@@ -24,8 +23,3 @@ import kotlinx.coroutines.io.ByteWriteChannel
 
 fun ByteReadChannel.toAndroidChannel() = AndroidReadChannel(this)
 fun ByteWriteChannel.toAndroidChannel() = AndroidWriteChannel(this)
-
-suspend fun ByteReadChannel.readAdbString(consumer: (String) -> Unit) = read {
-    val line = Const.DEFAULT_TRANSPORT_ENCODING.decode(it).toString()
-    consumer(line)
-}
