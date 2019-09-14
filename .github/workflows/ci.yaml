@@ -37,7 +37,7 @@ jobs:
         continue-on-error: true
         with:
           name: integration-test-result
-          path: build/reports/integrationTest/test
+          path: build/reports/tests/integrationTest
       - name: Save coverage output
         uses: actions/upload-artifact@master
         continue-on-error: true
