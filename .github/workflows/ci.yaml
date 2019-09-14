@@ -7,17 +7,16 @@ jobs:
       - uses: actions/checkout@v1
       - name: gradle connectedAndroidTest
         uses: vgaidarji/android-github-actions/emulator@v1.0.0
+        continue-on-error: true
       - name: Generate integration code coverage report
         run: ./gradlew jacocoIntegrationTestReport
       - name: Save integration test output
         uses: actions/upload-artifact@master
-        continue-on-error: true
         with:
           name: integration-test-result
           path: build/reports/integrationTest/test
       - name: Save coverage output
         uses: actions/upload-artifact@master
-        continue-on-error: true
         with:
           name: integration-test-coverage
           path: build/reports/jacoco/jacocoIntegrationTestReport/html
@@ -31,15 +30,14 @@ jobs:
           java-version: 1.8
       - name: gradle test jacocoTestReport
         run: ./gradlew test jacocoTestReport
+        continue-on-error: true
       - name: Save test output
         uses: actions/upload-artifact@master
-        continue-on-error: true
         with:
           name: test-result
           path: build/reports/tests/test
       - name: Save coverage output
         uses: actions/upload-artifact@master
-        continue-on-error: true
         with:
           name: test-coverage
           path: build/reports/jacoco/test/html
@@ -51,13 +49,11 @@ jobs:
         run: ./gradlew jacocoIntegrationTestReport
       - name: Save integration test output
         uses: actions/upload-artifact@master
-        continue-on-error: true
         with:
           name: integration-test-result
           path: build/reports/integrationTest/test
       - name: Save coverage output
         uses: actions/upload-artifact@master
-        continue-on-error: true
         with:
           name: integration-test-coverage
           path: build/reports/jacoco/jacocoIntegrationTestReport/html
