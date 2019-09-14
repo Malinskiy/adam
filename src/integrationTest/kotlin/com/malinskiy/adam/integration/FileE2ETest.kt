@@ -25,6 +25,7 @@ import com.malinskiy.adam.request.sync.ShellCommandRequest
 import com.malinskiy.adam.request.sync.StatFileRequest
 import com.malinskiy.adam.rule.AdbDeviceRule
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
@@ -56,8 +57,15 @@ class FileE2ETest {
             }
             println()
 
+            for (i in 1..10) {
+                val stats = adbRule.adb.execute(StatFileRequest("/data/local/tmp/app-debug.apk"), adbRule.deviceSerial)
+                if (stats.size == testFile.length().toInt()) break
+                delay(100)
+            }
+
             val sizeString = adbRule.adb.execute(ShellCommandRequest("md5 /data/local/tmp/app-debug.apk"), adbRule.deviceSerial)
             val split = sizeString.split(" ").filter { it != "" }
+
             /**
              * I've observed a behaviour with eventual consistency issue:
              * ls -ln returns a number lower than expected
