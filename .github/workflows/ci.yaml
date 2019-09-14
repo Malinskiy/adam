@@ -26,8 +26,8 @@ jobs:
         uses: vgaidarji/android-github-actions/emulator@v1.0.0
         env:
           JAVA_HOME:
-      - name: chmod output
-        run: chmod -R $(whoami) .
+      - name: chown output
+        run: chown -R $(whoami) .
       - name: Generate integration code coverage report
         run: ./gradlew jacocoIntegrationTestReport
       - name: Save integration test output
