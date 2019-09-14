@@ -16,10 +16,9 @@
 
 package com.malinskiy.adam.request
 
-import com.android.ddmlib.logging.Log
-import com.malinskiy.adam.AndroidDebugBridgeServer
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.exception.RequestRejectedException
+import com.malinskiy.adam.log.AdamLogging
 import com.malinskiy.adam.transport.AndroidReadChannel
 import com.malinskiy.adam.transport.AndroidWriteChannel
 import java.io.UnsupportedEncodingException
@@ -41,7 +40,7 @@ open abstract class Request(val target: Target = HostTarget) {
         writeChannel.write(request)
         val response = readChannel.read()
         if (!response.okay) {
-            Log.w(AndroidDebugBridgeServer.TAG, "adb server rejected command ${String(request, Const.DEFAULT_TRANSPORT_ENCODING)}")
+            log.warn { "adb server rejected command ${String(request, Const.DEFAULT_TRANSPORT_ENCODING)}" }
             throw RequestRejectedException(response.message ?: "no message received")
         }
     }
@@ -58,4 +57,8 @@ open abstract class Request(val target: Target = HostTarget) {
     }
 
     protected open fun validate(): Boolean = true
+
+    companion object {
+        private val log = AdamLogging.logger {}
+    }
 }

@@ -6,7 +6,6 @@ buildscript {
     }
     dependencies {
         classpath(BuildPlugins.kotlinPlugin)
-        classpath(BuildPlugins.junitGradle)
         classpath(BuildPlugins.dokka)
     }
 }
@@ -26,13 +25,12 @@ dependencies {
     implementation(Libraries.kxml)
     implementation(Libraries.annotations)
     implementation(kotlin("stdlib-jdk8"))
-    implementation(Libraries.guava)
     implementation(Libraries.coroutines)
     implementation(Libraries.ktorNetwork)
+    implementation(Libraries.logging)
 
 
     testImplementation(TestLibraries.assertk)
-    testImplementation(TestLibraries.easymock)
     testImplementation(TestLibraries.junit)
     testImplementation(kotlin("reflect"))
 }

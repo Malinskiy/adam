@@ -16,8 +16,8 @@
 
 package com.malinskiy.adam.transport
 
-import com.android.ddmlib.logging.Log
 import com.malinskiy.adam.Const
+import com.malinskiy.adam.log.AdamLogging
 import com.malinskiy.adam.request.TransportResponse
 import kotlinx.coroutines.io.ByteReadChannel
 
@@ -32,7 +32,7 @@ class AndroidReadChannel(private val delegate: ByteReadChannel) : ByteReadChanne
             val responseLength = String(bytes, Const.DEFAULT_TRANSPORT_ENCODING)
             val errorMessageLength = responseLength.toIntOrNull(16)
             if (errorMessageLength == null) {
-                Log.w(TAG, "Unexpected error message length $responseLength")
+                log.warn { "Unexpected error message length $responseLength" }
                 null
             } else {
                 val errorBytes = ByteArray(errorMessageLength)
@@ -54,6 +54,6 @@ class AndroidReadChannel(private val delegate: ByteReadChannel) : ByteReadChanne
     }
 
     companion object {
-        val TAG: String = AndroidReadChannel::class.java.simpleName
+        private val log = AdamLogging.logger {}
     }
 }

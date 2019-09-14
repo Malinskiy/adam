@@ -16,10 +16,10 @@
 
 package com.malinskiy.adam
 
-import com.android.ddmlib.logging.Log
 import com.malinskiy.adam.exception.RequestRejectedException
 import com.malinskiy.adam.extension.toAndroidChannel
 import com.malinskiy.adam.interactor.DiscoverAdbSocketInteractor
+import com.malinskiy.adam.log.AdamLogging
 import com.malinskiy.adam.request.ComplexRequest
 import com.malinskiy.adam.request.SetDeviceRequest
 import com.malinskiy.adam.request.async.AsyncChannelRequest
@@ -90,13 +90,13 @@ class AndroidDebugBridgeServer(
         writeChannel.write(request)
         val response = readChannel.read()
         if (!response.okay) {
-            Log.w(TAG, "adb server rejected command ${String(request, Const.DEFAULT_TRANSPORT_ENCODING)}")
+            log.warn { "adb server rejected command ${String(request, Const.DEFAULT_TRANSPORT_ENCODING)}" }
             throw RequestRejectedException(response.message ?: "no message received")
         }
     }
 
     companion object {
-        val TAG: String = AndroidDebugBridgeServer::class.java.simpleName
+        private val log = AdamLogging.logger {}
     }
 }
 

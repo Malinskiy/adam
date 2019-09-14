@@ -16,8 +16,8 @@
 
 package com.malinskiy.adam.interactor
 
-import com.android.ddmlib.logging.Log
 import com.malinskiy.adam.Const
+import com.malinskiy.adam.log.AdamLogging
 
 class DiscoverAdbSocketInteractor {
     private val TAG = DiscoverAdbSocketInteractor::class.java.simpleName
@@ -34,15 +34,13 @@ class DiscoverAdbSocketInteractor {
                 if (port.valid()) return port
             }
         } catch (ex: SecurityException) {
-            Log.w(
-                TAG,
+            log.warn {
                 "No access to $discoveryType allowed by security manager. If you've set ANDROID_ADB_SERVER_PORT value, it's being ignored."
-            )
+            }
         } catch (e: IllegalArgumentException) {
-            Log.w(
-                TAG,
+            log.warn {
                 "Invalid value for ANDROID_ADB_SERVER_PORT ${e.message}."
-            )
+            }
         }
 
         return null
@@ -51,5 +49,9 @@ class DiscoverAdbSocketInteractor {
     private fun Int.valid() = when {
         this <= 0 || this >= 65535 -> false
         else -> true
+    }
+
+    companion object {
+        private val log = AdamLogging.logger {}
     }
 }
