@@ -1,6 +1,23 @@
 name: ci
 on: [push]
 jobs:
+  integration-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: gradle connectedAndroidTest
+        uses: vgaidarji/android-github-actions/emulator@v1.0.0
+      - name: Generate integration code coverage report
+        run: ./gradlew jacocoIntegrationTestReport
+      - name: Save integration test output
+        uses: actions/upload-artifact@master
+        with:
+          name: integration-test-result
+          path: build/reports/integrationTest/test
+      - name: Save coverage output
+        uses: actions/upload-artifact@master
+        with:
+          name: integration-test-coverage
+          path: build/reports/jacoco/jacocoIntegrationTestReport/html
   test:
     runs-on: ubuntu-latest
     steps:
@@ -21,17 +38,3 @@ jobs:
         with:
           name: test-coverage
           path: build/reports/jacoco/test/html
-      - name: gradle connectedAndroidTest
-        uses: vgaidarji/android-github-actions/emulator@v1.0.0
-      - name: Generate integration code coverage report
-        run: ./gradlew jacocoIntegrationTestReport
-      - name: Save integration test output
-        uses: actions/upload-artifact@master
-        with:
-          name: integration-test-result
-          path: build/reports/integrationTest/test
-      - name: Save coverage output
-        uses: actions/upload-artifact@master
-        with:
-          name: integration-test-coverage
-          path: build/reports/jacoco/jacocoIntegrationTestReport/html
