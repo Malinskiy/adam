@@ -46,7 +46,7 @@ jobs:
       - name: gradle connectedAndroidTest
         uses: vgaidarji/android-github-actions/emulator@v1.0.0
         env:
-          - JAVA_HOME:
+          JAVA_HOME:
       - name: Generate integration code coverage report
         run: ./gradlew jacocoIntegrationTestReport
       - name: Save integration test output
