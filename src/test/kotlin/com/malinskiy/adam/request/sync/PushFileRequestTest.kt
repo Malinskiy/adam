@@ -25,7 +25,7 @@ import java.io.File
 class PushFileRequestTest {
     @Test
     fun testSerialize() {
-        val testFile = File(javaClass.getResource("/app-debug.apk").toURI())
+        val testFile = File.createTempFile("adam", "y")
         val fileName = testFile.name
         val bytes = PushFileRequest(testFile, "/data/local/tmp/$fileName").serialize()
         assertThat(bytes.toString(Const.DEFAULT_TRANSPORT_ENCODING))
