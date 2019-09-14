@@ -1,4 +1,4 @@
-name: test
+name: ci
 on: [push]
 jobs:
   test:
@@ -9,15 +9,29 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 1.8
-      - name: Build with Gradle
+      - name: gradle test jacocoTestReport
         run: ./gradlew test jacocoTestReport
       - name: Save test output
         uses: actions/upload-artifact@master
         with:
-          name: test
+          name: test-result
           path: build/reports/tests/test
       - name: Save coverage output
         uses: actions/upload-artifact@master
         with:
-          name: coverage
+          name: test-coverage
           path: build/reports/jacoco/test/html
+      - name: gradle connectedAndroidTest
+        uses: vgaidarji/android-github-actions/emulator@v1.0.0
+      - name: Generate integration code coverage report
+        run: ./gradlew jacocoIntegrationTestReport
+      - name: Save integration test output
+          uses: actions/upload-artifact@master
+          with:
+            name: integration-test-result
+            path: build/reports/integrationTest/test
+      - name: Save coverage output
+        uses: actions/upload-artifact@master
+        with:
+          name: integration-test-coverage
+          path: build/reports/jacoco/jacocoIntegrationTestReport/html

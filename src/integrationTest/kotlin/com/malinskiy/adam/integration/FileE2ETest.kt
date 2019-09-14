@@ -57,6 +57,10 @@ class FileE2ETest {
 
             val sizeString = adbRule.adb.execute(ShellCommandRequest("ls -ln /data/local/tmp/app-debug.apk"), adbRule.deviceSerial)
             val split = sizeString.split(" ").filter { it != "" }
+            /**
+             * I've observed a behaviour with eventual consistency issue:
+             * ls -ln returns a number lower than expected
+             */
             assertThat(split[3].toLong()).isEqualTo(testFile.length())
 
             val stats = adbRule.adb.execute(StatFileRequest("/data/local/tmp/app-debug.apk"), adbRule.deviceSerial)

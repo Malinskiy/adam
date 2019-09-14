@@ -51,8 +51,12 @@ val integrationTest = task<Test>("integrationTest") {
     testClassesDirs = sourceSets["integrationTest"].output.classesDirs
     classpath = sourceSets["integrationTest"].runtimeClasspath
     shouldRunAfter("test")
+
+    jacoco {
+        include("**")
+    }
 }
-integrationTest.outputs.upToDateWhen {false}
+integrationTest.outputs.upToDateWhen { false }
 
 val connectedAndroidTest = task<Test>("connectedAndroidTest") {
     description = "Runs integration tests"
@@ -61,8 +65,26 @@ val connectedAndroidTest = task<Test>("connectedAndroidTest") {
     dependsOn(integrationTest)
 }
 
-tasks.check { dependsOn(integrationTest) }
+val jacocoIntegrationTestReport = task<JacocoReport>("jacocoIntegrationTestReport") {
+    description = "Generates code coverage report for integrationTest task"
+    group = "verification"
 
+    executionData(integrationTest)
+    sourceSets(sourceSets.getByName("integrationTest"))
+    classDirectories.setFrom(sourceSets.getByName("main").output.classesDirs)
+    dependsOn(integrationTest)
+}
+tasks.check { dependsOn(integrationTest, jacocoIntegrationTestReport) }
+
+val jacocoCombinedTestReport = task<JacocoReport>("jacocoCombinedTestReport") {
+    description = "Generates code coverage report for all test tasks"
+    group = "verification"
+
+    executionData(integrationTest, tasks["test"])
+    sourceSets(sourceSets.getByName("integrationTest"), sourceSets.getByName("test"))
+    classDirectories.setFrom(sourceSets.getByName("main").output.classesDirs)
+    dependsOn(tasks["test"], integrationTest)
+}
 
 dependencies {
     implementation(Libraries.kxml)
