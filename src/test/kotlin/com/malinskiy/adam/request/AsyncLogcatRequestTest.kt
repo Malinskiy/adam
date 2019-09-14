@@ -31,7 +31,7 @@ class AsyncLogcatRequestTest {
         ).serialize()
 
         assertThat(String(cmd, Const.DEFAULT_TRANSPORT_ENCODING))
-            .isEqualTo("0028shell:logcat -v long -v epoch -b default")
+            .isEqualTo("001Dshell:logcat -v long -v epoch")
     }
 
     @Test
@@ -49,7 +49,7 @@ class AsyncLogcatRequestTest {
         val cmd = ChanneledLogcatRequest().serialize()
 
         assertThat(String(cmd, Const.DEFAULT_TRANSPORT_ENCODING))
-            .isEqualTo("001Fshell:logcat -v long -b default")
+            .isEqualTo("0014shell:logcat -v long")
     }
 
     @Test
@@ -57,7 +57,7 @@ class AsyncLogcatRequestTest {
         val cmd = ChanneledLogcatRequest(since = Instant.ofEpochMilli(10)).serialize()
 
         assertThat(String(cmd, Const.DEFAULT_TRANSPORT_ENCODING))
-            .isEqualTo("0027shell:logcat -T 10.0 -v long -b default")
+            .isEqualTo("001Cshell:logcat -T 10.0 -v long")
     }
 
     @Test
@@ -73,6 +73,6 @@ class AsyncLogcatRequestTest {
         ).serialize()
 
         assertThat(String(cmd, Const.DEFAULT_TRANSPORT_ENCODING))
-            .isEqualTo("002Dshell:logcat -v long -b default *:S SOMETAG:E")
+            .isEqualTo("0022shell:logcat -v long *:S SOMETAG:E")
     }
 }

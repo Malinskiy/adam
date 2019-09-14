@@ -33,7 +33,11 @@ class ChanneledLogcatRequest(
             } ?: ""
             }" +
             " ${modes.joinToString(separator = " ") { "-v $it" }}" +
-            " ${buffers.joinToString(separator = " ") { "-b $it" }}" +
+            if (buffers.isNotEmpty()) {
+                " ${buffers.joinToString(separator = " ") { "-b $it" }}"
+            } else {
+                ""
+            } +
             "${pid?.let { " --pid=$it" } ?: ""}" +
             "${lastReboot?.let { " -L" } ?: ""}" +
             " ${filters.joinToString(separator = " ") { "${it.tag}:${it.level.name}" }}"
