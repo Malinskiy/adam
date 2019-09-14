@@ -26,10 +26,10 @@ jobs:
       - name: Generate integration code coverage report
         run: ./gradlew jacocoIntegrationTestReport
       - name: Save integration test output
-          uses: actions/upload-artifact@master
-          with:
-            name: integration-test-result
-            path: build/reports/integrationTest/test
+        uses: actions/upload-artifact@master
+        with:
+          name: integration-test-result
+          path: build/reports/integrationTest/test
       - name: Save coverage output
         uses: actions/upload-artifact@master
         with:
