@@ -21,7 +21,7 @@ import java.time.Instant
 class ChanneledLogcatRequest(
     since: Instant? = null,
     modes: List<LogcatReadMode> = listOf(LogcatReadMode.long),
-    buffers: List<LogcatBuffer> = listOf(LogcatBuffer.default),
+    buffers: List<LogcatBuffer> = emptyList(),
     pid: Long? = null,
     lastReboot: Boolean? = null,
     filters: List<LogcatFilterSpec> = emptyList()

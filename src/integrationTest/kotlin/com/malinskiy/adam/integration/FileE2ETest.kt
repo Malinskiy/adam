@@ -55,8 +55,9 @@ class FileE2ETest {
             }
             println()
 
-            val size = adbRule.adb.execute(ShellCommandRequest("stat -c \"%s\" /data/local/tmp/app-debug.apk"), adbRule.deviceSerial)
-            assertThat(size.toLong()).isEqualTo(testFile.length())
+            val sizeString = adbRule.adb.execute(ShellCommandRequest("ls -ln /data/local/tmp/app-debug.apk"), adbRule.deviceSerial)
+            val split = sizeString.split(" ").filter { it != "" }
+            assertThat(split[3].toLong()).isEqualTo(testFile.length())
 
             val stats = adbRule.adb.execute(StatFileRequest("/data/local/tmp/app-debug.apk"), adbRule.deviceSerial)
 
@@ -88,8 +89,9 @@ class FileE2ETest {
             }
             println()
 
-            val size = adbRule.adb.execute(ShellCommandRequest("stat -c \"%s\" /system/build.prop"), adbRule.deviceSerial)
-            assertThat(size.toLong()).isEqualTo(testFile.length())
+            val sizeString = adbRule.adb.execute(ShellCommandRequest("ls -ln /system/build.prop"), adbRule.deviceSerial)
+            val split = sizeString.split(" ").filter { it != "" }
+            assertThat(split[3].toLong()).isEqualTo(testFile.length())
         }
     }
 }
