@@ -182,13 +182,17 @@ class E2ETest {
     @Test
     fun testGetAdbVersion() {
         runBlocking {
-            val version = adbRule.adb.execute(GetAdbServerVersionRequest())
+            val actual = adbRule.adb.execute(GetAdbServerVersionRequest())
+            val expected = ProcessBuilder("adb", "version")
+                .start().inputStream.bufferedReader().readText()
+            val expectedString = expected.lines().first().substring("Android Debug Bridge version ".length)
+            val expectedInt = expectedString.split(".")[2].toInt()
             /**
              * This will change depending on the local version of adb daemon
              * Need to figure out how to test this in a stable fashion
              * Maybe adb service in docker?
              */
-            assertThat(version).isEqualTo(41)
+            assertThat(actual).isEqualTo(expectedInt)
         }
     }
 }
