@@ -5,6 +5,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
+      - name: fail test
+        run: (exit 1)
+        shell: bash
+        continue-on-error: true
       - name: gradle connectedAndroidTest
         uses: vgaidarji/android-github-actions/emulator@v1.0.0
         continue-on-error: true
