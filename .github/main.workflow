@@ -1,20 +1,23 @@
-workflow "Assemble, Test and Deploy" {
+workflow "ci" {
+  resolves = [
+    "test",
+    "integrationTest",
+  ]
   on = "push"
-  resolves = ["Test", "Android Test"]
 }
 
-action "Assemble" {
+action "assemble" {
   uses = "MrRamych/gradle-actions/openjdk-8@2.1"
   args = "assemble"
 }
 
-action "Android Test" {
+action "integrationTest" {
   uses = "vgaidarji/android-github-actions/emulator@v1.0.0"
-  needs = ["Assemble"]
+  needs = ["assemble"]
 }
 
-action "Test" {
+action "test" {
   uses = "MrRamych/gradle-actions/openjdk-8@2.1"
-  needs = ["Assemble"]
   args = "test"
+  needs = ["assemble"]
 }
