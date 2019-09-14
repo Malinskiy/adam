@@ -1,5 +1,5 @@
 object Versions {
-    val admlib = System.getenv("DEPLOY_VERSION_OVERRIDE") ?: "0.0.1"
+    val adam = System.getenv("DEPLOY_VERSION_OVERRIDE") ?: "0.0.1"
     val kotlin = "1.3.41"
     val coroutines = "1.2.2"
 

@@ -21,6 +21,8 @@ plugins {
     id("jacoco")
 }
 
+Deployment.initialize(project)
+
 dependencies {
     implementation(Libraries.kxml)
     implementation(Libraries.annotations)
@@ -28,7 +30,6 @@ dependencies {
     implementation(Libraries.coroutines)
     implementation(Libraries.ktorNetwork)
     implementation(Libraries.logging)
-
 
     testImplementation(TestLibraries.assertk)
     testImplementation(TestLibraries.junit)
