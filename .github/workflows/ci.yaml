@@ -26,6 +26,8 @@ jobs:
         uses: vgaidarji/android-github-actions/emulator@v1.0.0
         env:
           JAVA_HOME:
+      - name: chmod output
+        run: chmod -R $(whoami) .
       - name: Generate integration code coverage report
         run: ./gradlew jacocoIntegrationTestReport
       - name: Save integration test output
@@ -39,3 +41,9 @@ jobs:
         with:
           name: integration-test-coverage
           path: build/reports/jacoco/jacocoIntegrationTestReport/html
+      - name: deploy-snapshot
+        run: .buildsystem/deploy-github.sh
+        env:
+          GITHUB_MAVEN_USERNAME: ${{ secrets.GITHUB_MAVEN_USERNAME }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}

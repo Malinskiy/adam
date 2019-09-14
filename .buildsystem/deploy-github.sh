@@ -19,8 +19,8 @@ fi
 DTASK=":publishDefaultPublicationToGitHubRepository"
 TARGETS="$DTASK"
 
-if [ -n "$GIT_TAG" ]; then
-  echo "on a tag -> deploy release version $GIT_TAG"
+if [ -n "$GITHUB_TAG_NAME" ]; then
+  echo "on a tag -> deploy release version $GITHUB_TAG_NAME"
   ./gradlew "$TARGETS" -PreleaseMode=RELEASE
 else
   echo "not on a tag -> deploy snapshot version"
