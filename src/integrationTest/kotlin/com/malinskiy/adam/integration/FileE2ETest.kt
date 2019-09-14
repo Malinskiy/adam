@@ -18,6 +18,7 @@ package com.malinskiy.adam.integration
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import com.malinskiy.adam.extension.md5
 import com.malinskiy.adam.request.sync.PullFileRequest
 import com.malinskiy.adam.request.sync.PushFileRequest
 import com.malinskiy.adam.request.sync.ShellCommandRequest
@@ -55,13 +56,13 @@ class FileE2ETest {
             }
             println()
 
-            val sizeString = adbRule.adb.execute(ShellCommandRequest("ls -ln /data/local/tmp/app-debug.apk"), adbRule.deviceSerial)
+            val sizeString = adbRule.adb.execute(ShellCommandRequest("md5 /data/local/tmp/app-debug.apk"), adbRule.deviceSerial)
             val split = sizeString.split(" ").filter { it != "" }
             /**
              * I've observed a behaviour with eventual consistency issue:
              * ls -ln returns a number lower than expected
              */
-            assertThat(split[3].toLong()).isEqualTo(testFile.length())
+            assertThat(split[0]).isEqualTo(testFile.md5())
 
             val stats = adbRule.adb.execute(StatFileRequest("/data/local/tmp/app-debug.apk"), adbRule.deviceSerial)
 
