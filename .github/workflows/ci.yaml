@@ -4,6 +4,7 @@ jobs:
   integration-test:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v1
       - name: gradle connectedAndroidTest
         uses: vgaidarji/android-github-actions/emulator@v1.0.0
       - name: Generate integration code coverage report
