@@ -21,6 +21,10 @@ plugins {
     id("jacoco")
 }
 
+allprojects {
+    group = "com.malinskiy"
+}
+
 Deployment.initialize(project)
 
 sourceSets {
