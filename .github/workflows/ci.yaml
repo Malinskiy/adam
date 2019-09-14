@@ -1,29 +1,6 @@
 name: ci
 on: [push]
 jobs:
-  integration-test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v1
-      - name: fail test
-        run: (exit 1)
-        shell: bash
-        continue-on-error: true
-      - name: gradle connectedAndroidTest
-        uses: vgaidarji/android-github-actions/emulator@v1.0.0
-        continue-on-error: true
-      - name: Generate integration code coverage report
-        run: ./gradlew jacocoIntegrationTestReport
-      - name: Save integration test output
-        uses: actions/upload-artifact@master
-        with:
-          name: integration-test-result
-          path: build/reports/integrationTest/test
-      - name: Save coverage output
-        uses: actions/upload-artifact@master
-        with:
-          name: integration-test-coverage
-          path: build/reports/jacoco/jacocoIntegrationTestReport/html
   test:
     runs-on: ubuntu-latest
     steps:
@@ -37,27 +14,33 @@ jobs:
         continue-on-error: true
       - name: Save test output
         uses: actions/upload-artifact@master
+        continue-on-error: true
         with:
           name: test-result
           path: build/reports/tests/test
       - name: Save coverage output
         uses: actions/upload-artifact@master
+        continue-on-error: true
         with:
           name: test-coverage
           path: build/reports/jacoco/test/html
       - name: gradle connectedAndroidTest
         uses: vgaidarji/android-github-actions/emulator@v1.0.0
+        continue-on-error: true
         env:
           JAVA_HOME:
       - name: Generate integration code coverage report
         run: ./gradlew jacocoIntegrationTestReport
+        continue-on-error: true
       - name: Save integration test output
         uses: actions/upload-artifact@master
+        continue-on-error: true
         with:
           name: integration-test-result
           path: build/reports/integrationTest/test
       - name: Save coverage output
         uses: actions/upload-artifact@master
+        continue-on-error: true
         with:
           name: integration-test-coverage
           path: build/reports/jacoco/jacocoIntegrationTestReport/html
