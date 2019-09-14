@@ -11,11 +11,13 @@ jobs:
         run: ./gradlew jacocoIntegrationTestReport
       - name: Save integration test output
         uses: actions/upload-artifact@master
+        continue-on-error: true
         with:
           name: integration-test-result
           path: build/reports/integrationTest/test
       - name: Save coverage output
         uses: actions/upload-artifact@master
+        continue-on-error: true
         with:
           name: integration-test-coverage
           path: build/reports/jacoco/jacocoIntegrationTestReport/html
@@ -31,11 +33,13 @@ jobs:
         run: ./gradlew test jacocoTestReport
       - name: Save test output
         uses: actions/upload-artifact@master
+        continue-on-error: true
         with:
           name: test-result
           path: build/reports/tests/test
       - name: Save coverage output
         uses: actions/upload-artifact@master
+        continue-on-error: true
         with:
           name: test-coverage
           path: build/reports/jacoco/test/html
