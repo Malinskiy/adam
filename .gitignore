@@ -35,7 +35,7 @@
 # .idea/modules.xml
 # .idea/*.iml
 # .idea/modules
-# *.iml
+ *.iml
 # *.ipr
 
 # CMake
@@ -140,3 +140,7 @@ gradle-app.setting
 **/build/
 
 # End of https://www.gitignore.io/api/java,gradle,kotlin,intellij
+
+.idea/$PRODUCT_WORKSPACE_FILE$
+.idea/compiler.xml
+.idea/.name
