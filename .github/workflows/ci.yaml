@@ -26,6 +26,8 @@ jobs:
         uses: vgaidarji/android-github-actions/emulator@v1.0.0
         env:
           JAVA_HOME:
+      - name: chown in container
+        run: docker run --rm -v $(pwd):/opt/src alpine:3.8 sh -c 'chown -R 1001:115 /opt/src'
       - name: echo "$(whoami)" && ls -ln && id && chown -R $(whoami) .
         run: echo "$(whoami)" && ls -ln && ls -ln ./buildSrc/build/classes/kotlin/main/ && id && chown -R $(whoami) .
       - name: Generate integration code coverage report
