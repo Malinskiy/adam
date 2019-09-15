@@ -72,7 +72,6 @@ val jacocoIntegrationTestReport = task<JacocoReport>("jacocoIntegrationTestRepor
     executionData(integrationTest)
     sourceSets(sourceSets.getByName("integrationTest"))
     classDirectories.setFrom(sourceSets.getByName("main").output.classesDirs)
-    dependsOn(integrationTest)
 }
 tasks.check { dependsOn(integrationTest, jacocoIntegrationTestReport) }
 
