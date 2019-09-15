@@ -14,6 +14,7 @@ jobs:
       - uses: olegtarasov/get-tag@v1
       - name: deploy-release
         run: .buildsystem/deploy-github.sh
+        continue-on-error: true
         env:
           GITHUB_MAVEN_USERNAME: ${{ secrets.GITHUB_MAVEN_USERNAME }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

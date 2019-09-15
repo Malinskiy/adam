@@ -12,7 +12,7 @@ object Deployment {
     val user = System.getenv("SONATYPE_USERNAME")
     val password = System.getenv("SONATYPE_PASSWORD")
     val githubUser = System.getenv("GITHUB_MAVEN_USERNAME")
-    val githubPassword = System.getenv("GITHUB_MAVEN_PASSWORD")
+    val githubPassword = System.getenv("GITHUB_TOKEN")
     var releaseMode: String? = null
     var versionSuffix: String? = null
     var deployUrl: String? = null
@@ -21,7 +21,7 @@ object Deployment {
         ?: "https://oss.sonatype.org/content/repositories/snapshots/"
     val releaseDeployUrl = System.getenv("SONATYPE_RELEASES_URL")
         ?: "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
-    val githubDeployUrl = "https://maven.pkg.github.com/Malinskiy"
+    val githubDeployUrl = "https://maven.pkg.github.com/Malinskiy/adam"
 
     fun initialize(project: Project) {
         val releaseMode: String? by project
@@ -123,14 +123,16 @@ object Deployment {
 
             developers {
                 developer {
-                    id.set("malinskiy")
+                    id.set("Malinskiy")
                     name.set("Anton Malinskiy")
                     email.set("anton@malinskiy.com")
                 }
             }
 
             scm {
-                url.set("https://github.com/Malinskiy/adam")
+                url.set("https://github.com/Malinskiy/adam.git")
+                connection.set("scm:git:ssh://github.com/Malinskiy/adam")
+                developerConnection.set("scm:git:ssh://github.com/Malinskiy/adam")
             }
         }
     }
