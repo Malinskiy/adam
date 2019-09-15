@@ -26,7 +26,7 @@ jobs:
         uses: vgaidarji/android-github-actions/emulator@v1.0.0
         env:
           JAVA_HOME:
-      - name: chown output
+      - name: echo "$(whoami)" && ls -ln && id && chown output
         run: chown -R $(whoami) .
       - name: Generate integration code coverage report
         run: ./gradlew jacocoIntegrationTestReport
