@@ -27,7 +27,7 @@ jobs:
         env:
           JAVA_HOME:
       - name: echo "$(whoami)" && ls -ln && id && chown -R $(whoami) .
-        run: echo "$(whoami)" && ls -ln && id && chown -R $(whoami) .
+        run: echo "$(whoami)" && ls -ln && ls -ln ./buildSrc/build/classes/kotlin/main/ && id && chown -R $(whoami) .
       - name: Generate integration code coverage report
         run: ./gradlew jacocoIntegrationTestReport
       - name: Save integration test output
