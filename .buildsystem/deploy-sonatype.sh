@@ -19,6 +19,8 @@ fi
 DTASK=":publishDefaultPublicationToOSSHRRepository"
 TARGETS="$DTASK"
 
+echo "Value of TEST_ENVVAR is $TEST_ENVVAR"
+
 if [ -z "$GITHUB_TAG_NAME" ]; then
   echo "not on a tag -> deploy snapshot version"
   ./gradlew "$TARGETS" -PreleaseMode=SNAPSHOT
