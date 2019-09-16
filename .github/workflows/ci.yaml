@@ -42,9 +42,9 @@ jobs:
           name: integration-test-coverage
           path: build/reports/jacoco/jacocoIntegrationTestReport/html
       - name: deploy-snapshot
-        run: bash .buildsystem/deploy-sonatype.sh
         env:
           SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
           SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
-          TEST_ENVVAR: testing_this
+          TEST_ENVVAR: ${{ secrets.TEST_ENVVAR }}
+        run: bash .buildsystem/deploy-sonatype.sh
