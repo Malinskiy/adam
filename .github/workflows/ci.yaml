@@ -22,6 +22,12 @@ jobs:
         with:
           name: test-coverage
           path: build/reports/jacoco/test/html
+      - name: codecov unit tests
+        uses: codecov/codecov-action@v1.0.2
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          file: ./build/reports/jacoco/test/jacocoTestReport.xml
+          flags: unit
       - name: gradle connectedAndroidTest
         uses: vgaidarji/android-github-actions/emulator@v1.0.0
         env:
@@ -41,6 +47,12 @@ jobs:
         with:
           name: integration-test-coverage
           path: build/reports/jacoco/jacocoIntegrationTestReport/html
+      - name: codecov integartion tests
+        uses: codecov/codecov-action@v1.0.2
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          file: ./build/reports/jacoco/jacocoIntegrationTestReport/jacocoIntegrationTestReport.xml
+          flags: integration
   deploy:
     needs: test
     runs-on: ubuntu-latest

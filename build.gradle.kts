@@ -68,6 +68,9 @@ val connectedAndroidTest = task<Test>("connectedAndroidTest") {
 val jacocoIntegrationTestReport = task<JacocoReport>("jacocoIntegrationTestReport") {
     description = "Generates code coverage report for integrationTest task"
     group = "verification"
+    reports {
+        xml.isEnabled = true
+    }
 
     executionData(integrationTest)
     sourceSets(sourceSets.getByName("integrationTest"))
@@ -83,6 +86,12 @@ val jacocoCombinedTestReport = task<JacocoReport>("jacocoCombinedTestReport") {
     sourceSets(sourceSets.getByName("integrationTest"), sourceSets.getByName("test"))
     classDirectories.setFrom(sourceSets.getByName("main").output.classesDirs)
     dependsOn(tasks["test"], integrationTest)
+}
+
+tasks.jacocoTestReport {
+    reports {
+        xml.isEnabled = true
+    }
 }
 
 dependencies {
