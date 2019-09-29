@@ -10,7 +10,7 @@ The only way to get access to the adb programmatically from java world currently
 2. Code is not tested properly
 3. Limitations of adb server are propagated to the user of ddmlib
 
-To optimized the resources usage adam uses coroutines instead of blocking threads. This reduced the load dramatically for scenarios where dozens of devices are connected and are communicated with.
+To optimize the resources usage adam uses coroutines instead of blocking threads. This reduced the load dramatically for scenarios where dozens of devices are connected and are communicated with.
 Full E2E testing with at least Android emulator is also used to guarantee stability.
 
 License
