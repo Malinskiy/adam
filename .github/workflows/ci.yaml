@@ -28,12 +28,13 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           file: ./build/reports/jacoco/test/jacocoTestReport.xml
           flags: unit
-      - name: gradle connectedAndroidTest
-        uses: vgaidarji/android-github-actions/emulator@v1.0.0
-        env:
-          JAVA_HOME:
-      - name: chown in container
-        run: docker run --rm -v $(pwd):/opt/src alpine:3.8 sh -c 'chown -R 1001:115 /opt/src'
+      - name: integration test
+        uses: malinskiy/action-android/emulator-run-cmd@release/0.0.1
+        with:
+          cmd: ./gradlew integrationTest
+          api: 25
+          tag: default
+          abi: x86
       - name: Generate integration code coverage report
         run: ./gradlew jacocoIntegrationTestReport
       - name: Save integration test output
