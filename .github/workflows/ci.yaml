@@ -9,7 +9,7 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 1.8
-      - uses: malinskiy/action-android/install-sdk@release/0.0.2
+      - uses: malinskiy/action-android/install-sdk@release/0.0.3
       - name: gradle test jacocoTestReport
         run: ./gradlew test jacocoTestReport
       - name: Save test output
@@ -28,7 +28,7 @@ jobs:
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
       - name: integration test
-        uses: malinskiy/action-android/emulator-run-cmd@release/0.0.2
+        uses: malinskiy/action-android/emulator-run-cmd@release/0.0.3
         with:
           cmd: ./gradlew integrationTest
           api: 25
