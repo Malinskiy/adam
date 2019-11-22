@@ -43,7 +43,7 @@ jobs:
         uses: malinskiy/action-android/emulator-run-cmd@release/0.0.3
         with:
           cmd: ./gradlew integrationTest
-          api: {{ matrix.api }}
+          api: ${{ matrix.api }}
           tag: default
           abi: x86
       - name: Generate integration code coverage report
