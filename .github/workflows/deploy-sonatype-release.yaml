@@ -1,4 +1,4 @@
-name: deploy-release
+name: deploy-github-release
 on:
   push:
     tags: '*'
@@ -13,9 +13,8 @@ jobs:
           java-version: 1.8
       - uses: olegtarasov/get-tag@v1
       - name: deploy-release
-        run: .buildsystem/deploy-github.sh
-        continue-on-error: true
+        run: .buildsystem/deploy-sonatype.sh
         env:
-          GITHUB_MAVEN_USERNAME: ${{ secrets.GITHUB_MAVEN_USERNAME }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
+          SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
