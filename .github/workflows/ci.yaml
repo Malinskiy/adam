@@ -9,7 +9,7 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 1.8
-      - uses: malinskiy/action-android/install-sdk@release/0.0.3
+      - uses: malinskiy/action-android/install-sdk@release/0.0.4
       - name: gradle test jacocoTestReport
         run: ./gradlew test jacocoTestReport
       - name: Save test output
@@ -38,9 +38,9 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 1.8
-      - uses: malinskiy/action-android/install-sdk@release/0.0.3
+      - uses: malinskiy/action-android/install-sdk@release/0.0.4
       - name: integration test
-        uses: malinskiy/action-android/emulator-run-cmd@release/0.0.3
+        uses: malinskiy/action-android/emulator-run-cmd@release/0.0.4
         with:
           cmd: ./gradlew integrationTest
           api: ${{ matrix.api }}
