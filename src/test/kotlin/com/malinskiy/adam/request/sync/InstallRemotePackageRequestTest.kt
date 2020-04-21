@@ -37,4 +37,12 @@ class InstallRemotePackageRequestTest {
         assertThat(value)
             .isEqualTo("002Cshell:pm install -r /data/local/tmp/file.apk")
     }
+
+    @Test
+    fun testMultipleReinstall() {
+        val request = InstallRemotePackageRequest("/data/local/tmp/file.apk", true, listOf("-g -r"))
+        val value = String(request.serialize(), Const.DEFAULT_TRANSPORT_ENCODING)
+        assertThat(value)
+            .isEqualTo("0032shell:pm install -r -g -r /data/local/tmp/file.apk")
+    }
 }

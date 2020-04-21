@@ -33,6 +33,7 @@ class InstallRemotePackageRequest(
 
         if (extraArgs.isNotEmpty()) {
             append(extraArgs.joinToString(" "))
+            append(" ")
         }
 
         append(absoluteRemoteFilePath)
