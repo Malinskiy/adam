@@ -32,7 +32,7 @@ open class AdbBinaryInteractor {
         }?.let { File(it) }
 
         val adb =
-            adbBinary ?: (androidHome ?: androidEnvHome)?.let { File(it, "platform-tools" + File.pathSeparator + "adb") }
+            adbBinary ?: (androidHome ?: androidEnvHome)?.let { File(it, "platform-tools" + File.separator + "adb") }
             ?: return false
         if (!adb.isFile) return false
 
