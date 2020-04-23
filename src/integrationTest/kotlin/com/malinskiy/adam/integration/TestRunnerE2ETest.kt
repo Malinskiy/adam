@@ -22,6 +22,7 @@ import com.malinskiy.adam.request.testrunner.InstrumentOptions
 import com.malinskiy.adam.request.testrunner.TestRunnerRequest
 import com.malinskiy.adam.rule.AdbDeviceRule
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.channels.receiveOrNull
 import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test

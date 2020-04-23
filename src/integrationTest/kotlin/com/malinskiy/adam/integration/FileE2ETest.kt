@@ -25,6 +25,7 @@ import com.malinskiy.adam.request.sync.ShellCommandRequest
 import com.malinskiy.adam.request.sync.StatFileRequest
 import com.malinskiy.adam.rule.AdbDeviceRule
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.channels.receiveOrNull
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.junit.Rule
@@ -36,6 +37,22 @@ class FileE2ETest {
     @get:Rule
     @JvmField
     val adbRule = AdbDeviceRule()
+
+    private suspend fun md5(): String {
+        var output = adbRule.adb.execute(ShellCommandRequest("ls /system/bin/md5"), adbRule.deviceSerial)
+        var value = output.trim { it <= ' ' }
+        if (!value.endsWith("No such file or directory")) {
+            return "md5"
+        }
+
+        output = adbRule.adb.execute(ShellCommandRequest("ls /system/bin/md5sum"), adbRule.deviceSerial)
+        value = output.trim { it <= ' ' }
+        if (!value.endsWith("No such file or directory")) {
+            return "md5sum"
+        }
+
+        throw RuntimeException("Android device should have md5 binary installed")
+    }
 
     @Test
     fun testApkPushing() {
@@ -63,7 +80,7 @@ class FileE2ETest {
                 delay(100)
             }
 
-            val sizeString = adbRule.adb.execute(ShellCommandRequest("md5 /data/local/tmp/app-debug.apk"), adbRule.deviceSerial)
+            val sizeString = adbRule.adb.execute(ShellCommandRequest("${md5()} /data/local/tmp/app-debug.apk"), adbRule.deviceSerial)
             val split = sizeString.split(" ").filter { it != "" }
 
             /**
@@ -104,7 +121,14 @@ class FileE2ETest {
 
             val sizeString = adbRule.adb.execute(ShellCommandRequest("ls -ln /system/build.prop"), adbRule.deviceSerial)
             val split = sizeString.split(" ").filter { it != "" }
-            assertThat(split[3].toLong()).isEqualTo(testFile.length())
+
+            /**
+             * Some android ls implementations print the number of hard links
+             * -rwxr-xr-x 0        2000       975152 2017-07-13 06:14 aapt
+             * -rwxr-xr-x 1 0 2000     210 2019-04-13 06:23 am
+             */
+            val dateIndex = split.indexOfLast { it.matches("[\\d]{4}-[\\d]{2}-[\\d]{2}".toRegex()) }
+            assertThat(split[dateIndex - 1].toLong()).isEqualTo(testFile.length())
         }
     }
 }
