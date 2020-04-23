@@ -17,6 +17,7 @@
 package com.malinskiy.adam.request.sync
 
 import com.malinskiy.adam.Const
+import com.malinskiy.adam.exception.PullFailedException
 import com.malinskiy.adam.exception.UnsupportedSyncProtocolException
 import com.malinskiy.adam.extension.toByteArray
 import com.malinskiy.adam.extension.toInt
@@ -109,6 +110,9 @@ class PullFileRequest(
                 currentPosition += available
 
                 return currentPosition.toDouble() / totalBytes
+            }
+            header.contentEquals(Const.Message.FAIL) -> {
+                throw PullFailedException("Failed to pull file $remotePath")
             }
             else -> {
                 throw UnsupportedSyncProtocolException("Unexpected buffer size")
