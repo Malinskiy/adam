@@ -33,19 +33,22 @@ class InstrumentationResponseTransformer : ResponseTransformer<List<TestEvent>?>
     }
 
     override fun transform(): List<TestEvent>? {
-        val lines = buffer.lines()
-
-        val tokenPosition = lines.indexOfFirst {
-            it.startsWith(TokenType.INSTRUMENTATION_STATUS_CODE.name) ||
-                    it.startsWith(TokenType.INSTRUMENTATION_CODE.name)
-        }
+        val tokenPosition = buffer.indexOfAny(
+            listOf(
+                TokenType.INSTRUMENTATION_STATUS_CODE.name,
+                TokenType.INSTRUMENTATION_CODE.name
+            )
+        )
 
         if (tokenPosition == -1) {
             return null
         }
 
-        val atom = lines.subList(0, tokenPosition + 1)
-        buffer = buffer.delete(0, atom.map { it.length }.reduce { acc, i -> acc + i + 1 })
+        val nextLineBreak = buffer.indexOf('\n', startIndex = tokenPosition)
+
+
+        val atom = buffer.substring(0, nextLineBreak).lines()
+        buffer = buffer.delete(0, nextLineBreak + 1)
 
         return parse(atom)
     }
@@ -215,6 +218,7 @@ enum class Status(val value: Int) {
     SUCCESS(0),
     START(1),
     IN_PROGRESS(2),
+
     /**
      * JUnit3 runner code, treated as FAILURE
      */
