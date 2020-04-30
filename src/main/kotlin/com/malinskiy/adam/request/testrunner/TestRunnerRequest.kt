@@ -20,8 +20,6 @@ import com.malinskiy.adam.Const
 import com.malinskiy.adam.request.async.AsyncChannelRequest
 import com.malinskiy.adam.transport.AndroidReadChannel
 import com.malinskiy.adam.transport.AndroidWriteChannel
-import kotlinx.coroutines.io.cancel
-import kotlinx.coroutines.io.close
 
 /**
  * @see https://android.googlesource.com/platform/frameworks/base/+/master/cmds/am/src/com/android/commands/am/Am.java#155
@@ -47,8 +45,8 @@ class TestRunnerRequest(
                 String(buffer, 0, available, Const.DEFAULT_TRANSPORT_ENCODING)
             }
             available < 0 -> {
-                readChannel.cancel()
-                writeChannel.close()
+                readChannel.cancel(null)
+                writeChannel.close(null)
                 return ""
             }
             else -> ""

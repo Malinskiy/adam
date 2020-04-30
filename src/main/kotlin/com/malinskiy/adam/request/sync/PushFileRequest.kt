@@ -23,8 +23,6 @@ import com.malinskiy.adam.transport.AndroidReadChannel
 import com.malinskiy.adam.transport.AndroidWriteChannel
 import io.ktor.util.cio.readChannel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.io.cancel
-import kotlinx.coroutines.io.close
 import java.io.File
 import kotlin.coroutines.CoroutineContext
 
@@ -65,12 +63,12 @@ class PushFileRequest(
         val available = channel.readAvailable(buffer, 8, Const.MAX_FILE_PACKET_LENGTH)
         return when {
             available < 0 -> {
-                channel.cancel()
+                channel.cancel(null)
                 Const.Message.DONE.copyInto(buffer)
                 (local.lastModified() / 1000).toInt().toByteArray().copyInto(buffer, destinationOffset = 4)
                 writeChannel.write(request = buffer, length = 8)
-                readChannel.cancel()
-                writeChannel.close()
+                readChannel.cancel(null)
+                writeChannel.close(null)
                 1.0
             }
             available > 0 -> {

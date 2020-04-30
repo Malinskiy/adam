@@ -26,8 +26,6 @@ import com.malinskiy.adam.transport.AndroidReadChannel
 import com.malinskiy.adam.transport.AndroidWriteChannel
 import io.ktor.util.cio.writeChannel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.io.cancel
-import kotlinx.coroutines.io.close
 import java.io.File
 import kotlin.coroutines.CoroutineContext
 
@@ -94,9 +92,9 @@ class PullFileRequest(
         val header = headerBuffer.copyOfRange(0, 4)
         when {
             header.contentEquals(Const.Message.DONE) -> {
-                channel.close()
-                readChannel.cancel()
-                writeChannel.close()
+                channel.close(null)
+                readChannel.cancel(null)
+                writeChannel.close(null)
                 return 1.0
             }
             header.contentEquals(Const.Message.DATA) -> {

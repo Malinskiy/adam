@@ -18,8 +18,9 @@ package com.malinskiy.adam.extension
 
 import com.malinskiy.adam.transport.AndroidReadChannel
 import com.malinskiy.adam.transport.AndroidWriteChannel
-import kotlinx.coroutines.io.ByteReadChannel
-import kotlinx.coroutines.io.ByteWriteChannel
+import io.ktor.utils.io.ByteReadChannel
+import io.ktor.utils.io.ByteWriteChannel
+
 
 fun ByteReadChannel.toAndroidChannel() = AndroidReadChannel(this)
 fun ByteWriteChannel.toAndroidChannel() = AndroidWriteChannel(this)

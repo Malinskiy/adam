@@ -33,7 +33,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.channels.produce
-import kotlinx.coroutines.io.close
 import java.net.InetAddress
 import java.net.InetSocketAddress
 import kotlin.coroutines.CoroutineContext
@@ -59,7 +58,7 @@ class AndroidDebugBridgeServer(
                     }
                     return request.process(readChannel, writeChannel)
                 } finally {
-                    writeChannel?.close()
+                    writeChannel?.close(null)
                 }
             }
     }
@@ -88,7 +87,7 @@ class AndroidDebugBridgeServer(
 
                         request.close(channel)
                     } finally {
-                        writeChannel?.close()
+                        writeChannel?.close(null)
                     }
                 }
         }

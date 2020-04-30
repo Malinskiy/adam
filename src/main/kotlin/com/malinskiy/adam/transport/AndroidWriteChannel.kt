@@ -16,7 +16,7 @@
 
 package com.malinskiy.adam.transport
 
-import kotlinx.coroutines.io.ByteWriteChannel
+import io.ktor.utils.io.ByteWriteChannel
 import java.nio.ByteBuffer
 
 class AndroidWriteChannel(private val delegate: ByteWriteChannel) : ByteWriteChannel by delegate {

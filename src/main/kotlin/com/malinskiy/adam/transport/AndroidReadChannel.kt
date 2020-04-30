@@ -19,7 +19,7 @@ package com.malinskiy.adam.transport
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.log.AdamLogging
 import com.malinskiy.adam.request.TransportResponse
-import kotlinx.coroutines.io.ByteReadChannel
+import io.ktor.utils.io.ByteReadChannel
 
 class AndroidReadChannel(private val delegate: ByteReadChannel) : ByteReadChannel by delegate {
     suspend fun read(): TransportResponse {

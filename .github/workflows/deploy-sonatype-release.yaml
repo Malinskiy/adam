@@ -1,4 +1,4 @@
-name: deploy-github-release
+name: deploy-sonatype-release
 on:
   push:
     tags: '*'
