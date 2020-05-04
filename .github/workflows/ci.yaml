@@ -2,7 +2,7 @@ name: ci
 on: [push]
 jobs:
   test:
-    runs-on: macOS-10.14
+    runs-on: macOS-10.15
     steps:
       - uses: actions/checkout@v1
       - name: Set up JDK 1.8
@@ -28,7 +28,7 @@ jobs:
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
   integration-test:
-    runs-on: macOS-10.14
+    runs-on: macOS-10.15
     strategy:
       matrix:
         api: [21, 22, 23, 24, 25, 26, 27, 28, 29]
