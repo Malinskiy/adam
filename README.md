@@ -1,4 +1,4 @@
-[![Snapshot](https://img.shields.io/nexus/s/com.malinskiy/adam?server=https%3A%2F%2Foss.sonatype.org)](https://oss.sonatype.org/content/repositories/snapshots/com/malinskiy/adam/)
+![Maven Central](https://img.shields.io/maven-central/v/com.malinskiy/adam)
 
 # adam
 Android Debug Bridge helper written in Kotlin
