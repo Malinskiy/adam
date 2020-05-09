@@ -17,6 +17,7 @@
 package com.malinskiy.adam.request.sync
 
 import com.malinskiy.adam.Const
+import com.malinskiy.adam.exception.PushFailedException
 import com.malinskiy.adam.extension.toByteArray
 import com.malinskiy.adam.request.async.AsyncChannelRequest
 import com.malinskiy.adam.transport.AndroidReadChannel
@@ -63,13 +64,18 @@ class PushFileRequest(
         val available = channel.readAvailable(buffer, 8, Const.MAX_FILE_PACKET_LENGTH)
         return when {
             available < 0 -> {
-                channel.cancel(null)
                 Const.Message.DONE.copyInto(buffer)
                 (local.lastModified() / 1000).toInt().toByteArray().copyInto(buffer, destinationOffset = 4)
                 writeChannel.write(request = buffer, length = 8)
+                val transportResponse = readChannel.read()
                 readChannel.cancel(null)
                 writeChannel.close(null)
-                1.0
+                channel.cancel(null)
+                return if (transportResponse.okay) {
+                    1.0
+                } else {
+                    throw PushFailedException("adb didn't aknowledge the file transfer: ${transportResponse.message ?: ""}")
+                }
             }
             available > 0 -> {
                 Const.Message.DATA.copyInto(buffer)

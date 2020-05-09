@@ -26,7 +26,6 @@ import com.malinskiy.adam.request.sync.StatFileRequest
 import com.malinskiy.adam.rule.AdbDeviceRule
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.channels.receiveOrNull
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
@@ -72,13 +71,8 @@ class FileE2ETest {
                     percentage = newPercentage
                 }
             }
-            println()
-
-            for (i in 1..10) {
-                val stats = adbRule.adb.execute(StatFileRequest("/data/local/tmp/app-debug.apk"), adbRule.deviceSerial)
-                if (stats.size == testFile.length().toInt()) break
-                delay(100)
-            }
+            val stats = adbRule.adb.execute(StatFileRequest("/data/local/tmp/app-debug.apk"), adbRule.deviceSerial)
+            assertThat(stats.size).isEqualTo(testFile.length().toInt())
 
             val sizeString = adbRule.adb.execute(ShellCommandRequest("${md5()} /data/local/tmp/app-debug.apk"), adbRule.deviceSerial)
             val split = sizeString.split(" ").filter { it != "" }
@@ -89,9 +83,6 @@ class FileE2ETest {
              */
             assertThat(split[0]).isEqualTo(testFile.md5())
 
-            val stats = adbRule.adb.execute(StatFileRequest("/data/local/tmp/app-debug.apk"), adbRule.deviceSerial)
-
-            assertThat(stats.size).isEqualTo(testFile.length().toInt())
             //TODO figure out why 644 is actually pushed as 666
             assertThat(stats.mode).isEqualTo("100666".toInt(radix = 8))
         }
