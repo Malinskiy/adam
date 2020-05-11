@@ -14,6 +14,19 @@ The only way to get access to the adb programmatically from java world currently
 To optimize the resources usage adam uses coroutines instead of blocking threads. This reduced the load dramatically for scenarios where dozens of devices are connected and are communicated with.
 Full E2E testing with at least Android emulator is also used to guarantee stability.
 
+## Supported functionality
+* Package install, uninstall, list
+* Logcat
+* Props
+* Instrumented tests
+* Port forwarding
+* Screen capture
+* File push, pull, stat
+* List connected devices (including continuous monitoring)
+* Reboot
+
+**+** any device shell commands (including continuous streaming output)
+
 License
 -------
 
