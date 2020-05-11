@@ -1,4 +1,5 @@
-[![Snapshot](https://img.shields.io/nexus/s/com.malinskiy/adam?server=https%3A%2F%2Foss.sonatype.org)](https://oss.sonatype.org/content/repositories/snapshots/com/malinskiy/adam/)
+![Maven Central](https://img.shields.io/maven-central/v/com.malinskiy/adam)
+![Codecov](https://img.shields.io/codecov/c/github/Malinskiy/adam)
 
 # adam
 Android Debug Bridge helper written in Kotlin
@@ -12,6 +13,19 @@ The only way to get access to the adb programmatically from java world currently
 
 To optimize the resources usage adam uses coroutines instead of blocking threads. This reduced the load dramatically for scenarios where dozens of devices are connected and are communicated with.
 Full E2E testing with at least Android emulator is also used to guarantee stability.
+
+## Supported functionality
+* Package install, uninstall, list
+* Logcat
+* Props
+* Instrumented tests
+* Port forwarding
+* Screen capture
+* File push, pull, stat
+* List connected devices (including continuous monitoring)
+* Reboot
+
+**+** any device shell commands (including continuous streaming output)
 
 License
 -------
