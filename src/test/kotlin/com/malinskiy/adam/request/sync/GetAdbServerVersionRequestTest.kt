@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 Anton Malinskiy
+ * Copyright (C) 2020 Anton Malinskiy
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,46 +14,33 @@
  * limitations under the License.
  */
 
-package com.malinskiy.adam.request
+package com.malinskiy.adam.request.sync
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import com.malinskiy.adam.Const
-import com.malinskiy.adam.request.sync.GetSinglePropRequest
 import com.malinskiy.adam.server.AndroidDebugBridgeServer
-import io.ktor.utils.io.close
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 
-class GetSinglePropRequestTest {
+class GetAdbServerVersionRequestTest {
     @Test
-    fun testGetX() {
-        assertThat(String(GetSinglePropRequest("x").serialize(), Const.DEFAULT_TRANSPORT_ENCODING))
-            .isEqualTo("000Fshell:getprop x")
-    }
-
-    @Test
-    fun testReturnsProperContent() {
+    fun testReturnsProperVersion() {
         runBlocking {
             val server = AndroidDebugBridgeServer()
             val client = server.buildClient()
 
             server.startAndListen { input, output ->
                 val transportCmd = input.receiveCommand()
-                assertThat(transportCmd).isEqualTo("host:transport:serial")
+                assertThat(transportCmd).isEqualTo("host:version")
                 output.respond(Const.Message.OKAY)
 
-                val shellCmd = input.receiveCommand()
-                assertThat(shellCmd).isEqualTo("shell:getprop prop1")
-                output.respond(Const.Message.OKAY)
-
-                val response = "testing".toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
-                output.writeFully(response, 0, response.size)
-                output.close()
+                val version = ("0002" + 41.toString(16)).toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
+                output.writeFully(version, 0, version.size)
             }
 
-            val version = client.execute(GetSinglePropRequest("prop1"), serial = "serial")
-            assertThat(version).isEqualTo("testing")
+            val version = client.execute(GetAdbServerVersionRequest())
+            assertThat(version).isEqualTo(41)
 
             server.dispose()
         }

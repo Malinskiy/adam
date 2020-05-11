@@ -20,9 +20,9 @@ import com.malinskiy.adam.request.transform.ResponseTransformer
 import com.malinskiy.adam.request.transform.StringResponseTransformer
 
 class InstallRemotePackageRequest(
-    val absoluteRemoteFilePath: String,
-    val reinstall: Boolean,
-    val extraArgs: List<String> = emptyList()
+    absoluteRemoteFilePath: String,
+    reinstall: Boolean,
+    extraArgs: List<String> = emptyList()
 ) : SyncShellCommandRequest<String>(
     cmd = StringBuilder().apply {
         append("pm install ")

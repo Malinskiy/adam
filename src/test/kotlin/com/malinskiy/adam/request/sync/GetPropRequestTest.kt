@@ -17,8 +17,12 @@
 package com.malinskiy.adam.request.sync
 
 import assertk.assertThat
+import assertk.assertions.contains
 import assertk.assertions.isEqualTo
 import com.malinskiy.adam.Const
+import com.malinskiy.adam.server.AndroidDebugBridgeServer
+import io.ktor.utils.io.close
+import kotlinx.coroutines.runBlocking
 import org.junit.Test
 
 class GetPropRequestTest {
@@ -26,5 +30,32 @@ class GetPropRequestTest {
     fun testGetAll() {
         assertThat(String(GetPropRequest().serialize(), Const.DEFAULT_TRANSPORT_ENCODING))
             .isEqualTo("000Dshell:getprop")
+    }
+
+    @Test
+    fun testReturnsProperContent() {
+        runBlocking {
+            val server = AndroidDebugBridgeServer()
+            val client = server.buildClient()
+
+            server.startAndListen { input, output ->
+                val transportCmd = input.receiveCommand()
+                assertThat(transportCmd).isEqualTo("host:transport:serial")
+                output.respond(Const.Message.OKAY)
+
+                val shellCmd = input.receiveCommand()
+                assertThat(shellCmd).isEqualTo("shell:getprop")
+                output.respond(Const.Message.OKAY)
+
+                val response = "[testing]: [testing]".toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
+                output.writeFully(response, 0, response.size)
+                output.close()
+            }
+
+            val version = client.execute(GetPropRequest(), serial = "serial")
+            assertThat(version).contains("testing", "testing")
+
+            server.dispose()
+        }
     }
 }

@@ -16,7 +16,7 @@
 
 package com.malinskiy.adam.rule
 
-import com.malinskiy.adam.AndroidDebugBridgeServerFactory
+import com.malinskiy.adam.AndroidDebugBridgeClientFactory
 import com.malinskiy.adam.interactor.StartAdbInteractor
 import kotlinx.coroutines.runBlocking
 import org.junit.rules.TestRule
@@ -25,7 +25,7 @@ import org.junit.runners.model.Statement
 
 class AdbDeviceRule : TestRule {
     val deviceSerial = "emulator-5554"
-    val adb = AndroidDebugBridgeServerFactory().build()
+    val adb = AndroidDebugBridgeClientFactory().build()
 
     override fun apply(base: Statement?, description: Description?): Statement {
         return object: Statement() {

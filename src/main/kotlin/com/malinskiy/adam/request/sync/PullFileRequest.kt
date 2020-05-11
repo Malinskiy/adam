@@ -37,7 +37,6 @@ class PullFileRequest(
 
     //Not sure yet when to properly close this
     val channel = local.writeChannel(coroutineContext = coroutineContext)
-    val buffer = ByteArray(8 + Const.MAX_FILE_PACKET_LENGTH)
     var totalBytes = 1
     var currentPosition = 0L
 
@@ -113,7 +112,7 @@ class PullFileRequest(
                 throw PullFailedException("Failed to pull file $remotePath")
             }
             else -> {
-                throw UnsupportedSyncProtocolException("Unexpected buffer size")
+                throw UnsupportedSyncProtocolException("Unexpected header message ${String(header, Const.DEFAULT_TRANSPORT_ENCODING)}")
             }
         }
     }

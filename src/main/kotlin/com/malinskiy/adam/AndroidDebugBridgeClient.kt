@@ -17,6 +17,7 @@
 package com.malinskiy.adam
 
 import com.malinskiy.adam.exception.RequestRejectedException
+import com.malinskiy.adam.exception.RequestValidationException
 import com.malinskiy.adam.extension.toAndroidChannel
 import com.malinskiy.adam.interactor.DiscoverAdbSocketInteractor
 import com.malinskiy.adam.log.AdamLogging
@@ -25,8 +26,8 @@ import com.malinskiy.adam.request.SetDeviceRequest
 import com.malinskiy.adam.request.async.AsyncChannelRequest
 import com.malinskiy.adam.transport.AndroidReadChannel
 import com.malinskiy.adam.transport.AndroidWriteChannel
-import io.ktor.network.selector.ActorSelectorManager
-import io.ktor.network.sockets.aSocket
+import com.malinskiy.adam.transport.KtorSocketFactory
+import com.malinskiy.adam.transport.SocketFactory
 import io.ktor.network.sockets.openReadChannel
 import io.ktor.network.sockets.openWriteChannel
 import kotlinx.coroutines.CoroutineScope
@@ -37,59 +38,60 @@ import java.net.InetAddress
 import java.net.InetSocketAddress
 import kotlin.coroutines.CoroutineContext
 
-class AndroidDebugBridgeServer(
+class AndroidDebugBridgeClient(
     val port: Int,
     val host: InetAddress,
-    val coroutineContext: CoroutineContext
+    val socketFactory: SocketFactory
 ) {
     private val socketAddress: InetSocketAddress = InetSocketAddress(host, port)
-    private val selectorManager = ActorSelectorManager(coroutineContext)
 
     suspend fun <T : Any?> execute(request: ComplexRequest<T>, serial: String? = null): T {
-        aSocket(selectorManager)
-            .tcp()
-            .connect(socketAddress).use { socket ->
+        if (!request.validate()) {
+            throw RequestValidationException("Request ${request.javaClass.simpleName} did not pass validation")
+        }
+        socketFactory.tcp(socketAddress).use { socket ->
+            val readChannel = socket.openReadChannel().toAndroidChannel()
+            var writeChannel: AndroidWriteChannel? = null
+            try {
+                writeChannel = socket.openWriteChannel(autoFlush = true).toAndroidChannel()
+                serial?.let {
+                    processRequest(writeChannel, SetDeviceRequest(it).serialize(), readChannel)
+                }
+                return request.process(readChannel, writeChannel)
+            } finally {
+                writeChannel?.close(null)
+            }
+        }
+    }
+
+    fun <T : Any?> execute(request: AsyncChannelRequest<T>, scope: CoroutineScope, serial: String? = null): ReceiveChannel<T> {
+        if (!request.validate()) {
+            throw RequestValidationException("Request ${request.javaClass.simpleName} did not pass validation")
+        }
+        return scope.produce {
+            socketFactory.tcp(socketAddress).use { socket ->
                 val readChannel = socket.openReadChannel().toAndroidChannel()
                 var writeChannel: AndroidWriteChannel? = null
+
                 try {
                     writeChannel = socket.openWriteChannel(autoFlush = true).toAndroidChannel()
                     serial?.let {
                         processRequest(writeChannel, SetDeviceRequest(it).serialize(), readChannel)
                     }
-                    return request.process(readChannel, writeChannel)
+
+                    request.handshake(readChannel, writeChannel)
+
+                    while (true) {
+                        if (isClosedForSend || readChannel.isClosedForRead || writeChannel.isClosedForWrite) return@produce
+                        val element = request.readElement(readChannel, writeChannel)
+                        send(element)
+                    }
+
+                    request.close(channel)
                 } finally {
                     writeChannel?.close(null)
                 }
             }
-    }
-
-    fun <T : Any?> execute(request: AsyncChannelRequest<T>, scope: CoroutineScope, serial: String? = null): ReceiveChannel<T> {
-        return scope.produce {
-            aSocket(selectorManager)
-                .tcp()
-                .connect(socketAddress).use { socket ->
-                    val readChannel = socket.openReadChannel().toAndroidChannel()
-                    var writeChannel: AndroidWriteChannel? = null
-
-                    try {
-                        writeChannel = socket.openWriteChannel(autoFlush = true).toAndroidChannel()
-                        serial?.let {
-                            processRequest(writeChannel, SetDeviceRequest(it).serialize(), readChannel)
-                        }
-
-                        request.handshake(readChannel, writeChannel)
-
-                        while (true) {
-                            if (isClosedForSend || readChannel.isClosedForRead || writeChannel.isClosedForWrite) return@produce
-                            val element = request.readElement(readChannel, writeChannel)
-                            send(element)
-                        }
-
-                        request.close(channel)
-                    } finally {
-                        writeChannel?.close(null)
-                    }
-                }
         }
     }
 
@@ -111,16 +113,17 @@ class AndroidDebugBridgeServer(
     }
 }
 
-class AndroidDebugBridgeServerFactory {
+class AndroidDebugBridgeClientFactory {
     var port: Int? = null
     var host: InetAddress? = null
     var coroutineContext: CoroutineContext? = null
+    var socketFactory: SocketFactory? = null
 
-    fun build(): AndroidDebugBridgeServer {
-        return AndroidDebugBridgeServer(
+    fun build(): AndroidDebugBridgeClient {
+        return AndroidDebugBridgeClient(
             port = port ?: DiscoverAdbSocketInteractor().execute(),
             host = host ?: InetAddress.getByName(Const.DEFAULT_ADB_HOST),
-            coroutineContext = coroutineContext ?: Dispatchers.IO
+            socketFactory = socketFactory ?: KtorSocketFactory(coroutineContext ?: Dispatchers.IO)
         )
     }
 }

@@ -56,7 +56,7 @@ open abstract class Request(val target: Target = HostTarget) {
             .toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
     }
 
-    protected open fun validate(): Boolean = true
+    open fun validate(): Boolean = true
 
     companion object {
         private val log = AdamLogging.logger {}
