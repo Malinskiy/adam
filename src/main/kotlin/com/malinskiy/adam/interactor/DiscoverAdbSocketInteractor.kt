@@ -20,8 +20,6 @@ import com.malinskiy.adam.Const
 import com.malinskiy.adam.log.AdamLogging
 
 class DiscoverAdbSocketInteractor {
-    private val TAG = DiscoverAdbSocketInteractor::class.java.simpleName
-
     fun execute() = discover("system property") { System.getProperty(Const.SERVER_PORT_ENV_VAR) }
         ?: discover("env var") { System.getenv(Const.SERVER_PORT_ENV_VAR) }
         ?: Const.DEFAULT_ADB_PORT

@@ -34,10 +34,10 @@ sealed class LocalPortSpec {
     }
 }
 
-class LocalTcpPortSpec(val port: Int) : LocalPortSpec() {
+data class LocalTcpPortSpec(val port: Int) : LocalPortSpec() {
     override fun toSpec() = "tcp:$port"
 }
 
-class LocalUnixSocketPortSpec(val path: String) : LocalPortSpec() {
+data class LocalUnixSocketPortSpec(val path: String) : LocalPortSpec() {
     override fun toSpec() = "local:$path"
 }

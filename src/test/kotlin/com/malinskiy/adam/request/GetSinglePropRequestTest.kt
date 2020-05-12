@@ -36,9 +36,7 @@ class GetSinglePropRequestTest {
     fun testReturnsProperContent() {
         runBlocking {
             val server = AndroidDebugBridgeServer()
-            val client = server.buildClient()
-
-            server.startAndListen { input, output ->
+            val client = server.startAndListen { input, output ->
                 val transportCmd = input.receiveCommand()
                 assertThat(transportCmd).isEqualTo("host:transport:serial")
                 output.respond(Const.Message.OKAY)

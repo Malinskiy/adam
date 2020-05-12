@@ -33,15 +33,13 @@ class SyncLogcatRequest(
 ) : SyncShellCommandRequest<String>(
     cmd = "logcat" +
             " -d" +
-            "${
-            since?.let {
+            (since?.let {
                 " -t ${since.toEpochMilli()}.0"
-            } ?: ""
-            }" +
+            } ?: "") +
             " ${modes.joinToString(separator = " ") { "-v $it" }}" +
             " ${buffers.joinToString(separator = " ") { "-b $it" }}" +
-            "${pid?.let { " --pid=$it" } ?: ""}" +
-            "${lastReboot?.let { " -L" } ?: ""}" +
+            (pid?.let { " --pid=$it" } ?: "") +
+            (lastReboot?.let { " -L" } ?: "") +
             " ${filters.joinToString(separator = " ") { "${it.tag}:${it.level.name}" }}"
                 .trimEnd()
 ), ResponseTransformer<String> by StringResponseTransformer()

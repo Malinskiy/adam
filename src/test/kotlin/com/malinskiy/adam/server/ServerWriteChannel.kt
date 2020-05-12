@@ -29,11 +29,11 @@ class ServerWriteChannel(private val delegate: ByteWriteChannel) : ByteWriteChan
 
     suspend fun respond(request: ByteArray, length: Int? = null) = write(request, length)
 
-    suspend fun respondStat(size: Int) {
+    suspend fun respondStat(size: Int, mode: Int = 0, lastModified: Int = 0) {
         respond(Const.Message.STAT)
-        respond(ByteArray(4))
+        writeIntLittleEndian(mode)
         writeIntLittleEndian(size)
-        respond(ByteArray(4))
+        writeIntLittleEndian(lastModified)
     }
 
     suspend fun respondData(byteArray: ByteArray) {

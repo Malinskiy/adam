@@ -24,6 +24,7 @@ import io.ktor.network.sockets.openReadChannel
 import io.ktor.network.sockets.openWriteChannel
 import io.ktor.utils.io.ByteReadChannel
 import io.ktor.utils.io.ByteWriteChannel
+import io.ktor.utils.io.close
 import kotlinx.coroutines.*
 import java.io.IOException
 import java.net.InetSocketAddress
@@ -56,19 +57,25 @@ class AndroidDebugBridgeServer : CoroutineScope {
 
     private fun portAvailable(port: Int): Boolean {
         try {
-            Socket("127.0.0.1", port).use({ ignored -> return false })
+            Socket("127.0.0.1", port).use { ignored ->
+                ignored.close()
+                return false
+            }
         } catch (ignored: IOException) {
             return true
         }
     }
 
-    fun startAndListen(block: suspend (ServerReadChannel, ServerWriteChannel) -> Unit) = async(job) {
+    suspend fun startAndListen(block: suspend (ServerReadChannel, ServerWriteChannel) -> Unit): AndroidDebugBridgeClient {
         val server = aSocket(ActorSelectorManager(Dispatchers.IO)).tcp().bind(InetSocketAddress("127.0.0.1", port))
 
-        while (true) {
+        async(context = coroutineContext) {
+            //Wait for connection probe
             val socket = server.accept()
+            socket.close()
 
-            async(job) {
+            while (true) {
+                val socket = server.accept()
                 val input = socket.openReadChannel().toServerReadChannel()
                 val output = socket.openWriteChannel(autoFlush = true).toServerWriteChannel()
 
@@ -76,20 +83,26 @@ class AndroidDebugBridgeServer : CoroutineScope {
                     block(input, output)
                 } catch (e: Throwable) {
                     e.printStackTrace()
+                } finally {
+                    output.close()
                     socket.close()
                 }
             }
         }
+
+        val client = AndroidDebugBridgeClientFactory().apply {
+            port = this@AndroidDebugBridgeServer.port
+        }.build()
+
+        while (portAvailable(port)) {
+            delay(100)
+        }
+
+        return client
     }
 
     suspend fun dispose() {
         job.cancelAndJoin()
-    }
-
-    fun buildClient(): AndroidDebugBridgeClient {
-        return AndroidDebugBridgeClientFactory().apply {
-            port = this@AndroidDebugBridgeServer.port
-        }.build()
     }
 }
 

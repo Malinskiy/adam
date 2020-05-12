@@ -28,9 +28,8 @@ class GetAdbServerVersionRequestTest {
     fun testReturnsProperVersion() {
         runBlocking {
             val server = AndroidDebugBridgeServer()
-            val client = server.buildClient()
 
-            server.startAndListen { input, output ->
+            val client = server.startAndListen { input, output ->
                 val transportCmd = input.receiveCommand()
                 assertThat(transportCmd).isEqualTo("host:version")
                 output.respond(Const.Message.OKAY)

@@ -38,26 +38,26 @@ sealed class RemotePortSpec {
     }
 }
 
-class RemoteTcpPortSpec(val port: Int) : RemotePortSpec() {
+data class RemoteTcpPortSpec(val port: Int) : RemotePortSpec() {
     override fun toSpec() = "tcp:$port"
 }
 
-class RemoteAbstractPortSpec(val unixDomainSocketName: String) : RemotePortSpec() {
+data class RemoteAbstractPortSpec(val unixDomainSocketName: String) : RemotePortSpec() {
     override fun toSpec() = "localabstract:$unixDomainSocketName"
 }
 
-class RemoteReservedPortSpec(val unixDomainSocketName: String) : RemotePortSpec() {
+data class RemoteReservedPortSpec(val unixDomainSocketName: String) : RemotePortSpec() {
     override fun toSpec() = "localreserved:$unixDomainSocketName"
 }
 
-class RemoteFilesystemPortSpec(val unixDomainSocketName: String) : RemotePortSpec() {
+data class RemoteFilesystemPortSpec(val unixDomainSocketName: String) : RemotePortSpec() {
     override fun toSpec() = "localfilesystem:$unixDomainSocketName"
 }
 
-class RemoteDevPortSpec(val charDeviceName: String): RemotePortSpec() {
+data class RemoteDevPortSpec(val charDeviceName: String) : RemotePortSpec() {
     override fun toSpec() = "dev:$charDeviceName"
 }
 
-class JDWPPortSpec(val processId: Int): RemotePortSpec() {
+data class JDWPPortSpec(val processId: Int) : RemotePortSpec() {
     override fun toSpec() = "jdwp:$processId"
 }

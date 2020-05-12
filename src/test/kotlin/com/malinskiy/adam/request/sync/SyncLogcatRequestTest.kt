@@ -19,6 +19,8 @@ package com.malinskiy.adam.request.sync
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import com.malinskiy.adam.Const
+import com.malinskiy.adam.request.async.LogcatFilterSpec
+import com.malinskiy.adam.request.async.LogcatVerbosityLevel
 import org.junit.Test
 import java.time.Instant
 
@@ -26,11 +28,21 @@ class SyncLogcatRequestTest {
     @Test
     fun testSinceNonBlocking() {
         val cmd = SyncLogcatRequest(
-            since = Instant.ofEpochMilli(10)
+            since = Instant.ofEpochMilli(10),
+            filters = listOf(LogcatFilterSpec("TAG", LogcatVerbosityLevel.E))
         ).serialize()
 
         val actual = String(cmd, Const.DEFAULT_TRANSPORT_ENCODING)
         assertThat(actual)
-            .isEqualTo("002Ashell:logcat -d -t 10.0 -v long -b default")
+            .isEqualTo("0030shell:logcat -d -t 10.0 -v long -b default TAG:E")
+    }
+
+    @Test
+    fun testDefault() {
+        val cmd = SyncLogcatRequest().serialize()
+
+        val actual = String(cmd, Const.DEFAULT_TRANSPORT_ENCODING)
+        assertThat(actual)
+            .isEqualTo("0022shell:logcat -d -v long -b default")
     }
 }

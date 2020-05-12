@@ -23,8 +23,8 @@ import com.malinskiy.adam.request.transform.StringResponseTransformer
  * @param keepData keep the data and cache directories around after package removal
  */
 class UninstallRemotePackageRequest(
-    val packageName: String,
-    val keepData: Boolean = false
+    packageName: String,
+    keepData: Boolean = false
 ) : SyncShellCommandRequest<String>(
     cmd = StringBuilder().apply {
         append("pm uninstall ")

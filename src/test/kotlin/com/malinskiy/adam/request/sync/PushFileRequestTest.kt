@@ -46,11 +46,10 @@ class PushFileRequestTest : CoroutineScope {
             val fixture = File(PushFileRequestTest::class.java.getResource("/fixture/sample.yaml").file)
 
             val server = AndroidDebugBridgeServer()
-            val client = server.buildClient()
 
             var receiveFile: File? = null
 
-            server.startAndListen { input, output ->
+            val client = server.startAndListen { input, output ->
                 val transportCmd = input.receiveCommand()
                 assertThat(transportCmd).isEqualTo("host:transport:serial")
                 output.respond(Const.Message.OKAY)
@@ -90,11 +89,10 @@ class PushFileRequestTest : CoroutineScope {
             val fixture = File(PushFileRequestTest::class.java.getResource("/fixture/sample.yaml").file)
 
             val server = AndroidDebugBridgeServer()
-            val client = server.buildClient()
 
             var receiveFile: File? = null
 
-            server.startAndListen { input, output ->
+            val client = server.startAndListen { input, output ->
                 val transportCmd = input.receiveCommand()
                 assertThat(transportCmd).isEqualTo("host:transport:serial")
                 output.respond(Const.Message.OKAY)

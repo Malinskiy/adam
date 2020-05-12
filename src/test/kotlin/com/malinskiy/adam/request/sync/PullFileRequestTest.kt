@@ -44,9 +44,8 @@ class PullFileRequestTest : CoroutineScope {
             val fixture = File(PullFileRequestTest::class.java.getResource("/fixture/sample.yaml").file)
 
             val server = AndroidDebugBridgeServer()
-            val client = server.buildClient()
 
-            server.startAndListen { input, output ->
+            val client = server.startAndListen { input, output ->
                 val transportCmd = input.receiveCommand()
                 assertThat(transportCmd).isEqualTo("host:transport:serial")
                 output.respond(Const.Message.OKAY)
@@ -92,9 +91,8 @@ class PullFileRequestTest : CoroutineScope {
             val fixture = File(PullFileRequestTest::class.java.getResource("/fixture/sample.yaml").file)
 
             val server = AndroidDebugBridgeServer()
-            val client = server.buildClient()
 
-            server.startAndListen { input, output ->
+            val client = server.startAndListen { input, output ->
                 val transportCmd = input.receiveCommand()
                 assertThat(transportCmd).isEqualTo("host:transport:serial")
                 output.respond(Const.Message.OKAY)
@@ -144,9 +142,8 @@ class PullFileRequestTest : CoroutineScope {
             val fixture = File(PullFileRequestTest::class.java.getResource("/fixture/sample.yaml").file)
 
             val server = AndroidDebugBridgeServer()
-            val client = server.buildClient()
 
-            server.startAndListen { input, output ->
+            val client = server.startAndListen { input, output ->
                 val transportCmd = input.receiveCommand()
                 assertThat(transportCmd).isEqualTo("host:transport:serial")
                 output.respond(Const.Message.OKAY)
@@ -189,9 +186,8 @@ class PullFileRequestTest : CoroutineScope {
             val fixture = File(PullFileRequestTest::class.java.getResource("/fixture/sample.yaml").file)
 
             val server = AndroidDebugBridgeServer()
-            val client = server.buildClient()
 
-            server.startAndListen { input, output ->
+            val client = server.startAndListen { input, output ->
                 val transportCmd = input.receiveCommand()
                 assertThat(transportCmd).isEqualTo("host:transport:serial")
                 output.respond(Const.Message.OKAY)
@@ -234,9 +230,8 @@ class PullFileRequestTest : CoroutineScope {
             val fixture = File(PullFileRequestTest::class.java.getResource("/fixture/sample.yaml").file)
 
             val server = AndroidDebugBridgeServer()
-            val client = server.buildClient()
 
-            server.startAndListen { input, output ->
+            val client = server.startAndListen { input, output ->
                 val transportCmd = input.receiveCommand()
                 assertThat(transportCmd).isEqualTo("host:transport:serial")
                 output.respond(Const.Message.OKAY)
