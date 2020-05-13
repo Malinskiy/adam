@@ -28,6 +28,7 @@ import com.malinskiy.adam.rule.AdbDeviceRule
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.channels.receiveOrNull
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 import org.junit.After
 import org.junit.Rule
 import org.junit.Test
@@ -103,6 +104,16 @@ class FileE2ETest {
             val testFile = createTempFile()
 
             adbRule.adb.execute(ShellCommandRequest("echo cafebabe > /sdcard/testfile"), serial = adbRule.deviceSerial)
+
+            withTimeout(10_000) {
+                while (true) {
+                    val output = adbRule.adb.execute(ShellCommandRequest("cat /sdcard/testfile"), serial = adbRule.deviceSerial)
+                    if (output.contains("cafebabe")) {
+                        break
+                    }
+                }
+            }
+
             val channel = adbRule.adb.execute(
                 PullFileRequest("/sdcard/testfile", testFile),
                 GlobalScope,
