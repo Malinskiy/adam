@@ -65,7 +65,7 @@ jobs:
         if: failure()
         with:
           name: logcat
-          path: /tmp/logcat.log
+          path: artifacts/logcat.log
       - name: codecov integartion tests
         run: bash <(curl -s https://codecov.io/bash) -f ./build/reports/jacoco/jacocoIntegrationTestReport/jacocoIntegrationTestReport.xml -F integration
         env:
