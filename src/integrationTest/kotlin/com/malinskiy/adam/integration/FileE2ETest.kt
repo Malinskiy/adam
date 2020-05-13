@@ -110,7 +110,7 @@ class FileE2ETest {
             }
             println()
 
-            val sizeString = adbRule.adb.execute(ShellCommandRequest("ls -ln /system/build.prop"), adbRule.deviceSerial)
+            val sizeString = adbRule.adb.execute(ShellCommandRequest("ls -ln /system/manifest.xml"), adbRule.deviceSerial)
             val split = sizeString.split(" ").filter { it != "" }
 
             /**
