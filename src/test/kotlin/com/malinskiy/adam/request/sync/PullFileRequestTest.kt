@@ -22,6 +22,7 @@ import com.malinskiy.adam.Const
 import com.malinskiy.adam.exception.PullFailedException
 import com.malinskiy.adam.exception.UnsupportedSyncProtocolException
 import com.malinskiy.adam.server.AndroidDebugBridgeServer
+import io.ktor.utils.io.writeIntLittleEndian
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.receiveOrNull
@@ -160,7 +161,9 @@ class PullFileRequestTest : CoroutineScope {
                 assertThat(recvPath).isEqualTo("/sdcard/testfile")
 
                 output.respond(Const.Message.FAIL)
-                output.respondDone()
+                val message = "lorem ipsum"
+                output.writeIntLittleEndian(message.length)
+                output.respondData(message.toByteArray(Const.DEFAULT_TRANSPORT_ENCODING))
             }
 
             val tempFile = createTempFile()

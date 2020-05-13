@@ -19,10 +19,7 @@ package com.malinskiy.adam.integration
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import com.malinskiy.adam.extension.md5
-import com.malinskiy.adam.request.sync.PullFileRequest
-import com.malinskiy.adam.request.sync.PushFileRequest
-import com.malinskiy.adam.request.sync.ShellCommandRequest
-import com.malinskiy.adam.request.sync.StatFileRequest
+import com.malinskiy.adam.request.sync.*
 import com.malinskiy.adam.rule.AdbDeviceRule
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.channels.receiveOrNull
@@ -91,9 +88,18 @@ class FileE2ETest {
     @Test
     fun testFilePulling() {
         runBlocking {
-            val testFile = File("/tmp/manifest.xml")
+            val testFile = createTempFile()
+
+            val sdk = adbRule.adb.execute(GetSinglePropRequest("ro.build.version.sdk"), serial = adbRule.deviceSerial)
+            val remoteFilePath = when (sdk) {
+                //For some reason build.prop is not available on emulator API 26 for user reads
+                //-rw-------  1 root root   1895 2018-08-04 04:47 build.prop
+                "26" -> "/system/manifest.xml"
+                else -> "/system/build.prop"
+            }
+
             val channel = adbRule.adb.execute(
-                PullFileRequest("/system/manifest.xml", testFile),
+                PullFileRequest(remoteFilePath, testFile),
                 GlobalScope,
                 adbRule.deviceSerial
             )
@@ -110,7 +116,7 @@ class FileE2ETest {
             }
             println()
 
-            val sizeString = adbRule.adb.execute(ShellCommandRequest("ls -ln /system/manifest.xml"), adbRule.deviceSerial)
+            val sizeString = adbRule.adb.execute(ShellCommandRequest("ls -ln $remoteFilePath"), adbRule.deviceSerial)
             val split = sizeString.split(" ").filter { it != "" }
 
             /**
