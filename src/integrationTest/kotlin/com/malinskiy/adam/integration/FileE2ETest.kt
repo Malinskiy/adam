@@ -91,9 +91,9 @@ class FileE2ETest {
     @Test
     fun testFilePulling() {
         runBlocking {
-            val testFile = File("/tmp/build.prop")
+            val testFile = File("/tmp/manifest.xml")
             val channel = adbRule.adb.execute(
-                PullFileRequest("/system/build.prop", testFile),
+                PullFileRequest("/system/manifest.xml", testFile),
                 GlobalScope,
                 adbRule.deviceSerial
             )
