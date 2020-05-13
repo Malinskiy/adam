@@ -17,13 +17,18 @@
 package com.malinskiy.adam.integration
 
 import assertk.assertThat
+import assertk.assertions.contains
 import assertk.assertions.isEqualTo
 import com.malinskiy.adam.extension.md5
-import com.malinskiy.adam.request.sync.*
+import com.malinskiy.adam.request.sync.PullFileRequest
+import com.malinskiy.adam.request.sync.PushFileRequest
+import com.malinskiy.adam.request.sync.ShellCommandRequest
+import com.malinskiy.adam.request.sync.StatFileRequest
 import com.malinskiy.adam.rule.AdbDeviceRule
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.channels.receiveOrNull
 import kotlinx.coroutines.runBlocking
+import org.junit.After
 import org.junit.Rule
 import org.junit.Test
 import java.io.File
@@ -85,21 +90,21 @@ class FileE2ETest {
         }
     }
 
+    @After
+    fun cleanup() {
+        runBlocking {
+            adbRule.adb.execute(ShellCommandRequest("rm /sdcard/testfile"), serial = adbRule.deviceSerial)
+        }
+    }
+
     @Test
     fun testFilePulling() {
         runBlocking {
             val testFile = createTempFile()
 
-            val sdk = adbRule.adb.execute(GetSinglePropRequest("ro.build.version.sdk"), serial = adbRule.deviceSerial)
-            val remoteFilePath = when (sdk) {
-                //For some reason build.prop is not available on emulator API 26,27 for user reads
-                //-rw-------  1 root root   1895 2018-08-04 04:47 build.prop
-                "26", "27" -> "/system/manifest.xml"
-                else -> "/system/build.prop"
-            }
-
+            adbRule.adb.execute(ShellCommandRequest("echo cafebabe > /sdcard/testfile"), serial = adbRule.deviceSerial)
             val channel = adbRule.adb.execute(
-                PullFileRequest(remoteFilePath, testFile),
+                PullFileRequest("/sdcard/testfile", testFile),
                 GlobalScope,
                 adbRule.deviceSerial
             )
@@ -116,7 +121,7 @@ class FileE2ETest {
             }
             println()
 
-            val sizeString = adbRule.adb.execute(ShellCommandRequest("ls -ln $remoteFilePath"), adbRule.deviceSerial)
+            val sizeString = adbRule.adb.execute(ShellCommandRequest("ls -ln /sdcard/testfile"), adbRule.deviceSerial)
             val split = sizeString.split(" ").filter { it != "" }
 
             /**
@@ -126,6 +131,8 @@ class FileE2ETest {
              */
             val dateIndex = split.indexOfLast { it.matches("[\\d]{4}-[\\d]{2}-[\\d]{2}".toRegex()) }
             assertThat(split[dateIndex - 1].toLong()).isEqualTo(testFile.length())
+
+            assertThat(testFile.readText()).contains("cafebabe")
         }
     }
 }
