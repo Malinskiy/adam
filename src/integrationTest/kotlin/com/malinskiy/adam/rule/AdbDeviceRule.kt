@@ -18,20 +18,52 @@ package com.malinskiy.adam.rule
 
 import com.malinskiy.adam.AndroidDebugBridgeClientFactory
 import com.malinskiy.adam.interactor.StartAdbInteractor
+import com.malinskiy.adam.request.devices.Device
+import com.malinskiy.adam.request.devices.DeviceState
+import com.malinskiy.adam.request.devices.ListDevicesRequest
+import com.malinskiy.adam.request.sync.GetSinglePropRequest
 import kotlinx.coroutines.runBlocking
 import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
+import java.net.ConnectException
 
 class AdbDeviceRule : TestRule {
     val deviceSerial = "emulator-5554"
     val adb = AndroidDebugBridgeClientFactory().build()
 
     override fun apply(base: Statement?, description: Description?): Statement {
-        return object: Statement() {
+        return object : Statement() {
             override fun evaluate() {
                 runBlocking {
                     StartAdbInteractor().execute()
+
+                    //Wait for device to be available on adb server
+                    while (true) {
+                        try {
+                            val output = adb.execute(ListDevicesRequest())
+                            if (output.contains(Device(deviceSerial, DeviceState.DEVICE))) {
+                                break
+                            }
+                        } catch (e: ConnectException) {
+                            continue
+                        }
+                    }
+
+                    //Wait for device boot
+                    while (true) {
+                        try {
+                            val output = adb.execute(ListDevicesRequest())
+                            if (output.contains(Device(deviceSerial, DeviceState.DEVICE))) {
+                                break
+                            }
+                            val completed = adb.execute(GetSinglePropRequest("sys.boot_completed"))
+                            if (completed.isNotEmpty()) break
+                            continue
+                        } catch (e: ConnectException) {
+                            continue
+                        }
+                    }
                 }
                 base?.evaluate()
             }
