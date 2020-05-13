@@ -41,6 +41,7 @@ jobs:
       - uses: malinskiy/action-android/install-sdk@release/0.0.6
       - name: integration test
         uses: malinskiy/action-android/emulator-run-cmd@release/0.0.6
+        timeout-minutes: 20
         with:
           cmd: ./gradlew integrationTest
           api: ${{ matrix.api }}
