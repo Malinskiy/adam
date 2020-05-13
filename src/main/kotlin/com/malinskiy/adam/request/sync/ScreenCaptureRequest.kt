@@ -32,6 +32,7 @@ class ScreenCaptureRequest : ComplexRequest<RawImage>() {
         val protocolVersion = protocolBuffer.order(ByteOrder.LITTLE_ENDIAN).int
         val headerSize = when (protocolVersion) {
             1 -> 12 // bpp, size, width, height, 4*(length, offset)
+            2 -> 13 // bpp, colorSpace, size, width, height, 4*(length, offset)
             16 -> 3 // compatibility mode: size, width, height. used previously to denote framebuffer depth
             else -> throw UnsupportedImageProtocolException(protocolVersion)
         }
@@ -42,7 +43,13 @@ class ScreenCaptureRequest : ComplexRequest<RawImage>() {
 
         headerBuffer.order(ByteOrder.LITTLE_ENDIAN)
         headerBuffer.rewind()
-        val imageSize = headerBuffer.getInt(4)
+        val imageSize = when (protocolVersion) {
+            1 -> headerBuffer.getInt(4)
+            2 -> headerBuffer.getInt(8)
+            16 -> headerBuffer.getInt(0)
+            else -> throw UnsupportedImageProtocolException(protocolVersion)
+        }
+
         val imageBuffer = ByteBuffer.allocate(imageSize)
         headerBuffer.rewind()
         readChannel.readFully(imageBuffer)

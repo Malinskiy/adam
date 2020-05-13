@@ -92,9 +92,9 @@ class FileE2ETest {
 
             val sdk = adbRule.adb.execute(GetSinglePropRequest("ro.build.version.sdk"), serial = adbRule.deviceSerial)
             val remoteFilePath = when (sdk) {
-                //For some reason build.prop is not available on emulator API 26 for user reads
+                //For some reason build.prop is not available on emulator API 26,27 for user reads
                 //-rw-------  1 root root   1895 2018-08-04 04:47 build.prop
-                "26" -> "/system/manifest.xml"
+                "26", "27" -> "/system/manifest.xml"
                 else -> "/system/build.prop"
             }
 
