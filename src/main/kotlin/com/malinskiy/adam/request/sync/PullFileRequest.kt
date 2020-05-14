@@ -109,7 +109,10 @@ class PullFileRequest(
                 return currentPosition.toDouble() / totalBytes
             }
             header.contentEquals(Const.Message.FAIL) -> {
-                throw PullFailedException("Failed to pull file $remotePath")
+                val size = headerBuffer.copyOfRange(4, 8).toInt()
+                readChannel.readFully(dataBuffer, 0, size)
+                val errorMessage = String(dataBuffer, 0, size)
+                throw PullFailedException("Failed to pull file $remotePath: $errorMessage")
             }
             else -> {
                 throw UnsupportedSyncProtocolException("Unexpected header message ${String(header, Const.DEFAULT_TRANSPORT_ENCODING)}")

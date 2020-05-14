@@ -17,6 +17,7 @@
 package com.malinskiy.adam.integration
 
 import assertk.assertThat
+import assertk.assertions.contains
 import assertk.assertions.isEqualTo
 import com.malinskiy.adam.extension.md5
 import com.malinskiy.adam.request.sync.PullFileRequest
@@ -27,6 +28,8 @@ import com.malinskiy.adam.rule.AdbDeviceRule
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.channels.receiveOrNull
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
+import org.junit.After
 import org.junit.Rule
 import org.junit.Test
 import java.io.File
@@ -88,12 +91,33 @@ class FileE2ETest {
         }
     }
 
+    @After
+    fun cleanup() {
+        runBlocking {
+            adbRule.adb.execute(ShellCommandRequest("rm /data/local/tmp/testfile"), serial = adbRule.deviceSerial)
+        }
+    }
+
     @Test
     fun testFilePulling() {
         runBlocking {
-            val testFile = File("/tmp/build.prop")
+            val testFile = createTempFile()
+
+            withTimeout(10_000) {
+                while (true) {
+                    var output =
+                        adbRule.adb.execute(ShellCommandRequest("echo cafebabe > /data/local/tmp/testfile"), serial = adbRule.deviceSerial)
+                    println(output)
+                    output = adbRule.adb.execute(ShellCommandRequest("cat /data/local/tmp/testfile"), serial = adbRule.deviceSerial)
+                    println(output)
+                    if (output.contains("cafebabe")) {
+                        break
+                    }
+                }
+            }
+
             val channel = adbRule.adb.execute(
-                PullFileRequest("/system/build.prop", testFile),
+                PullFileRequest("/data/local/tmp/testfile", testFile),
                 GlobalScope,
                 adbRule.deviceSerial
             )
@@ -110,7 +134,7 @@ class FileE2ETest {
             }
             println()
 
-            val sizeString = adbRule.adb.execute(ShellCommandRequest("ls -ln /system/build.prop"), adbRule.deviceSerial)
+            val sizeString = adbRule.adb.execute(ShellCommandRequest("ls -ln /data/local/tmp/testfile"), adbRule.deviceSerial)
             val split = sizeString.split(" ").filter { it != "" }
 
             /**
@@ -120,6 +144,8 @@ class FileE2ETest {
              */
             val dateIndex = split.indexOfLast { it.matches("[\\d]{4}-[\\d]{2}-[\\d]{2}".toRegex()) }
             assertThat(split[dateIndex - 1].toLong()).isEqualTo(testFile.length())
+
+            assertThat(testFile.readText()).contains("cafebabe")
         }
     }
 }

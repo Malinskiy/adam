@@ -27,7 +27,6 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
-import java.awt.image.BufferedImage
 import java.io.File
 import java.io.IOException
 import javax.imageio.ImageIO
@@ -44,21 +43,9 @@ class E2ETest {
             val image = adbRule.adb.execute(
                 ScreenCaptureRequest(),
                 adbRule.deviceSerial
-            )
+            ).toBufferedImage()
 
-            val finalImage = BufferedImage(image.width, image.height, BufferedImage.TYPE_INT_ARGB)
-
-            var index = 0
-            val increment = image.bitsPerPixel shr 3
-            for (y in 0 until image.height) {
-                for (x in 0 until image.width) {
-                    val value = image.getARGB(index)
-                    index += increment
-                    finalImage.setRGB(x, y, value)
-                }
-            }
-
-            if (!ImageIO.write(finalImage, "png", File("/tmp/screen.png"))) {
+            if (!ImageIO.write(image, "png", File("/tmp/screen.png"))) {
                 throw IOException("Failed to find png writer")
             }
         }
