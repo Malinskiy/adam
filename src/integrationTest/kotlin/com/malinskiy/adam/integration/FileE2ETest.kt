@@ -105,8 +105,10 @@ class FileE2ETest {
 
             withTimeout(60_000) {
                 while (true) {
-                    adbRule.adb.execute(ShellCommandRequest("echo cafebabe > /sdcard/testfile"), serial = adbRule.deviceSerial)
-                    val output = adbRule.adb.execute(ShellCommandRequest("cat /sdcard/testfile"), serial = adbRule.deviceSerial)
+                    var output = adbRule.adb.execute(ShellCommandRequest("echo cafebabe > /sdcard/testfile"), serial = adbRule.deviceSerial)
+                    println(output)
+                    output = adbRule.adb.execute(ShellCommandRequest("cat /sdcard/testfile"), serial = adbRule.deviceSerial)
+                    println(output)
                     if (output.contains("cafebabe")) {
                         break
                     }
