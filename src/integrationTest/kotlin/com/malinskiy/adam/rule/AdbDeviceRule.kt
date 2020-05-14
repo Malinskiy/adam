@@ -53,10 +53,6 @@ class AdbDeviceRule : TestRule {
                     //Wait for device boot
                     while (true) {
                         try {
-                            val output = adb.execute(ListDevicesRequest())
-                            if (output.contains(Device(deviceSerial, DeviceState.DEVICE))) {
-                                break
-                            }
                             val completed = adb.execute(GetSinglePropRequest("sys.boot_completed"))
                             if (completed.isNotEmpty()) break
                             continue
