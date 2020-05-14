@@ -94,7 +94,7 @@ class FileE2ETest {
     @After
     fun cleanup() {
         runBlocking {
-            adbRule.adb.execute(ShellCommandRequest("rm /sdcard/testfile"), serial = adbRule.deviceSerial)
+            adbRule.adb.execute(ShellCommandRequest("rm /data/local/tmp/testfile"), serial = adbRule.deviceSerial)
         }
     }
 
@@ -105,9 +105,10 @@ class FileE2ETest {
 
             withTimeout(60_000) {
                 while (true) {
-                    var output = adbRule.adb.execute(ShellCommandRequest("echo cafebabe > /sdcard/testfile"), serial = adbRule.deviceSerial)
+                    var output =
+                        adbRule.adb.execute(ShellCommandRequest("echo cafebabe > /data/local/tmp/testfile"), serial = adbRule.deviceSerial)
                     println(output)
-                    output = adbRule.adb.execute(ShellCommandRequest("cat /sdcard/testfile"), serial = adbRule.deviceSerial)
+                    output = adbRule.adb.execute(ShellCommandRequest("cat /data/local/tmp/testfile"), serial = adbRule.deviceSerial)
                     println(output)
                     if (output.contains("cafebabe")) {
                         break
@@ -116,7 +117,7 @@ class FileE2ETest {
             }
 
             val channel = adbRule.adb.execute(
-                PullFileRequest("/sdcard/testfile", testFile),
+                PullFileRequest("/data/local/tmp/testfile", testFile),
                 GlobalScope,
                 adbRule.deviceSerial
             )
@@ -133,7 +134,7 @@ class FileE2ETest {
             }
             println()
 
-            val sizeString = adbRule.adb.execute(ShellCommandRequest("ls -ln /sdcard/testfile"), adbRule.deviceSerial)
+            val sizeString = adbRule.adb.execute(ShellCommandRequest("ls -ln /data/local/tmp/testfile"), adbRule.deviceSerial)
             val split = sizeString.split(" ").filter { it != "" }
 
             /**
