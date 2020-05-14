@@ -103,10 +103,9 @@ class FileE2ETest {
         runBlocking {
             val testFile = createTempFile()
 
-            adbRule.adb.execute(ShellCommandRequest("echo cafebabe > /sdcard/testfile"), serial = adbRule.deviceSerial)
-
             withTimeout(10_000) {
                 while (true) {
+                    adbRule.adb.execute(ShellCommandRequest("echo cafebabe > /sdcard/testfile"), serial = adbRule.deviceSerial)
                     val output = adbRule.adb.execute(ShellCommandRequest("cat /sdcard/testfile"), serial = adbRule.deviceSerial)
                     if (output.contains("cafebabe")) {
                         break
