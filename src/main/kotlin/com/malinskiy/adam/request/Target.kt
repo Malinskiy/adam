@@ -34,7 +34,7 @@ object HostTarget : Target() {
  * prefix can be used to indicate that the client is asking the ADB server
  * for information related to a specific device.
  */
-class SerialTarget(val serial: String) : Target() {
+class SerialTarget(private val serial: String) : Target() {
     override fun serialize() = "host-serial:$serial:"
 }
 

@@ -19,6 +19,7 @@ package com.malinskiy.adam.request.sync
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import com.malinskiy.adam.Const
+import com.malinskiy.adam.exception.UnsupportedImageProtocolException
 import com.malinskiy.adam.server.AndroidDebugBridgeServer
 import io.ktor.utils.io.close
 import io.ktor.utils.io.writeIntLittleEndian
@@ -30,7 +31,7 @@ import javax.imageio.ImageIO
 
 class ScreenCaptureRequestTest {
     @Test
-    fun testReturnsProperContent() {
+    fun testProtocol1() {
         runBlocking {
             val server = AndroidDebugBridgeServer()
 
@@ -43,7 +44,7 @@ class ScreenCaptureRequestTest {
                 assertThat(shellCmd).isEqualTo("framebuffer:")
                 output.respond(Const.Message.OKAY)
 
-                //Extended versionE
+                //Extended version
                 output.writeIntLittleEndian(1)
 
                 val sample = File(javaClass.getResource("/fixture/screencap_1.bin").toURI()).readBytes()
@@ -73,6 +74,30 @@ class ScreenCaptureRequestTest {
             ImageIO.write(actual.toBufferedImage(), "png", createTempFile)
             assertThat(createTempFile.readBytes()).isEqualTo(File(javaClass.getResource("/fixture/screencap_1.png").toURI()).readBytes())
 
+            server.dispose()
+        }
+    }
+
+    @Test(expected = UnsupportedImageProtocolException::class)
+    fun testProtocolUnsupported() {
+        runBlocking {
+            val server = AndroidDebugBridgeServer()
+
+            val client = server.startAndListen { input, output ->
+                val transportCmd = input.receiveCommand()
+                assertThat(transportCmd).isEqualTo("host:transport:serial")
+                output.respond(Const.Message.OKAY)
+
+                val shellCmd = input.receiveCommand()
+                assertThat(shellCmd).isEqualTo("framebuffer:")
+                output.respond(Const.Message.OKAY)
+
+                //Extended version
+                output.writeIntLittleEndian(99)
+                output.close()
+            }
+
+            client.execute(ScreenCaptureRequest(), serial = "serial")
             server.dispose()
         }
     }
