@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 Anton Malinskiy
+ * Copyright (C) 2020 Anton Malinskiy
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,8 +14,19 @@
  * limitations under the License.
  */
 
-package com.malinskiy.adam.exception
+package com.malinskiy.adam.request
 
-import java.lang.RuntimeException
+import assertk.assertThat
+import assertk.assertions.isEqualTo
+import org.junit.Test
 
-class DeviceSelectionException(message: String) : RuntimeException(message)
+class TargetTest {
+    @Test
+    fun testSerialization() {
+        assertThat(SerialTarget("xxx").serialize()).isEqualTo("host-serial:xxx:")
+
+        assertThat(UsbTarget.serialize()).isEqualTo("host-usb:")
+        assertThat(LocalTarget.serialize()).isEqualTo("host-local:")
+
+    }
+}

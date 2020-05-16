@@ -35,7 +35,7 @@ class TestRunnerRequest(
     private val profilingOutputPath: String? = null,
     private val outputLogPath: String? = null
 ) : AsyncChannelRequest<String>() {
-    val buffer = ByteArray(Const.MAX_PACKET_LENGTH)
+    private val buffer = ByteArray(Const.MAX_PACKET_LENGTH)
 
     override suspend fun readElement(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel): String {
         val available = readChannel.readAvailable(buffer, 0, Const.MAX_FILE_PACKET_LENGTH)

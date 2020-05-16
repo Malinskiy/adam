@@ -19,9 +19,20 @@ package com.malinskiy.adam.request.testrunner
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import com.malinskiy.adam.Const
+import com.malinskiy.adam.extension.toAndroidChannel
+import com.malinskiy.adam.server.AndroidDebugBridgeServer
+import io.ktor.utils.io.ByteChannel
+import io.ktor.utils.io.ByteReadChannel
+import io.ktor.utils.io.ByteWriteChannel
+import io.ktor.utils.io.close
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.receiveOrNull
+import kotlinx.coroutines.runBlocking
 import org.junit.Test
+import kotlin.coroutines.CoroutineContext
 
-class TestRunnerRequestTest {
+class TestRunnerRequestTest : CoroutineScope {
     @Test
     fun testSerialize() {
         val request = TestRunnerRequest(
@@ -55,4 +66,57 @@ class TestRunnerRequestTest {
                 "0059shell:am instrument -w -r com.example.test/android.support.test.runner.AndroidJUnitRunner"
             )
     }
+
+    @Test
+    fun testReturnsProperContent() {
+        runBlocking {
+            val server = AndroidDebugBridgeServer()
+            val client = server.startAndListen { input, output ->
+                val transportCmd = input.receiveCommand()
+                assertThat(transportCmd).isEqualTo("host:transport:serial")
+                output.respond(Const.Message.OKAY)
+
+                val shellCmd = input.receiveCommand()
+                assertThat(shellCmd).isEqualTo("shell:am instrument -w -r com.example.test/android.support.test.runner.AndroidJUnitRunner")
+                output.respond(Const.Message.OKAY)
+
+                val response = "something-something".toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
+                output.writeFully(response, 0, response.size)
+                output.close()
+            }
+
+            val channel = client.execute(
+                TestRunnerRequest("com.example.test", InstrumentOptions()),
+                serial = "serial",
+                scope = this@TestRunnerRequestTest
+            )
+            val builder = StringBuilder()
+            while (!channel.isClosedForReceive) {
+                val chunk = channel.receiveOrNull() ?: break
+                builder.append(chunk)
+            }
+
+            assertThat(builder.toString()).isEqualTo("something-something")
+
+            server.dispose()
+        }
+    }
+
+    @Test
+    fun testChannelIsEmpty() {
+        val request = TestRunnerRequest("com.example.test", InstrumentOptions())
+        val readChannel = ByteChannel(autoFlush = true)
+        val writeChannel = ByteChannel(autoFlush = true)
+        runBlocking {
+            readChannel.close()
+            val readElement = request.readElement(
+                (readChannel as ByteReadChannel).toAndroidChannel(),
+                (writeChannel as ByteWriteChannel).toAndroidChannel()
+            )
+            assertThat(readElement).isEqualTo("")
+        }
+    }
+
+    override val coroutineContext: CoroutineContext
+        get() = Dispatchers.IO
 }

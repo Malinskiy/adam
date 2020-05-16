@@ -17,10 +17,12 @@
 package com.malinskiy.adam.request.transform
 
 import assertk.assertThat
+import assertk.assertions.containsExactly
 import assertk.assertions.isEqualTo
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.request.testrunner.TestEvent
 import com.malinskiy.adam.request.testrunner.TestIdentifier
+import com.malinskiy.adam.request.testrunner.TestRunFailed
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 
@@ -90,6 +92,37 @@ class InstrumentationResponseTransformerTest {
 
             assertThat(events.map { it.toString() }.reduce { acc, s -> acc + "\n" + s })
                 .isEqualTo(javaClass.getResourceAsStream("/instrumentation/log_1.expected").reader().readText())
+        }
+    }
+
+    @Test
+    fun testNoResultsReported() {
+        runBlocking {
+            val transformer = InstrumentationResponseTransformer()
+            val list = transformer.close()
+            assertThat(list!!).containsExactly(TestRunFailed("No test results"))
+        }
+    }
+
+    @Test
+    fun testIncompleteTests() {
+        runBlocking {
+            val transformer = InstrumentationResponseTransformer()
+
+            val lines = javaClass.getResourceAsStream("/instrumentation/log_4.input").reader().readLines()
+
+            val events = mutableListOf<TestEvent>()
+            for (line in lines) {
+                val bytes = (line + '\n').toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
+                transformer.process(bytes, 0, bytes.size)
+                transformer.transform()?.let {
+                    events.addAll(it)
+                }
+            }
+            transformer.close()?.let { events.addAll(it) }
+
+            assertThat(events.map { it.toString() }.reduce { acc, s -> acc + "\n" + s })
+                .isEqualTo(javaClass.getResourceAsStream("/instrumentation/log_4.expected").reader().readText())
         }
     }
 }

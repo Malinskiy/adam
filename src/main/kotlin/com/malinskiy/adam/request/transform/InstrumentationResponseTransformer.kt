@@ -22,11 +22,11 @@ import com.malinskiy.adam.request.testrunner.*
 class InstrumentationResponseTransformer : ResponseTransformer<List<TestEvent>?> {
     var buffer = StringBuffer()
 
-    var startReported = false
-    var finishReported = false
-    var finished = false
-    var testsExpected = 0
-    var testsExecuted = 0
+    private var startReported = false
+    private var finishReported = false
+    private var finished = false
+    private var testsExpected = 0
+    private var testsExecuted = 0
 
     override suspend fun process(bytes: ByteArray, offset: Int, limit: Int) {
         buffer.append(String(bytes, offset, limit, Const.DEFAULT_TRANSPORT_ENCODING))
