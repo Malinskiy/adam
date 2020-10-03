@@ -1,11 +1,11 @@
 object Versions {
     val adam = System.getenv("GITHUB_TAG_NAME") ?: "0.0.2"
-    val kotlin = "1.3.61"
-    val coroutines = "1.3.3"
+    val kotlin = "1.4.10"
+    val coroutines = "1.3.9"
 
     val annotations = "16.0.2"
     val kxml = "2.3.0"
-    val ktor = "1.3.0"
+    val ktor = "1.4.0"
     val logging = "1.7.6"
 
     val assertk = "0.19"
