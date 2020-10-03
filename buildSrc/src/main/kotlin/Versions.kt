@@ -5,7 +5,7 @@ object Versions {
 
     val annotations = "16.0.2"
     val kxml = "2.3.0"
-    val ktor = "1.4.0"
+    val ktor = "1.4.1"
     val logging = "1.7.6"
 
     val assertk = "0.19"
