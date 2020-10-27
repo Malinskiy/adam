@@ -22,7 +22,7 @@ object Libraries {
     val annotations = "org.jetbrains:annotations:${Versions.annotations}"
     val coroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.coroutines}"
     val kxml = "net.sf.kxml:kxml2:${Versions.kxml}"
-    val ktorNetwork = "io.ktor:ktor-network:${Versions.ktor}"
+    val ktorNetwork = "io.ktor:ktor-network-jvm:${Versions.ktor}"
     val logging = "io.github.microutils:kotlin-logging:${Versions.logging}"
 }
 
