@@ -11,7 +11,7 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 1.8
-      - uses: olegtarasov/get-tag@v1
+      - uses: little-core-labs/get-git-tag@v3.0.2
       - name: deploy-release
         run: .buildsystem/deploy-github.sh
         env:
