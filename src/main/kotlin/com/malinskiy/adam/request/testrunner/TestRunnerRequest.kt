@@ -38,7 +38,7 @@ class TestRunnerRequest(
     private val buffer = ByteArray(Const.MAX_PACKET_LENGTH)
 
     override suspend fun readElement(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel): String {
-        val available = readChannel.readAvailable(buffer, 0, Const.MAX_FILE_PACKET_LENGTH)
+        val available = readChannel.readAvailable(buffer, 0, Const.MAX_PACKET_LENGTH)
 
         return when {
             available > 0 -> {
