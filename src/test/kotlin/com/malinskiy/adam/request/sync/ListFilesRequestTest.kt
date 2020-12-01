@@ -25,7 +25,7 @@ import io.ktor.utils.io.*
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 
-class ListFileRequestTest {
+class ListFilesRequestTest {
     @Test
     fun testReturnsProperContent() {
         runBlocking {
@@ -55,7 +55,7 @@ class ListFileRequestTest {
                 output.close()
             }
 
-            val files = client.execute(ListFileRequest("/sdcard/"), serial = "serial")
+            val files = client.execute(ListFilesRequest("/sdcard/"), serial = "serial")
             assertThat(files).containsExactly(
                 AndroidFile(
                     permissions = "-rwxrwx--x",

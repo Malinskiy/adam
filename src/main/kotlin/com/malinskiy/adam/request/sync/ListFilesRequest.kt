@@ -19,7 +19,7 @@ package com.malinskiy.adam.request.sync
 import com.malinskiy.adam.Const
 
 
-class ListFileRequest(private val directory: String) : SyncShellCommandRequest<List<AndroidFile>>(
+class ListFilesRequest(private val directory: String) : SyncShellCommandRequest<List<AndroidFile>>(
     cmd = "ls -l $directory"
 ) {
     private val builder = StringBuilder()
