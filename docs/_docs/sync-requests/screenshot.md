@@ -5,8 +5,10 @@ parent: Sync requests
 nav_order: 5
 ---
 
-Capturing screenshots is done using the `ScreenCaptureRequest`. This will check the remote protocol version and will fail if the format is
- unsupported.
+## Capture a screenshot
+
+Capturing screenshots is done using the `ScreenCaptureRequest`. This request will check the remote protocol version and will fail if the
+ format is unsupported.
 
 ```kotlin
 val image = adb.execute(

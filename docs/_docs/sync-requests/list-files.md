@@ -5,6 +5,8 @@ parent: Sync requests
 nav_order: 5
 ---
 
+## List files
+
 Traversing directories can be done using the following wrapper around `ls`:
 
 ```kotlin

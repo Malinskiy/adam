@@ -5,7 +5,7 @@ parent: Sync requests
 nav_order: 3
 ---
 
-Retrieve device properties (equivalent to executing `getprop` on the device) can be done with the requests below.
+Retrieving device properties (equivalent to executing `getprop` on the device) can be done using the requests below.
 
 ## Get all device properties
 This requests retrieves all properties and create a Map of String -> String to allow working with properties like this

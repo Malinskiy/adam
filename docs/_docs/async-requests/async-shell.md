@@ -2,8 +2,10 @@
 layout: default
 title:  "Shell"
 parent: Async requests
-nav_order: 2
+nav_order: 1
 ---
+
+## Streaming shell request 
 
 You can execute arbitrary commands (`cat`, `tail -f`, etc) on the device using the `ChanneledShellCommandRequest`:
 
@@ -20,5 +22,5 @@ while (!updates.isClosedForReceive) {
 ```
 
 This request expects that the command will stream the output. If the command is expected to immediately return the output please use
- `ShellCommandRequest`.
+ [`ShellCommandRequest`]({% link _docs/sync-requests/sync-shell.md %}).
  

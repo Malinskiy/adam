@@ -5,6 +5,8 @@ parent: Sync requests
 nav_order: 7
 ---
 
+## Reboot device
+
 If you need to reboot a particular device (for example if it stopped executing requests properly):
 ```kotlin
 adb.execute(request = RebootRequest(), serial = "emulator-5554")

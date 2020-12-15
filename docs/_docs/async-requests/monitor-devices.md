@@ -5,8 +5,10 @@ parent: Async requests
 nav_order: 3
 ---
 
-When just listing devices once (`ListDevicesRequest`) is not enough, when you want to continually monitor if devices change their states
- (disconnect, connect, etc) please use the following request:
+## Monitoring device changes
+
+If listing devices once [`ListDevicesRequest`]({% link _docs/sync-requests/adb.md %}#list-devices) is not enough, i.e. you want to
+ continually monitor if devices change their states (disconnect, connect, etc) please use the following request:
 
 ```kotlin
 val deviceEventsChannel: ReceiveChannel<List<Device>> = adb.execute(

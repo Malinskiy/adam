@@ -3,6 +3,12 @@ layout: default
 title:  "Caveats"
 nav_order: 4
 ---
+# Caveats
+{: .no_toc }
+When working with adam it's a good idea to keep the following things in mind.
+
+1. TOC
+{:toc}
 
 ## Response types
 

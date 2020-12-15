@@ -5,6 +5,7 @@ parent: Sync requests
 nav_order: 4
 ---
 
+## Retrieve logcat log
 To read logcat once you can execute:
 
 ```kotlin
@@ -30,3 +31,5 @@ class SyncLogcatRequest(
 ```
 
 See the [official docs](https://developer.android.com/studio/command-line/logcat) for more info on what these options change.
+
+If you need to continuously stream logcat output see [`ChanneledLogcatRequest`]({% link _docs/async-requests/stream-logcat.md %})

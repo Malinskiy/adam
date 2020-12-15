@@ -5,6 +5,12 @@ parent: Sync requests
 nav_order: 8
 ---
 
+## List devices
+This request will capture a snapshot of device states at a point of execution and will return them:
+```kotlin
+val devices: List<Device> = adb.execute(request = ListDevicesRequest())
+```
+
 ## Get adb server version
 This request returns the adb server version specified in `adb/adb.h`
  (e.g. [here](https://android.googlesource.com/platform/system/core/+/dd7bc3319deb2b77c5d07a51b7d6cd7e11b5beb0/adb/adb.h#36)). It is useful

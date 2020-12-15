@@ -1,8 +1,10 @@
 ---
 layout: default
-title:  "Execute shell request"
+title:  "1. Execute shell request"
 nav_order: 1
 ---
+
+## 1. Executing shell request
 
 All the operations in adam require to be executed in some coroutine scope. For simplicity, you can run everything in `runBlocking{}` for
  trying out, but you should know/get to know coroutines and how to use them. In all the examples below the scoping will be omitted.
@@ -29,7 +31,7 @@ val device = devices.firstOrNull { it.state == DeviceState.DEVICE } ?: throw Run
 Now we have a device and can execute a request for it:
 
 ```kotlin
-val response: String = adbRule.adb.execute(ShellCommandRequest("echo hello"), device.serial)
+val response: String = adb.execute(ShellCommandRequest("echo hello"), device.serial)
 ```
 
 All the waiting for response and establishing a transport connection happens transparently, you don't need to wait for anything. This also
