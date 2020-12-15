@@ -55,5 +55,5 @@ compress_html:
   blanklines: false
   profile: false
 
-#ga_tracking:
-#ga_tracking_anonymize_ip: true
+ga_tracking: "UA-185620090-1"
+ga_tracking_anonymize_ip: true
