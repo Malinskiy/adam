@@ -1,0 +1,59 @@
+title: Adam
+email: anton@malinskiy.com
+description: >-
+  A Coroutine-friendly Android Debug Bridge client written in Kotlin
+baseurl: "/adam"
+url: "https://malinskiy.github.io"
+twitter_username: anton_malinskiy
+github_username: Malinskiy
+
+permalink: pretty
+
+theme: "just-the-docs"
+plugins:
+  - jekyll-seo-tag
+
+collections:
+  docs:
+    permalink: "/:collection/:path/"
+    output: true
+  tutorials:
+    permalink: "/:collection/:path/"
+    output: true
+
+just_the_docs:
+  collections:
+    docs:
+      name: Documentation
+    tutorials:
+      name: Tutorials
+
+aux_links:
+  "Adam on GitHub":
+    - "//github.com/Malinskiy/adam"
+
+back_to_top: true
+back_to_top_text: "Back to top"
+
+gh_edit_link: true
+gh_edit_link_text: "Edit this page on GitHub"
+gh_edit_repository: "https://github.com/Malinskiy/adam"
+gh_edit_branch: "master"
+gh_edit_source: docs
+gh_edit_view_mode: "tree"
+
+kramdown:
+  syntax_highlighter_opts:
+    block:
+      line_numbers: false
+
+compress_html:
+  clippings: all
+  comments: all
+  endings: all
+  startings: [ ]
+  blanklines: false
+  profile: false
+
+ga_tracking: "UA-185620090-1"
+ga_tracking_anonymize_ip: true
