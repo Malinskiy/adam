@@ -12,6 +12,7 @@ permalink: pretty
 theme: "just-the-docs"
 plugins:
   - jekyll-seo-tag
+  - jekyll-redirect-from
 
 collections:
   docs:
