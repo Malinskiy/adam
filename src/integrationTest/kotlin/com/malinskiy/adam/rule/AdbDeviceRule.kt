@@ -29,7 +29,7 @@ import org.junit.runners.model.Statement
 import java.net.ConnectException
 
 class AdbDeviceRule : TestRule {
-    val deviceSerial = "emulator-5554"
+    val deviceSerial = System.getenv("ADAM_INTEGRATION_DEVICE_SERIAL") ?: "emulator-5554"
     val adb = AndroidDebugBridgeClientFactory().build()
 
     override fun apply(base: Statement?, description: Description?): Statement {
