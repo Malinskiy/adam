@@ -28,8 +28,7 @@ import com.malinskiy.adam.transport.AndroidReadChannel
 import com.malinskiy.adam.transport.AndroidWriteChannel
 import com.malinskiy.adam.transport.KtorSocketFactory
 import com.malinskiy.adam.transport.SocketFactory
-import io.ktor.network.sockets.openReadChannel
-import io.ktor.network.sockets.openWriteChannel
+import io.ktor.network.sockets.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.ReceiveChannel
@@ -82,13 +81,14 @@ class AndroidDebugBridgeClient(
                     request.handshake(readChannel, writeChannel)
 
                     while (true) {
-                        if (isClosedForSend || readChannel.isClosedForRead || writeChannel.isClosedForWrite) return@produce
+                        if (isClosedForSend || readChannel.isClosedForRead || writeChannel.isClosedForWrite) {
+                            break
+                        }
                         val element = request.readElement(readChannel, writeChannel)
                         send(element)
                     }
-
-                    request.close(channel)
                 } finally {
+                    request.close(channel)
                     writeChannel?.close(null)
                 }
             }
