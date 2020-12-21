@@ -125,4 +125,26 @@ class InstrumentationResponseTransformerTest {
                 .isEqualTo(javaClass.getResourceAsStream("/instrumentation/log_4.expected").reader().readText())
         }
     }
+
+    @Test
+    fun testIncompleteTests2() {
+        runBlocking {
+            val transformer = InstrumentationResponseTransformer()
+
+            val lines = javaClass.getResourceAsStream("/instrumentation/log_5.input").reader().readLines()
+
+            val events = mutableListOf<TestEvent>()
+            for (line in lines) {
+                val bytes = (line + '\n').toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
+                transformer.process(bytes, 0, bytes.size)
+                transformer.transform()?.let {
+                    events.addAll(it)
+                }
+            }
+            transformer.close()?.let { events.addAll(it) }
+
+            assertThat(events.map { it.toString() }.reduce { acc, s -> acc + "\n" + s })
+                .isEqualTo(javaClass.getResourceAsStream("/instrumentation/log_5.expected").reader().readText())
+        }
+    }
 }
