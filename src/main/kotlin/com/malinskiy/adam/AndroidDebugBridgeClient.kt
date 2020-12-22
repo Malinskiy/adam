@@ -59,6 +59,7 @@ class AndroidDebugBridgeClient(
                 return request.process(readChannel, writeChannel)
             } finally {
                 writeChannel?.close(null)
+                readChannel.cancel(null)
             }
         }
     }
@@ -90,6 +91,7 @@ class AndroidDebugBridgeClient(
                 } finally {
                     request.close(channel)
                     writeChannel?.close(null)
+                    readChannel.cancel(null)
                 }
             }
         }
