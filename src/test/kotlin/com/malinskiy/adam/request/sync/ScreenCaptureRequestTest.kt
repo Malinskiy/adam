@@ -20,13 +20,16 @@ import assertk.assertThat
 import assertk.assertions.isEqualTo
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.exception.UnsupportedImageProtocolException
+import com.malinskiy.adam.screencapture.BufferedImageScreenCaptureAdapter
+import com.malinskiy.adam.screencapture.RawImageScreenCaptureAdapter
 import com.malinskiy.adam.server.AndroidDebugBridgeServer
-import io.ktor.utils.io.close
-import io.ktor.utils.io.writeIntLittleEndian
+import io.ktor.utils.io.*
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
+import java.awt.image.BufferedImage
 import java.io.File
 import javax.imageio.ImageIO
+import kotlin.system.measureTimeMillis
 
 
 class ScreenCaptureRequestTest {
@@ -54,7 +57,8 @@ class ScreenCaptureRequestTest {
                 output.close()
             }
 
-            val actual = client.execute(ScreenCaptureRequest(), serial = "serial")
+            val adapter = RawImageScreenCaptureAdapter()
+            val actual = client.execute(ScreenCaptureRequest(adapter), serial = "serial")
             assertThat(actual.version).isEqualTo(1)
             assertThat(actual.bitsPerPixel).isEqualTo(32)
             assertThat(actual.size).isEqualTo(8294400)
@@ -78,6 +82,52 @@ class ScreenCaptureRequestTest {
         }
     }
 
+    @Test
+    fun `test with buffered image adapter`() = runBlocking {
+        val server = AndroidDebugBridgeServer()
+
+        val client = server.startAndListen { input, output ->
+            val transportCmd = input.receiveCommand()
+            assertThat(transportCmd).isEqualTo("host:transport:serial")
+            output.respond(Const.Message.OKAY)
+
+            val shellCmd = input.receiveCommand()
+            assertThat(shellCmd).isEqualTo("framebuffer:")
+            output.respond(Const.Message.OKAY)
+
+            //Extended version
+            output.writeIntLittleEndian(1)
+
+            val sample = File(javaClass.getResource("/fixture/screencap_1.bin").toURI()).readBytes()
+            output.writeFully(sample, 0, 48)
+            assertThat(input.readByte()).isEqualTo(0.toByte())
+            output.writeFully(sample, 48, sample.size - 48)
+            output.close()
+        }
+
+        val adapter = BufferedImageScreenCaptureAdapter()
+
+        var actual: BufferedImage? = null
+        measureTimeMillis {
+            actual = client.execute(ScreenCaptureRequest(adapter), serial = "serial")
+        }.let { println("Read image in ${it}ms") }
+        val createTempFile = createTempFile(suffix = ".png")
+        ImageIO.write(actual, "png", createTempFile)
+        assertThat(createTempFile.readBytes()).isEqualTo(File(javaClass.getResource("/fixture/screencap_1.png").toURI()).readBytes())
+
+        for (i in 1..10) {
+            measureTimeMillis {
+                actual = client.execute(ScreenCaptureRequest(adapter), serial = "serial")
+            }.let { println("Read image with buffer reuse in ${it}ms") }
+        }
+
+        val createTempFile2 = createTempFile(suffix = ".png")
+        ImageIO.write(actual, "png", createTempFile2)
+        assertThat(createTempFile2.readBytes()).isEqualTo(File(javaClass.getResource("/fixture/screencap_1.png").toURI()).readBytes())
+
+        server.dispose()
+    }
+
     @Test(expected = UnsupportedImageProtocolException::class)
     fun testProtocolUnsupported() {
         runBlocking {
@@ -97,7 +147,7 @@ class ScreenCaptureRequestTest {
                 output.close()
             }
 
-            client.execute(ScreenCaptureRequest(), serial = "serial")
+            client.execute(ScreenCaptureRequest(RawImageScreenCaptureAdapter()), serial = "serial")
             server.dispose()
         }
     }
