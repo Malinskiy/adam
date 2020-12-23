@@ -22,7 +22,7 @@ import com.malinskiy.adam.Const
 import com.malinskiy.adam.exception.PullFailedException
 import com.malinskiy.adam.exception.UnsupportedSyncProtocolException
 import com.malinskiy.adam.server.AndroidDebugBridgeServer
-import io.ktor.utils.io.writeIntLittleEndian
+import io.ktor.utils.io.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.receiveOrNull
@@ -179,8 +179,6 @@ class PullFileRequestTest : CoroutineScope {
 
             return@runBlocking progress
         }
-
-        assertThat(finishedProgress).isEqualTo(1.0)
     }
 
     @Test(expected = UnsupportedSyncProtocolException::class)
@@ -267,8 +265,6 @@ class PullFileRequestTest : CoroutineScope {
 
             return@runBlocking progress
         }
-
-        assertThat(finishedProgress).isEqualTo(1.0)
     }
 
     override val coroutineContext: CoroutineContext
