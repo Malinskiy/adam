@@ -22,8 +22,10 @@ import com.malinskiy.adam.extension.toByteArray
 import com.malinskiy.adam.request.async.AsyncChannelRequest
 import com.malinskiy.adam.transport.AndroidReadChannel
 import com.malinskiy.adam.transport.AndroidWriteChannel
-import io.ktor.util.cio.readChannel
+import io.ktor.util.cio.*
+import io.ktor.utils.io.*
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.SendChannel
 import java.io.File
 import kotlin.coroutines.CoroutineContext
 
@@ -34,8 +36,7 @@ class PushFileRequest(
     coroutineContext: CoroutineContext = Dispatchers.IO
 ) : AsyncChannelRequest<Double>() {
 
-    //Not sure yet when to properly close this
-    val channel = local.readChannel(coroutineContext = coroutineContext)
+    val fileReadChannel = local.readChannel(coroutineContext = coroutineContext)
     val buffer = ByteArray(8 + Const.MAX_FILE_PACKET_LENGTH)
     val totalBytes = local.length()
     var currentPosition = 0L
@@ -61,7 +62,7 @@ class PushFileRequest(
     }
 
     override suspend fun readElement(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel): Double {
-        val available = channel.readAvailable(buffer, 8, Const.MAX_FILE_PACKET_LENGTH)
+        val available = fileReadChannel.readAvailable(buffer, 8, Const.MAX_FILE_PACKET_LENGTH)
         return when {
             available < 0 -> {
                 Const.Message.DONE.copyInto(buffer)
@@ -70,11 +71,11 @@ class PushFileRequest(
                 val transportResponse = readChannel.read()
                 readChannel.cancel(null)
                 writeChannel.close(null)
-                channel.cancel(null)
+                fileReadChannel.cancel()
                 return if (transportResponse.okay) {
                     1.0
                 } else {
-                    throw PushFailedException("adb didn't aknowledge the file transfer: ${transportResponse.message ?: ""}")
+                    throw PushFailedException("adb didn't acknowledge the file transfer: ${transportResponse.message ?: ""}")
                 }
             }
             available > 0 -> {
@@ -89,6 +90,10 @@ class PushFileRequest(
     }
 
     override fun serialize() = createBaseRequest("sync:")
+
+    override fun close(channel: SendChannel<Double>) {
+        fileReadChannel.cancel()
+    }
 
     override fun validate(): Boolean {
         val bytes = remotePath.toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)

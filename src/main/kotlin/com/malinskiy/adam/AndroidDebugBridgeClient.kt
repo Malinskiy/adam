@@ -29,6 +29,7 @@ import com.malinskiy.adam.transport.AndroidWriteChannel
 import com.malinskiy.adam.transport.KtorSocketFactory
 import com.malinskiy.adam.transport.SocketFactory
 import io.ktor.network.sockets.*
+import io.ktor.utils.io.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.ReceiveChannel
@@ -58,8 +59,12 @@ class AndroidDebugBridgeClient(
                 }
                 return request.process(readChannel, writeChannel)
             } finally {
-                writeChannel?.close(null)
-                readChannel.cancel(null)
+                try {
+                    writeChannel?.close()
+                    readChannel.cancel()
+                } catch (e: Exception) {
+                    log.debug(e) { "Exception during cleanup. Ignoring" }
+                }
             }
         }
     }
@@ -89,9 +94,13 @@ class AndroidDebugBridgeClient(
                         send(element)
                     }
                 } finally {
-                    request.close(channel)
-                    writeChannel?.close(null)
-                    readChannel.cancel(null)
+                    try {
+                        request.close(channel)
+                        writeChannel?.close()
+                        readChannel.cancel()
+                    } catch (e: Exception) {
+                        log.debug(e) { "Exception during cleanup. Ignoring" }
+                    }
                 }
             }
         }

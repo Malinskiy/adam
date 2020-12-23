@@ -24,8 +24,10 @@ import com.malinskiy.adam.extension.toInt
 import com.malinskiy.adam.request.async.AsyncChannelRequest
 import com.malinskiy.adam.transport.AndroidReadChannel
 import com.malinskiy.adam.transport.AndroidWriteChannel
-import io.ktor.util.cio.writeChannel
+import io.ktor.util.cio.*
+import io.ktor.utils.io.*
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.SendChannel
 import java.io.File
 import kotlin.coroutines.CoroutineContext
 
@@ -35,11 +37,9 @@ class PullFileRequest(
     coroutineContext: CoroutineContext = Dispatchers.IO
 ) : AsyncChannelRequest<Double>() {
 
-    //Not sure yet when to properly close this
-    val channel = local.writeChannel(coroutineContext = coroutineContext)
+    val fileWriteChannel = local.writeChannel(coroutineContext = coroutineContext)
     var totalBytes = 1
     var currentPosition = 0L
-
 
     override suspend fun handshake(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel) {
         super.handshake(readChannel, writeChannel)
@@ -91,7 +91,7 @@ class PullFileRequest(
         val header = headerBuffer.copyOfRange(0, 4)
         when {
             header.contentEquals(Const.Message.DONE) -> {
-                channel.close(null)
+                fileWriteChannel.close(null)
                 readChannel.cancel(null)
                 writeChannel.close(null)
                 return 1.0
@@ -102,7 +102,7 @@ class PullFileRequest(
                     throw UnsupportedSyncProtocolException()
                 }
                 readChannel.readFully(dataBuffer, 0, available)
-                channel.writeFully(dataBuffer, 0, available)
+                fileWriteChannel.writeFully(dataBuffer, 0, available)
 
                 currentPosition += available
 
@@ -118,6 +118,10 @@ class PullFileRequest(
                 throw UnsupportedSyncProtocolException("Unexpected header message ${String(header, Const.DEFAULT_TRANSPORT_ENCODING)}")
             }
         }
+    }
+
+    override fun close(channel: SendChannel<Double>) {
+        fileWriteChannel.close()
     }
 
     override fun serialize() = createBaseRequest("sync:")
