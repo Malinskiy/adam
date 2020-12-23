@@ -6,7 +6,6 @@ buildscript {
     }
     dependencies {
         classpath(BuildPlugins.kotlinPlugin)
-        classpath(BuildPlugins.dokka)
     }
 }
 
@@ -19,6 +18,7 @@ repositories {
 plugins {
     kotlin("jvm")
     id("jacoco")
+    id("org.jetbrains.dokka") version Versions.dokka
 }
 
 allprojects {
@@ -92,6 +92,10 @@ tasks.jacocoTestReport {
     reports {
         xml.isEnabled = true
     }
+}
+
+tasks.dokkaHtml.configure {
+    outputDirectory.set(projectDir.resolve("docs/api"))
 }
 
 dependencies {

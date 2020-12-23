@@ -1,6 +1,6 @@
 object Versions {
     val adam = System.getenv("GIT_TAG_NAME") ?: "0.1.0"
-    val kotlin = "1.4.10"
+    val kotlin = "1.4.20"
     val coroutines = "1.3.9"
 
     val annotations = "16.0.2"
@@ -11,12 +11,11 @@ object Versions {
     val assertk = "0.19"
     val junit = "4.12"
     val imageComparison = "4.3.0"
-    val dokka = "0.9.17"
+    val dokka = kotlin
 }
 
 object BuildPlugins {
     val kotlinPlugin = "org.jetbrains.kotlin:kotlin-gradle-plugin:${Versions.kotlin}"
-    val dokka = "org.jetbrains.dokka:dokka-gradle-plugin:${Versions.dokka}"
 }
 
 object Libraries {
