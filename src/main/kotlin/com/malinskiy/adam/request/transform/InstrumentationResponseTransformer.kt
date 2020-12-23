@@ -90,6 +90,12 @@ class InstrumentationResponseTransformer : ResponseTransformer<List<TestEvent>?>
         }
     }
 
+    /**
+     * 1 - Test running
+     * 0 - Test passed
+     * -2 - assertion failure
+     * -1 - other exceptions
+     */
     private fun parseStatusCode(last: String, atom: List<String>): List<TestEvent>? {
         val value = last.substring(TokenType.INSTRUMENTATION_STATUS_CODE.name.length + 1).trim()
         val parameters: Map<String, String> = atom.toMap()
@@ -169,6 +175,11 @@ class InstrumentationResponseTransformer : ResponseTransformer<List<TestEvent>?>
         }
     }
 
+    /**
+     * Session Result Code:
+     * -1: Success
+     * other: Failure
+     */
     private fun parseInstrumentationCode(
         last: String,
         atom: List<String>
@@ -190,7 +201,10 @@ class InstrumentationResponseTransformer : ResponseTransformer<List<TestEvent>?>
                 finishReported = true
                 listOf(TestRunEnded(time, metrics))
             }
-            else -> null
+            else -> {
+                finishReported = true
+                listOf(TestRunFailed("Unexpected INSTRUMENTATION_CODE: $code"))
+            }
         }
     }
 }
