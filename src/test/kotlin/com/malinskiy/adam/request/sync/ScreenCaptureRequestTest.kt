@@ -18,6 +18,9 @@ package com.malinskiy.adam.request.sync
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import com.github.romankh3.image.comparison.ImageComparison
+import com.github.romankh3.image.comparison.ImageComparisonUtil
+import com.github.romankh3.image.comparison.model.ImageComparisonResult
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.exception.UnsupportedImageProtocolException
 import com.malinskiy.adam.screencapture.BufferedImageScreenCaptureAdapter
@@ -75,8 +78,11 @@ class ScreenCaptureRequestTest {
             assertThat(actual.buffer.contentHashCode()).isEqualTo(-1474724227)
 
             val createTempFile = createTempFile(suffix = ".png")
-            ImageIO.write(actual.toBufferedImage(), "png", createTempFile)
-            assertThat(createTempFile.readBytes()).isEqualTo(File(javaClass.getResource("/fixture/screencap_1.png").toURI()).readBytes())
+            val actualImage = actual.toBufferedImage()
+            ImageIO.write(actualImage, "png", createTempFile)
+
+            val expected = ImageIO.read(File(javaClass.getResource("/fixture/screencap_1.png").toURI()))
+            compare(expected, actualImage)
 
             server.dispose()
         }
@@ -113,7 +119,11 @@ class ScreenCaptureRequestTest {
         }.let { println("Read image in ${it}ms") }
         val createTempFile = createTempFile(suffix = ".png")
         ImageIO.write(actual, "png", createTempFile)
-        assertThat(createTempFile.readBytes()).isEqualTo(File(javaClass.getResource("/fixture/screencap_1.png").toURI()).readBytes())
+
+        val expected = ImageIO.read(File(javaClass.getResource("/fixture/screencap_1.png").toURI()))
+
+        var comparisonResult = compare(expected, actual!!)
+        assertThat(comparisonResult.differencePercent).isEqualTo(0.0f)
 
         for (i in 1..10) {
             measureTimeMillis {
@@ -123,7 +133,9 @@ class ScreenCaptureRequestTest {
 
         val createTempFile2 = createTempFile(suffix = ".png")
         ImageIO.write(actual, "png", createTempFile2)
-        assertThat(createTempFile2.readBytes()).isEqualTo(File(javaClass.getResource("/fixture/screencap_1.png").toURI()).readBytes())
+        comparisonResult = compare(expected, actual!!)
+        assertThat(comparisonResult.differencePercent).isEqualTo(0.0f)
+
 
         server.dispose()
     }
@@ -150,5 +162,16 @@ class ScreenCaptureRequestTest {
             client.execute(ScreenCaptureRequest(RawImageScreenCaptureAdapter()), serial = "serial")
             server.dispose()
         }
+    }
+
+    private fun compare(
+        expected: BufferedImage,
+        actual: BufferedImage
+    ): ImageComparisonResult {
+        val imageComparison = ImageComparison(expected, actual)
+        val comparisonResult = imageComparison.compareImages()
+        val comparisonImage = createTempFile(suffix = ".png")
+        ImageComparisonUtil.saveImage(comparisonImage, comparisonResult.result)
+        return comparisonResult
     }
 }

@@ -10,6 +10,7 @@ object Versions {
 
     val assertk = "0.19"
     val junit = "4.12"
+    val imageComparison = "4.3.0"
     val dokka = "0.9.17"
 }
 
@@ -29,4 +30,5 @@ object Libraries {
 object TestLibraries {
     val assertk = "com.willowtreeapps.assertk:assertk:${Versions.assertk}"
     val junit = "junit:junit:${Versions.junit}"
+    val imageComparison = "com.github.romankh3:image-comparison:${Versions.imageComparison}"
 }

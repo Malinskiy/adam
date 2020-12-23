@@ -104,6 +104,7 @@ dependencies {
 
     testImplementation(TestLibraries.assertk)
     testImplementation(TestLibraries.junit)
+    testImplementation(TestLibraries.imageComparison)
     testImplementation(kotlin("reflect", version = Versions.kotlin))
 
     integrationTestImplementation(TestLibraries.assertk)
