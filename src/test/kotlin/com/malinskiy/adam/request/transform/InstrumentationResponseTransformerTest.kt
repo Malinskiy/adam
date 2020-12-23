@@ -171,4 +171,3 @@ class InstrumentationResponseTransformerTest {
             .isEqualTo(javaClass.getResourceAsStream("/instrumentation/log_6.expected").reader().readText())
     }
 }
-
