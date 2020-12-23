@@ -16,19 +16,22 @@
 
 package com.malinskiy.adam.transport
 
-import io.ktor.network.selector.ActorSelectorManager
-import io.ktor.network.selector.SelectorManager
-import io.ktor.network.sockets.Socket
-import io.ktor.network.sockets.aSocket
+import io.ktor.network.selector.*
+import io.ktor.network.sockets.*
 import java.net.InetSocketAddress
 import kotlin.coroutines.CoroutineContext
 
-class KtorSocketFactory(coroutineContext: CoroutineContext) : SocketFactory {
+class KtorSocketFactory(
+    coroutineContext: CoroutineContext,
+    private val socketTimeout: Long
+) : SocketFactory {
     private val selectorManager: SelectorManager = ActorSelectorManager(coroutineContext)
 
     override suspend fun tcp(socketAddress: InetSocketAddress): Socket {
         return aSocket(selectorManager)
             .tcp()
-            .connect(socketAddress)
+            .connect(socketAddress) {
+                socketTimeout = this@KtorSocketFactory.socketTimeout
+            }
     }
 }

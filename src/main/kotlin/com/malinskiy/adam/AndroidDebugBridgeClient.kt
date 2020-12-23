@@ -28,14 +28,15 @@ import com.malinskiy.adam.transport.AndroidReadChannel
 import com.malinskiy.adam.transport.AndroidWriteChannel
 import com.malinskiy.adam.transport.KtorSocketFactory
 import com.malinskiy.adam.transport.SocketFactory
-import io.ktor.network.sockets.openReadChannel
-import io.ktor.network.sockets.openWriteChannel
+import io.ktor.network.sockets.*
+import io.ktor.utils.io.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.channels.produce
 import java.net.InetAddress
 import java.net.InetSocketAddress
+import java.time.Duration
 import kotlin.coroutines.CoroutineContext
 
 class AndroidDebugBridgeClient(
@@ -59,7 +60,12 @@ class AndroidDebugBridgeClient(
                 }
                 return request.process(readChannel, writeChannel)
             } finally {
-                writeChannel?.close(null)
+                try {
+                    writeChannel?.close()
+                    readChannel.cancel()
+                } catch (e: Exception) {
+                    log.debug(e) { "Exception during cleanup. Ignoring" }
+                }
             }
         }
     }
@@ -82,14 +88,20 @@ class AndroidDebugBridgeClient(
                     request.handshake(readChannel, writeChannel)
 
                     while (true) {
-                        if (isClosedForSend || readChannel.isClosedForRead || writeChannel.isClosedForWrite) return@produce
+                        if (isClosedForSend || readChannel.isClosedForRead || writeChannel.isClosedForWrite) {
+                            break
+                        }
                         val element = request.readElement(readChannel, writeChannel)
                         send(element)
                     }
-
-                    request.close(channel)
                 } finally {
-                    writeChannel?.close(null)
+                    try {
+                        request.close(channel)
+                        writeChannel?.close()
+                        readChannel.cancel()
+                    } catch (e: Exception) {
+                        log.debug(e) { "Exception during cleanup. Ignoring" }
+                    }
                 }
             }
         }
@@ -118,12 +130,16 @@ class AndroidDebugBridgeClientFactory {
     var host: InetAddress? = null
     var coroutineContext: CoroutineContext? = null
     var socketFactory: SocketFactory? = null
+    var socketTimeout: Duration? = null
 
     fun build(): AndroidDebugBridgeClient {
         return AndroidDebugBridgeClient(
             port = port ?: DiscoverAdbSocketInteractor().execute(),
             host = host ?: InetAddress.getByName(Const.DEFAULT_ADB_HOST),
-            socketFactory = socketFactory ?: KtorSocketFactory(coroutineContext ?: Dispatchers.IO)
+            socketFactory = socketFactory ?: KtorSocketFactory(
+                coroutineContext = coroutineContext ?: Dispatchers.IO,
+                socketTimeout = socketTimeout?.toMillis() ?: 30_000
+            )
         )
     }
 }

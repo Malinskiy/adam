@@ -23,6 +23,7 @@ import com.malinskiy.adam.request.devices.ListDevicesRequest
 import com.malinskiy.adam.request.forwarding.*
 import com.malinskiy.adam.request.sync.*
 import com.malinskiy.adam.rule.AdbDeviceRule
+import com.malinskiy.adam.screencapture.RawImageScreenCaptureAdapter
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.runBlocking
 import org.junit.Rule
@@ -41,7 +42,7 @@ class E2ETest {
     fun testScreenCapture() {
         runBlocking {
             val image = adbRule.adb.execute(
-                ScreenCaptureRequest(),
+                ScreenCaptureRequest(RawImageScreenCaptureAdapter()),
                 adbRule.deviceSerial
             ).toBufferedImage()
 

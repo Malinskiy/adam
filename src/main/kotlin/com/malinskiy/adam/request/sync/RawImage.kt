@@ -16,15 +16,9 @@
 
 package com.malinskiy.adam.request.sync
 
-import com.malinskiy.adam.exception.UnsupportedImageProtocolException
-import java.awt.color.ICC_ColorSpace
-import java.awt.color.ICC_Profile
+import com.malinskiy.adam.screencapture.ColorModelFactory
+import com.malinskiy.adam.screencapture.ColorSpace
 import java.awt.image.BufferedImage
-import java.awt.image.ColorModel
-import java.awt.image.DataBuffer
-import java.awt.image.DirectColorModel
-import java.io.IOException
-import java.nio.ByteBuffer
 
 
 data class RawImage(
@@ -44,7 +38,6 @@ data class RawImage(
     val alphaLength: Int,
     val buffer: ByteArray
 ) {
-
     fun getARGB(index: Int): Int {
         var value: Int
         val r: Int
@@ -85,23 +78,13 @@ data class RawImage(
     }
 
     fun toBufferedImage(): BufferedImage {
-        val profileName = getProfileName()
-        val bufferedImage = when (profileName) {
+        val bufferedImage = when (val profileName = colorSpace?.getProfileName()) {
             null -> {
                 BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB)
             }
             else -> {
-                var profile: ICC_Profile? = ICC_Profile.getInstance(ICC_ColorSpace.CS_sRGB)
-                try {
-                    profile = ICC_Profile.getInstance(javaClass.classLoader.getResourceAsStream("colorProfiles/$profileName"))
-                } catch (e: IOException) { // Ignore
-                }
-                val colorSpace = ICC_ColorSpace(profile)
-
-                val colorModel: ColorModel =
-                    DirectColorModel(colorSpace, 32, 0x00ff0000, 0x0000ff00, 0x000000ff, -0x1000000, false, DataBuffer.TYPE_INT)
+                val colorModel = ColorModelFactory().get(profileName)
                 val raster = colorModel.createCompatibleWritableRaster(width, height)
-
                 BufferedImage(colorModel, raster, colorModel.isAlphaPremultiplied, null)
             }
         }
@@ -115,93 +98,5 @@ data class RawImage(
 
         return bufferedImage
     }
-
-    private fun getProfileName(): String? {
-        when (colorSpace) {
-            ColorSpace.UNKNOWN -> return null
-            ColorSpace.SRGB -> return "sRGB.icc"
-            ColorSpace.P3 -> return "DisplayP3.icc"
-        }
-        return null
-    }
-
-    companion object {
-        private fun ByteBuffer.moveToByteArray(): ByteArray {
-            rewind()
-            val array = ByteArray(remaining())
-            get(array)
-            return array
-        }
-
-        fun from(version: Int, bytes: ByteBuffer, imageBuffer: ByteBuffer): RawImage {
-            return when (version) {
-                16 ->
-                    RawImage(
-                        version = version,
-                        bitsPerPixel = bytes.int,
-                        size = bytes.int,
-                        width = bytes.int,
-                        height = bytes.int,
-                        redOffset = 11,
-                        redLength = 5,
-                        greenOffset = 5,
-                        greenLength = 6,
-                        blueOffset = 0,
-                        blueLength = 5,
-                        alphaOffset = 0,
-                        alphaLength = 0,
-                        buffer = imageBuffer.moveToByteArray()
-                    )
-                1 -> RawImage(
-                    version = version,
-                    bitsPerPixel = bytes.int,
-                    size = bytes.int,
-                    width = bytes.int,
-                    height = bytes.int,
-                    redOffset = bytes.int,
-                    redLength = bytes.int,
-                    blueOffset = bytes.int,
-                    blueLength = bytes.int,
-                    greenOffset = bytes.int,
-                    greenLength = bytes.int,
-                    alphaOffset = bytes.int,
-                    alphaLength = bytes.int,
-                    buffer = imageBuffer.moveToByteArray()
-                )
-                2 -> RawImage(
-                    version = version,
-                    bitsPerPixel = bytes.int,
-                    colorSpace = ColorSpace.from(bytes.int),
-                    size = bytes.int,
-                    width = bytes.int,
-                    height = bytes.int,
-                    redOffset = bytes.int,
-                    redLength = bytes.int,
-                    blueOffset = bytes.int,
-                    blueLength = bytes.int,
-                    greenOffset = bytes.int,
-                    greenLength = bytes.int,
-                    alphaOffset = bytes.int,
-                    alphaLength = bytes.int,
-                    buffer = imageBuffer.moveToByteArray()
-                )
-                else -> throw UnsupportedImageProtocolException(version)
-            }
-
-        }
-    }
 }
 
-enum class ColorSpace {
-    UNKNOWN,
-    SRGB,
-    P3;
-
-    companion object {
-        fun from(value: Int) = when (value) {
-            1 -> SRGB
-            2 -> P3
-            else -> UNKNOWN
-        }
-    }
-}

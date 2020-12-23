@@ -18,13 +18,9 @@ package com.malinskiy.adam.server
 
 import com.malinskiy.adam.AndroidDebugBridgeClient
 import com.malinskiy.adam.AndroidDebugBridgeClientFactory
-import io.ktor.network.selector.ActorSelectorManager
-import io.ktor.network.sockets.aSocket
-import io.ktor.network.sockets.openReadChannel
-import io.ktor.network.sockets.openWriteChannel
-import io.ktor.utils.io.ByteReadChannel
-import io.ktor.utils.io.ByteWriteChannel
-import io.ktor.utils.io.close
+import io.ktor.network.selector.*
+import io.ktor.network.sockets.*
+import io.ktor.utils.io.*
 import kotlinx.coroutines.*
 import java.io.IOException
 import java.net.InetSocketAddress
@@ -71,8 +67,7 @@ class AndroidDebugBridgeServer : CoroutineScope {
 
         async(context = coroutineContext) {
             //Wait for connection probe
-            val socket = server.accept()
-            socket.close()
+            server.accept().close()
 
             while (true) {
                 val socket = server.accept()

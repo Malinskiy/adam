@@ -22,7 +22,7 @@ import com.malinskiy.adam.Const
 import com.malinskiy.adam.exception.PullFailedException
 import com.malinskiy.adam.exception.UnsupportedSyncProtocolException
 import com.malinskiy.adam.server.AndroidDebugBridgeServer
-import io.ktor.utils.io.writeIntLittleEndian
+import io.ktor.utils.io.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.receiveOrNull
@@ -138,49 +138,43 @@ class PullFileRequestTest : CoroutineScope {
     }
 
     @Test(expected = PullFailedException::class)
-    fun testTransportFail() {
-        val finishedProgress = runBlocking {
-            val fixture = File(PullFileRequestTest::class.java.getResource("/fixture/sample.yaml").file)
+    fun testTransportFail() = runBlocking {
+        val fixture = File(PullFileRequestTest::class.java.getResource("/fixture/sample.yaml").file)
 
-            val server = AndroidDebugBridgeServer()
+        val server = AndroidDebugBridgeServer()
 
-            val client = server.startAndListen { input, output ->
-                val transportCmd = input.receiveCommand()
-                assertThat(transportCmd).isEqualTo("host:transport:serial")
-                output.respond(Const.Message.OKAY)
+        val client = server.startAndListen { input, output ->
+            val transportCmd = input.receiveCommand()
+            assertThat(transportCmd).isEqualTo("host:transport:serial")
+            output.respond(Const.Message.OKAY)
 
-                val actualCommand = input.receiveCommand()
-                assertThat(actualCommand).isEqualTo("sync:")
-                output.respond(Const.Message.OKAY)
+            val actualCommand = input.receiveCommand()
+            assertThat(actualCommand).isEqualTo("sync:")
+            output.respond(Const.Message.OKAY)
 
-                val statPath = input.receiveStat()
-                assertThat(statPath).isEqualTo("/sdcard/testfile")
-                output.respondStat(fixture.length().toInt())
+            val statPath = input.receiveStat()
+            assertThat(statPath).isEqualTo("/sdcard/testfile")
+            output.respondStat(fixture.length().toInt())
 
-                val recvPath = input.receiveRecv()
-                assertThat(recvPath).isEqualTo("/sdcard/testfile")
+            val recvPath = input.receiveRecv()
+            assertThat(recvPath).isEqualTo("/sdcard/testfile")
 
-                output.respond(Const.Message.FAIL)
-                val message = "lorem ipsum"
-                output.writeIntLittleEndian(message.length)
-                output.respondData(message.toByteArray(Const.DEFAULT_TRANSPORT_ENCODING))
-            }
-
-            val tempFile = createTempFile()
-            val request = PullFileRequest("/sdcard/testfile", tempFile)
-            val execute = client.execute(request, this@PullFileRequestTest, "serial")
-
-            var progress = 0.0
-            while (!execute.isClosedForReceive) {
-                progress = execute.receiveOrNull() ?: break
-            }
-
-            server.dispose()
-
-            return@runBlocking progress
+            output.respond(Const.Message.FAIL)
+            val message = "lorem ipsum"
+            output.writeIntLittleEndian(message.length)
+            output.respondData(message.toByteArray(Const.DEFAULT_TRANSPORT_ENCODING))
         }
 
-        assertThat(finishedProgress).isEqualTo(1.0)
+        val tempFile = createTempFile()
+        val request = PullFileRequest("/sdcard/testfile", tempFile)
+        val execute = client.execute(request, this@PullFileRequestTest, "serial")
+
+        var progress = 0.0
+        while (!execute.isClosedForReceive) {
+            progress = execute.receiveOrNull() ?: break
+        }
+
+        server.dispose()
     }
 
     @Test(expected = UnsupportedSyncProtocolException::class)
@@ -223,8 +217,6 @@ class PullFileRequestTest : CoroutineScope {
 
             return@runBlocking progress
         }
-
-        assertThat(finishedProgress).isEqualTo(1.0)
     }
 
     @Test(expected = UnsupportedSyncProtocolException::class)
@@ -267,8 +259,6 @@ class PullFileRequestTest : CoroutineScope {
 
             return@runBlocking progress
         }
-
-        assertThat(finishedProgress).isEqualTo(1.0)
     }
 
     override val coroutineContext: CoroutineContext

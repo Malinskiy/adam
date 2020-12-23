@@ -56,7 +56,7 @@ class InstrumentationResponseTransformer : ResponseTransformer<List<TestEvent>?>
     fun close(): List<TestEvent>? {
         if (finishReported) return null
 
-        return if (!startReported && !finished) {
+        return if (!startReported) {
             listOf(TestRunFailed("No test results"))
         } else if (testsExpected > testsExecuted) {
             listOf(TestRunFailed("Test run failed to complete. Expected $testsExpected tests, executed $testsExecuted"))
@@ -191,18 +191,22 @@ class InstrumentationResponseTransformer : ResponseTransformer<List<TestEvent>?>
                 listOf(TestRunEnded(time, metrics))
             }
             else -> null
-            //                    Status.SUCCESS -> {
-            //                        TestRunEnded()
-            //                    }
         }
     }
 }
 
 private fun List<String>.toMap(): Map<String, String> {
     return this.filter { it.isNotEmpty() }.joinToString(separator = "\n").split("INSTRUMENTATION_STATUS: ").mapNotNull {
-        val split = it.trim().split("=")
-        if (split.size != 2) return@mapNotNull null
-        Pair(split[0], split[1].trim())
+        /**
+         * Generally, the stacktrace field will have only a single = sign.
+         * But as observed on Sony Xperia D5833, it can contain multiple `=` signs (because stacktrace value is equal to the stream)
+         */
+        val trimmed = it.trim()
+        val delimiterIndex = trimmed.indexOf('=')
+
+        if (delimiterIndex + 1 >= trimmed.length) return@mapNotNull null
+
+        Pair(trimmed.substring(0, delimiterIndex), trimmed.substring(delimiterIndex + 1, trimmed.length))
     }.toMap()
 }
 
