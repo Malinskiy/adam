@@ -183,4 +183,10 @@ class E2ETest {
             assertThat(actual).isEqualTo(expectedInt)
         }
     }
+
+    @Test
+    fun testFetchDeviceFeatures() = runBlocking {
+        val features = adbRule.adb.execute(FetchDeviceFeaturesRequest(adbRule.deviceSerial))
+        //No exception means it's working, but every emulator has a different feature set
+    }
 }
