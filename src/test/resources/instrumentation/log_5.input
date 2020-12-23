@@ -1,0 +1,265 @@
+INSTRUMENTATION_STATUS: numtests=2
+INSTRUMENTATION_STATUS: stream=
+com.example.MainActivityAllureTest:
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: test=testFailure
+INSTRUMENTATION_STATUS: class=com.example.MainActivityAllureTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: numtests=2
+INSTRUMENTATION_STATUS: stream=
+Error in testFailure(com.example.MainActivityAllureTest):
+androidx.test.espresso.base.DefaultFailureHandler$AssertionFailedWithCauseError: 'with text: is "Cafebabe"' doesn't match the selected view.
+Expected: with text: is "Cafebabe"
+     Got: "EditText{id=2131165302, res-name=edittext, visibility=VISIBLE, width=720, height=1024, has-focus=true, has-focusable=true, has-window-focus=true, is-clickable=true, is-enabled=true, is-focused=true, is-focusable=true, is-layout-requested=false, is-selected=false, layout-params=androidx.constraintlayout.widget.ConstraintLayout$LayoutParams@79d1c1d, tag=null, root-is-layout-requested=false, has-input-connection=true, editor-info=[inputType=0x20001 imeOptions=0x40000006 privateImeOptions=null actionLabel=null actionId=0 initialSelStart=0 initialSelEnd=0 initialCapsMode=0x0 hintText=null label=null packageName=null fieldId=0 fieldName=null extras=null ], x=0.0, y=0.0, text=Test, input-type=131073, ime-target=true, has-links=false}"
+
+	at dalvik.system.VMStack.getThreadStackTrace(Native Method)
+	at java.lang.Thread.getStackTrace(Thread.java:580)
+	at androidx.test.espresso.base.DefaultFailureHandler.getUserFriendlyError(DefaultFailureHandler.java:16)
+	at androidx.test.espresso.base.DefaultFailureHandler.handle(DefaultFailureHandler.java:36)
+	at androidx.test.espresso.ViewInteraction.waitForAndHandleInteractionResults(ViewInteraction.java:103)
+	at androidx.test.espresso.ViewInteraction.check(ViewInteraction.java:31)
+	at com.agoda.kakao.delegate.ViewInteractionDelegate.check(ViewInteractionDelegate.kt:26)
+	at com.agoda.kakao.text.TextViewAssertions$DefaultImpls.hasText(TextViewAssertions.kt:47)
+	at com.agoda.kakao.edit.KEditText.hasText(KEditText.kt:18)
+	at com.example.MainActivityAllureTest$testFailure$1$1$1.invoke(MainActivityAllureTest.kt:59)
+	at com.example.MainActivityAllureTest$testFailure$1$1$1.invoke(MainActivityAllureTest.kt:21)
+	at io.qameta.allure.kotlin.Allure.step(Allure.kt:60)
+	at com.example.MainActivityAllureTest$testFailure$1$1.invoke(MainActivityAllureTest.kt:58)
+	at com.example.MainActivityAllureTest$testFailure$1$1.invoke(MainActivityAllureTest.kt:21)
+	at com.agoda.kakao.common.views.KBaseView.invoke(KBaseView.kt:83)
+	at com.example.MainActivityAllureTest$testFailure$1.invoke(MainActivityAllureTest.kt:57)
+	at com.example.MainActivityAllureTest$testFailure$1.invoke(MainActivityAllureTest.kt:21)
+	at com.agoda.kakao.screen.Screen.invoke(Screen.kt:119)
+	at com.example.MainActivityAllureTest.testFailure(MainActivityAllureTest.kt:56)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:50)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:47)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at io.qameta.allure.android.rules.WindowHierarchyRule$apply$1.evaluate(WindowHierarchyRule.kt:21)
+	at io.qameta.allure.android.rules.ScreenshotRule$apply$1.evaluate(ScreenshotRule.kt:22)
+	at org.junit.rules.ExternalResource$1.evaluate(ExternalResource.java:48)
+	at io.qameta.allure.android.rules.LogcatRule$apply$1.evaluate(LogcatRule.kt:23)
+	at org.junit.rules.RunRules.evaluate(RunRules.java:20)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:325)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:78)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:57)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at androidx.test.ext.junit.runners.AndroidJUnit4.run(AndroidJUnit4.java:154)
+	at io.qameta.allure.android.runners.AllureAndroidJUnit4.run(AllureAndroidJUnitRunners.kt:29)
+	at org.junit.runners.Suite.runChild(Suite.java:128)
+	at org.junit.runners.Suite.runChild(Suite.java:27)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:56)
+	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:395)
+	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:1886)
+Caused by: junit.framework.AssertionFailedError: 'with text: is "Cafebabe"' doesn't match the selected view.
+Expected: with text: is "Cafebabe"
+     Got: "EditText{id=2131165302, res-name=edittext, visibility=VISIBLE, width=720, height=1024, has-focus=true, has-focusable=true, has-window-focus=true, is-clickable=true, is-enabled=true, is-focused=true, is-focusable=true, is-layout-requested=false, is-selected=false, layout-params=androidx.constraintlayout.widget.ConstraintLayout$LayoutParams@79d1c1d, tag=null, root-is-layout-requested=false, has-input-connection=true, editor-info=[inputType=0x20001 imeOptions=0x40000006 privateImeOptions=null actionLabel=null actionId=0 initialSelStart=0 initialSelEnd=0 initialCapsMode=0x0 hintText=null label=null packageName=null fieldId=0 fieldName=null extras=null ], x=0.0, y=0.0, text=Test, input-type=131073, ime-target=true, has-links=false}"
+
+	at androidx.test.espresso.matcher.ViewMatchers.assertThat(ViewMatchers.java:17)
+	at androidx.test.espresso.assertion.ViewAssertions$MatchesViewAssertion.check(ViewAssertions.java:15)
+	at androidx.test.espresso.ViewInteraction$SingleExecutionViewAssertion.check(ViewInteraction.java:10)
+	at androidx.test.espresso.ViewInteraction$2.call(ViewInteraction.java:11)
+	at androidx.test.espresso.ViewInteraction$2.call(ViewInteraction.java:2)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:237)
+	at android.os.Handler.handleCallback(Handler.java:739)
+	at android.os.Handler.dispatchMessage(Handler.java:95)
+	at android.os.Looper.loop(Looper.java:234)
+	at android.app.ActivityThread.main(ActivityThread.java:5526)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at com.android.internal.os.ZygoteInit$MethodAndArgsCaller.run(ZygoteInit.java:726)
+	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:616)
+
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: test=testFailure
+INSTRUMENTATION_STATUS: class=com.example.MainActivityAllureTest
+INSTRUMENTATION_STATUS: stack=androidx.test.espresso.base.DefaultFailureHandler$AssertionFailedWithCauseError: 'with text: is "Cafebabe"' doesn't match the selected view.
+Expected: with text: is "Cafebabe"
+     Got: "EditText{id=2131165302, res-name=edittext, visibility=VISIBLE, width=720, height=1024, has-focus=true, has-focusable=true, has-window-focus=true, is-clickable=true, is-enabled=true, is-focused=true, is-focusable=true, is-layout-requested=false, is-selected=false, layout-params=androidx.constraintlayout.widget.ConstraintLayout$LayoutParams@79d1c1d, tag=null, root-is-layout-requested=false, has-input-connection=true, editor-info=[inputType=0x20001 imeOptions=0x40000006 privateImeOptions=null actionLabel=null actionId=0 initialSelStart=0 initialSelEnd=0 initialCapsMode=0x0 hintText=null label=null packageName=null fieldId=0 fieldName=null extras=null ], x=0.0, y=0.0, text=Test, input-type=131073, ime-target=true, has-links=false}"
+
+	at dalvik.system.VMStack.getThreadStackTrace(Native Method)
+	at java.lang.Thread.getStackTrace(Thread.java:580)
+	at androidx.test.espresso.base.DefaultFailureHandler.getUserFriendlyError(DefaultFailureHandler.java:16)
+	at androidx.test.espresso.base.DefaultFailureHandler.handle(DefaultFailureHandler.java:36)
+	at androidx.test.espresso.ViewInteraction.waitForAndHandleInteractionResults(ViewInteraction.java:103)
+	at androidx.test.espresso.ViewInteraction.check(ViewInteraction.java:31)
+	at com.agoda.kakao.delegate.ViewInteractionDelegate.check(ViewInteractionDelegate.kt:26)
+	at com.agoda.kakao.text.TextViewAssertions$DefaultImpls.hasText(TextViewAssertions.kt:47)
+	at com.agoda.kakao.edit.KEditText.hasText(KEditText.kt:18)
+	at com.example.MainActivityAllureTest$testFailure$1$1$1.invoke(MainActivityAllureTest.kt:59)
+	at com.example.MainActivityAllureTest$testFailure$1$1$1.invoke(MainActivityAllureTest.kt:21)
+	at io.qameta.allure.kotlin.Allure.step(Allure.kt:60)
+	at com.example.MainActivityAllureTest$testFailure$1$1.invoke(MainActivityAllureTest.kt:58)
+	at com.example.MainActivityAllureTest$testFailure$1$1.invoke(MainActivityAllureTest.kt:21)
+	at com.agoda.kakao.common.views.KBaseView.invoke(KBaseView.kt:83)
+	at com.example.MainActivityAllureTest$testFailure$1.invoke(MainActivityAllureTest.kt:57)
+	at com.example.MainActivityAllureTest$testFailure$1.invoke(MainActivityAllureTest.kt:21)
+	at com.agoda.kakao.screen.Screen.invoke(Screen.kt:119)
+	at com.example.MainActivityAllureTest.testFailure(MainActivityAllureTest.kt:56)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:50)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:47)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at io.qameta.allure.android.rules.WindowHierarchyRule$apply$1.evaluate(WindowHierarchyRule.kt:21)
+	at io.qameta.allure.android.rules.ScreenshotRule$apply$1.evaluate(ScreenshotRule.kt:22)
+	at org.junit.rules.ExternalResource$1.evaluate(ExternalResource.java:48)
+	at io.qameta.allure.android.rules.LogcatRule$apply$1.evaluate(LogcatRule.kt:23)
+	at org.junit.rules.RunRules.evaluate(RunRules.java:20)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:325)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:78)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:57)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at androidx.test.ext.junit.runners.AndroidJUnit4.run(AndroidJUnit4.java:154)
+	at io.qameta.allure.android.runners.AllureAndroidJUnit4.run(AllureAndroidJUnitRunners.kt:29)
+	at org.junit.runners.Suite.runChild(Suite.java:128)
+	at org.junit.runners.Suite.runChild(Suite.java:27)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:56)
+	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:395)
+	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:1886)
+Caused by: junit.framework.AssertionFailedError: 'with text: is "Cafebabe"' doesn't match the selected view.
+Expected: with text: is "Cafebabe"
+     Got: "EditText{id=2131165302, res-name=edittext, visibility=VISIBLE, width=720, height=1024, has-focus=true, has-focusable=true, has-window-focus=true, is-clickable=true, is-enabled=true, is-focused=true, is-focusable=true, is-layout-requested=false, is-selected=false, layout-params=androidx.constraintlayout.widget.ConstraintLayout$LayoutParams@79d1c1d, tag=null, root-is-layout-requested=false, has-input-connection=true, editor-info=[inputType=0x20001 imeOptions=0x40000006 privateImeOptions=null actionLabel=null actionId=0 initialSelStart=0 initialSelEnd=0 initialCapsMode=0x0 hintText=null label=null packageName=null fieldId=0 fieldName=null extras=null ], x=0.0, y=0.0, text=Test, input-type=131073, ime-target=true, has-links=false}"
+
+	at androidx.test.espresso.matcher.ViewMatchers.assertThat(ViewMatchers.java:17)
+	at androidx.test.espresso.assertion.ViewAssertions$MatchesViewAssertion.check(ViewAssertions.java:15)
+	at androidx.test.espresso.ViewInteraction$SingleExecutionViewAssertion.check(ViewInteraction.java:10)
+	at androidx.test.espresso.ViewInteraction$2.call(ViewInteraction.java:11)
+	at androidx.test.espresso.ViewInteraction$2.call(ViewInteraction.java:2)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:237)
+	at android.os.Handler.handleCallback(Handler.java:739)
+	at android.os.Handler.dispatchMessage(Handler.java:95)
+	at android.os.Looper.loop(Looper.java:234)
+	at android.app.ActivityThread.main(ActivityThread.java:5526)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at com.android.internal.os.ZygoteInit$MethodAndArgsCaller.run(ZygoteInit.java:726)
+	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:616)
+
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: numtests=2
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: test=testText
+INSTRUMENTATION_STATUS: class=com.example.MainActivityAllureTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: numtests=2
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: test=testText
+INSTRUMENTATION_STATUS: class=com.example.MainActivityAllureTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_RESULT: stream=
+
+Time: 4.477
+There was 1 failure:
+1) testFailure(com.example.MainActivityAllureTest)
+androidx.test.espresso.base.DefaultFailureHandler$AssertionFailedWithCauseError: 'with text: is "Cafebabe"' doesn't match the selected view.
+Expected: with text: is "Cafebabe"
+     Got: "EditText{id=2131165302, res-name=edittext, visibility=VISIBLE, width=720, height=1024, has-focus=true, has-focusable=true, has-window-focus=true, is-clickable=true, is-enabled=true, is-focused=true, is-focusable=true, is-layout-requested=false, is-selected=false, layout-params=androidx.constraintlayout.widget.ConstraintLayout$LayoutParams@79d1c1d, tag=null, root-is-layout-requested=false, has-input-connection=true, editor-info=[inputType=0x20001 imeOptions=0x40000006 privateImeOptions=null actionLabel=null actionId=0 initialSelStart=0 initialSelEnd=0 initialCapsMode=0x0 hintText=null label=null packageName=null fieldId=0 fieldName=null extras=null ], x=0.0, y=0.0, text=Test, input-type=131073, ime-target=true, has-links=false}"
+
+	at dalvik.system.VMStack.getThreadStackTrace(Native Method)
+	at java.lang.Thread.getStackTrace(Thread.java:580)
+	at androidx.test.espresso.base.DefaultFailureHandler.getUserFriendlyError(DefaultFailureHandler.java:16)
+	at androidx.test.espresso.base.DefaultFailureHandler.handle(DefaultFailureHandler.java:36)
+	at androidx.test.espresso.ViewInteraction.waitForAndHandleInteractionResults(ViewInteraction.java:103)
+	at androidx.test.espresso.ViewInteraction.check(ViewInteraction.java:31)
+	at com.agoda.kakao.delegate.ViewInteractionDelegate.check(ViewInteractionDelegate.kt:26)
+	at com.agoda.kakao.text.TextViewAssertions$DefaultImpls.hasText(TextViewAssertions.kt:47)
+	at com.agoda.kakao.edit.KEditText.hasText(KEditText.kt:18)
+	at com.example.MainActivityAllureTest$testFailure$1$1$1.invoke(MainActivityAllureTest.kt:59)
+	at com.example.MainActivityAllureTest$testFailure$1$1$1.invoke(MainActivityAllureTest.kt:21)
+	at io.qameta.allure.kotlin.Allure.step(Allure.kt:60)
+	at com.example.MainActivityAllureTest$testFailure$1$1.invoke(MainActivityAllureTest.kt:58)
+	at com.example.MainActivityAllureTest$testFailure$1$1.invoke(MainActivityAllureTest.kt:21)
+	at com.agoda.kakao.common.views.KBaseView.invoke(KBaseView.kt:83)
+	at com.example.MainActivityAllureTest$testFailure$1.invoke(MainActivityAllureTest.kt:57)
+	at com.example.MainActivityAllureTest$testFailure$1.invoke(MainActivityAllureTest.kt:21)
+	at com.agoda.kakao.screen.Screen.invoke(Screen.kt:119)
+	at com.example.MainActivityAllureTest.testFailure(MainActivityAllureTest.kt:56)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:50)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:47)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at io.qameta.allure.android.rules.WindowHierarchyRule$apply$1.evaluate(WindowHierarchyRule.kt:21)
+	at io.qameta.allure.android.rules.ScreenshotRule$apply$1.evaluate(ScreenshotRule.kt:22)
+	at org.junit.rules.ExternalResource$1.evaluate(ExternalResource.java:48)
+	at io.qameta.allure.android.rules.LogcatRule$apply$1.evaluate(LogcatRule.kt:23)
+	at org.junit.rules.RunRules.evaluate(RunRules.java:20)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:325)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:78)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:57)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at androidx.test.ext.junit.runners.AndroidJUnit4.run(AndroidJUnit4.java:154)
+	at io.qameta.allure.android.runners.AllureAndroidJUnit4.run(AllureAndroidJUnitRunners.kt:29)
+	at org.junit.runners.Suite.runChild(Suite.java:128)
+	at org.junit.runners.Suite.runChild(Suite.java:27)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:56)
+	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:395)
+	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:1886)
+Caused by: junit.framework.AssertionFailedError: 'with text: is "Cafebabe"' doesn't match the selected view.
+Expected: with text: is "Cafebabe"
+     Got: "EditText{id=2131165302, res-name=edittext, visibility=VISIBLE, width=720, height=1024, has-focus=true, has-focusable=true, has-window-focus=true, is-clickable=true, is-enabled=true, is-focused=true, is-focusable=true, is-layout-requested=false, is-selected=false, layout-params=androidx.constraintlayout.widget.ConstraintLayout$LayoutParams@79d1c1d, tag=null, root-is-layout-requested=false, has-input-connection=true, editor-info=[inputType=0x20001 imeOptions=0x40000006 privateImeOptions=null actionLabel=null actionId=0 initialSelStart=0 initialSelEnd=0 initialCapsMode=0x0 hintText=null label=null packageName=null fieldId=0 fieldName=null extras=null ], x=0.0, y=0.0, text=Test, input-type=131073, ime-target=true, has-links=false}"
+
+	at androidx.test.espresso.matcher.ViewMatchers.assertThat(ViewMatchers.java:17)
+	at androidx.test.espresso.assertion.ViewAssertions$MatchesViewAssertion.check(ViewAssertions.java:15)
+	at androidx.test.espresso.ViewInteraction$SingleExecutionViewAssertion.check(ViewInteraction.java:10)
+	at androidx.test.espresso.ViewInteraction$2.call(ViewInteraction.java:11)
+	at androidx.test.espresso.ViewInteraction$2.call(ViewInteraction.java:2)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:237)
+	at android.os.Handler.handleCallback(Handler.java:739)
+	at android.os.Handler.dispatchMessage(Handler.java:95)
+	at android.os.Looper.loop(Looper.java:234)
+	at android.app.ActivityThread.main(ActivityThread.java:5526)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at com.android.internal.os.ZygoteInit$MethodAndArgsCaller.run(ZygoteInit.java:726)
+	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:616)
+
+FAILURES!!!
+Tests run: 2,  Failures: 1
+
+
+INSTRUMENTATION_CODE: -1

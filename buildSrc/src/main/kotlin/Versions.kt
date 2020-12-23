@@ -1,5 +1,5 @@
 object Versions {
-    val adam = System.getenv("GIT_TAG_NAME") ?: "0.0.2"
+    val adam = System.getenv("GIT_TAG_NAME") ?: "0.1.0"
     val kotlin = "1.4.20"
     val coroutines = "1.3.9"
 
@@ -10,6 +10,7 @@ object Versions {
 
     val assertk = "0.19"
     val junit = "4.12"
+    val imageComparison = "4.3.0"
     val dokka = kotlin
 }
 
@@ -28,4 +29,5 @@ object Libraries {
 object TestLibraries {
     val assertk = "com.willowtreeapps.assertk:assertk:${Versions.assertk}"
     val junit = "junit:junit:${Versions.junit}"
+    val imageComparison = "com.github.romankh3:image-comparison:${Versions.imageComparison}"
 }
