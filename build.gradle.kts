@@ -97,16 +97,16 @@ tasks.jacocoTestReport {
 dependencies {
     implementation(Libraries.kxml)
     implementation(Libraries.annotations)
-    implementation(kotlin("stdlib-jdk8"))
+    implementation(kotlin("stdlib-jdk8", version = Versions.kotlin))
     implementation(Libraries.coroutines)
     implementation(Libraries.ktorNetwork)
     implementation(Libraries.logging)
 
     testImplementation(TestLibraries.assertk)
     testImplementation(TestLibraries.junit)
-    testImplementation(kotlin("reflect"))
+    testImplementation(kotlin("reflect", version = Versions.kotlin))
 
     integrationTestImplementation(TestLibraries.assertk)
     integrationTestImplementation(TestLibraries.junit)
-    integrationTestImplementation(kotlin("reflect"))
+    integrationTestImplementation(kotlin("reflect", version = Versions.kotlin))
 }

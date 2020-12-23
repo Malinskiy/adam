@@ -107,7 +107,7 @@ class ScreenCaptureRequestTest {
 
         val adapter = BufferedImageScreenCaptureAdapter()
 
-        var actual: BufferedImage? = null
+        var actual: BufferedImage?
         measureTimeMillis {
             actual = client.execute(ScreenCaptureRequest(adapter), serial = "serial")
         }.let { println("Read image in ${it}ms") }
