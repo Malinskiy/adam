@@ -29,7 +29,7 @@ class ShellResultResponseTransformer : ResponseTransformer<ShellCommandResult> {
     private val builder = StringBuilder()
 
     override fun transform(): ShellCommandResult {
-        val output = builder.toString().trim()
+        val output = builder.toString()
         val indexOfDelimiter = output.lastIndexOf(SyncShellCommandRequest.EXIT_CODE_DELIMITER)
         val stdout = output.substring(0 until indexOfDelimiter)
         val exitCode = output.substring(indexOfDelimiter + 1).trim().toInt()

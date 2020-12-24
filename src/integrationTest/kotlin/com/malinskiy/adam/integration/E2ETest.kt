@@ -65,6 +65,45 @@ class E2ETest {
     }
 
     @Test
+    fun testExitCode() {
+        runBlocking {
+            val response = adbRule.adb.execute(
+                ShellCommandRequest("false"),
+                adbRule.deviceSerial
+            )
+            assertThat(response.exitCode).isNotEqualTo(0)
+        }
+    }
+
+    @Test
+    fun testExitCodeParsing() {
+        runBlocking {
+            val response = adbRule.adb.execute(
+                ShellCommandRequest("echo -n 1"),
+                adbRule.deviceSerial
+            )
+            assertThat(response.exitCode).isEqualTo(0)
+            assertThat(response.stdout).isEqualTo("1")
+        }
+    }
+
+    @Test
+    fun testShellLineEnding() {
+        runBlocking {
+            val lineSeparator = adbRule.adb.execute(
+                ShellCommandRequest("echo"),
+                adbRule.deviceSerial
+            ).stdout
+
+            val response = adbRule.adb.execute(
+                ShellCommandRequest("uname"),
+                adbRule.deviceSerial
+            )
+            assertThat(response.stdout).isEqualTo("Linux$lineSeparator")
+        }
+    }
+
+    @Test
     fun testGetProp() {
         runBlocking {
             val props = adbRule.adb.execute(
