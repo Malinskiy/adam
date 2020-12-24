@@ -52,4 +52,31 @@ class ShellCommandRequestTest {
             server.dispose()
         }
     }
+
+    @Test
+    fun testReturnsNonStrippedStdout() {
+        runBlocking {
+            val server = AndroidDebugBridgeServer()
+
+            val client = server.startAndListen { input, output ->
+                val transportCmd = input.receiveCommand()
+                assertThat(transportCmd).isEqualTo("host:transport:serial")
+                output.respond(Const.Message.OKAY)
+
+                val shellCmd = input.receiveCommand()
+                assertThat(shellCmd).isEqualTo("shell:xx;echo x$?")
+                output.respond(Const.Message.OKAY)
+
+                val response = "something-something\nx1".toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
+                output.writeFully(response, 0, response.size)
+                output.close()
+            }
+
+            val output = client.execute(ShellCommandRequest("xx"), serial = "serial")
+            assertThat(output.stdout).isEqualTo("something-something\n")
+            assertThat(output.exitCode).isEqualTo(1)
+
+            server.dispose()
+        }
+    }
 }

@@ -60,7 +60,7 @@ class E2ETest {
                 ShellCommandRequest("echo hello"),
                 adbRule.deviceSerial
             )
-            assertThat(response).isEqualTo(ShellCommandResult("hello", 0))
+            assertThat(response).isEqualTo(ShellCommandResult("hello\n", 0))
         }
     }
 
@@ -82,7 +82,7 @@ class E2ETest {
                 GetSinglePropRequest("sys.boot_completed"),
                 adbRule.deviceSerial
             )
-            assertThat(response).isEqualTo("1")
+            assertThat(response).isEqualTo("1\n")
         }
     }
 
