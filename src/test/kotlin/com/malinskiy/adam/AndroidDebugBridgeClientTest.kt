@@ -46,7 +46,7 @@ class AndroidDebugBridgeClientTest {
             }
 
             val output = client.execute(ShellCommandRequest("xx"), serial = "serial")
-            assertThat(output.stdout).isEqualTo("something-something")
+            assertThat(output.output).isEqualTo("something-something")
             assertThat(output.exitCode).isEqualTo(0)
 
             server.dispose()
@@ -117,7 +117,7 @@ class AndroidDebugBridgeClientTest {
             }
 
             val output = client.execute(ShellCommandRequest("xx"), serial = "serial")
-            assertThat(output.stdout).isEqualTo("something-something")
+            assertThat(output.output).isEqualTo("something-something")
 
             server.dispose()
         }

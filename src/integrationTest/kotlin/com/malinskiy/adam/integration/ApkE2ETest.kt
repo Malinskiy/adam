@@ -29,10 +29,10 @@ import java.io.File
 
 class ApkE2ETest {
 
-    @get:Rule
+    @Rule
     @JvmField
     val adb = AdbDeviceRule()
-    val server = adb.adb
+    val client = adb.adb
 
     @Test
     fun testScenario1() {
@@ -40,21 +40,21 @@ class ApkE2ETest {
             val testFile = File(javaClass.getResource("/app-debug.apk").toURI())
             val fileName = testFile.name
             val channel =
-                server.execute(PushFileRequest(testFile, "/data/local/tmp/$fileName"), GlobalScope, serial = adb.deviceSerial)
+                client.execute(PushFileRequest(testFile, "/data/local/tmp/$fileName"), GlobalScope, serial = adb.deviceSerial)
 
             while (!channel.isClosedForReceive) {
                 channel.poll()
             }
 
-            server.execute(InstallRemotePackageRequest("/data/local/tmp/$fileName", true), serial = adb.deviceSerial)
+            client.execute(InstallRemotePackageRequest("/data/local/tmp/$fileName", true), serial = adb.deviceSerial)
 
-            var packages = server.execute(PmListRequest(), serial = adb.deviceSerial)
+            var packages = client.execute(PmListRequest(), serial = adb.deviceSerial)
             assertThat(packages)
                 .contains(Package("com.example"))
 
-            server.execute(UninstallRemotePackageRequest("com.example"), adb.deviceSerial)
+            client.execute(UninstallRemotePackageRequest("com.example"), adb.deviceSerial)
 
-            packages = server.execute(PmListRequest(), serial = adb.deviceSerial)
+            packages = client.execute(PmListRequest(), serial = adb.deviceSerial)
             assertThat(packages)
                 .doesNotContain(Package("com.example"))
         }

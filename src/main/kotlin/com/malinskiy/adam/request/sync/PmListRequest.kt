@@ -16,7 +16,7 @@
 
 package com.malinskiy.adam.request.sync
 
-import com.malinskiy.adam.request.shell.ShellCommandResult
+import com.malinskiy.adam.request.shell.v1.ShellCommandResult
 import com.malinskiy.adam.request.shell.v1.SyncShellCommandRequest
 
 class PmListRequest(val includePath: Boolean = false) : SyncShellCommandRequest<List<Package>>(
@@ -27,7 +27,7 @@ class PmListRequest(val includePath: Boolean = false) : SyncShellCommandRequest<
     }.toString()
 ) {
     override fun convertResult(response: ShellCommandResult): List<Package> {
-        return response.stdout
+        return response.output
             .lines()
             .mapNotNull {
                 if (it.isEmpty()) {

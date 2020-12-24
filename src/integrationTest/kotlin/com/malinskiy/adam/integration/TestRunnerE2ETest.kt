@@ -30,7 +30,7 @@ import java.io.File
 import kotlin.math.roundToInt
 
 class TestRunnerE2ETest {
-    @get:Rule
+    @Rule
     @JvmField
     val rule = AdbDeviceRule()
 

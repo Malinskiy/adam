@@ -16,12 +16,12 @@
 
 package com.malinskiy.adam.request.sync
 
-import com.malinskiy.adam.request.shell.ShellCommandResult
+import com.malinskiy.adam.request.shell.v1.ShellCommandResult
 import com.malinskiy.adam.request.shell.v1.SyncShellCommandRequest
 
 class GetPropRequest : SyncShellCommandRequest<Map<String, String>>("getprop") {
     override fun convertResult(response: ShellCommandResult): Map<String, String> {
-        return response.stdout
+        return response.output
             .lines()
             .mapNotNull {
                 if (it.isEmpty() || it.startsWith("#")) return@mapNotNull null

@@ -16,7 +16,7 @@
 
 package com.malinskiy.adam.request.sync
 
-import com.malinskiy.adam.request.shell.ShellCommandResult
+import com.malinskiy.adam.request.shell.v1.ShellCommandResult
 import com.malinskiy.adam.request.shell.v1.SyncShellCommandRequest
 
 
@@ -33,7 +33,7 @@ class ListFilesRequest(private val directory: String) : SyncShellCommandRequest<
             "(.*)$").toRegex() //
 
     override fun convertResult(response: ShellCommandResult): List<AndroidFile> {
-        return response.stdout
+        return response.output
             .lines()
             .filter { it.isNotBlank() }
             .mapNotNull { lslRegex.find(it) }

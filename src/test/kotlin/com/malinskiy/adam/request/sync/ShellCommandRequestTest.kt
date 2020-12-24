@@ -46,7 +46,7 @@ class ShellCommandRequestTest {
             }
 
             val output = client.execute(ShellCommandRequest("xx"), serial = "serial")
-            assertThat(output.stdout).isEqualTo("something-something")
+            assertThat(output.output).isEqualTo("something-something")
             assertThat(output.exitCode).isEqualTo(1)
 
             server.dispose()
@@ -73,7 +73,7 @@ class ShellCommandRequestTest {
             }
 
             val output = client.execute(ShellCommandRequest("xx"), serial = "serial")
-            assertThat(output.stdout).isEqualTo("something-something\n")
+            assertThat(output.output).isEqualTo("something-something\n")
             assertThat(output.exitCode).isEqualTo(1)
 
             server.dispose()

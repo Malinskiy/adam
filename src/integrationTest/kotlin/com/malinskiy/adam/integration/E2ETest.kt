@@ -21,7 +21,7 @@ import assertk.assertions.*
 import com.malinskiy.adam.request.async.ChanneledLogcatRequest
 import com.malinskiy.adam.request.devices.ListDevicesRequest
 import com.malinskiy.adam.request.forwarding.*
-import com.malinskiy.adam.request.shell.ShellCommandResult
+import com.malinskiy.adam.request.shell.v1.ShellCommandResult
 import com.malinskiy.adam.request.sync.*
 import com.malinskiy.adam.rule.AdbDeviceRule
 import com.malinskiy.adam.screencapture.RawImageScreenCaptureAdapter
@@ -35,7 +35,7 @@ import javax.imageio.ImageIO
 
 
 class E2ETest {
-    @get:Rule
+    @Rule
     @JvmField
     val adbRule = AdbDeviceRule()
 
@@ -83,7 +83,7 @@ class E2ETest {
                 adbRule.deviceSerial
             )
             assertThat(response.exitCode).isEqualTo(0)
-            assertThat(response.stdout).isEqualTo("1")
+            assertThat(response.output).isEqualTo("1")
         }
     }
 
@@ -93,13 +93,13 @@ class E2ETest {
             val lineSeparator = adbRule.adb.execute(
                 ShellCommandRequest("echo"),
                 adbRule.deviceSerial
-            ).stdout
+            ).output
 
             val response = adbRule.adb.execute(
                 ShellCommandRequest("uname"),
                 adbRule.deviceSerial
             )
-            assertThat(response.stdout).isEqualTo("Linux$lineSeparator")
+            assertThat(response.output).isEqualTo("Linux$lineSeparator")
         }
     }
 

@@ -36,19 +36,19 @@ import java.io.File
 import kotlin.math.roundToInt
 
 class FileE2ETest {
-    @get:Rule
+    @Rule
     @JvmField
     val adbRule = AdbDeviceRule()
 
     private suspend fun md5(): String {
         var output = adbRule.adb.execute(ShellCommandRequest("ls /system/bin/md5"), adbRule.deviceSerial)
-        var value = output.stdout.trim { it <= ' ' }
+        var value = output.output.trim { it <= ' ' }
         if (!value.endsWith("No such file or directory")) {
             return "md5"
         }
 
         output = adbRule.adb.execute(ShellCommandRequest("ls /system/bin/md5sum"), adbRule.deviceSerial)
-        value = output.stdout.trim { it <= ' ' }
+        value = output.output.trim { it <= ' ' }
         if (!value.endsWith("No such file or directory")) {
             return "md5sum"
         }
@@ -78,7 +78,7 @@ class FileE2ETest {
             assertThat(stats.size).isEqualTo(testFile.length().toInt())
 
             val sizeString = adbRule.adb.execute(ShellCommandRequest("${md5()} /data/local/tmp/app-debug.apk"), adbRule.deviceSerial)
-            val split = sizeString.stdout.split(" ").filter { it != "" }
+            val split = sizeString.output.split(" ").filter { it != "" }
 
             /**
              * I've observed a behaviour with eventual consistency issue:
@@ -110,7 +110,7 @@ class FileE2ETest {
                     println(output)
                     output = adbRule.adb.execute(ShellCommandRequest("cat /data/local/tmp/testfile"), serial = adbRule.deviceSerial)
                     println(output)
-                    if (output.stdout.contains("cafebabe") && output.exitCode == 0) {
+                    if (output.output.contains("cafebabe") && output.exitCode == 0) {
                         break
                     }
                 }
@@ -135,7 +135,7 @@ class FileE2ETest {
             println()
 
             val sizeString = adbRule.adb.execute(ShellCommandRequest("ls -ln /data/local/tmp/testfile"), adbRule.deviceSerial)
-            val split = sizeString.stdout.split(" ").filter { it != "" }
+            val split = sizeString.output.split(" ").filter { it != "" }
 
             /**
              * Some android ls implementations print the number of hard links

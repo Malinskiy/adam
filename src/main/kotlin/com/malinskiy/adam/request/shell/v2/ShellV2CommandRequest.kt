@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 Anton Malinskiy
+ * Copyright (C) 2019 Anton Malinskiy
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package com.malinskiy.adam.request.shell
+package com.malinskiy.adam.request.shell.v2
 
-data class ShellCommandResult(
-    val stdout: String,
-    val exitCode: Int
-)
+open class ShellV2CommandRequest(cmd: String) : SyncShellCommandRequest<ShellCommandResult>(cmd) {
+    override fun convertResult(response: ShellCommandResult) = response
+}

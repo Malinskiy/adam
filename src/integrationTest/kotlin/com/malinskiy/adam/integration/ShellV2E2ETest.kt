@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 Anton Malinskiy
+ * Copyright (C) 2020 Anton Malinskiy
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,32 +16,25 @@
 
 package com.malinskiy.adam.integration
 
-import com.malinskiy.adam.request.async.AsyncDeviceMonitorRequest
+import assertk.assertThat
+import assertk.assertions.isEqualTo
+import com.malinskiy.adam.request.shell.v2.ShellV2CommandRequest
+import com.malinskiy.adam.request.sync.Feature
 import com.malinskiy.adam.rule.AdbDeviceRule
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.runBlocking
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 
-@Ignore
-class ManualTest {
+class ShellV2E2ETest {
     @Rule
     @JvmField
-    val adbRule = AdbDeviceRule()
+    val adbRule = AdbDeviceRule(Feature.SHELL_V2)
 
     @Test
-    fun testDeviceMonitor() {
-        runBlocking {
-            val execute = adbRule.adb.execute(
-                request = AsyncDeviceMonitorRequest(),
-                scope = GlobalScope
-            )
-            for(i in 1..100) {
-                println(execute.receive())
-            }
-
-            execute.cancel()
-        }
+    fun testDefault() = runBlocking {
+        val result = adbRule.adb.execute(ShellV2CommandRequest("echo foo; echo bar >&2; exit 17"), adbRule.deviceSerial)
+        assertThat(result.exitCode).isEqualTo(17)
+        assertThat(result.stdout).isEqualTo("foo\n")
+        assertThat(result.stderr).isEqualTo("bar\n")
     }
 }

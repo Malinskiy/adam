@@ -17,7 +17,6 @@
 package com.malinskiy.adam.request.shell.v1
 
 import com.malinskiy.adam.Const
-import com.malinskiy.adam.request.shell.ShellCommandResult
 import com.malinskiy.adam.request.transform.ResponseTransformer
 
 class ShellResultResponseTransformer : ResponseTransformer<ShellCommandResult> {
@@ -34,7 +33,7 @@ class ShellResultResponseTransformer : ResponseTransformer<ShellCommandResult> {
         val stdout = output.substring(0 until indexOfDelimiter)
         val exitCode = output.substring(indexOfDelimiter + 1).trim().toInt()
         return ShellCommandResult(
-            stdout = stdout,
+            output = stdout,
             exitCode = exitCode
         )
     }

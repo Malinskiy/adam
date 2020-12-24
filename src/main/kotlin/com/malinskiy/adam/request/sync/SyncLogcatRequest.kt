@@ -19,7 +19,7 @@ package com.malinskiy.adam.request.sync
 import com.malinskiy.adam.request.async.LogcatBuffer
 import com.malinskiy.adam.request.async.LogcatFilterSpec
 import com.malinskiy.adam.request.async.LogcatReadMode
-import com.malinskiy.adam.request.shell.ShellCommandResult
+import com.malinskiy.adam.request.shell.v1.ShellCommandResult
 import com.malinskiy.adam.request.shell.v1.SyncShellCommandRequest
 import java.time.Instant
 
@@ -43,5 +43,5 @@ class SyncLogcatRequest(
             " ${filters.joinToString(separator = " ") { "${it.tag}:${it.level.name}" }}"
                 .trimEnd()
 ) {
-    override fun convertResult(response: ShellCommandResult) = response.stdout
+    override fun convertResult(response: ShellCommandResult) = response.output
 }

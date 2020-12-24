@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 Anton Malinskiy
+ * Copyright (C) 2020 Anton Malinskiy
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package com.malinskiy.adam.request
+package com.malinskiy.adam.request.shell.v2
 
-class TransportResponse(
-    val okay: Boolean,
-    val message: String?
+data class ShellCommandResult(
+    val stdout: String,
+    val stderr: String,
+    val exitCode: Int
 )

@@ -14,11 +14,9 @@
  * limitations under the License.
  */
 
-package com.malinskiy.adam.request.sync
+package com.malinskiy.adam.transport
 
-import com.malinskiy.adam.request.shell.v1.ShellCommandResult
-import com.malinskiy.adam.request.shell.v1.SyncShellCommandRequest
-
-open class ShellCommandRequest(cmd: String) : SyncShellCommandRequest<ShellCommandResult>(cmd) {
-    override fun convertResult(response: ShellCommandResult) = response
-}
+class TransportResponse(
+    val okay: Boolean,
+    val message: String?
+)

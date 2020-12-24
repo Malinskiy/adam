@@ -19,7 +19,6 @@ package com.malinskiy.adam.request.shell.v1
 import com.malinskiy.adam.request.NonSpecifiedTarget
 import com.malinskiy.adam.request.SynchronousRequest
 import com.malinskiy.adam.request.Target
-import com.malinskiy.adam.request.shell.ShellCommandResult
 
 /**
  * shell v1 service doesn't support exit codes
