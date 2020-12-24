@@ -21,7 +21,7 @@ import assertk.assertions.contains
 import assertk.assertions.isEqualTo
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.server.AndroidDebugBridgeServer
-import io.ktor.utils.io.close
+import io.ktor.utils.io.*
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 
@@ -29,7 +29,7 @@ class GetPropRequestTest {
     @Test
     fun testGetAll() {
         assertThat(String(GetPropRequest().serialize(), Const.DEFAULT_TRANSPORT_ENCODING))
-            .isEqualTo("000Dshell:getprop")
+            .isEqualTo("0016shell:getprop;echo x$?")
     }
 
     @Test
@@ -43,10 +43,10 @@ class GetPropRequestTest {
                 output.respond(Const.Message.OKAY)
 
                 val shellCmd = input.receiveCommand()
-                assertThat(shellCmd).isEqualTo("shell:getprop")
+                assertThat(shellCmd).isEqualTo("shell:getprop;echo x$?")
                 output.respond(Const.Message.OKAY)
 
-                val response = "[testing]: [testing]".toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
+                val response = "[testing]: [testing]\r\r\nx0".toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
                 output.writeFully(response, 0, response.size)
                 output.close()
             }

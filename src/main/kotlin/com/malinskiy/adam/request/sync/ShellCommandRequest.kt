@@ -16,8 +16,9 @@
 
 package com.malinskiy.adam.request.sync
 
-import com.malinskiy.adam.request.transform.ResponseTransformer
-import com.malinskiy.adam.request.transform.StringResponseTransformer
+import com.malinskiy.adam.request.shell.ShellCommandResult
+import com.malinskiy.adam.request.shell.v1.SyncShellCommandRequest
 
-class ShellCommandRequest(cmd: String) : SyncShellCommandRequest<String>(cmd),
-    ResponseTransformer<String> by StringResponseTransformer()
+open class ShellCommandRequest(cmd: String) : SyncShellCommandRequest<ShellCommandResult>(cmd) {
+    override fun convertResult(response: ShellCommandResult) = response
+}

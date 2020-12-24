@@ -16,34 +16,33 @@
 
 package com.malinskiy.adam.request.sync
 
-import com.malinskiy.adam.request.transform.StringResponseTransformer
+import com.malinskiy.adam.request.shell.ShellCommandResult
+import com.malinskiy.adam.request.shell.v1.SyncShellCommandRequest
 
 class GetPropRequest : SyncShellCommandRequest<Map<String, String>>("getprop") {
-    private val stringResponseTransformer = StringResponseTransformer()
+    override fun convertResult(response: ShellCommandResult): Map<String, String> {
+        return response.stdout
+            .lines()
+            .mapNotNull {
+                if (it.isEmpty() || it.startsWith("#")) return@mapNotNull null
 
-    override suspend fun process(bytes: ByteArray, offset: Int, limit: Int) = stringResponseTransformer.process(bytes, offset, limit)
+                val opens = mutableListOf<Int>()
+                val closes = mutableListOf<Int>()
 
-    override fun transform(): Map<String, String> = stringResponseTransformer.transform()
-        .lines()
-        .mapNotNull {
-            if (it.isEmpty() || it.startsWith("#")) return@mapNotNull null
-
-            val opens = mutableListOf<Int>()
-            val closes = mutableListOf<Int>()
-
-            it.forEachIndexed { i, c ->
-                when (c) {
-                    '[' -> opens.add(i)
-                    ']' -> closes.add(i)
+                it.forEachIndexed { i, c ->
+                    when (c) {
+                        '[' -> opens.add(i)
+                        ']' -> closes.add(i)
+                    }
                 }
+
+                if (opens.size != 2 || closes.size != 2) return@mapNotNull null
+
+                val key = it.substring(opens[0] + 1, closes[0])
+                val value = it.substring(opens[1] + 1, closes[1])
+
+                key to value
             }
-
-            if (opens.size != 2 || closes.size != 2) return@mapNotNull null
-
-            val key = it.substring(opens[0] + 1, closes[0])
-            val value = it.substring(opens[1] + 1, closes[1])
-
-            key to value
-        }
-        .toMap()
+            .toMap()
+    }
 }

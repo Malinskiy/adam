@@ -42,13 +42,13 @@ class FileE2ETest {
 
     private suspend fun md5(): String {
         var output = adbRule.adb.execute(ShellCommandRequest("ls /system/bin/md5"), adbRule.deviceSerial)
-        var value = output.trim { it <= ' ' }
+        var value = output.stdout.trim { it <= ' ' }
         if (!value.endsWith("No such file or directory")) {
             return "md5"
         }
 
         output = adbRule.adb.execute(ShellCommandRequest("ls /system/bin/md5sum"), adbRule.deviceSerial)
-        value = output.trim { it <= ' ' }
+        value = output.stdout.trim { it <= ' ' }
         if (!value.endsWith("No such file or directory")) {
             return "md5sum"
         }
@@ -78,7 +78,7 @@ class FileE2ETest {
             assertThat(stats.size).isEqualTo(testFile.length().toInt())
 
             val sizeString = adbRule.adb.execute(ShellCommandRequest("${md5()} /data/local/tmp/app-debug.apk"), adbRule.deviceSerial)
-            val split = sizeString.split(" ").filter { it != "" }
+            val split = sizeString.stdout.split(" ").filter { it != "" }
 
             /**
              * I've observed a behaviour with eventual consistency issue:
@@ -110,7 +110,7 @@ class FileE2ETest {
                     println(output)
                     output = adbRule.adb.execute(ShellCommandRequest("cat /data/local/tmp/testfile"), serial = adbRule.deviceSerial)
                     println(output)
-                    if (output.contains("cafebabe")) {
+                    if (output.stdout.contains("cafebabe") && output.exitCode == 0) {
                         break
                     }
                 }
@@ -135,7 +135,7 @@ class FileE2ETest {
             println()
 
             val sizeString = adbRule.adb.execute(ShellCommandRequest("ls -ln /data/local/tmp/testfile"), adbRule.deviceSerial)
-            val split = sizeString.split(" ").filter { it != "" }
+            val split = sizeString.stdout.split(" ").filter { it != "" }
 
             /**
              * Some android ls implementations print the number of hard links

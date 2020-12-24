@@ -21,7 +21,7 @@ import assertk.assertions.isEqualTo
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.request.sync.GetSinglePropRequest
 import com.malinskiy.adam.server.AndroidDebugBridgeServer
-import io.ktor.utils.io.close
+import io.ktor.utils.io.*
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 
@@ -29,7 +29,7 @@ class GetSinglePropRequestTest {
     @Test
     fun testGetX() {
         assertThat(String(GetSinglePropRequest("x").serialize(), Const.DEFAULT_TRANSPORT_ENCODING))
-            .isEqualTo("000Fshell:getprop x")
+            .isEqualTo("0018shell:getprop x;echo x$?")
     }
 
     @Test
@@ -42,10 +42,10 @@ class GetSinglePropRequestTest {
                 output.respond(Const.Message.OKAY)
 
                 val shellCmd = input.receiveCommand()
-                assertThat(shellCmd).isEqualTo("shell:getprop prop1")
+                assertThat(shellCmd).isEqualTo("shell:getprop prop1;echo x$?")
                 output.respond(Const.Message.OKAY)
 
-                val response = "testing".toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
+                val response = "testingx0".toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
                 output.writeFully(response, 0, response.size)
                 output.close()
             }

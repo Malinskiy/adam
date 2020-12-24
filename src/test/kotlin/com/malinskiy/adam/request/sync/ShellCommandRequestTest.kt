@@ -20,7 +20,7 @@ import assertk.assertThat
 import assertk.assertions.isEqualTo
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.server.AndroidDebugBridgeServer
-import io.ktor.utils.io.close
+import io.ktor.utils.io.*
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 
@@ -37,16 +37,17 @@ class ShellCommandRequestTest {
                 output.respond(Const.Message.OKAY)
 
                 val shellCmd = input.receiveCommand()
-                assertThat(shellCmd).isEqualTo("shell:xx")
+                assertThat(shellCmd).isEqualTo("shell:xx;echo x$?")
                 output.respond(Const.Message.OKAY)
 
-                val response = "something-something".toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
+                val response = "something-somethingx1".toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
                 output.writeFully(response, 0, response.size)
                 output.close()
             }
 
             val output = client.execute(ShellCommandRequest("xx"), serial = "serial")
-            assertThat(output).isEqualTo("something-something")
+            assertThat(output.stdout).isEqualTo("something-something")
+            assertThat(output.exitCode).isEqualTo(1)
 
             server.dispose()
         }

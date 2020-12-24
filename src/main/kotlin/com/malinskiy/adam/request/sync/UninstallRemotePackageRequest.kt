@@ -16,16 +16,13 @@
 
 package com.malinskiy.adam.request.sync
 
-import com.malinskiy.adam.request.transform.ResponseTransformer
-import com.malinskiy.adam.request.transform.StringResponseTransformer
-
 /**
  * @param keepData keep the data and cache directories around after package removal
  */
 class UninstallRemotePackageRequest(
     packageName: String,
     keepData: Boolean = false
-) : SyncShellCommandRequest<String>(
+) : ShellCommandRequest(
     cmd = StringBuilder().apply {
         append("pm uninstall ")
 
@@ -35,4 +32,4 @@ class UninstallRemotePackageRequest(
 
         append(packageName)
     }.toString()
-), ResponseTransformer<String> by StringResponseTransformer()
+)

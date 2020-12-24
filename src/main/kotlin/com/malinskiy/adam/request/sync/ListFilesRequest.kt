@@ -16,13 +16,13 @@
 
 package com.malinskiy.adam.request.sync
 
-import com.malinskiy.adam.Const
+import com.malinskiy.adam.request.shell.ShellCommandResult
+import com.malinskiy.adam.request.shell.v1.SyncShellCommandRequest
 
 
 class ListFilesRequest(private val directory: String) : SyncShellCommandRequest<List<AndroidFile>>(
     cmd = "ls -l $directory"
 ) {
-    private val builder = StringBuilder()
     private val lslRegex: Regex = ("^([bcdlsp-][-r][-w][-xsS][-r][-w][-xsS][-r][-w][-xstST])\\s+" + //permissions
             "(?:\\d+\\s+)?" + //nlink
             "(\\S+)\\s+" + //user
@@ -32,13 +32,9 @@ class ListFilesRequest(private val directory: String) : SyncShellCommandRequest<
             "(\\d\\d:\\d\\d)\\s+" + //time
             "(.*)$").toRegex() //
 
-    override suspend fun process(bytes: ByteArray, offset: Int, limit: Int) {
-        val part = String(bytes, 0, limit, Const.DEFAULT_TRANSPORT_ENCODING)
-        builder.append(part)
-    }
-
-    override fun transform(): List<AndroidFile> {
-        return builder.lines()
+    override fun convertResult(response: ShellCommandResult): List<AndroidFile> {
+        return response.stdout
+            .lines()
             .filter { it.isNotBlank() }
             .mapNotNull { lslRegex.find(it) }
             .map { match ->

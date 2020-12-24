@@ -16,8 +16,9 @@
 
 package com.malinskiy.adam.request.sync
 
-import com.malinskiy.adam.request.transform.ResponseTransformer
-import com.malinskiy.adam.request.transform.StringResponseTransformer
+import com.malinskiy.adam.request.shell.ShellCommandResult
+import com.malinskiy.adam.request.shell.v1.SyncShellCommandRequest
 
-class GetSinglePropRequest(name: String) : SyncShellCommandRequest<String>("getprop $name"),
-    ResponseTransformer<String> by StringResponseTransformer()
+class GetSinglePropRequest(name: String) : SyncShellCommandRequest<String>("getprop $name") {
+    override fun convertResult(response: ShellCommandResult) = response.stdout
+}

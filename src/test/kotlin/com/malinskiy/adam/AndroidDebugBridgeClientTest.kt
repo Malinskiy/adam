@@ -25,7 +25,7 @@ import com.malinskiy.adam.request.sync.ShellCommandRequest
 import com.malinskiy.adam.server.AndroidDebugBridgeServer
 import com.malinskiy.adam.transport.AndroidReadChannel
 import com.malinskiy.adam.transport.AndroidWriteChannel
-import io.ktor.utils.io.close
+import io.ktor.utils.io.*
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 
@@ -40,13 +40,14 @@ class AndroidDebugBridgeClientTest {
                 assertThat(transportCmd).isEqualTo("host:transport:serial")
                 output.respond(Const.Message.FAIL)
 
-                val response = "0013something-something".toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
+                val response = "0013something-somethingx0".toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
                 output.writeFully(response, 0, response.size)
                 output.close()
             }
 
             val output = client.execute(ShellCommandRequest("xx"), serial = "serial")
-            assertThat(output).isEqualTo("something-something")
+            assertThat(output.stdout).isEqualTo("something-something")
+            assertThat(output.exitCode).isEqualTo(0)
 
             server.dispose()
         }
@@ -63,10 +64,10 @@ class AndroidDebugBridgeClientTest {
                 output.respond(Const.Message.OKAY)
 
                 val shellCmd = input.receiveCommand()
-                assertThat(shellCmd).isEqualTo("shell:xx")
+                assertThat(shellCmd).isEqualTo("shell:xx;echo x$?")
                 output.respond(Const.Message.FAIL)
 
-                val response = "0013something-something".toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
+                val response = "0013something-somethingx0".toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
                 output.writeFully(response, 0, response.size)
                 output.close()
             }
@@ -87,7 +88,7 @@ class AndroidDebugBridgeClientTest {
                 output.respond(Const.Message.OKAY)
 
                 val shellCmd = input.receiveCommand()
-                assertThat(shellCmd).isEqualTo("shell:xx")
+                assertThat(shellCmd).isEqualTo("shell:xx;echo x\$?")
                 output.respond(Const.Message.FAIL)
 
                 val response = "XXXXx".toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
@@ -116,7 +117,7 @@ class AndroidDebugBridgeClientTest {
             }
 
             val output = client.execute(ShellCommandRequest("xx"), serial = "serial")
-            assertThat(output).isEqualTo("something-something")
+            assertThat(output.stdout).isEqualTo("something-something")
 
             server.dispose()
         }

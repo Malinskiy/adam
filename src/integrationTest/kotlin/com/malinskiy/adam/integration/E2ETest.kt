@@ -21,6 +21,7 @@ import assertk.assertions.*
 import com.malinskiy.adam.request.async.ChanneledLogcatRequest
 import com.malinskiy.adam.request.devices.ListDevicesRequest
 import com.malinskiy.adam.request.forwarding.*
+import com.malinskiy.adam.request.shell.ShellCommandResult
 import com.malinskiy.adam.request.sync.*
 import com.malinskiy.adam.rule.AdbDeviceRule
 import com.malinskiy.adam.screencapture.RawImageScreenCaptureAdapter
@@ -59,7 +60,7 @@ class E2ETest {
                 ShellCommandRequest("echo hello"),
                 adbRule.deviceSerial
             )
-            assertThat(response).isEqualTo("hello")
+            assertThat(response).isEqualTo(ShellCommandResult("hello", 0))
         }
     }
 

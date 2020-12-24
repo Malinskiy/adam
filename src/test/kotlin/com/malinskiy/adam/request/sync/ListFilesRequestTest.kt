@@ -37,7 +37,7 @@ class ListFilesRequestTest {
                 output.respond(Const.Message.OKAY)
 
                 val shellCmd = input.receiveCommand()
-                assertThat(shellCmd).isEqualTo("shell:ls -l /sdcard/")
+                assertThat(shellCmd).isEqualTo("shell:ls -l /sdcard/;echo x$?")
                 output.respond(Const.Message.OKAY)
 
                 val response = """
@@ -50,6 +50,7 @@ class ListFilesRequestTest {
                     prwxrwx--x 2 root sdcard_rw 4096 2020-10-24 16:29 Music
                     drwxrwx--x 2 root sdcard_rw 4096 2020-10-24 16:29 Ringtones
                     Orwxrwx--x 2 root sdcard_rw 4096 2020-10-24 16:29 XXX
+                    x0
                 """.trimIndent().toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
                 output.writeFully(response, 0, response.size)
                 output.close()

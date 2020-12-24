@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 Anton Malinskiy
+ * Copyright (C) 2020 Anton Malinskiy
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,9 @@
  * limitations under the License.
  */
 
-package com.malinskiy.adam.request.sync
+package com.malinskiy.adam.request.shell
 
-import com.malinskiy.adam.request.NonSpecifiedTarget
-import com.malinskiy.adam.request.SynchronousRequest
-import com.malinskiy.adam.request.Target
-
-open abstract class SyncShellCommandRequest<T : Any?>(val cmd: String, target: Target = NonSpecifiedTarget) :
-    SynchronousRequest<T>(target) {
-    override fun serialize() = createBaseRequest("shell:$cmd")
-}
+data class ShellCommandResult(
+    val stdout: String,
+    val exitCode: Int
+)

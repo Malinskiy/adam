@@ -21,7 +21,7 @@ import assertk.assertions.containsExactly
 import assertk.assertions.isEqualTo
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.server.AndroidDebugBridgeServer
-import io.ktor.utils.io.close
+import io.ktor.utils.io.*
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 
@@ -37,10 +37,10 @@ class PmListRequestTest {
                 output.respond(Const.Message.OKAY)
 
                 val shellCmd = input.receiveCommand()
-                assertThat(shellCmd).isEqualTo("shell:pm list packages")
+                assertThat(shellCmd).isEqualTo("shell:pm list packages;echo x$?")
                 output.respond(Const.Message.OKAY)
 
-                val response = "package:test.package".toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
+                val response = "package:test.packagex0".toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
                 output.writeFully(response, 0, response.size)
                 output.close()
             }

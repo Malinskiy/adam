@@ -34,7 +34,7 @@ class SyncLogcatRequestTest {
 
         val actual = String(cmd, Const.DEFAULT_TRANSPORT_ENCODING)
         assertThat(actual)
-            .isEqualTo("0030shell:logcat -d -t 10.0 -v long -b default TAG:E")
+            .isEqualTo("0039shell:logcat -d -t 10.0 -v long -b default TAG:E;echo x$?")
     }
 
     @Test
@@ -43,6 +43,6 @@ class SyncLogcatRequestTest {
 
         val actual = String(cmd, Const.DEFAULT_TRANSPORT_ENCODING)
         assertThat(actual)
-            .isEqualTo("0022shell:logcat -d -v long -b default")
+            .isEqualTo("002Bshell:logcat -d -v long -b default;echo x$?")
     }
 }

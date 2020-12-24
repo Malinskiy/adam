@@ -28,7 +28,7 @@ class UninstallRemotePackageRequestTest {
 
         val actual = String(bytes, Const.DEFAULT_TRANSPORT_ENCODING)
         assertThat(actual)
-            .isEqualTo("001Eshell:pm uninstall com.example")
+            .isEqualTo("0027shell:pm uninstall com.example;echo x$?")
     }
 
     @Test
@@ -37,6 +37,6 @@ class UninstallRemotePackageRequestTest {
 
         val actual = String(bytes, Const.DEFAULT_TRANSPORT_ENCODING)
         assertThat(actual)
-            .isEqualTo("0021shell:pm uninstall -k com.example")
+            .isEqualTo("002Ashell:pm uninstall -k com.example;echo x$?")
     }
 }

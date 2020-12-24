@@ -16,7 +16,8 @@
 
 package com.malinskiy.adam.request.sync
 
-import com.malinskiy.adam.Const
+import com.malinskiy.adam.request.shell.ShellCommandResult
+import com.malinskiy.adam.request.shell.v1.SyncShellCommandRequest
 
 class PmListRequest(val includePath: Boolean = false) : SyncShellCommandRequest<List<Package>>(
     cmd = StringBuilder().apply {
@@ -25,30 +26,25 @@ class PmListRequest(val includePath: Boolean = false) : SyncShellCommandRequest<
         if (includePath) append(" -f")
     }.toString()
 ) {
-    private val builder = StringBuilder()
-
-    override suspend fun process(bytes: ByteArray, offset: Int, limit: Int) {
-        val part = String(bytes, 0, limit, Const.DEFAULT_TRANSPORT_ENCODING)
-        builder.append(part)
-    }
-
-    override fun transform(): List<Package> {
-        return builder.lines().mapNotNull {
-            if (it.isEmpty()) {
-                return@mapNotNull null
-            } else {
-                val split = it.split(":", "=")
-                when (includePath) {
-                    true -> {
-                        Package(split[2], split[1])
+    override fun convertResult(response: ShellCommandResult): List<Package> {
+        return response.stdout
+            .lines()
+            .mapNotNull {
+                if (it.isEmpty()) {
+                    return@mapNotNull null
+                } else {
+                    val split = it.split(":", "=")
+                    when (includePath) {
+                        true -> {
+                            Package(split[2], split[1])
+                        }
+                        false -> {
+                            Package(split[1])
+                        }
                     }
-                    false -> {
-                        Package(split[1])
-                    }
+
                 }
-
             }
-        }
     }
 }
 

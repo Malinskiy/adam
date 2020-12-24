@@ -19,8 +19,8 @@ package com.malinskiy.adam.request.sync
 import com.malinskiy.adam.request.async.LogcatBuffer
 import com.malinskiy.adam.request.async.LogcatFilterSpec
 import com.malinskiy.adam.request.async.LogcatReadMode
-import com.malinskiy.adam.request.transform.ResponseTransformer
-import com.malinskiy.adam.request.transform.StringResponseTransformer
+import com.malinskiy.adam.request.shell.ShellCommandResult
+import com.malinskiy.adam.request.shell.v1.SyncShellCommandRequest
 import java.time.Instant
 
 class SyncLogcatRequest(
@@ -42,4 +42,6 @@ class SyncLogcatRequest(
             (lastReboot?.let { " -L" } ?: "") +
             " ${filters.joinToString(separator = " ") { "${it.tag}:${it.level.name}" }}"
                 .trimEnd()
-), ResponseTransformer<String> by StringResponseTransformer()
+) {
+    override fun convertResult(response: ShellCommandResult) = response.stdout
+}

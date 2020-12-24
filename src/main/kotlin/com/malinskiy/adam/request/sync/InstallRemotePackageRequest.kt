@@ -16,14 +16,11 @@
 
 package com.malinskiy.adam.request.sync
 
-import com.malinskiy.adam.request.transform.ResponseTransformer
-import com.malinskiy.adam.request.transform.StringResponseTransformer
-
 class InstallRemotePackageRequest(
     absoluteRemoteFilePath: String,
     reinstall: Boolean,
     extraArgs: List<String> = emptyList()
-) : SyncShellCommandRequest<String>(
+) : ShellCommandRequest(
     cmd = StringBuilder().apply {
         append("pm install ")
 
@@ -38,4 +35,4 @@ class InstallRemotePackageRequest(
 
         append(absoluteRemoteFilePath)
     }.toString()
-), ResponseTransformer<String> by StringResponseTransformer()
+)

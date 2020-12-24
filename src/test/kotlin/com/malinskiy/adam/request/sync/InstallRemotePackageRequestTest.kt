@@ -27,7 +27,7 @@ class InstallRemotePackageRequestTest {
         val request = InstallRemotePackageRequest("/data/local/tmp/file.apk", false)
         val value = String(request.serialize(), Const.DEFAULT_TRANSPORT_ENCODING)
         assertThat(value)
-            .isEqualTo("0029shell:pm install /data/local/tmp/file.apk")
+            .isEqualTo("0032shell:pm install /data/local/tmp/file.apk;echo x$?")
     }
 
     @Test
@@ -35,7 +35,7 @@ class InstallRemotePackageRequestTest {
         val request = InstallRemotePackageRequest("/data/local/tmp/file.apk", true)
         val value = String(request.serialize(), Const.DEFAULT_TRANSPORT_ENCODING)
         assertThat(value)
-            .isEqualTo("002Cshell:pm install -r /data/local/tmp/file.apk")
+            .isEqualTo("0035shell:pm install -r /data/local/tmp/file.apk;echo x$?")
     }
 
     @Test
@@ -43,6 +43,6 @@ class InstallRemotePackageRequestTest {
         val request = InstallRemotePackageRequest("/data/local/tmp/file.apk", true, listOf("-g -r"))
         val value = String(request.serialize(), Const.DEFAULT_TRANSPORT_ENCODING)
         assertThat(value)
-            .isEqualTo("0032shell:pm install -r -g -r /data/local/tmp/file.apk")
+            .isEqualTo("003Bshell:pm install -r -g -r /data/local/tmp/file.apk;echo x$?")
     }
 }
