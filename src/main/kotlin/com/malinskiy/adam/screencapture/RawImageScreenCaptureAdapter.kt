@@ -18,8 +18,10 @@ package com.malinskiy.adam.screencapture
 
 import com.malinskiy.adam.request.sync.RawImage
 import com.malinskiy.adam.transport.AndroidReadChannel
+import java.nio.ByteBuffer
 
-class RawImageScreenCaptureAdapter(buffer: ByteArray? = null) : ScreenCaptureAdapter<RawImage>(buffer = buffer) {
+class RawImageScreenCaptureAdapter(buffer: ByteBuffer? = null) : ScreenCaptureAdapter<RawImage>(buffer = buffer) {
+
     override suspend fun process(
         version: Int,
         bitsPerPixel: Int,
@@ -54,7 +56,7 @@ class RawImageScreenCaptureAdapter(buffer: ByteArray? = null) : ScreenCaptureAda
             blueLength = blueLength,
             alphaOffset = alphaOffset,
             alphaLength = alphaLength,
-            buffer = imageBuffer
+            buffer = imageBuffer.array()
         )
     }
 }

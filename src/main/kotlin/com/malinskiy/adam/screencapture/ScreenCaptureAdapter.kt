@@ -18,6 +18,7 @@ package com.malinskiy.adam.screencapture
 
 import com.malinskiy.adam.transport.AndroidReadChannel
 import io.ktor.utils.io.*
+import java.nio.ByteBuffer
 
 /**
  * If you reuse the adapter per device - you automatically recycle the internal buffer
@@ -27,16 +28,18 @@ import io.ktor.utils.io.*
  * @param colorModelFactory reuse the color models required for image conversion
  */
 abstract class ScreenCaptureAdapter<T>(
-    private var buffer: ByteArray? = null,
+    private var buffer: ByteBuffer? = null,
     protected val colorModelFactory: ColorModelFactory = ColorModelFactory()
 ) {
-    suspend fun read(channel: ByteReadChannel, size: Int): ByteArray {
+    suspend fun read(channel: ByteReadChannel, size: Int): ByteBuffer {
         val localBuffer = buffer
 
-        val imageBuffer = if (localBuffer != null && localBuffer.size == size) {
-            localBuffer
+        val imageBuffer = if (localBuffer != null && localBuffer.capacity() == size) {
+            localBuffer.also {
+                it.rewind()
+            }
         } else {
-            ByteArray(size)
+            ByteBuffer.allocate(size)
         }
 
         channel.readFully(imageBuffer)
