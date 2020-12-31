@@ -16,8 +16,8 @@
 
 package com.malinskiy.adam.integration
 
+import com.malinskiy.adam.request.fsync.v1.PushFileRequest
 import com.malinskiy.adam.request.sync.InstallRemotePackageRequest
-import com.malinskiy.adam.request.sync.PushFileRequest
 import com.malinskiy.adam.request.testrunner.InstrumentOptions
 import com.malinskiy.adam.request.testrunner.TestRunnerRequest
 import com.malinskiy.adam.rule.AdbDeviceRule

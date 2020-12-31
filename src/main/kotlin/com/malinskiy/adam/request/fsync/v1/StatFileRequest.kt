@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 Anton Malinskiy
+ * Copyright (C) 2021 Anton Malinskiy
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import com.malinskiy.adam.exception.UnsupportedSyncProtocolException
 import com.malinskiy.adam.extension.toByteArray
 import com.malinskiy.adam.extension.toInt
 import com.malinskiy.adam.request.ComplexRequest
+import com.malinskiy.adam.request.fsync.v1.FileStats
 import com.malinskiy.adam.transport.AndroidReadChannel
 import com.malinskiy.adam.transport.AndroidWriteChannel
 import java.time.Instant
@@ -31,7 +32,7 @@ class StatFileRequest(
     override suspend fun readElement(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel): FileStats {
         val bytes = ByteArray(16)
 
-        val type = Const.Message.STAT
+        val type = Const.Message.LSTAT_V1
 
         val path = remotePath.toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
         val size = path.size.toByteArray().reversedArray()
@@ -45,20 +46,15 @@ class StatFileRequest(
         writeChannel.write(cmd)
         readChannel.readFully(bytes, 0, 16)
 
-        if (!bytes.copyOfRange(0, 4).contentEquals(Const.Message.STAT)) throw UnsupportedSyncProtocolException()
+        if (!bytes.copyOfRange(0, 4).contentEquals(Const.Message.LSTAT_V1)) throw UnsupportedSyncProtocolException()
 
         return FileStats(
             mode = bytes.copyOfRange(4, 8).toInt(),
             size = bytes.copyOfRange(8, 12).toInt(),
-            lastModified = Instant.ofEpochMilli(bytes.copyOfRange(12, 16).toInt().toLong())
+            lastModified = Instant.ofEpochSecond(bytes.copyOfRange(12, 16).toInt().toLong())
         )
     }
 
     override fun serialize() = createBaseRequest("sync:")
 }
 
-data class FileStats(
-    val mode: Int,
-    val size: Int,
-    val lastModified: Instant
-)

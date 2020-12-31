@@ -17,8 +17,7 @@
 package com.malinskiy.adam.server
 
 import com.malinskiy.adam.Const
-import io.ktor.utils.io.ByteWriteChannel
-import io.ktor.utils.io.writeIntLittleEndian
+import io.ktor.utils.io.*
 import java.nio.ByteBuffer
 
 class ServerWriteChannel(private val delegate: ByteWriteChannel) : ByteWriteChannel by delegate {
@@ -30,7 +29,7 @@ class ServerWriteChannel(private val delegate: ByteWriteChannel) : ByteWriteChan
     suspend fun respond(request: ByteArray, length: Int? = null) = write(request, length)
 
     suspend fun respondStat(size: Int, mode: Int = 0, lastModified: Int = 0) {
-        respond(Const.Message.STAT)
+        respond(Const.Message.LSTAT_V1)
         writeIntLittleEndian(mode)
         writeIntLittleEndian(size)
         writeIntLittleEndian(lastModified)
@@ -44,5 +43,14 @@ class ServerWriteChannel(private val delegate: ByteWriteChannel) : ByteWriteChan
 
     suspend fun respondDone() {
         respond(Const.Message.DONE)
+    }
+
+    suspend fun respondList(size: Int, mode: Int = 0, lastModified: Int = 0, name: String) {
+        respond(Const.Message.DENT_V1)
+        writeIntLittleEndian(mode)
+        writeIntLittleEndian(size)
+        writeIntLittleEndian(lastModified)
+        writeIntLittleEndian(name.length)
+        writeStringUtf8(name)
     }
 }

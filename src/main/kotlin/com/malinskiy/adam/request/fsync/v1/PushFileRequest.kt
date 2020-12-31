@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.malinskiy.adam.request.sync
+package com.malinskiy.adam.request.fsync.v1
 
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.exception.PushFailedException
@@ -44,7 +44,7 @@ class PushFileRequest(
     override suspend fun handshake(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel) {
         super.handshake(readChannel, writeChannel)
 
-        val type = Const.Message.SEND
+        val type = Const.Message.SEND_V1
 
         val mode = (',' + (mode.toInt(8) and "0777".toInt(8)).toString()).toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
         val path = remotePath.toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)

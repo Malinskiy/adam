@@ -20,7 +20,7 @@ import assertk.assertThat
 import assertk.assertions.isEqualTo
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.server.AndroidDebugBridgeServer
-import io.ktor.utils.io.close
+import io.ktor.utils.io.*
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import java.time.Instant
@@ -49,7 +49,7 @@ class StatFileRequestTest {
             }
 
             val output = client.execute(StatFileRequest("/sdcard/testfile"), serial = "serial")
-            assertThat(output.lastModified).isEqualTo(Instant.ofEpochMilli(10000))
+            assertThat(output.lastModified).isEqualTo(Instant.ofEpochSecond(10000))
             assertThat(output.mode).isEqualTo(0x744)
             assertThat(output.size).isEqualTo(128)
 

@@ -20,8 +20,9 @@ import assertk.assertThat
 import assertk.assertions.contains
 import assertk.assertions.isEqualTo
 import com.malinskiy.adam.extension.md5
-import com.malinskiy.adam.request.sync.PullFileRequest
-import com.malinskiy.adam.request.sync.PushFileRequest
+import com.malinskiy.adam.request.fsync.v1.ListFileRequest
+import com.malinskiy.adam.request.fsync.v1.PullFileRequest
+import com.malinskiy.adam.request.fsync.v1.PushFileRequest
 import com.malinskiy.adam.request.sync.ShellCommandRequest
 import com.malinskiy.adam.request.sync.StatFileRequest
 import com.malinskiy.adam.rule.AdbDeviceRule
@@ -88,6 +89,14 @@ class FileE2ETest {
 
             //TODO figure out why 644 is actually pushed as 666
             assertThat(stats.mode).isEqualTo("100666".toInt(radix = 8))
+        }
+    }
+
+    @Test
+    fun testListFile() = runBlocking {
+        val list = adbRule.adb.execute(ListFileRequest("/sdcard/"), adbRule.deviceSerial)
+        for (i in list) {
+            println(i)
         }
     }
 

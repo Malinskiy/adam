@@ -19,10 +19,8 @@ package com.malinskiy.adam.server
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.exception.UnsupportedSyncProtocolException
 import com.malinskiy.adam.extension.toInt
-import io.ktor.util.cio.writeChannel
-import io.ktor.utils.io.ByteReadChannel
-import io.ktor.utils.io.close
-import io.ktor.utils.io.readIntLittleEndian
+import io.ktor.util.cio.*
+import io.ktor.utils.io.*
 import java.io.File
 
 class ServerReadChannel(private val delegate: ByteReadChannel) : ByteReadChannel by delegate {
@@ -38,7 +36,19 @@ class ServerReadChannel(private val delegate: ByteReadChannel) : ByteReadChannel
     suspend fun receiveStat(): String {
         val protocolMessage = receiveProtocolMessage()
         val message = String(protocolMessage, Const.DEFAULT_TRANSPORT_ENCODING)
-        if (message != "STAT") RuntimeException(
+        if (message != "STAT") throw RuntimeException(
+            "Unexpected protocol message $message"
+        )
+        val size = readIntLittleEndian()
+        val request = ByteArray(size)
+        readFully(request, 0, size)
+        return String(request, Const.DEFAULT_TRANSPORT_ENCODING)
+    }
+
+    suspend fun receiveList(): String {
+        val protocolMessage = receiveProtocolMessage()
+        val message = String(protocolMessage, Const.DEFAULT_TRANSPORT_ENCODING)
+        if (message != "LIST") throw RuntimeException(
             "Unexpected protocol message $message"
         )
         val size = readIntLittleEndian()
@@ -50,7 +60,7 @@ class ServerReadChannel(private val delegate: ByteReadChannel) : ByteReadChannel
     suspend fun receiveSend(): String {
         val protocolMessage = receiveProtocolMessage()
         val message = String(protocolMessage, Const.DEFAULT_TRANSPORT_ENCODING)
-        if (message != "SEND") RuntimeException(
+        if (message != "SEND") throw RuntimeException(
             "Unexpected protocol message $message"
         )
         val size = readIntLittleEndian()
@@ -68,7 +78,7 @@ class ServerReadChannel(private val delegate: ByteReadChannel) : ByteReadChannel
     suspend fun receiveRecv(): String {
         val protocolMessage = receiveProtocolMessage()
         val message = String(protocolMessage, Const.DEFAULT_TRANSPORT_ENCODING)
-        if (message != "RECV") RuntimeException(
+        if (message != "RECV") throw RuntimeException(
             "Unexpected protocol message $message"
         )
 

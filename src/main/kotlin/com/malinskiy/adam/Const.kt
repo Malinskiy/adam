@@ -20,6 +20,7 @@ object Const {
     const val MAX_REMOTE_PATH_LENGTH = 1024
     const val READ_DELAY = 100L
     val DEFAULT_TRANSPORT_ENCODING = Charsets.ISO_8859_1
+    val FILENAME_ENCODING = Charsets.UTF_8
     const val DEFAULT_ADB_HOST = "127.0.0.1"
     const val DEFAULT_ADB_PORT = 5037
 
@@ -31,10 +32,14 @@ object Const {
     object Message {
         val OKAY = byteArrayOf('O'.toByte(), 'K'.toByte(), 'A'.toByte(), 'Y'.toByte())
         val FAIL = byteArrayOf('F'.toByte(), 'A'.toByte(), 'I'.toByte(), 'L'.toByte())
-        val STAT = byteArrayOf('S'.toByte(), 'T'.toByte(), 'A'.toByte(), 'T'.toByte())
-        val RECV = byteArrayOf('R'.toByte(), 'E'.toByte(), 'C'.toByte(), 'V'.toByte())
+
         val DATA = byteArrayOf('D'.toByte(), 'A'.toByte(), 'T'.toByte(), 'A'.toByte())
         val DONE = byteArrayOf('D'.toByte(), 'O'.toByte(), 'N'.toByte(), 'E'.toByte())
-        val SEND = byteArrayOf('S'.toByte(), 'E'.toByte(), 'N'.toByte(), 'D'.toByte())
+
+        val LSTAT_V1 = byteArrayOf('S'.toByte(), 'T'.toByte(), 'A'.toByte(), 'T'.toByte())
+        val LIST_V1 = byteArrayOf('L'.toByte(), 'I'.toByte(), 'S'.toByte(), 'T'.toByte())
+        val DENT_V1 = byteArrayOf('D'.toByte(), 'E'.toByte(), 'N'.toByte(), 'T'.toByte())
+        val SEND_V1 = byteArrayOf('S'.toByte(), 'E'.toByte(), 'N'.toByte(), 'D'.toByte())
+        val RECV_V1 = byteArrayOf('R'.toByte(), 'E'.toByte(), 'C'.toByte(), 'V'.toByte())
     }
 }

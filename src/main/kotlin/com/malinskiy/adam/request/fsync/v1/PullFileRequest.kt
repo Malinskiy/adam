@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.malinskiy.adam.request.sync
+package com.malinskiy.adam.request.fsync.v1
 
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.exception.PullFailedException
@@ -46,7 +46,7 @@ class PullFileRequest(
 
         totalBytes = statSize(readChannel, writeChannel)
 
-        val type = Const.Message.RECV
+        val type = Const.Message.RECV_V1
 
         val path = remotePath.toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
         val size = path.size.toByteArray().reversedArray()
@@ -63,7 +63,7 @@ class PullFileRequest(
     private suspend fun statSize(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel): Int {
         val bytes = ByteArray(16)
 
-        val type = Const.Message.STAT
+        val type = Const.Message.LSTAT_V1
 
         val path = remotePath.toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
         val size = path.size.toByteArray().reversedArray()
@@ -77,7 +77,7 @@ class PullFileRequest(
         writeChannel.write(cmd)
         readChannel.readFully(bytes, 0, 16)
 
-        if (!bytes.copyOfRange(0, 4).contentEquals(Const.Message.STAT)) throw UnsupportedSyncProtocolException()
+        if (!bytes.copyOfRange(0, 4).contentEquals(Const.Message.LSTAT_V1)) throw UnsupportedSyncProtocolException()
 
         return bytes.copyOfRange(8, 12).toInt()
     }
