@@ -23,9 +23,10 @@ import java.nio.ByteBuffer
 
 class BufferedImageScreenCaptureAdapter(
     private var recycledImage: BufferedImage? = null,
-    buffer: ByteArray? = null,
+    buffer: ByteBuffer? = null,
     colorModelFactory: ColorModelFactory = ColorModelFactory()
 ) : ScreenCaptureAdapter<BufferedImage>(colorModelFactory = colorModelFactory, buffer = buffer) {
+
     override suspend fun process(
         version: Int,
         bitsPerPixel: Int,
@@ -43,49 +44,65 @@ class BufferedImageScreenCaptureAdapter(
         colorSpace: ColorSpace?,
         channel: AndroidReadChannel
     ): BufferedImage {
-        val bytes = read(channel, size)
-        val imageBuffer = ByteBuffer.wrap(bytes)
-
-        val bufferedImage = createOrReuseBufferedImage(colorSpace, width, height)
-        for (y in 0 until height) {
-            for (x in 0 until width) {
-                val argb: Int = when (bitsPerPixel) {
-                    16 -> {
-                        var value = imageBuffer.get().toInt() and 0x00FF
-                        value = value or (imageBuffer.get().toInt() shl 8 and 0x0FF00)
-                        // RGB565 to RGB888
-                        // Multiply by 255/31 to convert from 5 bits (31 max) to 8 bits (255)
-                        val r = (value.ushr(11) and 0x1f) * 255 / 31
-                        val g = (value.ushr(5) and 0x3f) * 255 / 63
-                        val b = (value and 0x1f) * 255 / 31
-                        val a = 0xFF // force alpha to opaque if there's no alpha value in the framebuffer.
-
-                        a shl 24 or (r shl 16) or (g shl 8) or b
+        val imageBuffer: ByteBuffer = read(channel, size)
+        imageBuffer.rewind()
+        return when (bitsPerPixel) {
+            16 -> {
+                createOrReuseBufferedImage(colorSpace, width, height, BufferedImage.TYPE_USHORT_565_RGB)
+                    .also {
+                        val shortArray = ShortArray(imageBuffer.limit() / 2)
+                        imageBuffer.asShortBuffer().get(shortArray)
+                        it.raster.setDataElements(
+                            0, 0, width, height, shortArray
+                        )
                     }
-                    32 -> {
-                        var value: Int = imageBuffer.int.reverseByteOrder()
-                        val r = value.ushr(redOffset) and getMask(redLength) shl 8 - redLength
-                        val g = value.ushr(greenOffset) and getMask(greenLength) shl 8 - greenLength
-                        val b = value.ushr(blueOffset) and getMask(blueLength) shl 8 - blueLength
-                        val a = value.ushr(alphaOffset) and getMask(alphaLength) shl 8 - alphaLength
-
-                        a shl 24 or (r shl 16) or (g shl 8) or b
-                    }
-                    else -> {
-                        throw UnsupportedOperationException("BufferedImageScreenCaptureAdapter only works with 16 and 32 bit image mode")
-                    }
-                }
-
-                bufferedImage.setRGB(x, y, argb or -0x1000000)
             }
+            32 -> {
+                if (alphaOffset == 24 && alphaLength == 8 &&
+                    blueOffset == 16 && blueLength == 8 &&
+                    greenOffset == 8 && greenLength == 8 &&
+                    redOffset == 0 && redLength == 8
+                ) {
+                    /**
+                     * We can skip processing and directly create a buffer
+                     */
+                    createOrReuseBufferedImage(colorSpace, width, height, BufferedImage.TYPE_4BYTE_ABGR)
+                        .also {
+                            it.raster.setDataElements(
+                                0, 0, width, height, imageBuffer.array()
+                            )
+                        }
+                } else {
+                    createOrReuseBufferedImage(colorSpace, width, height, BufferedImage.TYPE_3BYTE_BGR)
+                        .also {
+                            for (y in 0 until height) {
+                                for (x in 0 until width) {
+                                    val bytes: ByteArray = Color.ARGB_INT.toBGR_3BYTE(
+                                        imageBuffer.int.reverseByteOrder(),
+                                        redOffset,
+                                        redLength,
+                                        greenOffset,
+                                        greenLength,
+                                        blueOffset,
+                                        blueLength,
+                                        alphaOffset,
+                                        alphaLength
+                                    )
+                                    it.raster.setDataElements(x, y, bytes)
+                                }
+                            }
+                        }
+                }
+            }
+            else -> throw UnsupportedOperationException("BufferedImageScreenCaptureAdapter only works with 16 and 32 bit images")
         }
-        return bufferedImage
     }
 
     private fun createOrReuseBufferedImage(
         colorSpace: ColorSpace?,
         width: Int,
-        height: Int
+        height: Int,
+        type: Int
     ): BufferedImage {
         val bufferedImage = when (val profileName = colorSpace?.getProfileName()) {
             null -> {
@@ -93,15 +110,15 @@ class BufferedImageScreenCaptureAdapter(
                 if (localRecycledImage != null &&
                     localRecycledImage.width == width &&
                     localRecycledImage.height == height &&
-                    localRecycledImage.type == BufferedImage.TYPE_INT_ARGB
+                    localRecycledImage.type == type
                 ) {
                     localRecycledImage
                 } else {
-                    BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB)
+                    BufferedImage(width, height, type)
                 }
             }
             else -> {
-                val colorModel = colorModelFactory.get(profileName)
+                val colorModel = colorModelFactory.get(profileName, type)
                 val localRecycledImage = recycledImage
                 if (localRecycledImage != null &&
                     localRecycledImage.colorModel == colorModel &&
@@ -117,9 +134,5 @@ class BufferedImageScreenCaptureAdapter(
         }
         recycledImage = bufferedImage
         return bufferedImage
-    }
-
-    private inline fun getMask(length: Int): Int {
-        return (1 shl length) - 1
     }
 }

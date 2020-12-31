@@ -16,6 +16,7 @@
 
 package com.malinskiy.adam.request.sync
 
+import com.malinskiy.adam.screencapture.Color
 import com.malinskiy.adam.screencapture.ColorModelFactory
 import com.malinskiy.adam.screencapture.ColorSpace
 import java.awt.image.BufferedImage
@@ -39,51 +40,43 @@ data class RawImage(
     val buffer: ByteArray
 ) {
     fun getARGB(index: Int): Int {
-        var value: Int
-        val r: Int
-        val g: Int
-        val b: Int
-        val a: Int
-        when (bitsPerPixel) {
+        return when (bitsPerPixel) {
             16 -> {
-                value = buffer[index].toInt() and 0x00FF
-                value = value or (buffer[index + 1].toInt() shl 8 and 0x0FF00)
-                // RGB565 to RGB888
-                // Multiply by 255/31 to convert from 5 bits (31 max) to 8 bits (255)
-                r = (value.ushr(11) and 0x1f) * 255 / 31
-                g = (value.ushr(5) and 0x3f) * 255 / 63
-                b = (value and 0x1f) * 255 / 31
-                a = 0xFF // force alpha to opaque if there's no alpha value in the framebuffer.
+                Color.RGB565_2BYTE.toARGB8888_INT(buffer[index], buffer[index + 1])
             }
             32 -> {
-                value = buffer[index].toInt() and 0x00FF
-                value = value or (buffer[index + 1].toInt() and 0x00FF shl 8)
-                value = value or (buffer[index + 2].toInt() and 0x00FF shl 16)
-                value = value or (buffer[index + 3].toInt() and 0x00FF shl 24)
-                r = value.ushr(redOffset) and getMask(redLength) shl 8 - redLength
-                g = value.ushr(greenOffset) and getMask(greenLength) shl 8 - greenLength
-                b = value.ushr(blueOffset) and getMask(blueLength) shl 8 - blueLength
-                a = value.ushr(alphaOffset) and getMask(alphaLength) shl 8 - alphaLength
+                val value = (buffer[index].toInt() and 0x00FF) or
+                        (buffer[index + 1].toInt() and 0x00FF shl 8) or
+                        (buffer[index + 2].toInt() and 0x00FF shl 16) or
+                        (buffer[index + 3].toInt() and 0x00FF shl 24)
+                Color.ARGB_INT.toARGB8888_INT(
+                    value = value,
+                    redOffset = redOffset,
+                    redLength = redLength,
+                    greenOffset = greenOffset,
+                    greenLength = greenLength,
+                    blueOffset = blueOffset,
+                    blueLength = blueLength,
+                    alphaOffset = alphaOffset,
+                    alphaLength = alphaLength
+                )
             }
             else -> {
                 throw UnsupportedOperationException("RawImage.getARGB(int) only works in 16 and 32 bit mode.")
             }
         }
-
-        return a shl 24 or (r shl 16) or (g shl 8) or b
     }
 
-    private fun getMask(length: Int): Int {
-        return (1 shl length) - 1
-    }
-
+    /**
+     * @return TYPE_INT_ARGB buffered image
+     */
     fun toBufferedImage(): BufferedImage {
         val bufferedImage = when (val profileName = colorSpace?.getProfileName()) {
             null -> {
                 BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB)
             }
             else -> {
-                val colorModel = ColorModelFactory().get(profileName)
+                val colorModel = ColorModelFactory().get(profileName, BufferedImage.TYPE_INT_ARGB)
                 val raster = colorModel.createCompatibleWritableRaster(width, height)
                 BufferedImage(colorModel, raster, colorModel.isAlphaPremultiplied, null)
             }
