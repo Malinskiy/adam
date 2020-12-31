@@ -17,10 +17,15 @@
 package com.malinskiy.adam.integration
 
 import assertk.assertThat
+import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
+import com.malinskiy.adam.request.shell.v2.ChanneledShellCommandRequest
+import com.malinskiy.adam.request.shell.v2.ShellCommandInputChunk
 import com.malinskiy.adam.request.shell.v2.ShellV2CommandRequest
 import com.malinskiy.adam.request.sync.Feature
 import com.malinskiy.adam.rule.AdbDeviceRule
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
@@ -36,5 +41,36 @@ class ShellV2E2ETest {
         assertThat(result.exitCode).isEqualTo(17)
         assertThat(result.stdout).isEqualTo("foo\n")
         assertThat(result.stderr).isEqualTo("bar\n")
+    }
+
+    @Test
+    fun testChanneled() = runBlocking {
+        val stdio = Channel<ShellCommandInputChunk>()
+        val receiveChannel = adbRule.adb.execute(ChanneledShellCommandRequest("cat", stdio), GlobalScope, adbRule.deviceSerial)
+        stdio.send(
+            ShellCommandInputChunk(
+                stdin = "cafebabe"
+            )
+        )
+
+        stdio.send(
+            ShellCommandInputChunk(
+                close = true
+            )
+        )
+
+        val stdoutBuilder = StringBuilder()
+        val stderrBuilder = StringBuilder()
+        var exitCode: Int = 1
+        for (i in receiveChannel) {
+            i.stdout?.let { stdoutBuilder.append(it) }
+            i.stderr?.let { stderrBuilder.append(it) }
+            i.exitCode?.let { exitCode = it }
+        }
+
+        assertThat(stdoutBuilder.toString()).isEqualTo("cafebabe")
+        assertThat(stderrBuilder.toString()).isEmpty()
+        assertThat(exitCode).isEqualTo(0)
+
     }
 }

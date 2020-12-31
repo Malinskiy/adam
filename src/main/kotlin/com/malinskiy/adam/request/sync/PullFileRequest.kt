@@ -35,7 +35,7 @@ class PullFileRequest(
     val remotePath: String,
     val local: File,
     coroutineContext: CoroutineContext = Dispatchers.IO
-) : AsyncChannelRequest<Double>() {
+) : AsyncChannelRequest<Double, Unit>() {
 
     val fileWriteChannel = local.writeChannel(coroutineContext = coroutineContext)
     var totalBytes = 1
@@ -85,7 +85,7 @@ class PullFileRequest(
     private val headerBuffer = ByteArray(8)
     private val dataBuffer = ByteArray(Const.MAX_FILE_PACKET_LENGTH)
 
-    override suspend fun readElement(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel): Double {
+    override suspend fun readElement(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel): Double? {
         readChannel.readFully(headerBuffer, 0, 8)
 
         val header = headerBuffer.copyOfRange(0, 4)
@@ -130,4 +130,6 @@ class PullFileRequest(
         val bytes = remotePath.toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
         return bytes.size <= Const.MAX_REMOTE_PATH_LENGTH
     }
+
+    override suspend fun writeElement(element: Unit, readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel) = Unit
 }

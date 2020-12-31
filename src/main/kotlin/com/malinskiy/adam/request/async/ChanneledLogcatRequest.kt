@@ -16,6 +16,7 @@
 
 package com.malinskiy.adam.request.async
 
+import com.malinskiy.adam.request.shell.v1.ChanneledShellCommandRequest
 import java.time.Instant
 
 class ChanneledLogcatRequest(

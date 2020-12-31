@@ -37,6 +37,16 @@ enum class MessageType {
      */
     INVALID;
 
+    fun toValue() = when (this) {
+        STDIN -> 0
+        STDOUT -> 1
+        STDERR -> 2
+        EXIT -> 3
+        CLOSE_STDIN -> 4
+        WINDOW_SIZE_CHANGE -> 5
+        INVALID -> 255
+    }
+
     companion object {
         fun of(value: Int) = when (value) {
             0 -> STDIN

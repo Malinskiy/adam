@@ -70,7 +70,7 @@ class AndroidDebugBridgeClient(
         }
     }
 
-    fun <T : Any?> execute(request: AsyncChannelRequest<T>, scope: CoroutineScope, serial: String? = null): ReceiveChannel<T> {
+    fun <T : Any?, I : Any?> execute(request: AsyncChannelRequest<T, I>, scope: CoroutineScope, serial: String? = null): ReceiveChannel<T> {
         if (!request.validate()) {
             throw RequestValidationException("Request ${request.javaClass.simpleName} did not pass validation")
         }
@@ -78,6 +78,7 @@ class AndroidDebugBridgeClient(
             socketFactory.tcp(socketAddress).use { socket ->
                 val readChannel = socket.openReadChannel().toAndroidChannel()
                 var writeChannel: AndroidWriteChannel? = null
+                var backChannel = request.channel
 
                 try {
                     writeChannel = socket.openWriteChannel(autoFlush = true).toAndroidChannel()
@@ -88,11 +89,20 @@ class AndroidDebugBridgeClient(
                     request.handshake(readChannel, writeChannel)
 
                     while (true) {
-                        if (isClosedForSend || readChannel.isClosedForRead || writeChannel.isClosedForWrite) {
+                        if (isClosedForSend ||
+                            readChannel.isClosedForRead ||
+                            writeChannel.isClosedForWrite ||
+                            request.channel?.isClosedForReceive == true
+                        ) {
                             break
                         }
-                        val element = request.readElement(readChannel, writeChannel)
-                        send(element)
+                        request.readElement(readChannel, writeChannel)?.let {
+                            send(it)
+                        }
+
+                        backChannel?.poll()?.let {
+                            request.writeElement(it, readChannel, writeChannel)
+                        }
                     }
                 } finally {
                     try {

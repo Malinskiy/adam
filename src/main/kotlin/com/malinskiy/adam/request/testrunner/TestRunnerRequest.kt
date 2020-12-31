@@ -34,10 +34,10 @@ class TestRunnerRequest(
     private val abi: String? = null,
     private val profilingOutputPath: String? = null,
     private val outputLogPath: String? = null
-) : AsyncChannelRequest<String>() {
+) : AsyncChannelRequest<String, Unit>() {
     private val buffer = ByteArray(Const.MAX_PACKET_LENGTH)
 
-    override suspend fun readElement(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel): String {
+    override suspend fun readElement(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel): String? {
         val available = readChannel.readAvailable(buffer, 0, Const.MAX_PACKET_LENGTH)
 
         return when {
@@ -47,9 +47,9 @@ class TestRunnerRequest(
             available < 0 -> {
                 readChannel.cancel(null)
                 writeChannel.close(null)
-                return ""
+                return null
             }
-            else -> ""
+            else -> null
         }
     }
 
@@ -86,4 +86,6 @@ class TestRunnerRequest(
 
         append(" $testPackage/$runnerClass")
     }.toString())
+
+    override suspend fun writeElement(element: Unit, readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel) = Unit
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 Anton Malinskiy
+ * Copyright (C) 2020 Anton Malinskiy
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,19 +14,24 @@
  * limitations under the License.
  */
 
-package com.malinskiy.adam.request.async
+package com.malinskiy.adam.request.shell.v1
 
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.request.NonSpecifiedTarget
 import com.malinskiy.adam.request.Target
+import com.malinskiy.adam.request.async.AsyncChannelRequest
 import com.malinskiy.adam.transport.AndroidReadChannel
 import com.malinskiy.adam.transport.AndroidWriteChannel
 import kotlinx.coroutines.delay
 
-open class ChanneledShellCommandRequest(val cmd: String, target: Target = NonSpecifiedTarget) : AsyncChannelRequest<String>(target) {
+open class ChanneledShellCommandRequest(
+    val cmd: String,
+    target: Target = NonSpecifiedTarget
+) : AsyncChannelRequest<String, Unit>(target = target) {
+
     val data = ByteArray(Const.MAX_PACKET_LENGTH)
 
-    override suspend fun readElement(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel): String {
+    override suspend fun readElement(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel): String? {
         while (readChannel.availableForRead == 0) {
             if (readChannel.isClosedForRead || writeChannel.isClosedForWrite) return ""
             delay(Const.READ_DELAY)
@@ -35,9 +40,10 @@ open class ChanneledShellCommandRequest(val cmd: String, target: Target = NonSpe
         val count = readChannel.readAvailable(data, 0, Const.MAX_PACKET_LENGTH)
         return when {
             count > 0 -> String(data, 0, count, Const.DEFAULT_TRANSPORT_ENCODING)
-            else -> return ""
+            else -> return null
         }
     }
 
     override fun serialize() = createBaseRequest("shell:$cmd")
+    override suspend fun writeElement(element: Unit, readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel) = Unit
 }

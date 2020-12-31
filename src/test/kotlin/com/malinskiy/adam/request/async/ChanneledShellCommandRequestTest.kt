@@ -20,8 +20,9 @@ import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.fail
 import com.malinskiy.adam.Const
+import com.malinskiy.adam.request.shell.v1.ChanneledShellCommandRequest
 import com.malinskiy.adam.server.AndroidDebugBridgeServer
-import io.ktor.utils.io.close
+import io.ktor.utils.io.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.receiveOrNull

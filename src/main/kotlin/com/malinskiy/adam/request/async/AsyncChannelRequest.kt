@@ -21,13 +21,27 @@ import com.malinskiy.adam.request.Request
 import com.malinskiy.adam.request.Target
 import com.malinskiy.adam.transport.AndroidReadChannel
 import com.malinskiy.adam.transport.AndroidWriteChannel
+import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.channels.SendChannel
 
-abstract class AsyncChannelRequest<T : Any?>(target: Target = NonSpecifiedTarget) : Request(target) {
+/**
+ * Read and write are called in sequence, hence you have to give the control flow back if you want
+ * cooperative multitasking to happen
+ */
+abstract class AsyncChannelRequest<T : Any?, I : Any?>(
+    val channel: ReceiveChannel<I>? = null,
+    target: Target = NonSpecifiedTarget
+) : Request(target) {
+
     /**
      * Called after the initial OKAY confirmation
      */
-    abstract suspend fun readElement(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel): T
+    abstract suspend fun readElement(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel): T?
+
+    /**
+     * Called after each readElement
+     */
+    abstract suspend fun writeElement(element: I, readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel)
 
     /**
      * Optionally send a message

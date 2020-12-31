@@ -34,7 +34,7 @@ class PushFileRequest(
     val remotePath: String,
     val mode: String = "0644",
     coroutineContext: CoroutineContext = Dispatchers.IO
-) : AsyncChannelRequest<Double>() {
+) : AsyncChannelRequest<Double, Unit>() {
 
     val fileReadChannel = local.readChannel(coroutineContext = coroutineContext)
     val buffer = ByteArray(8 + Const.MAX_FILE_PACKET_LENGTH)
@@ -61,7 +61,7 @@ class PushFileRequest(
         writeChannel.write(cmd)
     }
 
-    override suspend fun readElement(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel): Double {
+    override suspend fun readElement(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel): Double? {
         val available = fileReadChannel.readAvailable(buffer, 8, Const.MAX_FILE_PACKET_LENGTH)
         return when {
             available < 0 -> {
@@ -99,4 +99,6 @@ class PushFileRequest(
         val bytes = remotePath.toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
         return bytes.size <= Const.MAX_REMOTE_PATH_LENGTH
     }
+
+    override suspend fun writeElement(element: Unit, readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel) = Unit
 }

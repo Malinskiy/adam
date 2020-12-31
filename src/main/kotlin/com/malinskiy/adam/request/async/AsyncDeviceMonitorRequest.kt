@@ -24,8 +24,8 @@ import com.malinskiy.adam.transport.AndroidReadChannel
 import com.malinskiy.adam.transport.AndroidWriteChannel
 import java.nio.ByteBuffer
 
-class AsyncDeviceMonitorRequest : AsyncChannelRequest<List<Device>>(target = HostTarget) {
-    override suspend fun readElement(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel): List<Device> {
+class AsyncDeviceMonitorRequest : AsyncChannelRequest<List<Device>, Unit>(target = HostTarget) {
+    override suspend fun readElement(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel): List<Device>? {
         val sizeBuffer: ByteBuffer = ByteBuffer.allocate(4)
         readChannel.readFully(sizeBuffer)
         sizeBuffer.rewind()
@@ -49,4 +49,5 @@ class AsyncDeviceMonitorRequest : AsyncChannelRequest<List<Device>>(target = Hos
     }
 
     override fun serialize() = createBaseRequest("track-devices")
+    override suspend fun writeElement(element: Unit, readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel) = Unit
 }

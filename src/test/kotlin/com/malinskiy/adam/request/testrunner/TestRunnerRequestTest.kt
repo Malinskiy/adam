@@ -21,10 +21,7 @@ import assertk.assertions.isEqualTo
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.extension.toAndroidChannel
 import com.malinskiy.adam.server.AndroidDebugBridgeServer
-import io.ktor.utils.io.ByteChannel
-import io.ktor.utils.io.ByteReadChannel
-import io.ktor.utils.io.ByteWriteChannel
-import io.ktor.utils.io.close
+import io.ktor.utils.io.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.receiveOrNull
@@ -113,7 +110,7 @@ class TestRunnerRequestTest : CoroutineScope {
                 (readChannel as ByteReadChannel).toAndroidChannel(),
                 (writeChannel as ByteWriteChannel).toAndroidChannel()
             )
-            assertThat(readElement).isEqualTo("")
+            assertThat(readElement).isEqualTo(null)
         }
     }
 
