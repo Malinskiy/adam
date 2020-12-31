@@ -77,7 +77,7 @@ class BufferedImageScreenCaptureAdapter(
                         .also {
                             for (y in 0 until height) {
                                 for (x in 0 until width) {
-                                    val bytes = Color.ARGB_INT.toBGR_3BYTE(
+                                    val bytes: ByteArray = Color.ARGB_INT.toBGR_3BYTE(
                                         imageBuffer.int.reverseByteOrder(),
                                         redOffset,
                                         redLength,
@@ -94,7 +94,7 @@ class BufferedImageScreenCaptureAdapter(
                         }
                 }
             }
-            else -> throw UnsupportedOperationException("BufferedImageScreenCaptureAdapter only works with 16 and 32 bit image mode")
+            else -> throw UnsupportedOperationException("BufferedImageScreenCaptureAdapter only works with 16 and 32 bit images")
         }
     }
 
@@ -118,13 +118,12 @@ class BufferedImageScreenCaptureAdapter(
                 }
             }
             else -> {
-                val colorModel = colorModelFactory.get(profileName)
+                val colorModel = colorModelFactory.get(profileName, type)
                 val localRecycledImage = recycledImage
                 if (localRecycledImage != null &&
                     localRecycledImage.colorModel == colorModel &&
                     localRecycledImage.width == width &&
-                    localRecycledImage.height == height &&
-                    localRecycledImage.type == type
+                    localRecycledImage.height == height
                 ) {
                     localRecycledImage
                 } else {

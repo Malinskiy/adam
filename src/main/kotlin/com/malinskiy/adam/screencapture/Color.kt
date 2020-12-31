@@ -31,17 +31,6 @@ object Color {
 
             return a shl 24 or (r shl 16) or (g shl 8) or b
         }
-
-        fun toBGR_3BYTE(first: Byte, second: Byte): ByteArray {
-            var value = first.toInt() and 0x00FF
-            value = value or (second.toInt() shl 8 and 0x0FF00)
-            // Multiply by 255/31 to convert from 5 bits (31 max) to 8 bits (255)
-            val r = (value.ushr(11) and 0x1f) * 255 / 31
-            val g = (value.ushr(5) and 0x3f) * 255 / 63
-            val b = (value and 0x1f) * 255 / 31
-            return byteArrayOf(b.toByte(), g.toByte(), r.toByte())
-        }
-
     }
 
     object ARGB_INT {
@@ -75,10 +64,10 @@ object Color {
             alphaOffset: Int,
             alphaLength: Int
         ): ByteArray {
-            val r = value.ushr(redOffset) and getMask(redLength) shl 8 - redLength
-            val g = value.ushr(greenOffset) and getMask(greenLength) shl 8 - greenLength
-            val b = value.ushr(blueOffset) and getMask(blueLength) shl 8 - blueLength
-            val a = value.ushr(alphaOffset) and getMask(alphaLength) shl 8 - alphaLength
+            val r = (value.ushr(redOffset) and getMask(redLength)) xshl (8 - redLength)
+            val g = (value.ushr(greenOffset) and getMask(greenLength)) xshl (8 - greenLength)
+            val b = (value.ushr(blueOffset) and getMask(blueLength)) xshl (8 - blueLength)
+            val a = (value.ushr(alphaOffset) and getMask(alphaLength)) xshl (8 - alphaLength)
 
             return if (a == 255) {
                 byteArrayOf(r.toByte(), g.toByte(), b.toByte())
@@ -93,6 +82,14 @@ object Color {
         }
     }
 
+    private infix fun Int.xshl(bitCount: Int): Int {
+        return when {
+            bitCount > 0 -> (this shl bitCount) + getMask(bitCount)
+            bitCount < 0 -> this shr -bitCount
+            else -> this
+        }
+    }
+
     private inline fun getMask(length: Int): Int {
         return when (length) {
             1 -> 0b1
@@ -103,6 +100,8 @@ object Color {
             6 -> 0b111111
             7 -> 0b1111111
             8 -> 0b11111111
+            9 -> 0x1FF
+            10 -> 0x3FF
             else -> throw RuntimeException("Unexpected mask length $length")
         }
     }

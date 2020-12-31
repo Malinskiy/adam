@@ -76,7 +76,7 @@ data class RawImage(
                 BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB)
             }
             else -> {
-                val colorModel = ColorModelFactory().get(profileName)
+                val colorModel = ColorModelFactory().get(profileName, BufferedImage.TYPE_INT_ARGB)
                 val raster = colorModel.createCompatibleWritableRaster(width, height)
                 BufferedImage(colorModel, raster, colorModel.isAlphaPremultiplied, null)
             }

@@ -39,7 +39,7 @@ abstract class ScreenCaptureAdapter<T>(
                 it.rewind()
             }
         } else {
-            ByteBuffer.allocate(size)
+            ByteBuffer.allocate(size).also { buffer = it }
         }
 
         channel.readFully(imageBuffer)
