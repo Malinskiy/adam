@@ -24,6 +24,7 @@ import com.malinskiy.adam.request.device.ListDevicesRequest
 import com.malinskiy.adam.request.forwarding.*
 import com.malinskiy.adam.request.framebuffer.RawImageScreenCaptureAdapter
 import com.malinskiy.adam.request.framebuffer.ScreenCaptureRequest
+import com.malinskiy.adam.request.misc.FetchHostFeaturesRequest
 import com.malinskiy.adam.request.misc.GetAdbServerVersionRequest
 import com.malinskiy.adam.request.prop.GetPropRequest
 import com.malinskiy.adam.request.prop.GetSinglePropRequest
@@ -233,5 +234,11 @@ class E2ETest {
     fun testFetchDeviceFeatures() = runBlocking {
         val features = adbRule.adb.execute(FetchDeviceFeaturesRequest(adbRule.deviceSerial))
         //No exception means it's working, but every emulator has a different feature set
+    }
+
+    @Test
+    fun testFetchHostFeatures() = runBlocking {
+        adbRule.adb.execute(FetchHostFeaturesRequest()).let { println(it) }
+        //No exception means it's working
     }
 }
