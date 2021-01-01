@@ -28,6 +28,10 @@ import com.malinskiy.adam.request.misc.FetchHostFeaturesRequest
 import com.malinskiy.adam.request.misc.GetAdbServerVersionRequest
 import com.malinskiy.adam.request.prop.GetPropRequest
 import com.malinskiy.adam.request.prop.GetSinglePropRequest
+import com.malinskiy.adam.request.reverse.ListReversePortForwardsRequest
+import com.malinskiy.adam.request.reverse.RemoveAllReversePortForwardsRequest
+import com.malinskiy.adam.request.reverse.RemoveReversePortForwardRequest
+import com.malinskiy.adam.request.reverse.ReversePortForwardRequest
 import com.malinskiy.adam.request.shell.v1.ShellCommandRequest
 import com.malinskiy.adam.request.shell.v1.ShellCommandResult
 import com.malinskiy.adam.rule.AdbDeviceRule
@@ -198,6 +202,31 @@ class E2ETest {
 
             assertThat(portForwards).isEmpty()
         }
+    }
+
+    @Test
+    fun testReversePortForward() = runBlocking {
+        adbRule.adb.execute(RemoveAllReversePortForwardsRequest(), adbRule.deviceSerial)
+
+        assertThat(adbRule.adb.execute(ListReversePortForwardsRequest(), adbRule.deviceSerial)).isEmpty()
+
+        adbRule.adb.execute(
+            ReversePortForwardRequest(RemoteTcpPortSpec(12043), LocalTcpPortSpec(12043)),
+            adbRule.deviceSerial
+        )
+
+        val list = adbRule.adb.execute(ListReversePortForwardsRequest(), adbRule.deviceSerial)
+        assertThat(list).hasSize(1)
+        //Host serial is of form "host-$tid", we ignore it here for equality check
+        assertThat(list.first().localSpec).isEqualTo(RemoteTcpPortSpec(12043))
+        assertThat(list.first().remoteSpec).isEqualTo(LocalTcpPortSpec(12043))
+
+        adbRule.adb.execute(
+            RemoveReversePortForwardRequest(RemoteTcpPortSpec(12043)),
+            adbRule.deviceSerial
+        )
+
+        assertThat(adbRule.adb.execute(ListReversePortForwardsRequest(), adbRule.deviceSerial)).isEmpty()
     }
 
     @Test

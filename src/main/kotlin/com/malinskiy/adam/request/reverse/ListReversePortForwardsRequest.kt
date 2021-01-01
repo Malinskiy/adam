@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 Anton Malinskiy
+ * Copyright (C) 2021 Anton Malinskiy
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,17 +14,22 @@
  * limitations under the License.
  */
 
-package com.malinskiy.adam.request.forwarding
+package com.malinskiy.adam.request.reverse
 
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.request.ComplexRequest
-import com.malinskiy.adam.request.SerialTarget
+import com.malinskiy.adam.request.NonSpecifiedTarget
+import com.malinskiy.adam.request.forwarding.LocalPortSpec
+import com.malinskiy.adam.request.forwarding.RemotePortSpec
 import com.malinskiy.adam.transport.AndroidReadChannel
 import com.malinskiy.adam.transport.AndroidWriteChannel
 import java.nio.ByteBuffer
 
-class ListPortForwardsRequest(serial: String) : ComplexRequest<List<PortForwardingRule>>(target = SerialTarget(serial)) {
-    override suspend fun readElement(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel): List<PortForwardingRule> {
+/**
+ * Doesn't work with SerialTarget, have to use the serial as a parameter for the execute method
+ */
+class ListReversePortForwardsRequest : ComplexRequest<List<ReversePortForwardingRule>>(target = NonSpecifiedTarget) {
+    override suspend fun readElement(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel): List<ReversePortForwardingRule> {
         val sizeBuffer: ByteBuffer = ByteBuffer.allocate(4)
         readChannel.readFully(sizeBuffer)
         val size = String(sizeBuffer.array(), Const.DEFAULT_TRANSPORT_ENCODING).toInt(radix = 16)
@@ -35,10 +40,10 @@ class ListPortForwardsRequest(serial: String) : ComplexRequest<List<PortForwardi
         return payload.lines().mapNotNull { line ->
             if (line.isNotEmpty()) {
                 val split = line.split(" ")
-                PortForwardingRule(
+                ReversePortForwardingRule(
                     serial = split[0],
-                    localSpec = LocalPortSpec.parse(split[1]),
-                    remoteSpec = RemotePortSpec.parse(split[2])
+                    localSpec = RemotePortSpec.parse(split[1]),
+                    remoteSpec = LocalPortSpec.parse(split[2])
                 )
             } else {
                 null
@@ -46,6 +51,6 @@ class ListPortForwardsRequest(serial: String) : ComplexRequest<List<PortForwardi
         }
     }
 
-    override fun serialize() = createBaseRequest("list-forward")
+    override fun serialize() = createBaseRequest("reverse:list-forward")
 }
 
