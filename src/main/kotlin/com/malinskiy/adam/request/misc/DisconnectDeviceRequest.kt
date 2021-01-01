@@ -25,24 +25,31 @@ import java.nio.ByteBuffer
 
 /**
  * Disconnects a device previously connected using ConnectDeviceRequest
+ *
+ * @param host target device that will be disconnected. if null then disconnects all devices
  */
 class DisconnectDeviceRequest(
-    val host: String,
+    val host: String? = null,
     val port: Int = 5555
 ) : ComplexRequest<String>(target = HostTarget) {
 
-    override fun serialize() = createBaseRequest("disconnect:$host:$port")
+    override fun serialize() = createBaseRequest(
+        "disconnect:${
+            if (host == null) {
+                ""
+            } else {
+                "$host:$port"
+            }
+        }"
+    )
 
     override suspend fun readElement(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel): String {
         val sizeBuffer: ByteBuffer = ByteBuffer.allocate(4)
         readChannel.readFully(sizeBuffer)
-        sizeBuffer.rewind()
-
         val size = String(sizeBuffer.array(), Const.DEFAULT_TRANSPORT_ENCODING).toInt(radix = 16)
 
         val payloadBuffer = ByteBuffer.allocate(size)
         readChannel.readFully(payloadBuffer)
-        payloadBuffer.rewind()
         return String(payloadBuffer.array(), Const.DEFAULT_TRANSPORT_ENCODING)
     }
 }

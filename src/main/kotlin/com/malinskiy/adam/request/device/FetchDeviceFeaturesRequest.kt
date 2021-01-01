@@ -32,13 +32,10 @@ class FetchDeviceFeaturesRequest(serial: String) : ComplexRequest<List<Feature>>
     override suspend fun readElement(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel): List<Feature> {
         val sizeBuffer: ByteBuffer = ByteBuffer.allocate(4)
         readChannel.readFully(sizeBuffer)
-        sizeBuffer.rewind()
-
         val size = String(sizeBuffer.array(), Const.DEFAULT_TRANSPORT_ENCODING).toInt(radix = 16)
 
         val payloadBuffer = ByteBuffer.allocate(size)
         readChannel.readFully(payloadBuffer)
-        payloadBuffer.rewind()
         return String(payloadBuffer.array(), Const.DEFAULT_TRANSPORT_ENCODING).split(',').mapNotNull { Feature.of(it) }
     }
 }

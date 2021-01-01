@@ -38,6 +38,12 @@ class DisconnectDeviceRequestTest {
     }
 
     @Test
+    fun testSerializeDisconnectAll() {
+        val bytes = DisconnectDeviceRequest().serialize()
+        assertThat(bytes.toRequestString()).isEqualTo("0010host:disconnect:")
+    }
+
+    @Test
     fun testReturnsResultString() {
         runBlocking {
             val server = AndroidDebugBridgeServer()

@@ -27,13 +27,10 @@ class AsyncDeviceMonitorRequest : AsyncChannelRequest<List<Device>, Unit>(target
     override suspend fun readElement(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel): List<Device>? {
         val sizeBuffer: ByteBuffer = ByteBuffer.allocate(4)
         readChannel.readFully(sizeBuffer)
-        sizeBuffer.rewind()
-
         val size = String(sizeBuffer.array(), Const.DEFAULT_TRANSPORT_ENCODING).toInt(radix = 16)
 
         val payloadBuffer = ByteBuffer.allocate(size)
         readChannel.readFully(payloadBuffer)
-        payloadBuffer.rewind()
         val payload = String(payloadBuffer.array(), Const.DEFAULT_TRANSPORT_ENCODING)
         return payload.lines()
             .filter { it.isNotEmpty() }
