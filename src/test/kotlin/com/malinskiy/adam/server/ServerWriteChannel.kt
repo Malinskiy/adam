@@ -21,7 +21,7 @@ import io.ktor.utils.io.*
 import java.nio.ByteBuffer
 
 class ServerWriteChannel(private val delegate: ByteWriteChannel) : ByteWriteChannel by delegate {
-    suspend fun write(request: ByteArray, length: Int? = null) {
+    private suspend fun write(request: ByteArray, length: Int? = null) {
         val requestBuffer = ByteBuffer.wrap(request, 0, length ?: request.size)
         delegate.writeFully(requestBuffer)
     }
@@ -56,5 +56,22 @@ class ServerWriteChannel(private val delegate: ByteWriteChannel) : ByteWriteChan
         writeIntLittleEndian(lastModified)
         writeIntLittleEndian(name.length)
         writeStringUtf8(name)
+    }
+
+    suspend fun respondStringV1(message: String) {
+        val lengthString = message.length.toString(16)
+        val prepend = 4 - lengthString.length
+        assert(prepend >= 0)
+        var size = ""
+        for (i in 0 until prepend) {
+            size += "0"
+        }
+        size += lengthString
+        writeFully(size.toByteArray(Const.DEFAULT_TRANSPORT_ENCODING))
+        writeFully(message.toByteArray(Const.DEFAULT_TRANSPORT_ENCODING))
+    }
+
+    suspend fun respondStringRaw(message: String) {
+        respond(message.toByteArray(Const.DEFAULT_TRANSPORT_ENCODING))
     }
 }

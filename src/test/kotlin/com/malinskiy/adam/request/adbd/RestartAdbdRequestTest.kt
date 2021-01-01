@@ -67,8 +67,7 @@ class RestartAdbdRequestTest {
                 assertThat(cmd).isEqualTo("root:")
                 output.respondOkay()
 
-                val message = "adbd cannot run as root in production builds"
-                output.respond(message.toByteArray(Const.DEFAULT_TRANSPORT_ENCODING))
+                output.respondStringRaw("adbd cannot run as root in production builds")
                 output.close()
             }
 
