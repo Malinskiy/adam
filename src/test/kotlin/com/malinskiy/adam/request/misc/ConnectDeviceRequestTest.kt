@@ -28,7 +28,7 @@ class ConnectDeviceRequestTest {
     @Test
     fun testSerialize() {
         val bytes = ConnectDeviceRequest("123.123.123.123").serialize()
-        assertThat(bytes.toRequestString()).isEqualTo("001Chost:connect:123.123.123.123")
+        assertThat(bytes.toRequestString()).isEqualTo("0021host:connect:123.123.123.123:5555")
     }
 
     @Test

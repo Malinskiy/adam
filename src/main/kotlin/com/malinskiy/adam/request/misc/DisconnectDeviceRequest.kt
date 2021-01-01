@@ -28,10 +28,10 @@ import java.nio.ByteBuffer
  */
 class DisconnectDeviceRequest(
     val host: String,
-    val port: Int? = null
+    val port: Int = 5555
 ) : ComplexRequest<String>(target = HostTarget) {
 
-    override fun serialize() = createBaseRequest("disconnect:$host${port?.let { ":$it" } ?: ""}")
+    override fun serialize() = createBaseRequest("disconnect:$host:$port")
 
     override suspend fun readElement(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel): String {
         val sizeBuffer: ByteBuffer = ByteBuffer.allocate(4)

@@ -28,7 +28,7 @@ class DisconnectDeviceRequestTest {
     @Test
     fun testSerialize() {
         val bytes = DisconnectDeviceRequest("123.123.123.123").serialize()
-        assertThat(bytes.toRequestString()).isEqualTo("001Fhost:disconnect:123.123.123.123")
+        assertThat(bytes.toRequestString()).isEqualTo("0024host:disconnect:123.123.123.123:5555")
     }
 
     @Test
