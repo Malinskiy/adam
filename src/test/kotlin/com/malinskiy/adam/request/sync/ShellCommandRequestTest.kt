@@ -39,7 +39,7 @@ class ShellCommandRequestTest {
 
                 val shellCmd = input.receiveCommand()
                 assertThat(shellCmd).isEqualTo("shell:xx;echo x$?")
-                output.respond(Const.Message.OKAY)
+                output.respondOkay()
 
                 val response = "something-somethingx1".toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
                 output.writeFully(response, 0, response.size)
