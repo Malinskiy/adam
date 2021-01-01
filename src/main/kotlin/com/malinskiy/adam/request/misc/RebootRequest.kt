@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 Anton Malinskiy
+ * Copyright (C) 2021 Anton Malinskiy
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,5 +29,7 @@ class RebootRequest(val mode: RebootMode = RebootMode.DEFAULT) : SynchronousRequ
 enum class RebootMode(val value: String) {
     DEFAULT(""),
     RECOVERY("recovery"),
-    BOOTLOADER("bootloader")
+    BOOTLOADER("bootloader"),
+    SIDELOAD("sideload"),
+    SIDELOAD_AUTO_REBOOT("sideload-auto-reboot")
 }
