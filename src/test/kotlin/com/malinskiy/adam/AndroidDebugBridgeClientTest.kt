@@ -21,7 +21,7 @@ import assertk.assertions.isEqualTo
 import com.malinskiy.adam.exception.RequestRejectedException
 import com.malinskiy.adam.exception.RequestValidationException
 import com.malinskiy.adam.request.ComplexRequest
-import com.malinskiy.adam.request.sync.ShellCommandRequest
+import com.malinskiy.adam.request.shell.v1.ShellCommandRequest
 import com.malinskiy.adam.server.AndroidDebugBridgeServer
 import com.malinskiy.adam.transport.AndroidReadChannel
 import com.malinskiy.adam.transport.AndroidWriteChannel

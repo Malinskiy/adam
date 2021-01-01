@@ -21,6 +21,7 @@ import assertk.assertions.isEqualTo
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.request.async.LogcatFilterSpec
 import com.malinskiy.adam.request.async.LogcatVerbosityLevel
+import com.malinskiy.adam.request.logcat.SyncLogcatRequest
 import org.junit.Test
 import java.time.Instant
 

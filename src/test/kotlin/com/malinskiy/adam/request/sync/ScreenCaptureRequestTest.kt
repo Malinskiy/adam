@@ -23,8 +23,9 @@ import com.github.romankh3.image.comparison.ImageComparisonUtil
 import com.github.romankh3.image.comparison.model.ImageComparisonResult
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.exception.UnsupportedImageProtocolException
-import com.malinskiy.adam.screencapture.BufferedImageScreenCaptureAdapter
-import com.malinskiy.adam.screencapture.RawImageScreenCaptureAdapter
+import com.malinskiy.adam.request.framebuffer.BufferedImageScreenCaptureAdapter
+import com.malinskiy.adam.request.framebuffer.RawImageScreenCaptureAdapter
+import com.malinskiy.adam.request.framebuffer.ScreenCaptureRequest
 import com.malinskiy.adam.server.AndroidDebugBridgeServer
 import io.ktor.utils.io.*
 import kotlinx.coroutines.runBlocking

@@ -20,6 +20,8 @@ import assertk.assertThat
 import assertk.assertions.containsExactly
 import assertk.assertions.isEqualTo
 import com.malinskiy.adam.Const
+import com.malinskiy.adam.request.sync.v1.FileStats
+import com.malinskiy.adam.request.sync.v1.ListFileRequest
 import com.malinskiy.adam.server.AndroidDebugBridgeServer
 import kotlinx.coroutines.runBlocking
 import org.junit.Test

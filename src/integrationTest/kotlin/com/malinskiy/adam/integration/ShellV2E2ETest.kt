@@ -19,10 +19,10 @@ package com.malinskiy.adam.integration
 import assertk.assertThat
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
+import com.malinskiy.adam.request.Feature
 import com.malinskiy.adam.request.shell.v2.ChanneledShellCommandRequest
 import com.malinskiy.adam.request.shell.v2.ShellCommandInputChunk
 import com.malinskiy.adam.request.shell.v2.ShellV2CommandRequest
-import com.malinskiy.adam.request.sync.Feature
 import com.malinskiy.adam.rule.AdbDeviceRule
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.channels.Channel

@@ -17,7 +17,7 @@
 package com.malinskiy.adam.request.testrunner
 
 import com.malinskiy.adam.Const
-import com.malinskiy.adam.request.async.AsyncChannelRequest
+import com.malinskiy.adam.request.AsyncChannelRequest
 import com.malinskiy.adam.transport.AndroidReadChannel
 import com.malinskiy.adam.transport.AndroidWriteChannel
 

@@ -20,10 +20,11 @@ import assertk.assertThat
 import assertk.assertions.containsExactly
 import assertk.assertions.isEqualTo
 import com.malinskiy.adam.Const
-import com.malinskiy.adam.request.devices.Device
-import com.malinskiy.adam.request.devices.DeviceState
+import com.malinskiy.adam.request.device.AsyncDeviceMonitorRequest
+import com.malinskiy.adam.request.device.Device
+import com.malinskiy.adam.request.device.DeviceState
 import com.malinskiy.adam.server.AndroidDebugBridgeServer
-import io.ktor.utils.io.close
+import io.ktor.utils.io.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.receiveOrNull

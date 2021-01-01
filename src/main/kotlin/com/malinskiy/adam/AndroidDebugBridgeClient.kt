@@ -21,9 +21,9 @@ import com.malinskiy.adam.exception.RequestValidationException
 import com.malinskiy.adam.extension.toAndroidChannel
 import com.malinskiy.adam.interactor.DiscoverAdbSocketInteractor
 import com.malinskiy.adam.log.AdamLogging
+import com.malinskiy.adam.request.AsyncChannelRequest
 import com.malinskiy.adam.request.ComplexRequest
-import com.malinskiy.adam.request.SetDeviceRequest
-import com.malinskiy.adam.request.async.AsyncChannelRequest
+import com.malinskiy.adam.request.misc.SetDeviceRequest
 import com.malinskiy.adam.transport.AndroidReadChannel
 import com.malinskiy.adam.transport.AndroidWriteChannel
 import com.malinskiy.adam.transport.KtorSocketFactory

@@ -16,7 +16,7 @@
 
 package com.malinskiy.adam.integration
 
-import com.malinskiy.adam.request.async.AsyncDeviceMonitorRequest
+import com.malinskiy.adam.request.device.AsyncDeviceMonitorRequest
 import com.malinskiy.adam.rule.AdbDeviceRule
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.runBlocking

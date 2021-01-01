@@ -21,6 +21,8 @@ import assertk.assertions.containsExactly
 import assertk.assertions.isEqualTo
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.extension.toAndroidChannel
+import com.malinskiy.adam.request.Feature
+import com.malinskiy.adam.request.device.FetchDeviceFeaturesRequest
 import io.ktor.utils.io.*
 import io.ktor.utils.io.core.*
 import kotlinx.coroutines.runBlocking

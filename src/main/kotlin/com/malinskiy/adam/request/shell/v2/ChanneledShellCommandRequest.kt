@@ -17,9 +17,9 @@
 package com.malinskiy.adam.request.shell.v2
 
 import com.malinskiy.adam.Const
+import com.malinskiy.adam.request.AsyncChannelRequest
 import com.malinskiy.adam.request.NonSpecifiedTarget
 import com.malinskiy.adam.request.Target
-import com.malinskiy.adam.request.async.AsyncChannelRequest
 import com.malinskiy.adam.transport.AndroidReadChannel
 import com.malinskiy.adam.transport.AndroidWriteChannel
 import io.ktor.utils.io.*

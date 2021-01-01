@@ -20,11 +20,11 @@ import assertk.assertThat
 import assertk.assertions.contains
 import assertk.assertions.isEqualTo
 import com.malinskiy.adam.extension.md5
-import com.malinskiy.adam.request.fsync.v1.ListFileRequest
-import com.malinskiy.adam.request.fsync.v1.PullFileRequest
-import com.malinskiy.adam.request.fsync.v1.PushFileRequest
-import com.malinskiy.adam.request.sync.ShellCommandRequest
-import com.malinskiy.adam.request.sync.StatFileRequest
+import com.malinskiy.adam.request.shell.v1.ShellCommandRequest
+import com.malinskiy.adam.request.sync.v1.ListFileRequest
+import com.malinskiy.adam.request.sync.v1.PullFileRequest
+import com.malinskiy.adam.request.sync.v1.PushFileRequest
+import com.malinskiy.adam.request.sync.v1.StatFileRequest
 import com.malinskiy.adam.rule.AdbDeviceRule
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.channels.receiveOrNull

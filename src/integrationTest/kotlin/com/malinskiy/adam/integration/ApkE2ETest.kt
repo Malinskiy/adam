@@ -19,11 +19,11 @@ package com.malinskiy.adam.integration
 import assertk.assertThat
 import assertk.assertions.contains
 import assertk.assertions.doesNotContain
-import com.malinskiy.adam.request.fsync.v1.PushFileRequest
-import com.malinskiy.adam.request.sync.InstallRemotePackageRequest
-import com.malinskiy.adam.request.sync.Package
-import com.malinskiy.adam.request.sync.PmListRequest
-import com.malinskiy.adam.request.sync.UninstallRemotePackageRequest
+import com.malinskiy.adam.request.`package`.InstallRemotePackageRequest
+import com.malinskiy.adam.request.`package`.Package
+import com.malinskiy.adam.request.`package`.PmListRequest
+import com.malinskiy.adam.request.`package`.UninstallRemotePackageRequest
+import com.malinskiy.adam.request.sync.v1.PushFileRequest
 import com.malinskiy.adam.rule.AdbDeviceRule
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.runBlocking

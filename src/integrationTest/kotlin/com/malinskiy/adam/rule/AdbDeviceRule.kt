@@ -18,12 +18,12 @@ package com.malinskiy.adam.rule
 
 import com.malinskiy.adam.AndroidDebugBridgeClientFactory
 import com.malinskiy.adam.interactor.StartAdbInteractor
-import com.malinskiy.adam.request.devices.Device
-import com.malinskiy.adam.request.devices.ListDevicesRequest
-import com.malinskiy.adam.request.sync.Feature
-import com.malinskiy.adam.request.sync.FetchDeviceFeaturesRequest
-import com.malinskiy.adam.request.sync.GetAdbServerVersionRequest
-import com.malinskiy.adam.request.sync.GetSinglePropRequest
+import com.malinskiy.adam.request.Feature
+import com.malinskiy.adam.request.device.Device
+import com.malinskiy.adam.request.device.FetchDeviceFeaturesRequest
+import com.malinskiy.adam.request.device.ListDevicesRequest
+import com.malinskiy.adam.request.misc.GetAdbServerVersionRequest
+import com.malinskiy.adam.request.prop.GetSinglePropRequest
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.runBlocking

@@ -19,7 +19,7 @@ package com.malinskiy.adam.request
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import com.malinskiy.adam.Const
-import com.malinskiy.adam.request.sync.GetSinglePropRequest
+import com.malinskiy.adam.request.prop.GetSinglePropRequest
 import com.malinskiy.adam.server.AndroidDebugBridgeServer
 import io.ktor.utils.io.*
 import kotlinx.coroutines.runBlocking

@@ -19,6 +19,7 @@ package com.malinskiy.adam.request.sync
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import com.malinskiy.adam.Const
+import com.malinskiy.adam.request.misc.GetAdbServerVersionRequest
 import com.malinskiy.adam.server.AndroidDebugBridgeServer
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
