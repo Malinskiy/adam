@@ -24,6 +24,8 @@ import com.malinskiy.adam.request.device.ListDevicesRequest
 import com.malinskiy.adam.request.forwarding.*
 import com.malinskiy.adam.request.framebuffer.RawImageScreenCaptureAdapter
 import com.malinskiy.adam.request.framebuffer.ScreenCaptureRequest
+import com.malinskiy.adam.request.mdns.ListMdnsServicesRequest
+import com.malinskiy.adam.request.mdns.MdnsCheckRequest
 import com.malinskiy.adam.request.misc.FetchHostFeaturesRequest
 import com.malinskiy.adam.request.misc.GetAdbServerVersionRequest
 import com.malinskiy.adam.request.prop.GetPropRequest
@@ -61,6 +63,12 @@ class E2ETest {
                 throw IOException("Failed to find png writer")
             }
         }
+    }
+
+    @Test
+    fun testMdns() = runBlocking {
+        adbRule.adb.execute(ListMdnsServicesRequest()).let { println(it) }
+        adbRule.adb.execute(MdnsCheckRequest()).let { println(it) }
     }
 
     @Test
