@@ -34,6 +34,7 @@ import com.malinskiy.adam.request.reverse.ListReversePortForwardsRequest
 import com.malinskiy.adam.request.reverse.RemoveAllReversePortForwardsRequest
 import com.malinskiy.adam.request.reverse.RemoveReversePortForwardRequest
 import com.malinskiy.adam.request.reverse.ReversePortForwardRequest
+import com.malinskiy.adam.request.security.SetDmVerityCheckingRequest
 import com.malinskiy.adam.request.shell.v1.ShellCommandRequest
 import com.malinskiy.adam.request.shell.v1.ShellCommandResult
 import com.malinskiy.adam.rule.AdbDeviceRule
@@ -50,6 +51,14 @@ class E2ETest {
     @Rule
     @JvmField
     val adbRule = AdbDeviceRule()
+
+    @Test
+    fun testSetDmVerityChecking() {
+        runBlocking {
+            val execute = adbRule.adb.execute(SetDmVerityCheckingRequest(false), adbRule.deviceSerial)
+            assertThat(execute).contains("verity cannot be disabled/enabled - USER build")
+        }
+    }
 
     @Test
     fun testScreenCapture() {
