@@ -41,7 +41,7 @@ import java.time.Duration
  * If device is not found - error
  * If device doesn't have required features - assumption failure
  */
-class AdbDeviceRule(vararg val requiredFeatures: Feature) : TestRule {
+class AdbDeviceRule(val deviceType: DeviceType = DeviceType.ANY, vararg val requiredFeatures: Feature) : TestRule {
     lateinit var deviceSerial: String
     val adb = AndroidDebugBridgeClientFactory().build()
     val initTimeout = Duration.ofSeconds(10)
@@ -68,9 +68,17 @@ class AdbDeviceRule(vararg val requiredFeatures: Feature) : TestRule {
     private suspend fun CoroutineScope.waitForDevice(): Device {
         while (isActive) {
             try {
-                for (device in adb.execute(ListDevicesRequest())) {
+                loop@ for (device in adb.execute(ListDevicesRequest())) {
                     val booted = adb.execute(GetSinglePropRequest("sys.boot_completed"), device.serial).isNotBlank()
                     if (!booted) continue
+
+                    when (deviceType) {
+                        DeviceType.EMULATOR -> {
+                            if (!device.serial.startsWith("emulator-")) {
+                                continue@loop
+                            }
+                        }
+                    }
 
                     Assume.assumeTrue(
                         "No compatible device found for features $requiredFeatures",

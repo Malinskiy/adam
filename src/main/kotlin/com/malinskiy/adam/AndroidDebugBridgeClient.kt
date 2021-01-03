@@ -23,6 +23,7 @@ import com.malinskiy.adam.interactor.DiscoverAdbSocketInteractor
 import com.malinskiy.adam.log.AdamLogging
 import com.malinskiy.adam.request.AsyncChannelRequest
 import com.malinskiy.adam.request.ComplexRequest
+import com.malinskiy.adam.request.emu.EmulatorCommandRequest
 import com.malinskiy.adam.request.misc.SetDeviceRequest
 import com.malinskiy.adam.transport.AndroidReadChannel
 import com.malinskiy.adam.transport.AndroidWriteChannel
@@ -113,6 +114,23 @@ class AndroidDebugBridgeClient(
                         log.debug(e) { "Exception during cleanup. Ignoring" }
                     }
                 }
+            }
+        }
+    }
+
+    suspend fun execute(request: EmulatorCommandRequest): String {
+        socketFactory.tcp(InetSocketAddress(request.hostname, request.port)).use { socket ->
+            var readChannel: ByteReadChannel? = null
+            var writeChannel: ByteWriteChannel? = null
+
+            try {
+                readChannel = socket.openReadChannel()
+                writeChannel = socket.openWriteChannel(true)
+
+                return request.process(readChannel, writeChannel)
+            } finally {
+                readChannel?.cancel()
+                writeChannel?.close()
             }
         }
     }

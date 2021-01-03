@@ -24,6 +24,7 @@ import com.malinskiy.adam.request.shell.v2.ChanneledShellCommandRequest
 import com.malinskiy.adam.request.shell.v2.ShellCommandInputChunk
 import com.malinskiy.adam.request.shell.v2.ShellV2CommandRequest
 import com.malinskiy.adam.rule.AdbDeviceRule
+import com.malinskiy.adam.rule.DeviceType
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.runBlocking
@@ -33,7 +34,7 @@ import org.junit.Test
 class ShellV2E2ETest {
     @Rule
     @JvmField
-    val adbRule = AdbDeviceRule(Feature.SHELL_V2)
+    val adbRule = AdbDeviceRule(DeviceType.ANY, Feature.SHELL_V2)
 
     @Test
     fun testDefault() = runBlocking {
