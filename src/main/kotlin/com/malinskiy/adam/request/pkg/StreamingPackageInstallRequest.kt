@@ -18,6 +18,8 @@ package com.malinskiy.adam.request.pkg
 
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.annotation.RequiresFeatures
+import com.malinskiy.adam.extension.bashEscape
+import com.malinskiy.adam.extension.copyTo
 import com.malinskiy.adam.request.ComplexRequest
 import com.malinskiy.adam.request.Feature
 import com.malinskiy.adam.request.ValidationResponse
@@ -25,7 +27,6 @@ import com.malinskiy.adam.request.abb.AbbExecRequest
 import com.malinskiy.adam.request.transform.StringResponseTransformer
 import com.malinskiy.adam.transport.AndroidReadChannel
 import com.malinskiy.adam.transport.AndroidWriteChannel
-import io.ktor.util.*
 import io.ktor.util.cio.*
 import io.ktor.utils.io.*
 import kotlinx.coroutines.Dispatchers
@@ -83,7 +84,7 @@ class StreamingPackageInstallRequest(
             if (hasAbbExec) {
                 addAll(extraArgs)
             } else if (extraArgs.isNotEmpty()) {
-                add("'" + extraArgs.joinToString(" ") { it.replace("\'", "\\'") } + "'")
+                add(extraArgs.bashEscape())
             }
 
             if (reinstall) {
@@ -105,35 +106,16 @@ class StreamingPackageInstallRequest(
     }
 
     override suspend fun readElement(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel): Boolean {
-        val fileChannel = pkg.readChannel(coroutineContext = coroutineContext)
         val buffer = ByteArray(Const.MAX_FILE_PACKET_LENGTH)
-
-        loop@ while (true) {
-            val available = fileChannel.readAvailable(buffer, 0, Const.MAX_FILE_PACKET_LENGTH)
-            when {
-                available < 0 -> {
-                    break@loop
-                }
-                available > 0 -> {
-                    writeChannel.writeFully(buffer, 0, available)
-                }
-                else -> continue@loop
-            }
+        var fileChannel: ByteReadChannel? = null
+        try {
+            val fileChannel = pkg.readChannel(coroutineContext = coroutineContext)
+            fileChannel.copyTo(writeChannel, buffer)
+        } finally {
+            fileChannel?.cancel()
         }
 
-        loop2@ while (true) {
-            val available = readChannel.readAvailable(buffer, 0, Const.MAX_FILE_PACKET_LENGTH)
-            when {
-                available < 0 -> {
-                    break@loop2
-                }
-                available > 0 -> {
-                    transformer.process(buffer, 0, available)
-                }
-                else -> continue@loop2
-            }
-        }
-
+        readChannel.copyTo(transformer, buffer)
         return transformer.transform().startsWith("Success")
     }
 }
