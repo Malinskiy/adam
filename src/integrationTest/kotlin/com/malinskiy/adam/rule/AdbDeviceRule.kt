@@ -43,6 +43,7 @@ import java.time.Duration
  */
 class AdbDeviceRule(val deviceType: DeviceType = DeviceType.ANY, vararg val requiredFeatures: Feature) : TestRule {
     lateinit var deviceSerial: String
+    lateinit var supportedFeatures: List<Feature>
     val adb = AndroidDebugBridgeClientFactory().build()
     val initTimeout = Duration.ofSeconds(10)
 
@@ -80,11 +81,15 @@ class AdbDeviceRule(val deviceType: DeviceType = DeviceType.ANY, vararg val requ
                         }
                     }
 
-                    Assume.assumeTrue(
-                        "No compatible device found for features $requiredFeatures",
-                        requiredFeatures.isEmpty() ||
-                                adb.execute(FetchDeviceFeaturesRequest(device.serial)).containsAll(requiredFeatures.asList())
-                    )
+                    if (!requiredFeatures.isEmpty()) {
+                        supportedFeatures = adb.execute(FetchDeviceFeaturesRequest(device.serial))
+                        Assume.assumeTrue(
+                            "No compatible device found for features $requiredFeatures",
+                            requiredFeatures.isEmpty() ||
+                                    supportedFeatures.containsAll(requiredFeatures.asList())
+                        )
+                    }
+
 
                     return device
                 }

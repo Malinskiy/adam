@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.malinskiy.adam.request.`package`
+package com.malinskiy.adam.request.pkg
 
 import com.malinskiy.adam.request.shell.v1.ShellCommandResult
 import com.malinskiy.adam.request.shell.v1.SyncShellCommandRequest

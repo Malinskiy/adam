@@ -20,8 +20,8 @@ import assertk.assertThat
 import assertk.assertions.containsExactly
 import assertk.assertions.isEqualTo
 import com.malinskiy.adam.Const
-import com.malinskiy.adam.request.`package`.Package
-import com.malinskiy.adam.request.`package`.PmListRequest
+import com.malinskiy.adam.request.pkg.Package
+import com.malinskiy.adam.request.pkg.PmListRequest
 import com.malinskiy.adam.server.AndroidDebugBridgeServer
 import io.ktor.utils.io.*
 import kotlinx.coroutines.runBlocking

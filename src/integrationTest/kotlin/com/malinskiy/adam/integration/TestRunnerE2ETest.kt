@@ -16,7 +16,7 @@
 
 package com.malinskiy.adam.integration
 
-import com.malinskiy.adam.request.`package`.InstallRemotePackageRequest
+import com.malinskiy.adam.request.pkg.InstallRemotePackageRequest
 import com.malinskiy.adam.request.sync.v1.PushFileRequest
 import com.malinskiy.adam.request.testrunner.InstrumentOptions
 import com.malinskiy.adam.request.testrunner.TestRunnerRequest

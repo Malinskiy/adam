@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 Anton Malinskiy
+ * Copyright (C) 2021 Anton Malinskiy
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,54 +14,51 @@
  * limitations under the License.
  */
 
-package com.malinskiy.adam.integration
+package com.malinskiy.adam.integration.feature
 
 import assertk.assertThat
 import assertk.assertions.contains
 import assertk.assertions.doesNotContain
-import com.malinskiy.adam.request.pkg.InstallRemotePackageRequest
+import com.malinskiy.adam.request.Feature
 import com.malinskiy.adam.request.pkg.Package
 import com.malinskiy.adam.request.pkg.PmListRequest
+import com.malinskiy.adam.request.pkg.StreamingPackageInstallRequest
 import com.malinskiy.adam.request.pkg.UninstallRemotePackageRequest
-import com.malinskiy.adam.request.sync.v1.PushFileRequest
 import com.malinskiy.adam.rule.AdbDeviceRule
-import kotlinx.coroutines.GlobalScope
+import com.malinskiy.adam.rule.DeviceType
 import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
 import java.io.File
 import kotlin.system.measureTimeMillis
 
-class ApkE2ETest {
-
+class AbbExecE2ETest {
     @Rule
     @JvmField
-    val adb = AdbDeviceRule()
-    val client = adb.adb
+    val adbRule = AdbDeviceRule(DeviceType.ANY, Feature.ABB_EXEC)
 
     @Test
-    fun testScenario1() {
+    fun testStreamingInstallRequest() {
         runBlocking {
             measureTimeMillis {
                 val testFile = File(javaClass.getResource("/app-debug.apk").toURI())
-                val fileName = testFile.name
-                val channel =
-                    client.execute(PushFileRequest(testFile, "/data/local/tmp/$fileName"), GlobalScope, serial = adb.deviceSerial)
-
-                while (!channel.isClosedForReceive) {
-                    channel.poll()
-                }
-
-                client.execute(InstallRemotePackageRequest("/data/local/tmp/$fileName", true), serial = adb.deviceSerial)
+                val success = adbRule.adb.execute(
+                    StreamingPackageInstallRequest(
+                        pkg = testFile,
+                        supportedFeatures = listOf(Feature.ABB_EXEC),
+                        reinstall = false
+                    ),
+                    adbRule.deviceSerial
+                )
             }.let { println(it) }
 
-            var packages = client.execute(PmListRequest(), serial = adb.deviceSerial)
+            var packages = adbRule.adb.execute(PmListRequest(), serial = adbRule.deviceSerial)
             assertThat(packages)
                 .contains(Package("com.example"))
 
-            client.execute(UninstallRemotePackageRequest("com.example"), adb.deviceSerial)
+            adbRule.adb.execute(UninstallRemotePackageRequest("com.example"), adbRule.deviceSerial)
 
-            packages = client.execute(PmListRequest(), serial = adb.deviceSerial)
+            packages = adbRule.adb.execute(PmListRequest(), serial = adbRule.deviceSerial)
             assertThat(packages)
                 .doesNotContain(Package("com.example"))
         }

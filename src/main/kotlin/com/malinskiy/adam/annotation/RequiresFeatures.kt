@@ -14,27 +14,15 @@
  * limitations under the License.
  */
 
-package com.malinskiy.adam.request.`package`
+package com.malinskiy.adam.annotation
 
-import com.malinskiy.adam.request.shell.v1.ShellCommandRequest
+import com.malinskiy.adam.request.Feature
 
-class InstallRemotePackageRequest(
-    absoluteRemoteFilePath: String,
-    reinstall: Boolean,
-    extraArgs: List<String> = emptyList()
-) : ShellCommandRequest(
-    cmd = StringBuilder().apply {
-        append("pm install ")
-
-        if (reinstall) {
-            append("-r ")
-        }
-
-        if (extraArgs.isNotEmpty()) {
-            append(extraArgs.joinToString(" "))
-            append(" ")
-        }
-
-        append(absoluteRemoteFilePath)
-    }.toString()
-)
+/**
+ * Marks request as dependant on features
+ * Doesn't mean it's a strong dependency, see specific request for more information
+ */
+@Target(AnnotationTarget.CLASS)
+@Retention(AnnotationRetention.RUNTIME)
+@MustBeDocumented
+annotation class RequiresFeatures(vararg val features: Feature)

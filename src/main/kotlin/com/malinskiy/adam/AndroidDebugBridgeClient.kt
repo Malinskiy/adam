@@ -48,8 +48,10 @@ class AndroidDebugBridgeClient(
     private val socketAddress: InetSocketAddress = InetSocketAddress(host, port)
 
     suspend fun <T : Any?> execute(request: ComplexRequest<T>, serial: String? = null): T {
-        if (!request.validate()) {
-            throw RequestValidationException("Request ${request.javaClass.simpleName} did not pass validation")
+        val validationResponse = request.validate()
+        if (!validationResponse.success) {
+            val requestSimpleClassName = request.javaClass.simpleName
+            throw RequestValidationException("Request $requestSimpleClassName did not pass validation: ${validationResponse.message}")
         }
         socketFactory.tcp(socketAddress).use { socket ->
             val readChannel = socket.openReadChannel().toAndroidChannel()
@@ -72,8 +74,10 @@ class AndroidDebugBridgeClient(
     }
 
     fun <T : Any?, I : Any?> execute(request: AsyncChannelRequest<T, I>, scope: CoroutineScope, serial: String? = null): ReceiveChannel<T> {
-        if (!request.validate()) {
-            throw RequestValidationException("Request ${request.javaClass.simpleName} did not pass validation")
+        val validationResponse = request.validate()
+        if (!validationResponse.success) {
+            val requestSimpleClassName = request.javaClass.simpleName
+            throw RequestValidationException("Request $requestSimpleClassName did not pass validation: ${validationResponse.message}")
         }
         return scope.produce {
             socketFactory.tcp(socketAddress).use { socket ->

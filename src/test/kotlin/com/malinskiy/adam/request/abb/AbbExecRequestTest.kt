@@ -14,24 +14,17 @@
  * limitations under the License.
  */
 
-package com.malinskiy.adam.request.`package`
+package com.malinskiy.adam.request.abb
 
-import com.malinskiy.adam.request.shell.v1.ShellCommandRequest
+import assertk.assertThat
+import assertk.assertions.isEqualTo
+import com.malinskiy.adam.extension.toRequestString
+import org.junit.Test
 
-/**
- * @param keepData keep the data and cache directories around after package removal
- */
-class UninstallRemotePackageRequest(
-    packageName: String,
-    keepData: Boolean = false
-) : ShellCommandRequest(
-    cmd = StringBuilder().apply {
-        append("pm uninstall ")
-
-        if (keepData) {
-            append("-k ")
-        }
-
-        append(packageName)
-    }.toString()
-)
+class AbbExecRequestTest {
+    @Test
+    fun testSerialize() {
+        val string = AbbExecRequest(listOf("cmd", "package", "install")).serialize().toRequestString()
+        assertThat(string).isEqualTo("")
+    }
+}

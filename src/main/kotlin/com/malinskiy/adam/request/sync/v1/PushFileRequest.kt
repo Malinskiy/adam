@@ -20,6 +20,7 @@ import com.malinskiy.adam.Const
 import com.malinskiy.adam.exception.PushFailedException
 import com.malinskiy.adam.extension.toByteArray
 import com.malinskiy.adam.request.AsyncChannelRequest
+import com.malinskiy.adam.request.ValidationResponse
 import com.malinskiy.adam.transport.AndroidReadChannel
 import com.malinskiy.adam.transport.AndroidWriteChannel
 import io.ktor.util.cio.*
@@ -95,9 +96,12 @@ class PushFileRequest(
         fileReadChannel.cancel()
     }
 
-    override fun validate(): Boolean {
+    override fun validate(): ValidationResponse {
         val bytes = remotePath.toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
-        return bytes.size <= Const.MAX_REMOTE_PATH_LENGTH
+
+        return if (bytes.size <= Const.MAX_REMOTE_PATH_LENGTH) {
+            ValidationResponse.Success
+        } else ValidationResponse(false, "Remote path should be less that ${Const.MAX_REMOTE_PATH_LENGTH} bytes")
     }
 
     override suspend fun writeElement(element: Unit, readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel) = Unit

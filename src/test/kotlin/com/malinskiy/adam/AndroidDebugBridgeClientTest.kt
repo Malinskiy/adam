@@ -21,6 +21,7 @@ import assertk.assertions.isEqualTo
 import com.malinskiy.adam.exception.RequestRejectedException
 import com.malinskiy.adam.exception.RequestValidationException
 import com.malinskiy.adam.request.ComplexRequest
+import com.malinskiy.adam.request.ValidationResponse
 import com.malinskiy.adam.request.shell.v1.ShellCommandRequest
 import com.malinskiy.adam.server.AndroidDebugBridgeServer
 import com.malinskiy.adam.transport.AndroidReadChannel
@@ -132,7 +133,7 @@ class AndroidDebugBridgeClientTest {
             }
 
             client.execute(object : ComplexRequest<String>() {
-                override fun validate() = false
+                override fun validate() = ValidationResponse(false, "Fake")
                 override suspend fun readElement(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel): String {
                     TODO("Not yet implemented")
                 }
