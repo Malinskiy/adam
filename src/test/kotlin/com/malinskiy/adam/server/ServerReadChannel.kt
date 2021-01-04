@@ -33,6 +33,12 @@ class ServerReadChannel(private val delegate: ByteReadChannel) : ByteReadChannel
         return String(request, Const.DEFAULT_TRANSPORT_ENCODING)
     }
 
+    suspend fun receiveBytes(length: Int): ByteArray {
+        val bytes = ByteArray(length)
+        readFully(bytes, 0, length)
+        return bytes
+    }
+
     suspend fun receiveStat(): String {
         val protocolMessage = receiveProtocolMessage()
         val message = String(protocolMessage, Const.DEFAULT_TRANSPORT_ENCODING)

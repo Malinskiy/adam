@@ -49,6 +49,14 @@ class ServerWriteChannel(private val delegate: ByteWriteChannel) : ByteWriteChan
         respond(Const.Message.DONE)
     }
 
+    suspend fun respondDoneDone() {
+        respond(Const.Message.DONEDONE)
+    }
+
+    suspend fun respondFailFail() {
+        respond(Const.Message.FAILFAIL)
+    }
+
     suspend fun respondList(size: Int, mode: Int = 0, lastModified: Int = 0, name: String) {
         respond(Const.Message.DENT_V1)
         writeIntLittleEndian(mode)
@@ -73,5 +81,11 @@ class ServerWriteChannel(private val delegate: ByteWriteChannel) : ByteWriteChan
 
     suspend fun respondStringRaw(message: String) {
         respond(message.toByteArray(Const.DEFAULT_TRANSPORT_ENCODING))
+    }
+
+    suspend fun respondFail(message: String) {
+        respond(Const.Message.FAIL)
+        writeIntLittleEndian(message.length)
+        respondStringRaw(message)
     }
 }

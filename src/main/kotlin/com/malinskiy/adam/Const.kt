@@ -41,5 +41,10 @@ object Const {
         val DENT_V1 = byteArrayOf('D'.toByte(), 'E'.toByte(), 'N'.toByte(), 'T'.toByte())
         val SEND_V1 = byteArrayOf('S'.toByte(), 'E'.toByte(), 'N'.toByte(), 'D'.toByte())
         val RECV_V1 = byteArrayOf('R'.toByte(), 'E'.toByte(), 'C'.toByte(), 'V'.toByte())
+
+        val DONEDONE =
+            byteArrayOf('D'.toByte(), 'O'.toByte(), 'N'.toByte(), 'E'.toByte(), 'D'.toByte(), 'O'.toByte(), 'N'.toByte(), 'E'.toByte())
+        val FAILFAIL =
+            byteArrayOf('F'.toByte(), 'A'.toByte(), 'I'.toByte(), 'L'.toByte(), 'F'.toByte(), 'A'.toByte(), 'I'.toByte(), 'L'.toByte())
     }
 }
