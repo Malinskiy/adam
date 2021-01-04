@@ -21,18 +21,16 @@ import assertk.assertions.isEqualTo
 import com.malinskiy.adam.Const
 import org.junit.Test
 
-class AbbExecRequestTest {
+class AbbRequestTest {
     /**
      * It's a bit tricky to check for '\0'
      */
     @Test
     fun testSerialize() {
-        val array = AbbExecRequest(listOf("cmd", "package", "install")).serialize()
+        val array = AbbRequest(listOf("package", "install")).serialize()
 
-        assertThat(String(array, 0, 16, Const.DEFAULT_TRANSPORT_ENCODING)).isEqualTo("001Cabb_exec:cmd")
-        assertThat(array[16].toChar()).isEqualTo(AbbExecRequest.DELIMITER)
-        assertThat(String(array, 17, 7, Const.DEFAULT_TRANSPORT_ENCODING)).isEqualTo("package")
-        assertThat(array[24].toChar()).isEqualTo(AbbExecRequest.DELIMITER)
-        assertThat(String(array, 25, 7, Const.DEFAULT_TRANSPORT_ENCODING)).isEqualTo("install")
+        assertThat(String(array, 0, 15, Const.DEFAULT_TRANSPORT_ENCODING)).isEqualTo("0013abb:package")
+        assertThat(array[15].toChar()).isEqualTo(AbbExecRequest.DELIMITER)
+        assertThat(String(array, 16, 7, Const.DEFAULT_TRANSPORT_ENCODING)).isEqualTo("install")
     }
 }
