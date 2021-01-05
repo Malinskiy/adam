@@ -24,6 +24,8 @@ import com.malinskiy.adam.request.pkg.Package
 import com.malinskiy.adam.request.pkg.PmListRequest
 import com.malinskiy.adam.request.pkg.StreamingPackageInstallRequest
 import com.malinskiy.adam.request.pkg.UninstallRemotePackageRequest
+import com.malinskiy.adam.request.pkg.multi.InstallMultiPackageRequest
+import com.malinskiy.adam.request.pkg.multi.SingleFileInstallationPackage
 import com.malinskiy.adam.rule.AdbDeviceRule
 import com.malinskiy.adam.rule.DeviceType
 import io.ktor.util.cio.*
@@ -46,6 +48,7 @@ class CmdE2ETest {
     fun setup() {
         runBlocking {
             client.execute(UninstallRemotePackageRequest("com.example"), adb.deviceSerial)
+            client.execute(UninstallRemotePackageRequest("com.example.test"), adb.deviceSerial)
         }
     }
 
@@ -53,6 +56,7 @@ class CmdE2ETest {
     fun teardown() {
         runBlocking {
             client.execute(UninstallRemotePackageRequest("com.example"), adb.deviceSerial)
+            client.execute(UninstallRemotePackageRequest("com.example.test"), adb.deviceSerial)
         }
     }
 
@@ -102,6 +106,41 @@ class CmdE2ETest {
 
             assertThat(packages)
                 .contains(Package("com.example"))
+        }
+    }
+
+    @Test
+    fun testInstallMultiplePackageRequest() {
+        runBlocking {
+            val appFile = File(javaClass.getResource("/app-debug.apk").toURI())
+            val testFile = File(javaClass.getResource("/app-debug-androidTest.apk").toURI())
+            val success = client.execute(
+                InstallMultiPackageRequest(
+                    listOf(
+                        SingleFileInstallationPackage(appFile),
+                        SingleFileInstallationPackage(testFile)
+                    ),
+                    listOf(Feature.CMD),
+                    true
+                ),
+                adb.deviceSerial
+            )
+
+            //Takes some time until it shows in the pm list. Wait for 10 seconds max
+            var packages: List<Package> = emptyList()
+            for (i in 1..100) {
+                packages = client.execute(PmListRequest(), serial = adb.deviceSerial)
+                if (packages.contains(Package("com.example")) && packages.contains(Package("com.example.test"))) {
+                    break
+                }
+                delay(100)
+            }
+
+
+            assertThat(packages)
+                .contains(Package("com.example"))
+            assertThat(packages)
+                .contains(Package("com.example.test"))
         }
     }
 }

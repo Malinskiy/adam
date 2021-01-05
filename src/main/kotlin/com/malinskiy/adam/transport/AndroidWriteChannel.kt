@@ -16,12 +16,27 @@
 
 package com.malinskiy.adam.transport
 
-import io.ktor.utils.io.ByteWriteChannel
+import com.malinskiy.adam.extension.copyTo
+import io.ktor.util.cio.*
+import io.ktor.utils.io.*
+import io.ktor.utils.io.core.*
+import java.io.File
 import java.nio.ByteBuffer
+import kotlin.coroutines.CoroutineContext
 
 class AndroidWriteChannel(private val delegate: ByteWriteChannel) : ByteWriteChannel by delegate {
     suspend fun write(request: ByteArray, length: Int? = null) {
         val requestBuffer = ByteBuffer.wrap(request, 0, length ?: request.size)
         delegate.writeFully(requestBuffer)
+    }
+
+    suspend fun writeFile(file: File, coroutineContext: CoroutineContext) = withFileBuffer {
+        var fileChannel: ByteReadChannel? = null
+        try {
+            val fileChannel = file.readChannel(coroutineContext = coroutineContext)
+            fileChannel.copyTo(this@AndroidWriteChannel, this)
+        } finally {
+            fileChannel?.cancel()
+        }
     }
 }

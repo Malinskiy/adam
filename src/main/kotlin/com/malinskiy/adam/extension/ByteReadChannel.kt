@@ -19,6 +19,7 @@ package com.malinskiy.adam.extension
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.request.transform.ResponseTransformer
 import io.ktor.utils.io.*
+import java.nio.ByteBuffer
 
 suspend fun ByteReadChannel.copyTo(channel: ByteWriteChannel, buffer: ByteArray): Long {
     var processed = 0L
@@ -55,3 +56,10 @@ suspend fun <T> ByteReadChannel.copyTo(transformer: ResponseTransformer<T>, buff
     }
     return processed
 }
+
+/**
+ * TODO: rewrite
+ * Assumes buffer hasArray == true
+ */
+suspend fun ByteReadChannel.copyTo(channel: ByteWriteChannel, buffer: ByteBuffer) = copyTo(channel, buffer.array())
+suspend fun <T> ByteReadChannel.copyTo(transformer: ResponseTransformer<T>, buffer: ByteBuffer) = copyTo(transformer, buffer.array())

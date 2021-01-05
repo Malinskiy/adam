@@ -28,9 +28,3 @@ class RestartAdbdRequest(val mode: AdbdMode) : SynchronousRequest<String>() {
 
     override fun transform() = transformer.transform()
 }
-
-sealed class AdbdMode(val requestString: String)
-object RootAdbdMode : AdbdMode("root:")
-object UnrootAdbdMode : AdbdMode("unroot:")
-object UsbAdbdMode : AdbdMode("usb:")
-class TcpIpAdbdMode(port: Int) : AdbdMode("tcpip:$port")

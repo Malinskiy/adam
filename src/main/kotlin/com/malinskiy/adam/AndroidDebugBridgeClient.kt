@@ -23,6 +23,7 @@ import com.malinskiy.adam.interactor.DiscoverAdbSocketInteractor
 import com.malinskiy.adam.log.AdamLogging
 import com.malinskiy.adam.request.AsyncChannelRequest
 import com.malinskiy.adam.request.ComplexRequest
+import com.malinskiy.adam.request.MultiRequest
 import com.malinskiy.adam.request.emu.EmulatorCommandRequest
 import com.malinskiy.adam.request.misc.SetDeviceRequest
 import com.malinskiy.adam.transport.AndroidReadChannel
@@ -138,6 +139,8 @@ class AndroidDebugBridgeClient(
             }
         }
     }
+
+    suspend fun <T> execute(request: MultiRequest<T>, serial: String? = null): T = request.execute(this, serial)
 
     private suspend fun processRequest(
         writeChannel: AndroidWriteChannel,

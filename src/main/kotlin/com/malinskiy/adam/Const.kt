@@ -18,6 +18,7 @@ package com.malinskiy.adam
 
 object Const {
     const val MAX_REMOTE_PATH_LENGTH = 1024
+    const val DEFAULT_BUFFER_SIZE = 1024
     const val READ_DELAY = 100L
     val DEFAULT_TRANSPORT_ENCODING = Charsets.ISO_8859_1
     val FILENAME_ENCODING = Charsets.UTF_8
@@ -27,7 +28,6 @@ object Const {
     const val SERVER_PORT_ENV_VAR = "ANDROID_ADB_SERVER_PORT"
     const val MAX_PACKET_LENGTH = 16384
     const val MAX_FILE_PACKET_LENGTH = 64 * 1024
-
 
     object Message {
         val OKAY = byteArrayOf('O'.toByte(), 'K'.toByte(), 'A'.toByte(), 'Y'.toByte())

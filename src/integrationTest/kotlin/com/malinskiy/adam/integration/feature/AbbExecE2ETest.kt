@@ -24,9 +24,14 @@ import com.malinskiy.adam.request.pkg.Package
 import com.malinskiy.adam.request.pkg.PmListRequest
 import com.malinskiy.adam.request.pkg.StreamingPackageInstallRequest
 import com.malinskiy.adam.request.pkg.UninstallRemotePackageRequest
+import com.malinskiy.adam.request.pkg.multi.InstallMultiPackageRequest
+import com.malinskiy.adam.request.pkg.multi.SingleFileInstallationPackage
 import com.malinskiy.adam.rule.AdbDeviceRule
 import com.malinskiy.adam.rule.DeviceType
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
+import org.junit.After
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import java.io.File
@@ -35,32 +40,85 @@ import kotlin.system.measureTimeMillis
 class AbbExecE2ETest {
     @Rule
     @JvmField
-    val adbRule = AdbDeviceRule(DeviceType.ANY, Feature.ABB_EXEC)
+    val adb = AdbDeviceRule(DeviceType.ANY, Feature.ABB_EXEC)
+    val client = adb.adb
+
+    @Before
+    fun setup() {
+        runBlocking {
+            client.execute(UninstallRemotePackageRequest("com.example"), adb.deviceSerial)
+            client.execute(UninstallRemotePackageRequest("com.example.test"), adb.deviceSerial)
+        }
+    }
+
+    @After
+    fun teardown() {
+        runBlocking {
+            client.execute(UninstallRemotePackageRequest("com.example"), adb.deviceSerial)
+            client.execute(UninstallRemotePackageRequest("com.example.test"), adb.deviceSerial)
+        }
+    }
+
 
     @Test
     fun testStreamingInstallRequest() {
         runBlocking {
             measureTimeMillis {
                 val testFile = File(javaClass.getResource("/app-debug.apk").toURI())
-                val success = adbRule.adb.execute(
+                val success = adb.adb.execute(
                     StreamingPackageInstallRequest(
                         pkg = testFile,
                         supportedFeatures = listOf(Feature.ABB_EXEC),
                         reinstall = false
                     ),
-                    adbRule.deviceSerial
+                    adb.deviceSerial
                 )
             }.let { println(it) }
 
-            var packages = adbRule.adb.execute(PmListRequest(), serial = adbRule.deviceSerial)
+            var packages = adb.adb.execute(PmListRequest(), serial = adb.deviceSerial)
             assertThat(packages)
                 .contains(Package("com.example"))
 
-            adbRule.adb.execute(UninstallRemotePackageRequest("com.example"), adbRule.deviceSerial)
+            adb.adb.execute(UninstallRemotePackageRequest("com.example"), adb.deviceSerial)
 
-            packages = adbRule.adb.execute(PmListRequest(), serial = adbRule.deviceSerial)
+            packages = adb.adb.execute(PmListRequest(), serial = adb.deviceSerial)
             assertThat(packages)
                 .doesNotContain(Package("com.example"))
+        }
+    }
+
+    @Test
+    fun testInstallMultiplePackageRequest() {
+        runBlocking {
+            val appFile = File(javaClass.getResource("/app-debug.apk").toURI())
+            val testFile = File(javaClass.getResource("/app-debug-androidTest.apk").toURI())
+            val success = client.execute(
+                InstallMultiPackageRequest(
+                    listOf(
+                        SingleFileInstallationPackage(appFile),
+                        SingleFileInstallationPackage(testFile)
+                    ),
+                    listOf(Feature.ABB_EXEC),
+                    true
+                ),
+                adb.deviceSerial
+            )
+
+            //Takes some time until it shows in the pm list. Wait for 10 seconds max
+            var packages: List<Package> = emptyList()
+            for (i in 1..100) {
+                packages = client.execute(PmListRequest(), serial = adb.deviceSerial)
+                if (packages.contains(Package("com.example")) && packages.contains(Package("com.example.test"))) {
+                    break
+                }
+                delay(100)
+            }
+
+
+            assertThat(packages)
+                .contains(Package("com.example"))
+            assertThat(packages)
+                .contains(Package("com.example.test"))
         }
     }
 }

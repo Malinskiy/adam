@@ -14,17 +14,13 @@
  * limitations under the License.
  */
 
-package com.malinskiy.adam.request.abb
+package com.malinskiy.adam.request
 
-import assertk.assertThat
-import assertk.assertions.isEqualTo
-import com.malinskiy.adam.extension.toRequestString
-import org.junit.Test
+import com.malinskiy.adam.AndroidDebugBridgeClient
 
-class AbbExecRequestTest {
-    @Test
-    fun testSerialize() {
-        assertThat(AbbExecRequest(listOf("cmd", "package", "install")).serialize().toRequestString())
-            .isEqualTo("001Cabb_exec:cmd\u0000package\u0000install")
-    }
+/**
+ * This type of request is a wrapper of a sequence of requests
+ */
+abstract class MultiRequest<T : Any?>(private val block: suspend AndroidDebugBridgeClient.(String?) -> T) {
+    suspend fun execute(androidDebugBridgeClient: AndroidDebugBridgeClient, serial: String?) = block(androidDebugBridgeClient, serial)
 }

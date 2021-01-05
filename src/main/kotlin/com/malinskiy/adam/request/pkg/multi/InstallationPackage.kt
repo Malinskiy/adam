@@ -14,17 +14,11 @@
  * limitations under the License.
  */
 
-package com.malinskiy.adam.request.abb
+package com.malinskiy.adam.request.pkg.multi
 
-import assertk.assertThat
-import assertk.assertions.isEqualTo
-import com.malinskiy.adam.extension.toRequestString
-import org.junit.Test
+import java.io.File
 
-class AbbExecRequestTest {
-    @Test
-    fun testSerialize() {
-        assertThat(AbbExecRequest(listOf("cmd", "package", "install")).serialize().toRequestString())
-            .isEqualTo("001Cabb_exec:cmd\u0000package\u0000install")
-    }
-}
+sealed class InstallationPackage
+
+data class SingleFileInstallationPackage(val file: File) : InstallationPackage()
+data class ApkSplitInstallationPackage(val fileList: List<File>) : InstallationPackage()

@@ -14,17 +14,10 @@
  * limitations under the License.
  */
 
-package com.malinskiy.adam.request.abb
+package com.malinskiy.adam.request.adbd
 
-import assertk.assertThat
-import assertk.assertions.isEqualTo
-import com.malinskiy.adam.extension.toRequestString
-import org.junit.Test
-
-class AbbExecRequestTest {
-    @Test
-    fun testSerialize() {
-        assertThat(AbbExecRequest(listOf("cmd", "package", "install")).serialize().toRequestString())
-            .isEqualTo("001Cabb_exec:cmd\u0000package\u0000install")
-    }
-}
+sealed class AdbdMode(val requestString: String)
+object RootAdbdMode : AdbdMode("root:")
+object UnrootAdbdMode : AdbdMode("unroot:")
+object UsbAdbdMode : AdbdMode("usb:")
+class TcpIpAdbdMode(port: Int) : AdbdMode("tcpip:$port")

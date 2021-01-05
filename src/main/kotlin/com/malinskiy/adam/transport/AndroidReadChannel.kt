@@ -18,7 +18,9 @@ package com.malinskiy.adam.transport
 
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.Const.Message.OKAY
+import com.malinskiy.adam.extension.copyTo
 import com.malinskiy.adam.log.AdamLogging
+import com.malinskiy.adam.request.transform.StringResponseTransformer
 import io.ktor.utils.io.*
 
 class AndroidReadChannel(private val delegate: ByteReadChannel) : ByteReadChannel by delegate {
@@ -47,6 +49,14 @@ class AndroidReadChannel(private val delegate: ByteReadChannel) : ByteReadChanne
     }
 
     private fun ByteArray.isOkay() = contentEquals(OKAY)
+
+    suspend fun readStatus(): String {
+        withDefaultBuffer {
+            val transformer = StringResponseTransformer()
+            copyTo(transformer, this)
+            return transformer.transform()
+        }
+    }
 
     companion object {
         private val log = AdamLogging.logger {}
