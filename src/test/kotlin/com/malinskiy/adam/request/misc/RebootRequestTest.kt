@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.malinskiy.adam.request.sync
+package com.malinskiy.adam.request.misc
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo

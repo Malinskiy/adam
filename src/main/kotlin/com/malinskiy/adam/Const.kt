@@ -42,6 +42,9 @@ object Const {
         val SEND_V1 = byteArrayOf('S'.toByte(), 'E'.toByte(), 'N'.toByte(), 'D'.toByte())
         val RECV_V1 = byteArrayOf('R'.toByte(), 'E'.toByte(), 'C'.toByte(), 'V'.toByte())
 
+        val LIST_V2 = byteArrayOf('L'.toByte(), 'I'.toByte(), 'S'.toByte(), '2'.toByte())
+        val DENT_V2 = byteArrayOf('D'.toByte(), 'N'.toByte(), 'T'.toByte(), '2'.toByte())
+
         val DONEDONE =
             byteArrayOf('D'.toByte(), 'O'.toByte(), 'N'.toByte(), 'E'.toByte(), 'D'.toByte(), 'O'.toByte(), 'N'.toByte(), 'E'.toByte())
         val FAILFAIL =

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 Anton Malinskiy
+ * Copyright (C) 2021 Anton Malinskiy
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.malinskiy.adam.request.sync
+package com.malinskiy.adam.request.device
 
 import assertk.assertThat
 import assertk.assertions.containsExactly
@@ -22,7 +22,6 @@ import assertk.assertions.isEqualTo
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.extension.toAndroidChannel
 import com.malinskiy.adam.request.Feature
-import com.malinskiy.adam.request.device.FetchDeviceFeaturesRequest
 import io.ktor.utils.io.*
 import io.ktor.utils.io.core.*
 import kotlinx.coroutines.runBlocking

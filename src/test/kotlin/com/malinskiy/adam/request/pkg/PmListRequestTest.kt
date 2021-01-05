@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 Anton Malinskiy
+ * Copyright (C) 2021 Anton Malinskiy
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,33 +14,39 @@
  * limitations under the License.
  */
 
-package com.malinskiy.adam.request.sync
+package com.malinskiy.adam.request.pkg
 
 import assertk.assertThat
+import assertk.assertions.containsExactly
 import assertk.assertions.isEqualTo
 import com.malinskiy.adam.Const
-import com.malinskiy.adam.request.misc.GetAdbServerVersionRequest
 import com.malinskiy.adam.server.AndroidDebugBridgeServer
+import io.ktor.utils.io.*
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 
-class GetAdbServerVersionRequestTest {
+class PmListRequestTest {
     @Test
-    fun testReturnsProperVersion() {
+    fun testReturnsProperContent() {
         runBlocking {
             val server = AndroidDebugBridgeServer()
 
             val client = server.startAndListen { input, output ->
                 val transportCmd = input.receiveCommand()
-                assertThat(transportCmd).isEqualTo("host:version")
+                assertThat(transportCmd).isEqualTo("host:transport:serial")
                 output.respond(Const.Message.OKAY)
 
-                val version = ("0002" + 41.toString(16)).toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
-                output.writeFully(version, 0, version.size)
+                val shellCmd = input.receiveCommand()
+                assertThat(shellCmd).isEqualTo("shell:pm list packages;echo x$?")
+                output.respond(Const.Message.OKAY)
+
+                val response = "package:test.packagex0".toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
+                output.writeFully(response, 0, response.size)
+                output.close()
             }
 
-            val version = client.execute(GetAdbServerVersionRequest())
-            assertThat(version).isEqualTo(41)
+            val output = client.execute(PmListRequest(), serial = "serial")
+            assertThat(output).containsExactly(Package("test.package"))
 
             server.dispose()
         }

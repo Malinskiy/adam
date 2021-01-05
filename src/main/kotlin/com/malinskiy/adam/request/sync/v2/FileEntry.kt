@@ -14,22 +14,21 @@
  * limitations under the License.
  */
 
-package com.malinskiy.adam.request.misc
+package com.malinskiy.adam.request.sync.v2
 
-import com.malinskiy.adam.request.SynchronousRequest
+import java.time.Instant
 
-class RebootRequest(val mode: RebootMode = RebootMode.DEFAULT) : SynchronousRequest<Unit>() {
-    override suspend fun process(bytes: ByteArray, offset: Int, limit: Int) = Unit
-
-    override fun serialize() = createBaseRequest("reboot:${mode.value}")
-
-    override fun transform() = Unit
-}
-
-enum class RebootMode(val value: String) {
-    DEFAULT(""),
-    RECOVERY("recovery"),
-    BOOTLOADER("bootloader"),
-    SIDELOAD("sideload"),
-    SIDELOAD_AUTO_REBOOT("sideload-auto-reboot")
-}
+data class FileEntry(
+    val error: UInt,
+    val dev: ULong,
+    val ino: ULong,
+    val mode: UInt,
+    val nlink: UInt,
+    val uid: UInt,
+    val gid: UInt,
+    val size: ULong,
+    val atime: Instant,
+    val mtime: Instant,
+    val ctime: Instant,
+    val name: String? = null
+)

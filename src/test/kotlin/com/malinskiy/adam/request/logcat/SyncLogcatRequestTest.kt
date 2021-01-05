@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 Anton Malinskiy
+ * Copyright (C) 2021 Anton Malinskiy
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,11 @@
  * limitations under the License.
  */
 
-package com.malinskiy.adam.request.sync
+package com.malinskiy.adam.request.logcat
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import com.malinskiy.adam.Const
-import com.malinskiy.adam.request.async.LogcatFilterSpec
-import com.malinskiy.adam.request.async.LogcatVerbosityLevel
-import com.malinskiy.adam.request.logcat.SyncLogcatRequest
 import org.junit.Test
 import java.time.Instant
 

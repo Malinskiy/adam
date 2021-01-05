@@ -18,11 +18,11 @@ package com.malinskiy.adam.integration
 
 import assertk.assertThat
 import assertk.assertions.*
-import com.malinskiy.adam.request.async.ChanneledLogcatRequest
 import com.malinskiy.adam.request.device.FetchDeviceFeaturesRequest
 import com.malinskiy.adam.request.device.ListDevicesRequest
 import com.malinskiy.adam.request.framebuffer.RawImageScreenCaptureAdapter
 import com.malinskiy.adam.request.framebuffer.ScreenCaptureRequest
+import com.malinskiy.adam.request.logcat.ChanneledLogcatRequest
 import com.malinskiy.adam.request.mdns.ListMdnsServicesRequest
 import com.malinskiy.adam.request.mdns.MdnsCheckRequest
 import com.malinskiy.adam.request.misc.FetchHostFeaturesRequest

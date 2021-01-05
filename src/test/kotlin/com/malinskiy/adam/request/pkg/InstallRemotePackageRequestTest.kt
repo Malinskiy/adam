@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 
-package com.malinskiy.adam.request.sync
+package com.malinskiy.adam.request.pkg
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import com.malinskiy.adam.Const
-import com.malinskiy.adam.request.pkg.InstallRemotePackageRequest
 import org.junit.Test
 
 class InstallRemotePackageRequestTest {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 Anton Malinskiy
+ * Copyright (C) 2021 Anton Malinskiy
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,20 +14,24 @@
  * limitations under the License.
  */
 
-package com.malinskiy.adam.request.sync
+package com.malinskiy.adam.request.prop
 
 import assertk.assertThat
+import assertk.assertions.contains
 import assertk.assertions.isEqualTo
 import com.malinskiy.adam.Const
-import com.malinskiy.adam.request.sync.v1.StatFileRequest
 import com.malinskiy.adam.server.AndroidDebugBridgeServer
 import io.ktor.utils.io.*
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
-import java.time.Instant
 
+class GetPropRequestTest {
+    @Test
+    fun testGetAll() {
+        assertThat(String(GetPropRequest().serialize(), Const.DEFAULT_TRANSPORT_ENCODING))
+            .isEqualTo("0016shell:getprop;echo x$?")
+    }
 
-class StatFileRequestTest {
     @Test
     fun testReturnsProperContent() {
         runBlocking {
@@ -39,23 +43,18 @@ class StatFileRequestTest {
                 output.respond(Const.Message.OKAY)
 
                 val shellCmd = input.receiveCommand()
-                assertThat(shellCmd).isEqualTo("sync:")
+                assertThat(shellCmd).isEqualTo("shell:getprop;echo x$?")
                 output.respond(Const.Message.OKAY)
 
-                val receiveStat = input.receiveStat()
-                assertThat(receiveStat).isEqualTo("/sdcard/testfile")
-
-                output.respondStat(128, 0x744, 10000)
+                val response = "[testing]: [testing]\r\r\nx0".toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
+                output.writeFully(response, 0, response.size)
                 output.close()
             }
 
-            val output = client.execute(StatFileRequest("/sdcard/testfile"), serial = "serial")
-            assertThat(output.lastModified).isEqualTo(Instant.ofEpochSecond(10000))
-            assertThat(output.mode).isEqualTo(0x744)
-            assertThat(output.size).isEqualTo(128)
+            val version = client.execute(GetPropRequest(), serial = "serial")
+            assertThat(version).contains("testing", "testing")
 
             server.dispose()
         }
     }
-
 }

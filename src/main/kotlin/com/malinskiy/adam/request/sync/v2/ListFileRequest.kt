@@ -14,16 +14,22 @@
  * limitations under the License.
  */
 
-package com.malinskiy.adam.request.sync.v1
+package com.malinskiy.adam.request.sync.v2
 
 import com.malinskiy.adam.Const
+import com.malinskiy.adam.annotation.Features
 import com.malinskiy.adam.extension.toInt
+import com.malinskiy.adam.extension.toLong
+import com.malinskiy.adam.extension.toUInt
+import com.malinskiy.adam.extension.toULong
 import com.malinskiy.adam.request.ComplexRequest
+import com.malinskiy.adam.request.Feature
 import com.malinskiy.adam.request.ValidationResponse
 import com.malinskiy.adam.transport.AndroidReadChannel
 import com.malinskiy.adam.transport.AndroidWriteChannel
 import java.time.Instant
 
+@Features(Feature.LS_V2)
 class ListFileRequest(
     private val remotePath: String
 ) : ComplexRequest<List<FileEntry>>() {
@@ -37,24 +43,32 @@ class ListFileRequest(
     }
 
     override suspend fun readElement(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel): List<FileEntry> {
-        writeChannel.writeSyncRequest(Const.Message.LIST_V1, remotePath)
+        writeChannel.writeSyncRequest(Const.Message.LIST_V2, remotePath)
 
-        val bytes = ByteArray(16)
         val stringBytes = ByteArray(Const.MAX_REMOTE_PATH_LENGTH)
+
+        val bytes = ByteArray(72)
         val result = mutableListOf<FileEntry>()
         loop@ while (true) {
             readChannel.readFully(bytes, 0, 4)
             when {
-                bytes.copyOfRange(0, 4).contentEquals(Const.Message.DENT_V1) -> {
-                    readChannel.readFully(bytes, 0, 16)
-                    val nameLength = bytes.copyOfRange(12, 16).toInt()
+                bytes.copyOfRange(0, 4).contentEquals(Const.Message.DENT_V2) -> {
+                    readChannel.readFully(bytes, 0, 72)
+                    val nameLength = bytes.copyOfRange(68, 72).toInt()
                     readChannel.readFully(stringBytes, 0, nameLength)
-
                     result.add(
                         FileEntry(
-                            mode = bytes.copyOfRange(0, 4).toInt().toUInt(),
-                            size = bytes.copyOfRange(4, 8).toInt().toUInt(),
-                            lastModified = Instant.ofEpochSecond(bytes.copyOfRange(8, 12).toInt().toLong()),
+                            error = bytes.copyOfRange(0, 4).toUInt(),
+                            dev = bytes.copyOfRange(4, 12).toULong(),
+                            ino = bytes.copyOfRange(12, 20).toULong(),
+                            mode = bytes.copyOfRange(20, 24).toUInt(),
+                            nlink = bytes.copyOfRange(24, 28).toUInt(),
+                            uid = bytes.copyOfRange(28, 32).toUInt(),
+                            gid = bytes.copyOfRange(32, 36).toUInt(),
+                            size = bytes.copyOfRange(36, 44).toULong(),
+                            atime = Instant.ofEpochSecond(bytes.copyOfRange(44, 52).toLong()),
+                            mtime = Instant.ofEpochSecond(bytes.copyOfRange(52, 60).toLong()),
+                            ctime = Instant.ofEpochSecond(bytes.copyOfRange(60, 68).toLong()),
                             name = String(stringBytes, 0, nameLength, Const.FILENAME_ENCODING)
                         )
                     )

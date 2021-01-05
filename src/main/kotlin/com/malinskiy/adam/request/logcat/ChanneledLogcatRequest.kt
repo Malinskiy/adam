@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.malinskiy.adam.request.async
+package com.malinskiy.adam.request.logcat
 
 import com.malinskiy.adam.request.shell.v1.ChanneledShellCommandRequest
 import java.time.Instant

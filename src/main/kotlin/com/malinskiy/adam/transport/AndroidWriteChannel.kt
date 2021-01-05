@@ -16,7 +16,9 @@
 
 package com.malinskiy.adam.transport
 
+import com.malinskiy.adam.Const
 import com.malinskiy.adam.extension.copyTo
+import com.malinskiy.adam.extension.toByteArray
 import io.ktor.util.cio.*
 import io.ktor.utils.io.*
 import io.ktor.utils.io.core.*
@@ -38,5 +40,17 @@ class AndroidWriteChannel(private val delegate: ByteWriteChannel) : ByteWriteCha
         } finally {
             fileChannel?.cancel()
         }
+    }
+
+    suspend fun writeSyncRequest(type: ByteArray, remotePath: String) {
+        val path = remotePath.toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
+        val size = path.size.toByteArray().reversedArray()
+
+        val cmd = ByteArray(8 + path.size)
+
+        type.copyInto(cmd)
+        size.copyInto(cmd, 4)
+        path.copyInto(cmd, 8)
+        write(cmd)
     }
 }

@@ -18,40 +18,38 @@ package com.malinskiy.adam.request.sync.v1
 
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.exception.UnsupportedSyncProtocolException
-import com.malinskiy.adam.extension.toByteArray
 import com.malinskiy.adam.extension.toInt
+import com.malinskiy.adam.extension.toUInt
 import com.malinskiy.adam.request.ComplexRequest
+import com.malinskiy.adam.request.ValidationResponse
 import com.malinskiy.adam.transport.AndroidReadChannel
 import com.malinskiy.adam.transport.AndroidWriteChannel
 import java.time.Instant
 
 class StatFileRequest(
     private val remotePath: String
-) : ComplexRequest<FileStats>() {
-    override suspend fun readElement(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel): FileStats {
+) : ComplexRequest<FileEntry>() {
+    override suspend fun readElement(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel): FileEntry {
+        writeChannel.writeSyncRequest(Const.Message.LSTAT_V1, remotePath)
+
         val bytes = ByteArray(16)
-
-        val type = Const.Message.LSTAT_V1
-
-        val path = remotePath.toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
-        val size = path.size.toByteArray().reversedArray()
-
-        val cmd = ByteArray(8 + path.size)
-
-        type.copyInto(cmd)
-        size.copyInto(cmd, 4)
-        path.copyInto(cmd, 8)
-
-        writeChannel.write(cmd)
         readChannel.readFully(bytes, 0, 16)
 
         if (!bytes.copyOfRange(0, 4).contentEquals(Const.Message.LSTAT_V1)) throw UnsupportedSyncProtocolException()
 
-        return FileStats(
-            mode = bytes.copyOfRange(4, 8).toInt(),
-            size = bytes.copyOfRange(8, 12).toInt(),
+        return FileEntry(
+            mode = bytes.copyOfRange(4, 8).toUInt(),
+            size = bytes.copyOfRange(8, 12).toUInt(),
             lastModified = Instant.ofEpochSecond(bytes.copyOfRange(12, 16).toInt().toLong())
         )
+    }
+
+    override fun validate(): ValidationResponse {
+        return if (remotePath.length > Const.MAX_REMOTE_PATH_LENGTH) {
+            ValidationResponse(false, "Remote path should be less that ${Const.MAX_REMOTE_PATH_LENGTH} bytes")
+        } else {
+            ValidationResponse.Success
+        }
     }
 
     override fun serialize() = createBaseRequest("sync:")

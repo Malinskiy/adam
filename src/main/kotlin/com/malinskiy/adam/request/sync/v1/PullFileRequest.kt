@@ -19,7 +19,6 @@ package com.malinskiy.adam.request.sync.v1
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.exception.PullFailedException
 import com.malinskiy.adam.exception.UnsupportedSyncProtocolException
-import com.malinskiy.adam.extension.toByteArray
 import com.malinskiy.adam.extension.toInt
 import com.malinskiy.adam.request.AsyncChannelRequest
 import com.malinskiy.adam.request.ValidationResponse
@@ -44,40 +43,15 @@ class PullFileRequest(
 
     override suspend fun handshake(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel) {
         super.handshake(readChannel, writeChannel)
-
         totalBytes = statSize(readChannel, writeChannel)
-
-        val type = Const.Message.RECV_V1
-
-        val path = remotePath.toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
-        val size = path.size.toByteArray().reversedArray()
-
-        val cmd = ByteArray(8 + path.size)
-
-        type.copyInto(cmd)
-        size.copyInto(cmd, 4)
-        path.copyInto(cmd, 8)
-
-        writeChannel.write(cmd)
+        writeChannel.writeSyncRequest(Const.Message.RECV_V1, remotePath)
     }
 
     private suspend fun statSize(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel): Int {
+        writeChannel.writeSyncRequest(Const.Message.LSTAT_V1, remotePath)
+
         val bytes = ByteArray(16)
-
-        val type = Const.Message.LSTAT_V1
-
-        val path = remotePath.toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
-        val size = path.size.toByteArray().reversedArray()
-
-        val cmd = ByteArray(8 + path.size)
-
-        type.copyInto(cmd)
-        size.copyInto(cmd, 4)
-        path.copyInto(cmd, 8)
-
-        writeChannel.write(cmd)
         readChannel.readFully(bytes, 0, 16)
-
         if (!bytes.copyOfRange(0, 4).contentEquals(Const.Message.LSTAT_V1)) throw UnsupportedSyncProtocolException()
 
         return bytes.copyOfRange(8, 12).toInt()
@@ -128,11 +102,11 @@ class PullFileRequest(
     override fun serialize() = createBaseRequest("sync:")
 
     override fun validate(): ValidationResponse {
-        val bytes = remotePath.toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
-
-        return if (bytes.size <= Const.MAX_REMOTE_PATH_LENGTH) {
+        return if (remotePath.length > Const.MAX_REMOTE_PATH_LENGTH) {
+            ValidationResponse(false, "Remote path should be less that ${Const.MAX_REMOTE_PATH_LENGTH} bytes")
+        } else {
             ValidationResponse.Success
-        } else ValidationResponse(false, "Remote path should be less that ${Const.MAX_REMOTE_PATH_LENGTH} bytes")
+        }
     }
 
     override suspend fun writeElement(element: Unit, readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel) = Unit

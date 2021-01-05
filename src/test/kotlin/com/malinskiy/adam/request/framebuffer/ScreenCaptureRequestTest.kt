@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 Anton Malinskiy
+ * Copyright (C) 2021 Anton Malinskiy
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.malinskiy.adam.request.sync
+package com.malinskiy.adam.request.framebuffer
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
@@ -23,9 +23,6 @@ import com.github.romankh3.image.comparison.ImageComparisonUtil
 import com.github.romankh3.image.comparison.model.ImageComparisonResult
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.exception.UnsupportedImageProtocolException
-import com.malinskiy.adam.request.framebuffer.BufferedImageScreenCaptureAdapter
-import com.malinskiy.adam.request.framebuffer.RawImageScreenCaptureAdapter
-import com.malinskiy.adam.request.framebuffer.ScreenCaptureRequest
 import com.malinskiy.adam.server.AndroidDebugBridgeServer
 import io.ktor.utils.io.*
 import kotlinx.coroutines.runBlocking

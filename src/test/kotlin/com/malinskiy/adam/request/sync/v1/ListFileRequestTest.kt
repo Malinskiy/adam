@@ -14,14 +14,12 @@
  * limitations under the License.
  */
 
-package com.malinskiy.adam.request.fsync.v1
+package com.malinskiy.adam.request.sync.v1
 
 import assertk.assertThat
 import assertk.assertions.containsExactly
 import assertk.assertions.isEqualTo
 import com.malinskiy.adam.Const
-import com.malinskiy.adam.request.sync.v1.FileStats
-import com.malinskiy.adam.request.sync.v1.ListFileRequest
 import com.malinskiy.adam.server.AndroidDebugBridgeServer
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
@@ -60,11 +58,11 @@ class ListFileRequestTest {
         server.dispose()
 
         assertThat(list).containsExactly(
-            FileStats(
+            FileEntry(
                 name = "some-file",
-                mode = 123,
+                mode = 123.toUInt(),
                 lastModified = Instant.ofEpochSecond(1589042331),
-                size = 420
+                size = 420.toUInt()
             )
         )
     }

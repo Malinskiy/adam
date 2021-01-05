@@ -66,6 +66,36 @@ class ServerWriteChannel(private val delegate: ByteWriteChannel) : ByteWriteChan
         writeStringUtf8(name)
     }
 
+    suspend fun respondListV2(
+        name: String,
+        mode: Int = 0,
+        size: Int,
+        error: Int,
+        dev: Int,
+        ino: Int,
+        nlink: Int,
+        uid: Int,
+        gid: Int,
+        atime: Int,
+        mtime: Int,
+        ctime: Int
+    ) {
+        respond(Const.Message.DENT_V2)
+        writeIntLittleEndian(error)
+        writeLongLittleEndian(dev.toLong())
+        writeLongLittleEndian(ino.toLong())
+        writeIntLittleEndian(mode)
+        writeIntLittleEndian(nlink)
+        writeIntLittleEndian(uid)
+        writeIntLittleEndian(gid)
+        writeLongLittleEndian(size.toLong())
+        writeLongLittleEndian(atime.toLong())
+        writeLongLittleEndian(mtime.toLong())
+        writeLongLittleEndian(ctime.toLong())
+        writeIntLittleEndian(name.length)
+        writeStringUtf8(name)
+    }
+
     suspend fun respondStringV1(message: String) {
         val lengthString = message.length.toString(16)
         val prepend = 4 - lengthString.length

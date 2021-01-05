@@ -76,7 +76,7 @@ class FileE2ETest {
                 }
             }
             val stats = adbRule.adb.execute(StatFileRequest("/data/local/tmp/app-debug.apk"), adbRule.deviceSerial)
-            assertThat(stats.size).isEqualTo(testFile.length().toInt())
+            assertThat(stats.size).isEqualTo(testFile.length().toUInt())
 
             val sizeString = adbRule.adb.execute(ShellCommandRequest("${md5()} /data/local/tmp/app-debug.apk"), adbRule.deviceSerial)
             val split = sizeString.output.split(" ").filter { it != "" }
@@ -88,7 +88,7 @@ class FileE2ETest {
             assertThat(split[0]).isEqualTo(testFile.md5())
 
             //TODO figure out why 644 is actually pushed as 666
-            assertThat(stats.mode).isEqualTo("100666".toInt(radix = 8))
+            assertThat(stats.mode).isEqualTo("100666".toUInt(radix = 8))
         }
     }
 

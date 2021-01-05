@@ -63,6 +63,18 @@ class ServerReadChannel(private val delegate: ByteReadChannel) : ByteReadChannel
         return String(request, Const.DEFAULT_TRANSPORT_ENCODING)
     }
 
+    suspend fun receiveListV2(): String {
+        val protocolMessage = receiveProtocolMessage()
+        val message = String(protocolMessage, Const.DEFAULT_TRANSPORT_ENCODING)
+        if (message != "LIS2") throw RuntimeException(
+            "Unexpected protocol message $message"
+        )
+        val size = readIntLittleEndian()
+        val request = ByteArray(size)
+        readFully(request, 0, size)
+        return String(request, Const.DEFAULT_TRANSPORT_ENCODING)
+    }
+
     suspend fun receiveSend(): String {
         val protocolMessage = receiveProtocolMessage()
         val message = String(protocolMessage, Const.DEFAULT_TRANSPORT_ENCODING)
