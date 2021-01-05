@@ -16,23 +16,34 @@
 
 package com.malinskiy.adam.request.forwarding
 
+import com.malinskiy.adam.exception.RequestRejectedException
+import com.malinskiy.adam.request.ComplexRequest
 import com.malinskiy.adam.request.SerialTarget
-import com.malinskiy.adam.request.SynchronousRequest
+import com.malinskiy.adam.transport.AndroidReadChannel
+import com.malinskiy.adam.transport.AndroidWriteChannel
 
+/**
+ * Optionally returns a local TCP port that is occupied now if using LocalTcpPortSpec without any parameters
+ */
 class PortForwardRequest(
     private val local: LocalPortSpec,
     private val remote: RemotePortSpec,
     serial: String,
     private val mode: PortForwardingMode = PortForwardingMode.DEFAULT
 
-) : SynchronousRequest<Unit>(target = SerialTarget(serial)) {
+) : ComplexRequest<Int?>(target = SerialTarget(serial)) {
 
     override fun serialize() =
         createBaseRequest("forward${mode.value}:${local.toSpec()};${remote.toSpec()}")
 
-    override suspend fun process(bytes: ByteArray, offset: Int, limit: Int) = Unit
+    override suspend fun readElement(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel): Int? {
+        val transportResponse = readChannel.read()
+        if (!transportResponse.okay) {
+            throw RequestRejectedException("Can't establish port forwarding: ${transportResponse.message ?: ""}")
+        }
 
-    override fun transform() = Unit
+        return readChannel.readOptionalProtocolString()?.toIntOrNull()
+    }
 }
 
 enum class PortForwardingMode(val value: String) {

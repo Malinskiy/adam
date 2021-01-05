@@ -16,7 +16,6 @@
 
 package com.malinskiy.adam.extension
 
-import com.malinskiy.adam.Const
 import com.malinskiy.adam.request.transform.ResponseTransformer
 import io.ktor.utils.io.*
 import java.nio.ByteBuffer
@@ -39,11 +38,23 @@ suspend fun ByteReadChannel.copyTo(channel: ByteWriteChannel, buffer: ByteArray)
     return processed
 }
 
-suspend fun <T> ByteReadChannel.copyTo(transformer: ResponseTransformer<T>, buffer: ByteArray): Long {
+/**
+ * Copies up to limit bytes into transformer using buffer. If limit is null - copy until EOF
+ */
+suspend fun <T> ByteReadChannel.copyTo(transformer: ResponseTransformer<T>, buffer: ByteArray, limit: Long? = null): Long {
     var processed = 0L
     loop@ while (true) {
-        val available = readAvailable(buffer, 0, Const.MAX_FILE_PACKET_LENGTH)
+        val toRead = when {
+            limit == null || (limit - processed) > buffer.size -> {
+                buffer.size
+            }
+            else -> {
+                (limit - processed).toInt()
+            }
+        }
+        val available = readAvailable(buffer, 0, toRead)
         when {
+            processed == limit -> break@loop
             available < 0 -> {
                 break@loop
             }
@@ -63,3 +74,5 @@ suspend fun <T> ByteReadChannel.copyTo(transformer: ResponseTransformer<T>, buff
  */
 suspend fun ByteReadChannel.copyTo(channel: ByteWriteChannel, buffer: ByteBuffer) = copyTo(channel, buffer.array())
 suspend fun <T> ByteReadChannel.copyTo(transformer: ResponseTransformer<T>, buffer: ByteBuffer) = copyTo(transformer, buffer.array())
+suspend fun <T> ByteReadChannel.copyTo(transformer: ResponseTransformer<T>, buffer: ByteBuffer, limit: Long? = null) =
+    copyTo(transformer, buffer.array(), limit)

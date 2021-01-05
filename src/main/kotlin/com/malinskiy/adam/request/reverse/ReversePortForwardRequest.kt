@@ -16,11 +16,14 @@
 
 package com.malinskiy.adam.request.reverse
 
+import com.malinskiy.adam.exception.RequestRejectedException
+import com.malinskiy.adam.request.ComplexRequest
 import com.malinskiy.adam.request.NonSpecifiedTarget
-import com.malinskiy.adam.request.SynchronousRequest
 import com.malinskiy.adam.request.forwarding.LocalPortSpec
 import com.malinskiy.adam.request.forwarding.PortForwardingMode
 import com.malinskiy.adam.request.forwarding.RemotePortSpec
+import com.malinskiy.adam.transport.AndroidReadChannel
+import com.malinskiy.adam.transport.AndroidWriteChannel
 
 /**
  * Doesn't work with SerialTarget, have to use the serial as a parameter for the execute method
@@ -30,12 +33,17 @@ class ReversePortForwardRequest(
     private val remote: LocalPortSpec,
     private val mode: PortForwardingMode = PortForwardingMode.DEFAULT
 
-) : SynchronousRequest<Unit>(target = NonSpecifiedTarget) {
+) : ComplexRequest<Int?>(target = NonSpecifiedTarget) {
 
     override fun serialize() =
         createBaseRequest("reverse:forward${mode.value}:${local.toSpec()};${remote.toSpec()}")
 
-    override suspend fun process(bytes: ByteArray, offset: Int, limit: Int) = Unit
+    override suspend fun readElement(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel): Int? {
+        val transportResponse = readChannel.read()
+        if (!transportResponse.okay) {
+            throw RequestRejectedException("Can't establish port forwarding: ${transportResponse.message ?: ""}")
+        }
 
-    override fun transform() = Unit
+        return readChannel.readOptionalProtocolString()?.toIntOrNull()
+    }
 }

@@ -16,7 +16,7 @@
 
 package com.malinskiy.adam.request.misc
 
-import com.malinskiy.adam.Const
+import com.malinskiy.adam.exception.RequestRejectedException
 import com.malinskiy.adam.request.ComplexRequest
 import com.malinskiy.adam.request.HostTarget
 import com.malinskiy.adam.transport.AndroidReadChannel
@@ -27,14 +27,8 @@ import com.malinskiy.adam.transport.AndroidWriteChannel
  */
 class GetAdbServerVersionRequest : ComplexRequest<Int>(target = HostTarget) {
     override suspend fun readElement(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel): Int {
-        val sizeBuffer = ByteArray(4)
-        readChannel.readFully(sizeBuffer, 0, 4)
-
-        val length = String(sizeBuffer, Const.DEFAULT_TRANSPORT_ENCODING).toInt(radix = 16)
-        val versionBuffer = ByteArray(length)
-        readChannel.readFully(versionBuffer, 0, length)
-
-        return String(versionBuffer, Const.DEFAULT_TRANSPORT_ENCODING).toInt(radix = 16)
+        val version = readChannel.readOptionalProtocolString()
+        return version?.toIntOrNull(radix = 16) ?: throw RequestRejectedException("Empty/corrupt response")
     }
 
     override fun serialize() = createBaseRequest("version")
