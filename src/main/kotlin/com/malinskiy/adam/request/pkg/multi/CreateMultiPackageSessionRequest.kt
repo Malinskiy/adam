@@ -16,7 +16,7 @@
 
 package com.malinskiy.adam.request.pkg.multi
 
-import com.malinskiy.adam.annotation.RequiresFeatures
+import com.malinskiy.adam.annotation.Features
 import com.malinskiy.adam.exception.RequestRejectedException
 import com.malinskiy.adam.extension.bashEscape
 import com.malinskiy.adam.request.ComplexRequest
@@ -27,7 +27,7 @@ import com.malinskiy.adam.transport.AndroidReadChannel
 import com.malinskiy.adam.transport.AndroidWriteChannel
 import java.io.File
 
-@RequiresFeatures(Feature.CMD, Feature.ABB_EXEC)
+@Features(Feature.CMD, Feature.ABB_EXEC)
 class CreateMultiPackageSessionRequest(
     private val pkgList: List<InstallationPackage>,
     private val supportedFeatures: List<Feature>,

@@ -17,7 +17,7 @@
 package com.malinskiy.adam.request.pkg
 
 import com.malinskiy.adam.Const
-import com.malinskiy.adam.annotation.RequiresFeatures
+import com.malinskiy.adam.annotation.Features
 import com.malinskiy.adam.extension.bashEscape
 import com.malinskiy.adam.extension.copyTo
 import com.malinskiy.adam.request.ComplexRequest
@@ -39,7 +39,7 @@ import kotlin.coroutines.CoroutineContext
  *
  * @see com.malinskiy.adam.request.device.FetchDeviceFeaturesRequest
  */
-@RequiresFeatures(Feature.CMD, Feature.ABB_EXEC, Feature.APEX)
+@Features(Feature.CMD, Feature.ABB_EXEC, Feature.APEX)
 class StreamingPackageInstallRequest(
     private val pkg: File,
     private val supportedFeatures: List<Feature>,

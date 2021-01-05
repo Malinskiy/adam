@@ -14,11 +14,13 @@
  * limitations under the License.
  */
 
-package com.malinskiy.adam.request.pkg.multi
+package com.malinskiy.adam.request.pkg
 
-import com.malinskiy.adam.annotation.RequiresFeatures
+import com.malinskiy.adam.AndroidDebugBridgeClient
+import com.malinskiy.adam.annotation.Features
 import com.malinskiy.adam.request.Feature
 import com.malinskiy.adam.request.MultiRequest
+import com.malinskiy.adam.request.pkg.multi.*
 import kotlinx.coroutines.Dispatchers
 import kotlin.coroutines.CoroutineContext
 
@@ -31,15 +33,15 @@ import kotlin.coroutines.CoroutineContext
  *
  * @see com.malinskiy.adam.request.device.FetchDeviceFeaturesRequest
  */
-@RequiresFeatures(Feature.CMD, Feature.ABB_EXEC, Feature.APEX)
-class InstallMultiPackageRequest(
+@Features(Feature.CMD, Feature.ABB_EXEC, Feature.APEX)
+class AtomicInstallPackageRequest(
     private val pkgList: List<InstallationPackage>,
     private val supportedFeatures: List<Feature>,
     private val reinstall: Boolean,
     private val extraArgs: List<String> = emptyList(),
     val coroutineContext: CoroutineContext = Dispatchers.IO
-) : MultiRequest<Unit>(
-    { serial: String? ->
+) : MultiRequest<Unit>() {
+    override suspend fun execute(androidDebugBridgeClient: AndroidDebugBridgeClient, serial: String?) = with(androidDebugBridgeClient) {
         val parentSessionId = execute(CreateMultiPackageSessionRequest(pkgList, supportedFeatures, reinstall, extraArgs), serial)
         try {
             val childSessionIds = mutableListOf<String>()
@@ -48,11 +50,11 @@ class InstallMultiPackageRequest(
                     execute(CreateIndividualPackageSessionRequest(pkg, pkgList, supportedFeatures, reinstall, extraArgs), serial)
                 when (pkg) {
                     is SingleFileInstallationPackage -> {
-                        execute(WriteIndividualPackageRequest(pkg.file, supportedFeatures, childSessionId), serial)
+                        execute(WriteIndividualPackageRequest(pkg.file, supportedFeatures, childSessionId, coroutineContext), serial)
                     }
                     is ApkSplitInstallationPackage -> {
                         for (file in pkg.fileList) {
-                            execute(WriteIndividualPackageRequest(file, supportedFeatures, childSessionId), serial)
+                            execute(WriteIndividualPackageRequest(file, supportedFeatures, childSessionId, coroutineContext), serial)
                         }
                     }
                 }
@@ -70,4 +72,4 @@ class InstallMultiPackageRequest(
             throw e
         }
     }
-)
+}

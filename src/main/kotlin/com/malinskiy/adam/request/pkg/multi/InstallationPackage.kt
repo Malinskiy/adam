@@ -21,4 +21,6 @@ import java.io.File
 sealed class InstallationPackage
 
 data class SingleFileInstallationPackage(val file: File) : InstallationPackage()
-data class ApkSplitInstallationPackage(val fileList: List<File>) : InstallationPackage()
+data class ApkSplitInstallationPackage(val fileList: List<File>) : InstallationPackage() {
+    constructor(vararg files: File) : this(files.toList())
+}

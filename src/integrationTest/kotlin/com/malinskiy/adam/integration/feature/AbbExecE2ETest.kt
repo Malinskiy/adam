@@ -20,11 +20,8 @@ import assertk.assertThat
 import assertk.assertions.contains
 import assertk.assertions.doesNotContain
 import com.malinskiy.adam.request.Feature
-import com.malinskiy.adam.request.pkg.Package
-import com.malinskiy.adam.request.pkg.PmListRequest
-import com.malinskiy.adam.request.pkg.StreamingPackageInstallRequest
-import com.malinskiy.adam.request.pkg.UninstallRemotePackageRequest
-import com.malinskiy.adam.request.pkg.multi.InstallMultiPackageRequest
+import com.malinskiy.adam.request.pkg.*
+import com.malinskiy.adam.request.pkg.multi.ApkSplitInstallationPackage
 import com.malinskiy.adam.request.pkg.multi.SingleFileInstallationPackage
 import com.malinskiy.adam.rule.AdbDeviceRule
 import com.malinskiy.adam.rule.DeviceType
@@ -59,7 +56,6 @@ class AbbExecE2ETest {
         }
     }
 
-
     @Test
     fun testStreamingInstallRequest() {
         runBlocking {
@@ -92,8 +88,8 @@ class AbbExecE2ETest {
         runBlocking {
             val appFile = File(javaClass.getResource("/app-debug.apk").toURI())
             val testFile = File(javaClass.getResource("/app-debug-androidTest.apk").toURI())
-            val success = client.execute(
-                InstallMultiPackageRequest(
+            client.execute(
+                AtomicInstallPackageRequest(
                     listOf(
                         SingleFileInstallationPackage(appFile),
                         SingleFileInstallationPackage(testFile)
@@ -119,6 +115,35 @@ class AbbExecE2ETest {
                 .contains(Package("com.example"))
             assertThat(packages)
                 .contains(Package("com.example.test"))
+        }
+    }
+
+    @Test
+    fun testApkSplitInstall() {
+        runBlocking {
+            val appFile1 = File(javaClass.getResource("/split/base-en.apk").toURI())
+            val appFile2 = File(javaClass.getResource("/split/standalone-hdpi.apk").toURI())
+            client.execute(
+                InstallSplitPackageRequest(
+                    ApkSplitInstallationPackage(appFile1, appFile2),
+                    listOf(Feature.ABB_EXEC),
+                    true
+                ),
+                adb.deviceSerial
+            )
+
+            //Takes some time until it shows in the pm list. Wait for 10 seconds max
+            var packages: List<Package> = emptyList()
+            for (i in 1..100) {
+                packages = client.execute(PmListRequest(), serial = adb.deviceSerial)
+                if (packages.contains(Package("com.example"))) {
+                    break
+                }
+                delay(100)
+            }
+
+            assertThat(packages)
+                .contains(Package("com.example"))
         }
     }
 }

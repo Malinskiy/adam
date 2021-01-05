@@ -16,13 +16,13 @@
 
 package com.malinskiy.adam.request.abb
 
-import com.malinskiy.adam.annotation.RequiresFeatures
+import com.malinskiy.adam.annotation.Features
 import com.malinskiy.adam.request.ComplexRequest
 import com.malinskiy.adam.request.Feature
 import com.malinskiy.adam.transport.AndroidReadChannel
 import com.malinskiy.adam.transport.AndroidWriteChannel
 
-@RequiresFeatures(Feature.ABB_EXEC)
+@Features(Feature.ABB_EXEC)
 open class AbbExecRequest(private val args: List<String>) : ComplexRequest<Unit>() {
     override suspend fun readElement(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel) = Unit
 

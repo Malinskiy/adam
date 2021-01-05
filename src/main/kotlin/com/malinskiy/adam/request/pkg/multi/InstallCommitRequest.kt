@@ -32,10 +32,11 @@ class InstallCommitRequest(
         val hasAbbExec = supportedFeatures.contains(Feature.ABB_EXEC)
         val args = mutableListOf<String>().apply {
             add(
-                if (hasAbbExec) {
-                    "package"
-                } else {
-                    "exec:cmd package"
+                when {
+                    supportedFeatures.contains(Feature.ABB_EXEC) -> "package"
+                    supportedFeatures.contains(Feature.CMD) -> "exec:cmd package"
+                    //User is responsible for checking if pm supports install-write in this case
+                    else -> "exec:pm"
                 }
             )
 

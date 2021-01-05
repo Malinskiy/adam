@@ -140,7 +140,15 @@ class AndroidDebugBridgeClient(
         }
     }
 
-    suspend fun <T> execute(request: MultiRequest<T>, serial: String? = null): T = request.execute(this, serial)
+    suspend fun <T> execute(request: MultiRequest<T>, serial: String? = null): T {
+        val validationResponse = request.validate()
+        if (!validationResponse.success) {
+            val requestSimpleClassName = request.javaClass.simpleName
+            throw RequestValidationException("Request $requestSimpleClassName did not pass validation: ${validationResponse.message}")
+        }
+
+        return request.execute(this, serial)
+    }
 
     private suspend fun processRequest(
         writeChannel: AndroidWriteChannel,

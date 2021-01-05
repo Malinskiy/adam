@@ -16,13 +16,13 @@
 
 package com.malinskiy.adam.request.abb
 
-import com.malinskiy.adam.annotation.RequiresFeatures
+import com.malinskiy.adam.annotation.Features
 import com.malinskiy.adam.request.Feature
 import com.malinskiy.adam.request.abb.AbbExecRequest.Companion.DELIMITER
 import com.malinskiy.adam.request.shell.v2.ShellCommandResult
 import com.malinskiy.adam.request.shell.v2.SyncShellCommandRequest
 
-@RequiresFeatures(Feature.ABB)
+@Features(Feature.ABB)
 class AbbRequest(private val args: List<String>) : SyncShellCommandRequest<ShellCommandResult>("") {
     override fun serialize() = createBaseRequest("abb:${args.joinToString(DELIMITER.toString())}")
     override fun convertResult(response: ShellCommandResult) = response
