@@ -44,6 +44,7 @@ object Const {
 
         val LIST_V2 = byteArrayOf('L'.toByte(), 'I'.toByte(), 'S'.toByte(), '2'.toByte())
         val DENT_V2 = byteArrayOf('D'.toByte(), 'N'.toByte(), 'T'.toByte(), '2'.toByte())
+        val LSTAT_V2 = byteArrayOf('L'.toByte(), 'S'.toByte(), 'T'.toByte(), '2'.toByte())
 
         val DONEDONE =
             byteArrayOf('D'.toByte(), 'O'.toByte(), 'N'.toByte(), 'E'.toByte(), 'D'.toByte(), 'O'.toByte(), 'N'.toByte(), 'E'.toByte())

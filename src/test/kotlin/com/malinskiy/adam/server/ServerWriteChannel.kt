@@ -39,6 +39,33 @@ class ServerWriteChannel(private val delegate: ByteWriteChannel) : ByteWriteChan
         writeIntLittleEndian(lastModified)
     }
 
+    suspend fun respondStatV2(
+        mode: Int,
+        size: Int,
+        error: Int,
+        dev: Int,
+        ino: Int,
+        nlink: Int,
+        uid: Int,
+        gid: Int,
+        atime: Int,
+        mtime: Int,
+        ctime: Int
+    ) {
+        respond(Const.Message.LSTAT_V2)
+        writeIntLittleEndian(error)
+        writeLongLittleEndian(dev.toLong())
+        writeLongLittleEndian(ino.toLong())
+        writeIntLittleEndian(mode)
+        writeIntLittleEndian(nlink)
+        writeIntLittleEndian(uid)
+        writeIntLittleEndian(gid)
+        writeLongLittleEndian(size.toLong())
+        writeLongLittleEndian(atime.toLong())
+        writeLongLittleEndian(mtime.toLong())
+        writeLongLittleEndian(ctime.toLong())
+    }
+
     suspend fun respondData(byteArray: ByteArray) {
         respond(Const.Message.DATA)
         writeIntLittleEndian(byteArray.size)
