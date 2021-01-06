@@ -20,16 +20,23 @@ import assertk.assertThat
 import assertk.assertions.isEqualTo
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.exception.RequestRejectedException
+import com.malinskiy.adam.extension.newFileWithExtension
 import com.malinskiy.adam.extension.toAndroidChannel
 import com.malinskiy.adam.extension.toRequestString
 import com.malinskiy.adam.request.Feature
 import io.ktor.util.cio.*
 import io.ktor.utils.io.*
 import kotlinx.coroutines.runBlocking
+import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TemporaryFolder
 import java.io.File
 
 class WriteIndividualPackageRequestTest {
+    @Rule
+    @JvmField
+    val temp = TemporaryFolder()
+
     @Test
     fun serialize() {
         val request = stub()
@@ -58,7 +65,7 @@ class WriteIndividualPackageRequestTest {
             session = "session-id"
         )
         val response = "Success".toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
-        val actual = createTempFile(suffix = ".apk")
+        val actual = temp.newFileWithExtension("apk")
         val byteBufferChannel: ByteWriteChannel = actual.writeChannel()
         runBlocking {
             request.readElement(
@@ -80,7 +87,7 @@ class WriteIndividualPackageRequestTest {
             session = "session-id"
         )
         val response = "Failure".toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
-        val actual = createTempFile(suffix = ".apk")
+        val actual = temp.newFileWithExtension("apk")
         val byteBufferChannel: ByteWriteChannel = actual.writeChannel()
         runBlocking {
             request.readElement(

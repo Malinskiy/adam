@@ -17,10 +17,13 @@
 package com.malinskiy.adam.transport
 
 import com.malinskiy.adam.Const
+import com.malinskiy.adam.extension.compatLimit
+import com.malinskiy.adam.extension.compatRewind
 import com.malinskiy.adam.extension.copyTo
 import com.malinskiy.adam.extension.toByteArray
 import io.ktor.util.cio.*
 import io.ktor.utils.io.*
+import io.ktor.utils.io.bits.*
 import io.ktor.utils.io.core.*
 import java.io.File
 import java.nio.ByteBuffer
@@ -52,5 +55,28 @@ class AndroidWriteChannel(private val delegate: ByteWriteChannel) : ByteWriteCha
         size.copyInto(cmd, 4)
         path.copyInto(cmd, 8)
         write(cmd)
+    }
+
+    suspend fun writeSyncV2Request(type: ByteArray, remotePath: String, vararg flags: Int) {
+        val path = remotePath.toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
+        val flag = flags.reduce { acc, i -> acc or i }
+
+        withDefaultBuffer {
+            compatRewind()
+            compatLimit(4 + 4)
+            put(type)
+            putInt(path.size.reverseByteOrder())
+            compatRewind()
+            writeFully(this)
+
+            writeFully(path)
+
+            compatRewind()
+            compatLimit(4 + 4)
+            put(type)
+            putInt(flag.reverseByteOrder())
+            compatRewind()
+            writeFully(this)
+        }
     }
 }

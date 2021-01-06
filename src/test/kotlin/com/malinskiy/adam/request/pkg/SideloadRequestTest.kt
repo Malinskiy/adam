@@ -24,14 +24,21 @@ import com.malinskiy.adam.Const
 import com.malinskiy.adam.extension.toRequestString
 import com.malinskiy.adam.server.AndroidDebugBridgeServer
 import kotlinx.coroutines.runBlocking
+import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TemporaryFolder
 import java.io.File
 import java.nio.ByteBuffer
 
 class SideloadRequestTest {
+
+    @Rule
+    @JvmField
+    val temp = TemporaryFolder()
+
     @Test
     fun testSerialize() {
-        assertThat(SideloadRequest(createTempFile()).serialize().toRequestString()).isEqualTo("0015sideload-host:0:65536")
+        assertThat(SideloadRequest(temp.newFile()).serialize().toRequestString()).isEqualTo("0015sideload-host:0:65536")
     }
 
     @Test

@@ -18,7 +18,6 @@ package com.malinskiy.adam.integration.feature
 
 import assertk.assertThat
 import assertk.assertions.contains
-import assertk.assertions.doesNotContain
 import com.malinskiy.adam.request.Feature
 import com.malinskiy.adam.request.pkg.*
 import com.malinskiy.adam.request.pkg.multi.ApkSplitInstallationPackage
@@ -74,12 +73,6 @@ class AbbExecE2ETest {
             var packages = adb.adb.execute(PmListRequest(), serial = adb.deviceSerial)
             assertThat(packages)
                 .contains(Package("com.example"))
-
-            adb.adb.execute(UninstallRemotePackageRequest("com.example"), adb.deviceSerial)
-
-            packages = adb.adb.execute(PmListRequest(), serial = adb.deviceSerial)
-            assertThat(packages)
-                .doesNotContain(Package("com.example"))
         }
     }
 
@@ -109,7 +102,6 @@ class AbbExecE2ETest {
                 }
                 delay(100)
             }
-
 
             assertThat(packages)
                 .contains(Package("com.example"))

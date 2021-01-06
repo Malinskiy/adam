@@ -49,7 +49,7 @@ class StatFileRequestTest {
             }
 
             val output = client.execute(StatFileRequest("/sdcard/testfile"), serial = "serial")
-            assertThat(output.lastModified).isEqualTo(Instant.ofEpochSecond(10000))
+            assertThat(output.mtime).isEqualTo(Instant.ofEpochSecond(10000))
             assertThat(output.mode).isEqualTo(0x744.toUInt())
             assertThat(output.size).isEqualTo(128.toUInt())
 

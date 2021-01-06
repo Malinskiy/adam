@@ -20,17 +20,24 @@ import assertk.assertThat
 import assertk.assertions.isEqualTo
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.exception.RequestRejectedException
+import com.malinskiy.adam.extension.newFileWithExtension
 import com.malinskiy.adam.extension.toAndroidChannel
 import com.malinskiy.adam.extension.toRequestString
 import com.malinskiy.adam.request.Feature
 import io.ktor.utils.io.*
 import io.ktor.utils.io.core.*
 import kotlinx.coroutines.runBlocking
+import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TemporaryFolder
 
 import kotlin.text.toByteArray
 
 class CreateIndividualPackageSessionRequestTest {
+
+    @Rule
+    @JvmField
+    val temp = TemporaryFolder()
 
     @Test
     fun serialize() {
@@ -41,7 +48,7 @@ class CreateIndividualPackageSessionRequestTest {
 
     @Test
     fun serializeAbb() {
-        val pkg = SingleFileInstallationPackage(createTempFile(suffix = ".apk"))
+        val pkg = SingleFileInstallationPackage(temp.newFileWithExtension("apk"))
         val request = CreateIndividualPackageSessionRequest(
             supportedFeatures = listOf(Feature.CMD, Feature.ABB_EXEC),
             pkg = pkg,
@@ -54,7 +61,7 @@ class CreateIndividualPackageSessionRequestTest {
 
     @Test
     fun serializeCustomized() {
-        val pkg = SingleFileInstallationPackage(createTempFile(suffix = ".apk"))
+        val pkg = SingleFileInstallationPackage(temp.newFileWithExtension("apk"))
         val request = CreateIndividualPackageSessionRequest(
             supportedFeatures = listOf(Feature.CMD),
             pkg = pkg,
@@ -68,7 +75,7 @@ class CreateIndividualPackageSessionRequestTest {
 
     @Test
     fun serializedApex() {
-        val pkg = ApkSplitInstallationPackage(listOf(createTempFile(suffix = ".apex")))
+        val pkg = ApkSplitInstallationPackage(listOf(temp.newFileWithExtension("apex")))
         val request = CreateIndividualPackageSessionRequest(
             supportedFeatures = listOf(Feature.CMD),
             pkg = pkg,
@@ -84,7 +91,7 @@ class CreateIndividualPackageSessionRequestTest {
     fun testRead() {
         val request = stub()
         val response = "Success [my-session-id]".toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
-        val byteBufferChannel: ByteWriteChannel = ByteChannelSequentialJVM(IoBuffer.Empty, false)
+        val byteBufferChannel: ByteWriteChannel = ByteChannelSequentialJVM(Buffer.Empty, false)
         runBlocking {
             val sessionId = request.readElement(
                 ByteReadChannel(response).toAndroidChannel(),
@@ -98,7 +105,7 @@ class CreateIndividualPackageSessionRequestTest {
     fun testReadException() {
         val request = stub()
         val response = "Failure".toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
-        val byteBufferChannel: ByteWriteChannel = ByteChannelSequentialJVM(IoBuffer.Empty, false)
+        val byteBufferChannel: ByteWriteChannel = ByteChannelSequentialJVM(Buffer.Empty, false)
         runBlocking {
             request.readElement(
                 ByteReadChannel(response).toAndroidChannel(),
@@ -111,7 +118,7 @@ class CreateIndividualPackageSessionRequestTest {
     fun testReadNoSession() {
         val request = stub()
         val response = "Success no session returned".toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
-        val byteBufferChannel: ByteWriteChannel = ByteChannelSequentialJVM(IoBuffer.Empty, false)
+        val byteBufferChannel: ByteWriteChannel = ByteChannelSequentialJVM(Buffer.Empty, false)
         runBlocking {
             request.readElement(
                 ByteReadChannel(response).toAndroidChannel(),
@@ -121,7 +128,7 @@ class CreateIndividualPackageSessionRequestTest {
     }
 
     private fun stub(): CreateIndividualPackageSessionRequest {
-        val pkg = SingleFileInstallationPackage(createTempFile(suffix = ".apk"))
+        val pkg = SingleFileInstallationPackage(temp.newFileWithExtension("apk"))
         val request = CreateIndividualPackageSessionRequest(
             supportedFeatures = listOf(Feature.CMD),
             pkg = pkg,

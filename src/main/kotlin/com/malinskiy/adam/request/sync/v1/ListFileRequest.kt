@@ -20,13 +20,14 @@ import com.malinskiy.adam.Const
 import com.malinskiy.adam.extension.toInt
 import com.malinskiy.adam.request.ComplexRequest
 import com.malinskiy.adam.request.ValidationResponse
+import com.malinskiy.adam.request.sync.model.FileEntryV1
 import com.malinskiy.adam.transport.AndroidReadChannel
 import com.malinskiy.adam.transport.AndroidWriteChannel
 import java.time.Instant
 
 class ListFileRequest(
     private val remotePath: String
-) : ComplexRequest<List<FileEntry>>() {
+) : ComplexRequest<List<FileEntryV1>>() {
 
     override fun validate(): ValidationResponse {
         return if (remotePath.length > Const.MAX_REMOTE_PATH_LENGTH) {
@@ -36,12 +37,12 @@ class ListFileRequest(
         }
     }
 
-    override suspend fun readElement(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel): List<FileEntry> {
+    override suspend fun readElement(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel): List<FileEntryV1> {
         writeChannel.writeSyncRequest(Const.Message.LIST_V1, remotePath)
 
         val bytes = ByteArray(16)
         val stringBytes = ByteArray(Const.MAX_REMOTE_PATH_LENGTH)
-        val result = mutableListOf<FileEntry>()
+        val result = mutableListOf<FileEntryV1>()
         loop@ while (true) {
             readChannel.readFully(bytes, 0, 4)
             when {
@@ -51,11 +52,11 @@ class ListFileRequest(
                     readChannel.readFully(stringBytes, 0, nameLength)
 
                     result.add(
-                        FileEntry(
+                        FileEntryV1(
                             mode = bytes.copyOfRange(0, 4).toInt().toUInt(),
                             size = bytes.copyOfRange(4, 8).toInt().toUInt(),
-                            lastModified = Instant.ofEpochSecond(bytes.copyOfRange(8, 12).toInt().toLong()),
-                            name = String(stringBytes, 0, nameLength, Const.FILENAME_ENCODING)
+                            mtime = Instant.ofEpochSecond(bytes.copyOfRange(8, 12).toInt().toLong()),
+                            name = String(stringBytes, 0, nameLength, Const.DEFAULT_TRANSPORT_ENCODING)
                         )
                     )
                 }

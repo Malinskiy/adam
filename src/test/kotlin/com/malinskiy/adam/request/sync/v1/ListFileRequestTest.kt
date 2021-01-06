@@ -20,6 +20,7 @@ import assertk.assertThat
 import assertk.assertions.containsExactly
 import assertk.assertions.isEqualTo
 import com.malinskiy.adam.Const
+import com.malinskiy.adam.request.sync.model.FileEntryV1
 import com.malinskiy.adam.server.AndroidDebugBridgeServer
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
@@ -58,10 +59,10 @@ class ListFileRequestTest {
         server.dispose()
 
         assertThat(list).containsExactly(
-            FileEntry(
+            FileEntryV1(
                 name = "some-file",
                 mode = 123.toUInt(),
-                lastModified = Instant.ofEpochSecond(1589042331),
+                mtime = Instant.ofEpochSecond(1589042331),
                 size = 420.toUInt()
             )
         )

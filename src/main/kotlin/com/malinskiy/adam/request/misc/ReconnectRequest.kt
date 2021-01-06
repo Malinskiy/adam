@@ -17,6 +17,7 @@
 package com.malinskiy.adam.request.misc
 
 import com.malinskiy.adam.Const
+import com.malinskiy.adam.extension.compatRewind
 import com.malinskiy.adam.request.ComplexRequest
 import com.malinskiy.adam.request.NonSpecifiedTarget
 import com.malinskiy.adam.request.Target
@@ -50,7 +51,7 @@ class ReconnectRequest(
             val size = String(array, Const.DEFAULT_TRANSPORT_ENCODING).toInt(radix = 16)
             val payloadBuffer = ByteBuffer.allocate(size)
             readChannel.readFully(payloadBuffer)
-            payloadBuffer.rewind()
+            payloadBuffer.compatRewind()
             String(payloadBuffer.array(), Const.DEFAULT_TRANSPORT_ENCODING)
         }
     }

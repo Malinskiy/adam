@@ -21,6 +21,7 @@ import assertk.assertions.contains
 import assertk.assertions.doesNotContain
 import com.malinskiy.adam.request.pkg.*
 import com.malinskiy.adam.request.pkg.multi.ApkSplitInstallationPackage
+import com.malinskiy.adam.request.shell.v1.ShellCommandRequest
 import com.malinskiy.adam.request.sync.v1.PushFileRequest
 import com.malinskiy.adam.rule.AdbDeviceRule
 import kotlinx.coroutines.GlobalScope
@@ -44,6 +45,7 @@ class ApkE2ETest {
     fun setup() {
         runBlocking {
             client.execute(UninstallRemotePackageRequest("com.example"), adb.deviceSerial)
+            client.execute(ShellCommandRequest("rm /data/local/tmp/app-debug.apk"), adb.deviceSerial)
         }
     }
 
@@ -51,6 +53,7 @@ class ApkE2ETest {
     fun teardown() {
         runBlocking {
             client.execute(UninstallRemotePackageRequest("com.example"), adb.deviceSerial)
+            client.execute(ShellCommandRequest("rm /data/local/tmp/app-debug.apk"), adb.deviceSerial)
         }
     }
 

@@ -16,6 +16,7 @@
 
 package com.malinskiy.adam.request.framebuffer
 
+import com.malinskiy.adam.extension.compatRewind
 import com.malinskiy.adam.transport.AndroidReadChannel
 import io.ktor.utils.io.bits.*
 import java.awt.image.BufferedImage
@@ -45,7 +46,7 @@ class BufferedImageScreenCaptureAdapter(
         channel: AndroidReadChannel
     ): BufferedImage {
         val imageBuffer: ByteBuffer = read(channel, size)
-        imageBuffer.rewind()
+        imageBuffer.compatRewind()
         return when (bitsPerPixel) {
             16 -> {
                 createOrReuseBufferedImage(colorSpace, width, height, BufferedImage.TYPE_USHORT_565_RGB)

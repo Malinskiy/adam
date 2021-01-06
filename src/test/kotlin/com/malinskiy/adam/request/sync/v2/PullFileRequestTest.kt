@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.malinskiy.adam.request.sync.v1
+package com.malinskiy.adam.request.sync.v2
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
@@ -65,7 +65,7 @@ class PullFileRequestTest : CoroutineScope {
                 assertThat(statPath).isEqualTo("/sdcard/testfile")
                 output.respondStat(fixture.length().toInt())
 
-                val recvPath = input.receiveRecv()
+                val recvPath = input.receiveRecv2()
                 assertThat(recvPath).isEqualTo("/sdcard/testfile")
 
                 output.respondData(fixture.readBytes())
@@ -112,7 +112,7 @@ class PullFileRequestTest : CoroutineScope {
                 assertThat(statPath).isEqualTo("/sdcard/testfile")
                 output.respondStat(fixture.length().toInt())
 
-                val recvPath = input.receiveRecv()
+                val recvPath = input.receiveRecv2()
                 assertThat(recvPath).isEqualTo("/sdcard/testfile")
 
                 val fileBytes = fixture.readBytes().asSequence().chunked(100)
@@ -162,7 +162,7 @@ class PullFileRequestTest : CoroutineScope {
             assertThat(statPath).isEqualTo("/sdcard/testfile")
             output.respondStat(fixture.length().toInt())
 
-            val recvPath = input.receiveRecv()
+            val recvPath = input.receiveRecv2()
             assertThat(recvPath).isEqualTo("/sdcard/testfile")
 
             output.respond(Const.Message.FAIL)
@@ -203,7 +203,7 @@ class PullFileRequestTest : CoroutineScope {
                 assertThat(statPath).isEqualTo("/sdcard/testfile")
                 output.respondStat(fixture.length().toInt())
 
-                val recvPath = input.receiveRecv()
+                val recvPath = input.receiveRecv2()
                 assertThat(recvPath).isEqualTo("/sdcard/testfile")
 
                 output.respond(Const.Message.DATA)
@@ -245,7 +245,7 @@ class PullFileRequestTest : CoroutineScope {
                 assertThat(statPath).isEqualTo("/sdcard/testfile")
                 output.respondStat(fixture.length().toInt())
 
-                val recvPath = input.receiveRecv()
+                val recvPath = input.receiveRecv2()
                 assertThat(recvPath).isEqualTo("/sdcard/testfile")
 
                 output.respond(Const.Message.SEND_V1)

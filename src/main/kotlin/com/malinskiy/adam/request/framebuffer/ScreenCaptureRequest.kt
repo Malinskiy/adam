@@ -17,6 +17,7 @@
 package com.malinskiy.adam.request.framebuffer
 
 import com.malinskiy.adam.exception.UnsupportedImageProtocolException
+import com.malinskiy.adam.extension.compatRewind
 import com.malinskiy.adam.request.ComplexRequest
 import com.malinskiy.adam.transport.AndroidReadChannel
 import com.malinskiy.adam.transport.AndroidWriteChannel
@@ -27,7 +28,7 @@ class ScreenCaptureRequest<T>(private val adapter: ScreenCaptureAdapter<T>) : Co
     override suspend fun readElement(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel): T {
         val protocolBuffer: ByteBuffer = ByteBuffer.allocate(4)
         readChannel.readFully(protocolBuffer)
-        protocolBuffer.rewind()
+        protocolBuffer.compatRewind()
 
         val protocolVersion = protocolBuffer.order(ByteOrder.LITTLE_ENDIAN).int
         val headerSize = when (protocolVersion) {
@@ -42,11 +43,11 @@ class ScreenCaptureRequest<T>(private val adapter: ScreenCaptureAdapter<T>) : Co
         }
         val headerBuffer = ByteBuffer.allocate(headerSize * 4)
         readChannel.readFully(headerBuffer)
-        headerBuffer.rewind()
+        headerBuffer.compatRewind()
         writeChannel.writeFully(ByteArray(1) { 0.toByte() }, 0, 1)
 
         headerBuffer.order(ByteOrder.LITTLE_ENDIAN)
-        headerBuffer.rewind()
+        headerBuffer.compatRewind()
         return when (protocolVersion) {
             16 -> adapter.process(
                 version = protocolVersion,

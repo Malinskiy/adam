@@ -23,10 +23,13 @@ import com.github.romankh3.image.comparison.ImageComparisonUtil
 import com.github.romankh3.image.comparison.model.ImageComparisonResult
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.exception.UnsupportedImageProtocolException
+import com.malinskiy.adam.extension.newFileWithExtension
 import com.malinskiy.adam.server.AndroidDebugBridgeServer
 import io.ktor.utils.io.*
 import kotlinx.coroutines.runBlocking
+import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TemporaryFolder
 import java.awt.image.BufferedImage
 import java.io.File
 import javax.imageio.ImageIO
@@ -34,6 +37,10 @@ import kotlin.system.measureTimeMillis
 
 
 class ScreenCaptureRequestTest {
+    @Rule
+    @JvmField
+    val temp = TemporaryFolder()
+
     @Test
     fun testProtocol1() {
         runBlocking {
@@ -75,7 +82,7 @@ class ScreenCaptureRequestTest {
             assertThat(actual.alphaLength).isEqualTo(8)
             assertThat(actual.buffer.contentHashCode()).isEqualTo(-1474724227)
 
-            val createTempFile = createTempFile(suffix = ".png")
+            val createTempFile = temp.newFileWithExtension("png")
             val actualImage = actual.toBufferedImage()
             ImageIO.write(actualImage, "png", createTempFile)
 
@@ -127,7 +134,7 @@ class ScreenCaptureRequestTest {
             assertThat(actual.alphaLength).isEqualTo(0)
             assertThat(actual.buffer.contentHashCode()).isEqualTo(1300692993)
 
-            val createTempFile = createTempFile(suffix = ".png")
+            val createTempFile = temp.newFileWithExtension("png")
             val actualImage = actual.toBufferedImage()
             ImageIO.write(actualImage, "png", createTempFile)
 
@@ -167,7 +174,7 @@ class ScreenCaptureRequestTest {
         measureTimeMillis {
             actual = client.execute(ScreenCaptureRequest(adapter), serial = "serial")
         }.let { println("Read image in ${it}ms") }
-        val createTempFile = createTempFile(suffix = ".png")
+        val createTempFile = temp.newFileWithExtension("png")
         ImageIO.write(actual, "png", createTempFile)
 
         val expected = ImageIO.read(File(javaClass.getResource("/fixture/screencap_1.png").toURI()))
@@ -179,7 +186,7 @@ class ScreenCaptureRequestTest {
             actual = client.execute(ScreenCaptureRequest(adapter), serial = "serial")
         }.let { println("Read image with buffer reuse in ${it}ms") }
 
-        val createTempFile2 = createTempFile(suffix = ".png")
+        val createTempFile2 = temp.newFileWithExtension("png")
         ImageIO.write(actual, "png", createTempFile2)
         comparisonResult = compare(expected, actual!!)
         assertThat(comparisonResult.differencePercent).isEqualTo(0.0f)
@@ -220,7 +227,7 @@ class ScreenCaptureRequestTest {
         measureTimeMillis {
             actual = client.execute(ScreenCaptureRequest(adapter), serial = "serial")
         }.let { println("Read image in ${it}ms") }
-        val createTempFile = createTempFile(suffix = ".png")
+        val createTempFile = temp.newFileWithExtension("png")
         ImageIO.write(actual, "png", createTempFile)
 
         val expected = ImageIO.read(File(javaClass.getResource("/fixture/screencap_2.png").toURI()))
@@ -232,7 +239,7 @@ class ScreenCaptureRequestTest {
             actual = client.execute(ScreenCaptureRequest(adapter), serial = "serial")
         }.let { println("Read image with buffer reuse in ${it}ms") }
 
-        val createTempFile2 = createTempFile(suffix = ".png")
+        val createTempFile2 = temp.newFileWithExtension("png")
         ImageIO.write(actual, "png", createTempFile2)
         comparisonResult = compare(expected, actual!!)
         assertThat(comparisonResult.differencePercent).isEqualTo(0.0f)
@@ -270,7 +277,7 @@ class ScreenCaptureRequestTest {
         measureTimeMillis {
             actual = client.execute(ScreenCaptureRequest(adapter), serial = "serial")
         }.let { println("Read image in ${it}ms") }
-        val createTempFile = createTempFile(suffix = ".png")
+        val createTempFile = temp.newFileWithExtension("png")
         ImageIO.write(actual, "png", createTempFile)
 
         val expected = ImageIO.read(File(javaClass.getResource("/fixture/screencap_1.png").toURI()))
@@ -282,7 +289,7 @@ class ScreenCaptureRequestTest {
             actual = client.execute(ScreenCaptureRequest(adapter), serial = "serial")
         }.let { println("Read image with buffer reuse in ${it}ms") }
 
-        val createTempFile2 = createTempFile(suffix = ".png")
+        val createTempFile2 = temp.newFileWithExtension("png")
         ImageIO.write(actual, "png", createTempFile2)
         comparisonResult = compare(expected, actual!!)
         assertThat(comparisonResult.differencePercent).isEqualTo(0.0f)
@@ -319,7 +326,7 @@ class ScreenCaptureRequestTest {
         measureTimeMillis {
             actual = client.execute(ScreenCaptureRequest(adapter), serial = "serial")
         }.let { println("Read image in ${it}ms") }
-        val createTempFile = createTempFile(suffix = ".png")
+        val createTempFile = temp.newFileWithExtension("png")
         ImageIO.write(actual, "png", createTempFile)
 
         val expected = ImageIO.read(File(javaClass.getResource("/fixture/screencap_3.png").toURI()))
@@ -331,7 +338,7 @@ class ScreenCaptureRequestTest {
             actual = client.execute(ScreenCaptureRequest(adapter), serial = "serial")
         }.let { println("Read image with buffer reuse in ${it}ms") }
 
-        val createTempFile2 = createTempFile(suffix = ".png")
+        val createTempFile2 = temp.newFileWithExtension("png")
         ImageIO.write(actual, "png", createTempFile2)
         comparisonResult = compare(expected, actual!!)
         assertThat(comparisonResult.differencePercent).isEqualTo(0.0f)
@@ -369,7 +376,7 @@ class ScreenCaptureRequestTest {
     ): ImageComparisonResult {
         val imageComparison = ImageComparison(expected, actual)
         val comparisonResult = imageComparison.compareImages()
-        val comparisonImage = createTempFile(suffix = ".png")
+        val comparisonImage = temp.newFileWithExtension("png")
         ImageComparisonUtil.saveImage(comparisonImage, comparisonResult.result)
         return comparisonResult
     }

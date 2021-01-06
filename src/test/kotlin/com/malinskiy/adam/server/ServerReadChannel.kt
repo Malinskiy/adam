@@ -118,10 +118,21 @@ class ServerReadChannel(private val delegate: ByteReadChannel) : ByteReadChannel
         return String(request, Const.DEFAULT_TRANSPORT_ENCODING)
     }
 
-    suspend fun receiveFile(): File {
-        val tempFile = createTempFile()
-        val channel = tempFile.writeChannel()
+    suspend fun receiveRecv2(): String {
+        val protocolMessage = receiveProtocolMessage()
+        val message = String(protocolMessage, Const.DEFAULT_TRANSPORT_ENCODING)
+        if (message != "RCV2") throw RuntimeException(
+            "Unexpected protocol message $message"
+        )
 
+        val size = readIntLittleEndian()
+        val request = ByteArray(size)
+        readFully(request, 0, size)
+        return String(request, Const.DEFAULT_TRANSPORT_ENCODING)
+    }
+
+    suspend fun receiveFile(file: File): File {
+        val channel = file.writeChannel()
         val headerBuffer = ByteArray(8)
         val dataBuffer = ByteArray(Const.MAX_FILE_PACKET_LENGTH)
         while (true) {
@@ -130,7 +141,7 @@ class ServerReadChannel(private val delegate: ByteReadChannel) : ByteReadChannel
 
             when {
                 header.contentEquals(Const.Message.DONE) -> {
-                    return tempFile
+                    return file
                 }
                 header.contentEquals(Const.Message.DATA) -> {
                     val available = headerBuffer.copyOfRange(4, 8).toInt()

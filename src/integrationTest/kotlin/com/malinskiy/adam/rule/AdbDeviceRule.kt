@@ -75,14 +75,15 @@ class AdbDeviceRule(val deviceType: DeviceType = DeviceType.ANY, vararg val requ
 
                     when (deviceType) {
                         DeviceType.EMULATOR -> {
-                            if (!device.serial.startsWith("emulator-")) {
-                                continue@loop
-                            }
+                            Assume.assumeTrue(
+                                "No device of type $deviceType found",
+                                device.serial.startsWith("emulator-")
+                            )
                         }
                     }
 
+                    supportedFeatures = adb.execute(FetchDeviceFeaturesRequest(device.serial))
                     if (!requiredFeatures.isEmpty()) {
-                        supportedFeatures = adb.execute(FetchDeviceFeaturesRequest(device.serial))
                         Assume.assumeTrue(
                             "No compatible device found for features $requiredFeatures",
                             requiredFeatures.isEmpty() ||

@@ -14,9 +14,11 @@
  * limitations under the License.
  */
 
-package com.malinskiy.adam.request.sync.v1
+package com.malinskiy.adam.request.sync.v2
 
 import com.malinskiy.adam.Const
+import com.malinskiy.adam.annotation.Features
+import com.malinskiy.adam.request.Feature
 import com.malinskiy.adam.request.sync.base.BasePullFileRequest
 import com.malinskiy.adam.transport.AndroidReadChannel
 import com.malinskiy.adam.transport.AndroidWriteChannel
@@ -24,14 +26,20 @@ import kotlinx.coroutines.Dispatchers
 import java.io.File
 import kotlin.coroutines.CoroutineContext
 
+@Features(Feature.SENDRECV_V2)
 class PullFileRequest(
     private val remotePath: String,
     local: File,
     size: Long? = null,
     coroutineContext: CoroutineContext = Dispatchers.IO
 ) : BasePullFileRequest(remotePath, local, size, coroutineContext) {
+    /**
+     * We don't have support for any compression, so the only value is NONE
+     */
+    private val compressionType = CompressionType.NONE
+
     override suspend fun handshake(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel) {
         super.handshake(readChannel, writeChannel)
-        writeChannel.writeSyncRequest(Const.Message.RECV_V1, remotePath)
+        writeChannel.writeSyncV2Request(Const.Message.RECV_V2, remotePath, compressionType.toFlag())
     }
 }

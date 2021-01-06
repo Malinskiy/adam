@@ -14,13 +14,15 @@
  * limitations under the License.
  */
 
-package com.malinskiy.adam.request.sync.v1
+package com.malinskiy.adam.extension
 
-import java.time.Instant
+import java.nio.Buffer
+import java.nio.ByteBuffer
 
-data class FileEntry(
-    val name: String? = null,
-    val mode: UInt,
-    val size: UInt,
-    val lastModified: Instant
-)
+/**
+ * Mitigation of running JDK 9 code on JRE 8
+ *
+ * java.lang.NoSuchMethodError: java.nio.ByteBuffer.xxx()Ljava/nio/ByteBuffer;
+ */
+fun ByteBuffer.compatRewind() = ((this as Buffer).rewind() as ByteBuffer)
+fun ByteBuffer.compatLimit(newLimit: Int) = ((this as Buffer).limit(newLimit) as ByteBuffer)

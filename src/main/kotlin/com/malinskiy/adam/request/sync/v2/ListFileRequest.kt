@@ -25,6 +25,7 @@ import com.malinskiy.adam.extension.toULong
 import com.malinskiy.adam.request.ComplexRequest
 import com.malinskiy.adam.request.Feature
 import com.malinskiy.adam.request.ValidationResponse
+import com.malinskiy.adam.request.sync.model.FileEntryV2
 import com.malinskiy.adam.transport.AndroidReadChannel
 import com.malinskiy.adam.transport.AndroidWriteChannel
 import java.time.Instant
@@ -32,7 +33,7 @@ import java.time.Instant
 @Features(Feature.LS_V2)
 class ListFileRequest(
     private val remotePath: String
-) : ComplexRequest<List<FileEntry>>() {
+) : ComplexRequest<List<FileEntryV2>>() {
 
     override fun validate(): ValidationResponse {
         return if (remotePath.length > Const.MAX_REMOTE_PATH_LENGTH) {
@@ -42,13 +43,13 @@ class ListFileRequest(
         }
     }
 
-    override suspend fun readElement(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel): List<FileEntry> {
+    override suspend fun readElement(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel): List<FileEntryV2> {
         writeChannel.writeSyncRequest(Const.Message.LIST_V2, remotePath)
 
         val stringBytes = ByteArray(Const.MAX_REMOTE_PATH_LENGTH)
 
         val bytes = ByteArray(72)
-        val result = mutableListOf<FileEntry>()
+        val result = mutableListOf<FileEntryV2>()
         loop@ while (true) {
             readChannel.readFully(bytes, 0, 4)
             when {
@@ -57,7 +58,7 @@ class ListFileRequest(
                     val nameLength = bytes.copyOfRange(68, 72).toInt()
                     readChannel.readFully(stringBytes, 0, nameLength)
                     result.add(
-                        FileEntry(
+                        FileEntryV2(
                             error = bytes.copyOfRange(0, 4).toUInt(),
                             dev = bytes.copyOfRange(4, 12).toULong(),
                             ino = bytes.copyOfRange(12, 20).toULong(),
@@ -69,7 +70,7 @@ class ListFileRequest(
                             atime = Instant.ofEpochSecond(bytes.copyOfRange(44, 52).toLong()),
                             mtime = Instant.ofEpochSecond(bytes.copyOfRange(52, 60).toLong()),
                             ctime = Instant.ofEpochSecond(bytes.copyOfRange(60, 68).toLong()),
-                            name = String(stringBytes, 0, nameLength, Const.FILENAME_ENCODING)
+                            name = String(stringBytes, 0, nameLength, Const.DEFAULT_TRANSPORT_ENCODING)
                         )
                     )
                 }

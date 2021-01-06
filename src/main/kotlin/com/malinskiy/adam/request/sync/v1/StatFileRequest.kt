@@ -22,14 +22,15 @@ import com.malinskiy.adam.extension.toInt
 import com.malinskiy.adam.extension.toUInt
 import com.malinskiy.adam.request.ComplexRequest
 import com.malinskiy.adam.request.ValidationResponse
+import com.malinskiy.adam.request.sync.model.FileEntryV1
 import com.malinskiy.adam.transport.AndroidReadChannel
 import com.malinskiy.adam.transport.AndroidWriteChannel
 import java.time.Instant
 
 class StatFileRequest(
     private val remotePath: String
-) : ComplexRequest<FileEntry>() {
-    override suspend fun readElement(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel): FileEntry {
+) : ComplexRequest<FileEntryV1>() {
+    override suspend fun readElement(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel): FileEntryV1 {
         writeChannel.writeSyncRequest(Const.Message.LSTAT_V1, remotePath)
 
         val bytes = ByteArray(16)
@@ -37,10 +38,10 @@ class StatFileRequest(
 
         if (!bytes.copyOfRange(0, 4).contentEquals(Const.Message.LSTAT_V1)) throw UnsupportedSyncProtocolException()
 
-        return FileEntry(
+        return FileEntryV1(
             mode = bytes.copyOfRange(4, 8).toUInt(),
             size = bytes.copyOfRange(8, 12).toUInt(),
-            lastModified = Instant.ofEpochSecond(bytes.copyOfRange(12, 16).toInt().toLong())
+            mtime = Instant.ofEpochSecond(bytes.copyOfRange(12, 16).toInt().toLong())
         )
     }
 

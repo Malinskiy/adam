@@ -16,19 +16,16 @@
 
 package com.malinskiy.adam.request.sync.v2
 
-import java.time.Instant
+enum class CompressionType {
+    NONE,
+    BROTLI,
+    LZ4,
+    Zstd;
 
-data class FileEntry(
-    val error: UInt,
-    val dev: ULong,
-    val ino: ULong,
-    val mode: UInt,
-    val nlink: UInt,
-    val uid: UInt,
-    val gid: UInt,
-    val size: ULong,
-    val atime: Instant,
-    val mtime: Instant,
-    val ctime: Instant,
-    val name: String? = null
-)
+    fun toFlag() = when (this) {
+        NONE -> 0
+        BROTLI -> 1
+        LZ4 -> 2
+        Zstd -> 4
+    }
+}

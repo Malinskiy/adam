@@ -17,6 +17,7 @@
 package com.malinskiy.adam.integration
 
 import com.malinskiy.adam.request.pkg.InstallRemotePackageRequest
+import com.malinskiy.adam.request.shell.v1.ShellCommandRequest
 import com.malinskiy.adam.request.sync.v1.PushFileRequest
 import com.malinskiy.adam.request.testrunner.InstrumentOptions
 import com.malinskiy.adam.request.testrunner.TestRunnerRequest
@@ -24,6 +25,8 @@ import com.malinskiy.adam.rule.AdbDeviceRule
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.channels.receiveOrNull
 import kotlinx.coroutines.runBlocking
+import org.junit.After
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import java.io.File
@@ -33,6 +36,22 @@ class TestRunnerE2ETest {
     @Rule
     @JvmField
     val rule = AdbDeviceRule()
+
+    @Before
+    fun setup() {
+        runBlocking {
+            rule.adb.execute(ShellCommandRequest("rm /data/local/tmp/app-debug.apk"), rule.deviceSerial)
+            rule.adb.execute(ShellCommandRequest("rm /data/local/tmp/app-debug-androidTest.apk"), rule.deviceSerial)
+        }
+    }
+
+    @After
+    fun teardown() {
+        runBlocking {
+            rule.adb.execute(ShellCommandRequest("rm /data/local/tmp/app-debug.apk"), rule.deviceSerial)
+            rule.adb.execute(ShellCommandRequest("rm /data/local/tmp/app-debug-androidTest.apk"), rule.deviceSerial)
+        }
+    }
 
     @Test
     fun test1() {

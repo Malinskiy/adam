@@ -31,8 +31,10 @@ import kotlinx.coroutines.channels.receiveOrNull
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import org.junit.After
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TemporaryFolder
 import java.io.File
 import kotlin.math.roundToInt
 
@@ -40,6 +42,26 @@ class FileE2ETest {
     @Rule
     @JvmField
     val adbRule = AdbDeviceRule()
+
+    @Rule
+    @JvmField
+    val temp = TemporaryFolder()
+
+    @Before
+    fun setup() {
+        runBlocking {
+            adbRule.adb.execute(ShellCommandRequest("rm /data/local/tmp/app-debug.apk"), adbRule.deviceSerial)
+            adbRule.adb.execute(ShellCommandRequest("rm /data/local/tmp/testfile"), adbRule.deviceSerial)
+        }
+    }
+
+    @After
+    fun teardown() {
+        runBlocking {
+            adbRule.adb.execute(ShellCommandRequest("rm /data/local/tmp/app-debug.apk"), adbRule.deviceSerial)
+            adbRule.adb.execute(ShellCommandRequest("rm /data/local/tmp/testfile"), adbRule.deviceSerial)
+        }
+    }
 
     private suspend fun md5(): String {
         var output = adbRule.adb.execute(ShellCommandRequest("ls /system/bin/md5"), adbRule.deviceSerial)
@@ -100,17 +122,10 @@ class FileE2ETest {
         }
     }
 
-    @After
-    fun cleanup() {
-        runBlocking {
-            adbRule.adb.execute(ShellCommandRequest("rm /data/local/tmp/testfile"), serial = adbRule.deviceSerial)
-        }
-    }
-
     @Test
     fun testFilePulling() {
         runBlocking {
-            val testFile = createTempFile()
+            val testFile = temp.newFile()
 
             withTimeout(10_000) {
                 while (true) {

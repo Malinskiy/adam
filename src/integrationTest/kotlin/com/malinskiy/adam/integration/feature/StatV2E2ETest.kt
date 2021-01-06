@@ -19,6 +19,7 @@ package com.malinskiy.adam.integration.feature
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import com.malinskiy.adam.request.Feature
+import com.malinskiy.adam.request.shell.v1.ShellCommandRequest
 import com.malinskiy.adam.request.sync.v1.PushFileRequest
 import com.malinskiy.adam.request.sync.v2.StatFileRequest
 import com.malinskiy.adam.rule.AdbDeviceRule
@@ -26,6 +27,7 @@ import com.malinskiy.adam.rule.DeviceType
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.channels.receiveOrNull
 import kotlinx.coroutines.runBlocking
+import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -58,11 +60,18 @@ class StatV2E2ETest {
         }
     }
 
+    @After
+    fun teardown() {
+        runBlocking {
+            adbRule.adb.execute(ShellCommandRequest("rm /data/local/tmp/${testFile.name}"), adbRule.deviceSerial)
+        }
+    }
+
     @Test
     fun testListFile() {
         runBlocking {
             val stats = adbRule.adb.execute(StatFileRequest("/data/local/tmp/app-debug.apk"), adbRule.deviceSerial)
-            assertThat(stats.size).isEqualTo(testFile.length().toUInt())
+            assertThat(stats.size).isEqualTo(testFile.length().toULong())
         }
     }
 }

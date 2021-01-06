@@ -22,6 +22,7 @@ import assertk.assertions.isFalse
 import assertk.assertions.isTrue
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.exception.RequestRejectedException
+import com.malinskiy.adam.extension.newFileWithExtension
 import com.malinskiy.adam.extension.toAndroidChannel
 import com.malinskiy.adam.extension.toRequestString
 import com.malinskiy.adam.request.Feature
@@ -29,11 +30,17 @@ import com.malinskiy.adam.request.ValidationResponse
 import io.ktor.utils.io.*
 import io.ktor.utils.io.core.*
 import kotlinx.coroutines.runBlocking
+import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TemporaryFolder
 import java.io.File
 import kotlin.text.toByteArray
 
 class CreateMultiPackageSessionRequestTest {
+    @Rule
+    @JvmField
+    val temp = TemporaryFolder()
+
     @Test
     fun serialize() {
         val request = stub()
@@ -43,7 +50,7 @@ class CreateMultiPackageSessionRequestTest {
 
     @Test
     fun serializeAbb() {
-        val pkg = SingleFileInstallationPackage(createTempFile(suffix = ".apk"))
+        val pkg = SingleFileInstallationPackage(temp.newFileWithExtension("apk"))
         val request = CreateMultiPackageSessionRequest(
             supportedFeatures = listOf(Feature.CMD, Feature.ABB_EXEC),
             extraArgs = emptyList(),
@@ -56,7 +63,7 @@ class CreateMultiPackageSessionRequestTest {
 
     @Test
     fun serializeReinstall() {
-        val pkg = SingleFileInstallationPackage(createTempFile(suffix = ".apk"))
+        val pkg = SingleFileInstallationPackage(temp.newFileWithExtension("apk"))
         val request = CreateMultiPackageSessionRequest(
             supportedFeatures = listOf(Feature.CMD),
             extraArgs = listOf("-g"),
@@ -69,7 +76,7 @@ class CreateMultiPackageSessionRequestTest {
 
     @Test
     fun serializeApex() {
-        val pkg = SingleFileInstallationPackage(createTempFile(suffix = ".apex"))
+        val pkg = SingleFileInstallationPackage(temp.newFileWithExtension("apex"))
         val request = CreateMultiPackageSessionRequest(
             supportedFeatures = listOf(Feature.CMD),
             extraArgs = listOf("-g"),
@@ -82,7 +89,7 @@ class CreateMultiPackageSessionRequestTest {
 
     @Test
     fun serializeApkSplit() {
-        val pkg = ApkSplitInstallationPackage(listOf(createTempFile(suffix = ".apex"), createTempFile(suffix = ".apex")))
+        val pkg = ApkSplitInstallationPackage(listOf(temp.newFileWithExtension("apex"), temp.newFileWithExtension("apex")))
         val request = CreateMultiPackageSessionRequest(
             supportedFeatures = listOf(Feature.CMD),
             extraArgs = listOf("-g"),
@@ -97,7 +104,7 @@ class CreateMultiPackageSessionRequestTest {
     fun testRead() {
         val request = stub()
         val response = "Success [my-session-id]".toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
-        val byteBufferChannel: ByteWriteChannel = ByteChannelSequentialJVM(IoBuffer.Empty, false)
+        val byteBufferChannel: ByteWriteChannel = ByteChannelSequentialJVM(Buffer.Empty, false)
         runBlocking {
             val sessionId = request.readElement(
                 ByteReadChannel(response).toAndroidChannel(),
@@ -111,7 +118,7 @@ class CreateMultiPackageSessionRequestTest {
     fun testReadException() {
         val request = stub()
         val response = "Failure".toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
-        val byteBufferChannel: ByteWriteChannel = ByteChannelSequentialJVM(IoBuffer.Empty, false)
+        val byteBufferChannel: ByteWriteChannel = ByteChannelSequentialJVM(Buffer.Empty, false)
         runBlocking {
             request.readElement(
                 ByteReadChannel(response).toAndroidChannel(),
@@ -124,7 +131,7 @@ class CreateMultiPackageSessionRequestTest {
     fun testReadNoSession() {
         val request = stub()
         val response = "Success no session returned".toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
-        val byteBufferChannel: ByteWriteChannel = ByteChannelSequentialJVM(IoBuffer.Empty, false)
+        val byteBufferChannel: ByteWriteChannel = ByteChannelSequentialJVM(Buffer.Empty, false)
         runBlocking {
             request.readElement(
                 ByteReadChannel(response).toAndroidChannel(),
@@ -152,7 +159,7 @@ class CreateMultiPackageSessionRequestTest {
 
     @Test
     fun testValidationFailureNonApk() {
-        val pkg = SingleFileInstallationPackage(createTempDir(suffix = ".app"))
+        val pkg = SingleFileInstallationPackage(temp.newFolder("app"))
         val request = CreateMultiPackageSessionRequest(
             supportedFeatures = listOf(Feature.CMD),
             pkgList = listOf(pkg),
@@ -163,7 +170,7 @@ class CreateMultiPackageSessionRequestTest {
 
     @Test
     fun testValidationFailureFolder() {
-        val pkg = SingleFileInstallationPackage(createTempDir())
+        val pkg = SingleFileInstallationPackage(temp.newFolder())
         val request = CreateMultiPackageSessionRequest(
             supportedFeatures = listOf(Feature.CMD),
             extraArgs = emptyList(),
@@ -175,7 +182,7 @@ class CreateMultiPackageSessionRequestTest {
 
     @Test
     fun testValidationFailureFeatures() {
-        val pkg = SingleFileInstallationPackage(createTempFile(suffix = ".apk"))
+        val pkg = SingleFileInstallationPackage(temp.newFileWithExtension("apk"))
         var request = CreateMultiPackageSessionRequest(
             supportedFeatures = listOf(),
             extraArgs = emptyList(),
@@ -203,7 +210,7 @@ class CreateMultiPackageSessionRequestTest {
 
     @Test
     fun testValidationApex() {
-        val pkg = SingleFileInstallationPackage(createTempFile(suffix = ".apex"))
+        val pkg = SingleFileInstallationPackage(temp.newFileWithExtension("apex"))
         var request = CreateMultiPackageSessionRequest(
             supportedFeatures = listOf(Feature.CMD),
             extraArgs = emptyList(),
@@ -215,7 +222,7 @@ class CreateMultiPackageSessionRequestTest {
 
     @Test
     fun testValidationApkSplit() {
-        val pkg = ApkSplitInstallationPackage(listOf(createTempFile(suffix = ".apk"), createTempFile(suffix = ".apk")))
+        val pkg = ApkSplitInstallationPackage(listOf(temp.newFileWithExtension("apk"), temp.newFileWithExtension("apk")))
         var request = CreateMultiPackageSessionRequest(
             supportedFeatures = listOf(Feature.CMD),
             extraArgs = emptyList(),
@@ -227,7 +234,7 @@ class CreateMultiPackageSessionRequestTest {
 
     @Test
     fun testValidationFailureApkSplit() {
-        val pkg = ApkSplitInstallationPackage(listOf(createTempFile(suffix = ".apk"), createTempFile(suffix = ".app")))
+        val pkg = ApkSplitInstallationPackage(listOf(temp.newFileWithExtension("apk"), createTempFile(suffix = ".app")))
         var request = CreateMultiPackageSessionRequest(
             supportedFeatures = listOf(Feature.CMD),
             extraArgs = emptyList(),
@@ -238,7 +245,7 @@ class CreateMultiPackageSessionRequestTest {
     }
 
     private fun stub(): CreateMultiPackageSessionRequest {
-        val pkg = SingleFileInstallationPackage(createTempFile(suffix = ".apk"))
+        val pkg = SingleFileInstallationPackage(temp.newFileWithExtension("apk"))
         val request = CreateMultiPackageSessionRequest(
             supportedFeatures = listOf(Feature.CMD),
             extraArgs = emptyList(),

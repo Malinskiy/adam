@@ -100,7 +100,6 @@ class CmdE2ETest {
                 delay(100)
             }
 
-
             assertThat(packages)
                 .contains(Package("com.example"))
         }
@@ -132,7 +131,6 @@ class CmdE2ETest {
                 }
                 delay(100)
             }
-
 
             assertThat(packages)
                 .contains(Package("com.example"))

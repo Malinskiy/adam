@@ -19,6 +19,7 @@ package com.malinskiy.adam.request.sync.v2
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import com.malinskiy.adam.Const
+import com.malinskiy.adam.request.sync.model.FileEntryV2
 import com.malinskiy.adam.server.AndroidDebugBridgeServer
 import io.ktor.utils.io.*
 import kotlinx.coroutines.runBlocking
@@ -60,9 +61,9 @@ class StatFileRequestTest {
                 output.close()
             }
 
-            val output: FileEntry = client.execute(StatFileRequest("/sdcard/testfile"), serial = "serial")
+            val output: FileEntryV2 = client.execute(StatFileRequest("/sdcard/testfile"), serial = "serial")
             assertThat(output).isEqualTo(
-                FileEntry(
+                FileEntryV2(
                     mode = 123.toUInt(),
                     size = 420.toULong(),
                     error = 0.toUInt(),

@@ -24,13 +24,19 @@ import com.malinskiy.adam.Const
 import com.malinskiy.adam.extension.toRequestString
 import com.malinskiy.adam.server.AndroidDebugBridgeServer
 import kotlinx.coroutines.runBlocking
+import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TemporaryFolder
 import java.io.File
 
 class LegacySideloadRequestTest {
+    @Rule
+    @JvmField
+    val temp = TemporaryFolder()
+
     @Test
     fun testSerialize() {
-        assertThat(LegacySideloadRequest(createTempFile()).serialize().toRequestString()).isEqualTo("000Asideload:0")
+        assertThat(LegacySideloadRequest(temp.newFile()).serialize().toRequestString()).isEqualTo("000Asideload:0")
     }
 
     @Test

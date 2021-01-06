@@ -26,14 +26,21 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.receiveOrNull
 import kotlinx.coroutines.runBlocking
+import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TemporaryFolder
 import java.io.File
 import kotlin.coroutines.CoroutineContext
 
 class PushFileRequestTest : CoroutineScope {
+
+    @Rule
+    @JvmField
+    val temp = TemporaryFolder()
+
     @Test
     fun testSerialize() {
-        val testFile = File.createTempFile("adam", "y")
+        val testFile = temp.newFile("adam")
         val fileName = testFile.name
         val bytes = PushFileRequest(testFile, "/data/local/tmp/$fileName").serialize()
         assertThat(bytes.toString(Const.DEFAULT_TRANSPORT_ENCODING))
@@ -60,7 +67,7 @@ class PushFileRequestTest : CoroutineScope {
 
                 val receiveCmd = input.receiveSend()
                 assertThat(receiveCmd).isEqualTo("/sdcard/testfile,420")
-                receiveFile = input.receiveFile()
+                receiveFile = input.receiveFile(temp.newFile())
                 output.respond(Const.Message.OKAY)
                 output.close()
             }
@@ -103,7 +110,7 @@ class PushFileRequestTest : CoroutineScope {
 
                 val receiveCmd = input.receiveSend()
                 assertThat(receiveCmd).isEqualTo("/sdcard/testfile,420")
-                receiveFile = input.receiveFile()
+                receiveFile = input.receiveFile(temp.newFile())
                 output.respond(Const.Message.FAIL)
                 val s = "CAFEBABE"
                 output.writeFully("0008".toByteArray(Const.DEFAULT_TRANSPORT_ENCODING), 0, 4)

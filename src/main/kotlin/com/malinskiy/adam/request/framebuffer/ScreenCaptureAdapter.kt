@@ -16,6 +16,7 @@
 
 package com.malinskiy.adam.request.framebuffer
 
+import com.malinskiy.adam.extension.compatRewind
 import com.malinskiy.adam.transport.AndroidReadChannel
 import io.ktor.utils.io.*
 import java.nio.ByteBuffer
@@ -36,7 +37,7 @@ abstract class ScreenCaptureAdapter<T>(
 
         val imageBuffer = if (localBuffer != null && localBuffer.capacity() == size) {
             localBuffer.also {
-                it.rewind()
+                it.compatRewind()
             }
         } else {
             ByteBuffer.allocate(size).also { buffer = it }
