@@ -20,6 +20,7 @@ import assertk.assertThat
 import assertk.assertions.containsExactly
 import assertk.assertions.isEqualTo
 import com.malinskiy.adam.Const
+import com.malinskiy.adam.request.Feature
 import com.malinskiy.adam.request.sync.model.FileEntryV2
 import com.malinskiy.adam.server.AndroidDebugBridgeServer
 import kotlinx.coroutines.runBlocking
@@ -60,7 +61,7 @@ class ListFileRequestTest {
         }
 
         val list = client.execute(
-            ListFileRequest("/sdcard/"), "serial"
+            ListFileRequest("/sdcard/", listOf(Feature.LS_V2)), "serial"
         )
         server.dispose()
 

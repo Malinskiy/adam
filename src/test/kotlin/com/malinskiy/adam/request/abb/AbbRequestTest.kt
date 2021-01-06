@@ -19,6 +19,7 @@ package com.malinskiy.adam.request.abb
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import com.malinskiy.adam.Const
+import com.malinskiy.adam.request.Feature
 import org.junit.Test
 
 class AbbRequestTest {
@@ -27,7 +28,7 @@ class AbbRequestTest {
      */
     @Test
     fun testSerialize() {
-        val array = AbbRequest(listOf("package", "install")).serialize()
+        val array = AbbRequest(listOf("package", "install"), listOf(Feature.ABB)).serialize()
 
         assertThat(String(array, 0, 15, Const.DEFAULT_TRANSPORT_ENCODING)).isEqualTo("0013abb:package")
         assertThat(array[15].toChar()).isEqualTo(AbbExecRequest.DELIMITER)

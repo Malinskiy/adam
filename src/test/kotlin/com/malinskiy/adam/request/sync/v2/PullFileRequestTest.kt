@@ -21,6 +21,7 @@ import assertk.assertions.isEqualTo
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.exception.PullFailedException
 import com.malinskiy.adam.exception.UnsupportedSyncProtocolException
+import com.malinskiy.adam.request.Feature
 import com.malinskiy.adam.server.AndroidDebugBridgeServer
 import io.ktor.utils.io.*
 import kotlinx.coroutines.CoroutineScope
@@ -41,7 +42,12 @@ class PullFileRequestTest : CoroutineScope {
 
     @Test
     fun testSerialize() {
-        assertThat(String(PullFileRequest("/sdcard/testfile", File("/tmp/testfile")).serialize(), Const.DEFAULT_TRANSPORT_ENCODING))
+        assertThat(
+            String(
+                PullFileRequest("/sdcard/testfile", File("/tmp/testfile"), listOf(Feature.SENDRECV_V2)).serialize(),
+                Const.DEFAULT_TRANSPORT_ENCODING
+            )
+        )
             .isEqualTo("0005sync:")
     }
 
@@ -74,7 +80,7 @@ class PullFileRequestTest : CoroutineScope {
             }
 
             val tempFile = temp.newFile()
-            val request = PullFileRequest("/sdcard/testfile", tempFile)
+            val request = PullFileRequest("/sdcard/testfile", tempFile, listOf(Feature.SENDRECV_V2))
             val execute = client.execute(request, this@PullFileRequestTest, "serial")
 
             var progress = 0.0
@@ -127,7 +133,7 @@ class PullFileRequestTest : CoroutineScope {
             }
 
             val tempFile = temp.newFile()
-            val request = PullFileRequest("/sdcard/testfile", tempFile)
+            val request = PullFileRequest("/sdcard/testfile", tempFile, listOf(Feature.SENDRECV_V2))
             val execute = client.execute(request, this@PullFileRequestTest, "serial")
 
             var progress = 0.0
@@ -176,7 +182,7 @@ class PullFileRequestTest : CoroutineScope {
         }
 
         val tempFile = temp.newFile()
-        val request = PullFileRequest("/sdcard/testfile", tempFile)
+        val request = PullFileRequest("/sdcard/testfile", tempFile, listOf(Feature.SENDRECV_V2))
         val execute = client.execute(request, this@PullFileRequestTest, "serial")
 
         var progress = 0.0
@@ -215,7 +221,7 @@ class PullFileRequestTest : CoroutineScope {
             }
 
             val tempFile = temp.newFile()
-            val request = PullFileRequest("/sdcard/testfile", tempFile)
+            val request = PullFileRequest("/sdcard/testfile", tempFile, listOf(Feature.SENDRECV_V2))
             val execute = client.execute(request, this@PullFileRequestTest, "serial")
 
             var progress = 0.0
@@ -257,7 +263,7 @@ class PullFileRequestTest : CoroutineScope {
             }
 
             val tempFile = temp.newFile()
-            val request = PullFileRequest("/sdcard/testfile", tempFile)
+            val request = PullFileRequest("/sdcard/testfile", tempFile, listOf(Feature.SENDRECV_V2))
             val execute = client.execute(request, this@PullFileRequestTest, "serial")
 
             var progress = 0.0

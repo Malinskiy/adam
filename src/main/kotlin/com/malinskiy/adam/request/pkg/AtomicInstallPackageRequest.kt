@@ -20,6 +20,7 @@ import com.malinskiy.adam.AndroidDebugBridgeClient
 import com.malinskiy.adam.annotation.Features
 import com.malinskiy.adam.request.Feature
 import com.malinskiy.adam.request.MultiRequest
+import com.malinskiy.adam.request.ValidationResponse
 import com.malinskiy.adam.request.pkg.multi.*
 import kotlinx.coroutines.Dispatchers
 import kotlin.coroutines.CoroutineContext
@@ -70,6 +71,24 @@ class AtomicInstallPackageRequest(
                 //Ignore
             }
             throw e
+        }
+    }
+
+    override fun validate(): ValidationResponse {
+        val response = super.validate()
+        return if (!response.success) {
+            response
+        } else if (!supportedFeatures.contains(Feature.CMD) && !supportedFeatures.contains(Feature.ABB_EXEC)) {
+            ValidationResponse(false, ValidationResponse.missingEitherFeature(Feature.ABB_EXEC, Feature.CMD))
+        } else if (pkgList.map {
+                when (it) {
+                    is SingleFileInstallationPackage -> listOf(it.file)
+                    is ApkSplitInstallationPackage -> it.fileList
+                }
+            }.flatten().any { file -> file.extension == "apex" } && !supportedFeatures.contains(Feature.APEX)) {
+            ValidationResponse(false, ValidationResponse.missingFeature(Feature.APEX))
+        } else {
+            ValidationResponse.Success
         }
     }
 }

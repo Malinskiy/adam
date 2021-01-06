@@ -50,17 +50,22 @@ class StreamingPackageInstallRequest(
     private val transformer = StringResponseTransformer()
 
     override fun validate(): ValidationResponse {
+        val response = super.validate()
+        if (!response.success) {
+            return response
+        }
+
         val message =
             if (!pkg.exists()) {
-                "Package ${pkg.absolutePath} doesn't exist"
+                ValidationResponse.packageShouldExist(pkg)
             } else if (!pkg.isFile) {
-                "Package ${pkg.absolutePath} is not a regular file"
+                ValidationResponse.packageShouldBeRegularFile(pkg)
             } else if (!supportedFeatures.contains(Feature.ABB_EXEC) && !supportedFeatures.contains(Feature.CMD)) {
-                "Supported features must include either ABB_EXEC or CMD"
+                ValidationResponse.missingEitherFeature(Feature.ABB_EXEC, Feature.CMD)
             } else if (pkg.extension == "apex" && !supportedFeatures.contains(Feature.APEX)) {
-                "Apex is not supported by this device"
-            } else if (pkg.extension != "apk") {
-                "Unsupported package extension ${pkg.extension}. Should be either apk or apex"
+                ValidationResponse.missingFeature(Feature.APEX)
+            } else if (!SUPPORTED_EXTENSIONS.contains(pkg.extension)) {
+                ValidationResponse.packageShouldBeSupportedExtension(pkg, SUPPORTED_EXTENSIONS)
             } else {
                 null
             }
@@ -99,7 +104,7 @@ class StreamingPackageInstallRequest(
         }.toList()
 
         return if (hasAbbExec) {
-            AbbExecRequest(args).serialize()
+            AbbExecRequest(args, supportedFeatures).serialize()
         } else {
             createBaseRequest(args.joinToString(" "))
         }
@@ -117,5 +122,9 @@ class StreamingPackageInstallRequest(
 
         readChannel.copyTo(transformer, buffer)
         return transformer.transform().startsWith("Success")
+    }
+
+    companion object {
+        val SUPPORTED_EXTENSIONS = setOf("apk", "apex")
     }
 }

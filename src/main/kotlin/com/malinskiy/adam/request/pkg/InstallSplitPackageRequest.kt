@@ -88,13 +88,18 @@ class InstallSplitPackageRequest(
     }
 
     override fun validate(): ValidationResponse {
-        for (file in pkg.fileList) {
-            val message = validateFile(file) ?: continue
-            return ValidationResponse(false, message)
-        }
+        val response = super.validate()
+        if (!response.success) {
+            return response
+        } else {
+            for (file in pkg.fileList) {
+                val message = validateFile(file) ?: continue
+                return ValidationResponse(false, message)
+            }
 
-        if (!pkg.fileList.any { it.extension == "apk" }) {
-            return ValidationResponse(false, "At least one of the files has to be an APK file")
+            if (!pkg.fileList.any { it.extension == "apk" }) {
+                return ValidationResponse(false, ValidationResponse.oneOfFilesShouldBe("apk"))
+            }
         }
 
         return ValidationResponse.Success
@@ -102,13 +107,13 @@ class InstallSplitPackageRequest(
 
     private fun validateFile(file: File): String? {
         return if (!file.exists()) {
-            "Package ${file.absolutePath} doesn't exist"
+            ValidationResponse.packageShouldExist(file)
         } else if (!file.isFile) {
-            "Package ${file.absolutePath} is not a regular file"
+            ValidationResponse.packageShouldBeRegularFile(file)
         } else if (file.extension == "apex") {
-            "Apex is not compatible with InstallMultiple"
+            "Apex is not compatible with InstallSplitPackageRequest"
         } else if (!SUPPORTED_EXTENSIONS.contains(file.extension)) {
-            "Unsupported package extension ${file.extension}. Should be on of ${SUPPORTED_EXTENSIONS.joinToString()}}"
+            ValidationResponse.packageShouldBeSupportedExtension(file, SUPPORTED_EXTENSIONS)
         } else {
             null
         }

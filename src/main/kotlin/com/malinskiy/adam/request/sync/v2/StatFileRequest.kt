@@ -32,7 +32,8 @@ import java.time.Instant
 
 @Features(Feature.STAT_V2)
 class StatFileRequest(
-    private val remotePath: String
+    private val remotePath: String,
+    private val supportedFeatures: List<Feature>
 ) : ComplexRequest<FileEntryV2>() {
     override suspend fun readElement(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel): FileEntryV2 {
         writeChannel.writeSyncRequest(Const.Message.LSTAT_V2, remotePath)
@@ -58,8 +59,13 @@ class StatFileRequest(
     }
 
     override fun validate(): ValidationResponse {
-        return if (remotePath.length > Const.MAX_REMOTE_PATH_LENGTH) {
-            ValidationResponse(false, "Remote path should be less that ${Const.MAX_REMOTE_PATH_LENGTH} bytes")
+        val response = super.validate()
+        return if (!response.success) {
+            response
+        } else if (remotePath.length > Const.MAX_REMOTE_PATH_LENGTH) {
+            ValidationResponse(false, ValidationResponse.pathShouldNotBeLong())
+        } else if (!supportedFeatures.contains(Feature.STAT_V2)) {
+            ValidationResponse(false, ValidationResponse.missingFeature(Feature.STAT_V2))
         } else {
             ValidationResponse.Success
         }

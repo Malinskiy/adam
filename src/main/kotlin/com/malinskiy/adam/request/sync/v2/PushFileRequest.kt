@@ -59,11 +59,11 @@ class PushFileRequest(
         return if (!response.success) {
             response
         } else if (!supportedFeatures.contains(Feature.SENDRECV_V2)) {
-            return ValidationResponse(false, "SENDRECV_V2 is not supported by device")
+            ValidationResponse(false, ValidationResponse.missingFeature(Feature.SENDRECV_V2))
         } else if (dryRun && !supportedFeatures.contains(Feature.SENDRECV_V2_DRY_RUN_SEND)) {
-            return ValidationResponse(false, "SENDRECV_V2_DRY_RUN_SEND is not supported by device")
+            ValidationResponse(false, ValidationResponse.missingFeature(Feature.SENDRECV_V2_DRY_RUN_SEND))
         } else {
-            return ValidationResponse.Success
+            ValidationResponse.Success
         }
     }
 

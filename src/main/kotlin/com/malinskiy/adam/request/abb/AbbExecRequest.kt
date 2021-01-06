@@ -19,14 +19,26 @@ package com.malinskiy.adam.request.abb
 import com.malinskiy.adam.annotation.Features
 import com.malinskiy.adam.request.ComplexRequest
 import com.malinskiy.adam.request.Feature
+import com.malinskiy.adam.request.ValidationResponse
 import com.malinskiy.adam.transport.AndroidReadChannel
 import com.malinskiy.adam.transport.AndroidWriteChannel
 
 @Features(Feature.ABB_EXEC)
-open class AbbExecRequest(private val args: List<String>) : ComplexRequest<Unit>() {
+open class AbbExecRequest(private val args: List<String>, private val supportedFeatures: List<Feature>) : ComplexRequest<Unit>() {
     override suspend fun readElement(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel) = Unit
 
     override fun serialize() = createBaseRequest("abb_exec:${args.joinToString(DELIMITER.toString())}")
+
+    override fun validate(): ValidationResponse {
+        val response = super.validate()
+        return if (!response.success) {
+            response
+        } else if (!supportedFeatures.contains(Feature.ABB_EXEC)) {
+            ValidationResponse(false, ValidationResponse.missingFeature(Feature.ABB_EXEC))
+        } else {
+            ValidationResponse.Success
+        }
+    }
 
     companion object {
         const val DELIMITER = 0x00.toChar()

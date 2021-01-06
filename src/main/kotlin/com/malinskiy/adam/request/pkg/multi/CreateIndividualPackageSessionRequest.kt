@@ -78,7 +78,7 @@ class CreateIndividualPackageSessionRequest(
         }.toList()
 
         return if (hasAbbExec) {
-            AbbExecRequest(args).serialize()
+            AbbExecRequest(args, supportedFeatures).serialize()
         } else {
             createBaseRequest(args.joinToString(" "))
         }

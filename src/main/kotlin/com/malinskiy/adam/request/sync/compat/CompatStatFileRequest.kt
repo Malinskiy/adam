@@ -29,7 +29,10 @@ class CompatStatFileRequest(
 ) : MultiRequest<FileEntry>() {
     override suspend fun execute(androidDebugBridgeClient: AndroidDebugBridgeClient, serial: String?): FileEntry {
         return when {
-            supportedFeatures.contains(Feature.STAT_V2) -> androidDebugBridgeClient.execute(StatV2FileRequest(source), serial)
+            supportedFeatures.contains(Feature.STAT_V2) -> androidDebugBridgeClient.execute(
+                StatV2FileRequest(source, supportedFeatures),
+                serial
+            )
             else -> androidDebugBridgeClient.execute(StatFileRequest(source), serial)
         }
     }

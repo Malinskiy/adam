@@ -82,7 +82,7 @@ class SendRecvV2E2ETest {
             val file = temp.newFile()
 
             val channel = adbRule.adb.execute(
-                PullFileRequest("/data/local/tmp/testfile", file),
+                PullFileRequest("/data/local/tmp/testfile", file, adbRule.supportedFeatures),
                 GlobalScope,
                 adbRule.deviceSerial
             )

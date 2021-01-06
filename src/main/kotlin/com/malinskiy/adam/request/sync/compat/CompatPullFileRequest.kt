@@ -39,7 +39,7 @@ class CompatPullFileRequest(
         return when {
             supportedFeatures.contains(Feature.SENDRECV_V2) -> {
                 androidDebugBridgeClient.execute(
-                    PullV2FileRequest(source, realDestination, size, coroutineContext),
+                    PullV2FileRequest(source, realDestination, supportedFeatures, size, coroutineContext),
                     coroutineScope,
                     serial
                 )

@@ -32,12 +32,18 @@ import java.time.Instant
 
 @Features(Feature.LS_V2)
 class ListFileRequest(
-    private val remotePath: String
+    private val remotePath: String,
+    private val supportedFeatures: List<Feature>
 ) : ComplexRequest<List<FileEntryV2>>() {
 
     override fun validate(): ValidationResponse {
-        return if (remotePath.length > Const.MAX_REMOTE_PATH_LENGTH) {
-            ValidationResponse(false, "Remote path should be less that ${Const.MAX_REMOTE_PATH_LENGTH} bytes")
+        val response = super.validate()
+        return if (!response.success) {
+            response
+        } else if (remotePath.length > Const.MAX_REMOTE_PATH_LENGTH) {
+            ValidationResponse(false, ValidationResponse.pathShouldNotBeLong())
+        } else if (!supportedFeatures.contains(Feature.LS_V2)) {
+            ValidationResponse(false, ValidationResponse.missingFeature(Feature.LS_V2))
         } else {
             ValidationResponse.Success
         }

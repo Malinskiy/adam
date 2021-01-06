@@ -19,6 +19,7 @@ package com.malinskiy.adam.request.sync.v2
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.annotation.Features
 import com.malinskiy.adam.request.Feature
+import com.malinskiy.adam.request.ValidationResponse
 import com.malinskiy.adam.request.sync.base.BasePullFileRequest
 import com.malinskiy.adam.transport.AndroidReadChannel
 import com.malinskiy.adam.transport.AndroidWriteChannel
@@ -30,6 +31,7 @@ import kotlin.coroutines.CoroutineContext
 class PullFileRequest(
     private val remotePath: String,
     local: File,
+    private val supportedFeatures: List<Feature>,
     size: Long? = null,
     coroutineContext: CoroutineContext = Dispatchers.IO
 ) : BasePullFileRequest(remotePath, local, size, coroutineContext) {
@@ -41,5 +43,16 @@ class PullFileRequest(
     override suspend fun handshake(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel) {
         super.handshake(readChannel, writeChannel)
         writeChannel.writeSyncV2Request(Const.Message.RECV_V2, remotePath, compressionType.toFlag())
+    }
+
+    override fun validate(): ValidationResponse {
+        val response = super.validate()
+        return if (!response.success) {
+            response
+        } else if (!supportedFeatures.contains(Feature.SENDRECV_V2)) {
+            ValidationResponse(false, ValidationResponse.missingFeature(Feature.SENDRECV_V2))
+        } else {
+            ValidationResponse.Success
+        }
     }
 }

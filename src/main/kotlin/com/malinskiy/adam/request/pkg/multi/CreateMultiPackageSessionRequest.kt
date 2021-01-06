@@ -35,6 +35,11 @@ class CreateMultiPackageSessionRequest(
     private val extraArgs: List<String> = emptyList()
 ) : ComplexRequest<String>() {
     override fun validate(): ValidationResponse {
+        val response = super.validate()
+        if (!response.success) {
+            return response
+        }
+
         loop@ for (installationPackage in pkgList) {
             when (installationPackage) {
                 is SingleFileInstallationPackage -> {
@@ -56,15 +61,15 @@ class CreateMultiPackageSessionRequest(
 
     private fun validateFile(file: File): String? {
         return if (!file.exists()) {
-            "Package ${file.absolutePath} doesn't exist"
+            ValidationResponse.packageShouldExist(file)
         } else if (!file.isFile) {
-            "Package ${file.absolutePath} is not a regular file"
+            ValidationResponse.packageShouldBeRegularFile(file)
         } else if (!supportedFeatures.contains(Feature.ABB_EXEC) && !supportedFeatures.contains(Feature.CMD)) {
-            "Supported features must include either ABB_EXEC or CMD"
+            ValidationResponse.missingEitherFeature(Feature.ABB_EXEC, Feature.CMD)
         } else if (file.extension == "apex" && !supportedFeatures.contains(Feature.APEX)) {
-            "Apex is not supported by this device"
-        } else if (file.extension != "apk") {
-            "Unsupported package extension ${file.extension}. Should be either apk or apex"
+            ValidationResponse.missingFeature(Feature.APEX)
+        } else if (!SUPPORTED_EXTENSIONS.contains(file.extension)) {
+            ValidationResponse.packageShouldBeSupportedExtension(file, SUPPORTED_EXTENSIONS)
         } else {
             null
         }
@@ -108,7 +113,7 @@ class CreateMultiPackageSessionRequest(
         }.toList()
 
         return if (hasAbbExec) {
-            AbbExecRequest(args).serialize()
+            AbbExecRequest(args, supportedFeatures).serialize()
         } else {
             createBaseRequest(args.joinToString(" "))
         }
@@ -126,5 +131,9 @@ class CreateMultiPackageSessionRequest(
         }
 
         return sessionId
+    }
+
+    companion object {
+        val SUPPORTED_EXTENSIONS = setOf("apk", "apex")
     }
 }

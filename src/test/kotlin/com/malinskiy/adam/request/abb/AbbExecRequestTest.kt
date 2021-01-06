@@ -19,12 +19,13 @@ package com.malinskiy.adam.request.abb
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import com.malinskiy.adam.extension.toRequestString
+import com.malinskiy.adam.request.Feature
 import org.junit.Test
 
 class AbbExecRequestTest {
     @Test
     fun testSerialize() {
-        assertThat(AbbExecRequest(listOf("cmd", "package", "install")).serialize().toRequestString())
+        assertThat(AbbExecRequest(listOf("cmd", "package", "install"), listOf(Feature.ABB_EXEC)).serialize().toRequestString())
             .isEqualTo("001Cabb_exec:cmd\u0000package\u0000install")
     }
 }

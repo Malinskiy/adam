@@ -70,7 +70,8 @@ class StatV2E2ETest {
     @Test
     fun testListFile() {
         runBlocking {
-            val stats = adbRule.adb.execute(StatFileRequest("/data/local/tmp/app-debug.apk"), adbRule.deviceSerial)
+            val stats =
+                adbRule.adb.execute(StatFileRequest("/data/local/tmp/app-debug.apk", adbRule.supportedFeatures), adbRule.deviceSerial)
             assertThat(stats.size).isEqualTo(testFile.length().toULong())
         }
     }

@@ -30,7 +30,7 @@ class CompatListFileRequest(
     override suspend fun execute(androidDebugBridgeClient: AndroidDebugBridgeClient, serial: String?): List<FileEntry> {
         return when {
             supportedFeatures.contains(Feature.LS_V2) -> androidDebugBridgeClient.execute(
-                ListV2FileRequest(path),
+                ListV2FileRequest(path, supportedFeatures),
                 serial
             )
             else -> androidDebugBridgeClient.execute(ListFileRequest(path), serial)

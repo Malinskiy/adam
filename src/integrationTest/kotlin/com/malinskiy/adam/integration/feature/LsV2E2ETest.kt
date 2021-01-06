@@ -43,7 +43,7 @@ class LsV2E2ETest {
     @Test
     fun testListFile() {
         runBlocking {
-            val list = adbRule.adb.execute(ListFileRequest(externalStorageMount), adbRule.deviceSerial)
+            val list = adbRule.adb.execute(ListFileRequest(externalStorageMount, adbRule.supportedFeatures), adbRule.deviceSerial)
             for (i in list) {
                 println(i)
             }

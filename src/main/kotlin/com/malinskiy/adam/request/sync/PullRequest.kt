@@ -42,6 +42,8 @@ import kotlin.coroutines.CoroutineContext
  * - Destination doesn't have to exist
  * - If source is a directory and the destination is an existing directory -> a subdirectory will be created
  *
+ * All features are optional
+ *
  * @param source can be a file or a directory
  */
 @Features(Feature.SENDRECV_V2, Feature.STAT_V2, Feature.LS_V2)
