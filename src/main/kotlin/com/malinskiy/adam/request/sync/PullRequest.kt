@@ -17,14 +17,16 @@
 package com.malinskiy.adam.request.sync
 
 import com.malinskiy.adam.AndroidDebugBridgeClient
+import com.malinskiy.adam.Const
 import com.malinskiy.adam.annotation.Features
 import com.malinskiy.adam.exception.PullFailedException
+import com.malinskiy.adam.exception.PushFailedException
 import com.malinskiy.adam.request.Feature
 import com.malinskiy.adam.request.MultiRequest
 import com.malinskiy.adam.request.sync.compat.CompatListFileRequest
 import com.malinskiy.adam.request.sync.compat.CompatPullFileRequest
 import com.malinskiy.adam.request.sync.compat.CompatStatFileRequest
-import com.malinskiy.adam.request.sync.model.FileEntry
+import com.malinskiy.adam.request.sync.model.SyncFile
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import java.io.File
@@ -50,60 +52,107 @@ class PullRequest(
     override val coroutineContext: CoroutineContext = Dispatchers.IO
 ) : MultiRequest<Boolean>(), CoroutineScope {
 
+    /**
+     * @return true if successful, false if not. false can be a partial success: some files might be pulled
+     */
     override suspend fun execute(androidDebugBridgeClient: AndroidDebugBridgeClient, serial: String?): Boolean =
         with(androidDebugBridgeClient) {
             val remoteFileEntry = execute(CompatStatFileRequest(source, supportedFeatures), serial)
-            return when {
-                remoteFileEntry.isDirectory() -> {
-                    val basename = source.split(ANDROID_FILE_SEPARATOR).last()
-                    pullFolder(basename, serial)
+
+            when {
+                destination.isFile -> {
+                    when {
+                        remoteFileEntry.isDirectory() -> {
+                            throw PullFailedException("Can't pull folder $source: target $destination is a file")
+                        }
+                        remoteFileEntry.isRegularFile() ||
+                                remoteFileEntry.isBlockDevice() ||
+                                remoteFileEntry.isCharDevice() -> {
+                            doPullFile(source, destination, remoteFileEntry.size().toLong(), serial)
+                        }
+                        remoteFileEntry.exists() -> {
+                            throw PushFailedException(
+                                "Source $source exists and is not a directory or a file: mode=${
+                                    remoteFileEntry.mode.toString(
+                                        8
+                                    )
+                                }"
+                            )
+                        }
+                        !remoteFileEntry.exists() -> {
+                            throw PushFailedException("Source $source doesn't exist")
+                        }
+                        //We exhausted all conditions above. This is just to make the compiler happy
+                        else -> false
+                    }
                 }
-                remoteFileEntry.isRegularFile() ||
-                        remoteFileEntry.isBlockDevice() ||
-                        remoteFileEntry.isCharDevice() -> {
-                    pullFile(remoteFileEntry, serial)
+                destination.isDirectory -> {
+                    when {
+                        remoteFileEntry.isDirectory() -> {
+                            val basename = source.removeSuffix(Const.ANDROID_FILE_SEPARATOR)
+                                .split(Const.ANDROID_FILE_SEPARATOR)
+                                .last()
+                            pullFolder(File(destination, basename), serial)
+                        }
+                        remoteFileEntry.isRegularFile() ||
+                                remoteFileEntry.isBlockDevice() ||
+                                remoteFileEntry.isCharDevice() -> {
+                            doPullFile(source, File(destination, remoteFileEntry.name), remoteFileEntry.size().toLong(), serial)
+                        }
+                        remoteFileEntry.exists() -> {
+                            throw PushFailedException(
+                                "Source $source exists and is not a directory or a file: mode=${
+                                    remoteFileEntry.mode.toString(
+                                        8
+                                    )
+                                }"
+                            )
+                        }
+                        !remoteFileEntry.exists() -> {
+                            throw PushFailedException("Source $source doesn't exist")
+                        }
+                        //We exhausted all conditions above. This is just to make the compiler happy
+                        else -> false
+                    }
                 }
-                else -> false
+                !destination.exists() -> {
+                    pullFolder(destination, serial)
+                }
+                else -> {
+                    throw PushFailedException("Destination $destination is not a directory or a file")
+                }
             }
         }
-
-    private suspend fun AndroidDebugBridgeClient.pullFile(fileEntry: FileEntry, serial: String?): Boolean {
-        val realDestination = if (destination.isDirectory && fileEntry.name != null) {
-            File(destination, fileEntry.name)
-        } else {
-            destination
-        }
-
-        return doPullFile(source, realDestination, fileEntry.size().toLong(), serial)
-    }
 
     private suspend fun AndroidDebugBridgeClient.pullFolder(
-        folderName: String,
+        destination: File,
         serial: String?
     ): Boolean {
-        if (destination.exists() && !destination.isDirectory) {
-            throw PullFailedException("Target $destination is not a directory")
-        }
 
-        val realDestination = if (destination.exists()) {
-            File(destination, folderName)
-        } else {
+        val filesToPull = BFFSearch<String, File>().execute(
+            source,
             destination
-        }
-
-        /**
-         * Iterate instead of recursion
-         */
-        val filesToPull = mutableListOf<PullFile>()
-        var directoriesToTraverse = listOf(source)
-
-        while (directoriesToTraverse.isNotEmpty()) {
-            //We have to use a second collection because we're iterating over directoriesToTraverse
-            val currentDepthDirs = mutableListOf<String>()
-            for (dir in directoriesToTraverse) {
-                listAndPopulate(dir, serial, currentDepthDirs, filesToPull, realDestination)
+        ) { currentDir, newDirs, newFiles, destinationRoot ->
+            val ls = execute(CompatListFileRequest(currentDir, supportedFeatures), serial)
+            for (file in ls.filterNot { Const.SYNC_IGNORED_FILES.contains(it.name) }) {
+                when {
+                    file.isDirectory() -> newDirs.add(currentDir + Const.ANDROID_FILE_SEPARATOR + file.name)
+                    file.isRegularFile() || file.isCharDevice() || file.isBlockDevice() -> {
+                        val remotePath = currentDir + Const.ANDROID_FILE_SEPARATOR + file.name
+                        val remoteRelativePath = remotePath.substringAfter(source)
+                        val localRelativePath = remoteRelativePath.replace(Const.ANDROID_FILE_SEPARATOR, File.separator)
+                        newFiles.add(
+                            SyncFile(
+                                local = File(destinationRoot.absolutePath, localRelativePath),
+                                remote = remotePath,
+                                mtime = file.mtime.epochSecond,
+                                mode = file.mode,
+                                size = file.size()
+                            )
+                        )
+                    }
+                }
             }
-            directoriesToTraverse = currentDepthDirs
         }
 
         filesToPull.forEach { file ->
@@ -114,37 +163,7 @@ class PullRequest(
                 return false
             }
         }
-
         return true
-    }
-
-    private suspend fun AndroidDebugBridgeClient.listAndPopulate(
-        dir: String,
-        serial: String?,
-        currentDepthDirs: MutableList<String>,
-        filesToPull: MutableList<PullFile>,
-        realDestination: File
-    ) {
-        val currentDepthFiles = execute(CompatListFileRequest(dir, supportedFeatures), serial).filterNot { IGNORED_FILES.contains(it.name) }
-        for (file in currentDepthFiles) {
-            when {
-                file.isDirectory() -> currentDepthDirs.add(dir + ANDROID_FILE_SEPARATOR + file.name)
-                file.isRegularFile() || file.isCharDevice() || file.isBlockDevice() -> {
-                    val remotePath = dir + ANDROID_FILE_SEPARATOR + file.name
-                    val remoteRelativePath = remotePath.substringAfter(source)
-                    val localRelativePath = remoteRelativePath.replace(ANDROID_FILE_SEPARATOR, File.separator)
-                    filesToPull.add(
-                        PullFile(
-                            local = File(realDestination.absolutePath, localRelativePath),
-                            remote = remotePath,
-                            mtime = file.mtime.epochSecond,
-                            mode = file.mode,
-                            size = file.size()
-                        )
-                    )
-                }
-            }
-        }
     }
 
     private suspend fun AndroidDebugBridgeClient.doPullFile(
@@ -162,18 +181,5 @@ class PullRequest(
             progress = update
         }
         return progress == 1.0
-    }
-
-    private data class PullFile(
-        val local: File,
-        val remote: String,
-        val mtime: Long,
-        val mode: UInt,
-        val size: ULong
-    )
-
-    companion object {
-        const val ANDROID_FILE_SEPARATOR = "/"
-        val IGNORED_FILES = setOf(".", "..")
     }
 }

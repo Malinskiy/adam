@@ -34,6 +34,8 @@ sealed class FileEntry {
         is FileEntryV1 -> size.toLong().toULong()
         is FileEntryV2 -> size
     }
+
+    abstract fun exists(): Boolean
 }
 
 data class FileEntryV1(
@@ -41,7 +43,9 @@ data class FileEntryV1(
     override val mode: UInt,
     val size: UInt,
     override val mtime: Instant
-) : FileEntry()
+) : FileEntry() {
+    override fun exists() = size == 0.toUInt() && mode == 0.toUInt() && mtime.epochSecond == 0L
+}
 
 data class FileEntryV2(
     val error: UInt,
@@ -56,4 +60,6 @@ data class FileEntryV2(
     override val mtime: Instant,
     val ctime: Instant,
     override val name: String? = null
-) : FileEntry()
+) : FileEntry() {
+    override fun exists() = error == 3025.toUInt()
+}

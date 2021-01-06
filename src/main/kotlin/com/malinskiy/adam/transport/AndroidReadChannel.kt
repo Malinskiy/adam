@@ -55,7 +55,7 @@ class AndroidReadChannel(private val delegate: ByteReadChannel) : ByteReadChanne
         }
         val errorMessageLength = responseLength.toIntOrNull(16)
         return if (errorMessageLength == null) {
-            null
+            readStatus()
         } else {
             val errorBytes = ByteArray(errorMessageLength)
             delegate.readFully(errorBytes, 0, errorMessageLength)

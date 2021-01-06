@@ -99,6 +99,25 @@ class ServerReadChannel(private val delegate: ByteReadChannel) : ByteReadChannel
         return String(request, Const.DEFAULT_TRANSPORT_ENCODING)
     }
 
+    suspend fun receiveSendV2(): Triple<String, Int, Int> {
+        val protocolMessage = receiveProtocolMessage()
+        var message = String(protocolMessage, Const.DEFAULT_TRANSPORT_ENCODING)
+        if (message != "SND2") throw RuntimeException(
+            "Unexpected protocol message $message"
+        )
+        val size = readIntLittleEndian()
+        val request = ByteArray(size)
+        readFully(request, 0, size)
+
+        message = String(receiveProtocolMessage(), Const.DEFAULT_TRANSPORT_ENCODING)
+        if (message != "SND2") throw RuntimeException(
+            "Unexpected protocol message $message"
+        )
+        val mode = readIntLittleEndian()
+        val flags = readIntLittleEndian()
+        return Triple(String(request, Const.DEFAULT_TRANSPORT_ENCODING), mode, flags)
+    }
+
     suspend fun receiveProtocolMessage(): ByteArray {
         val bytes = ByteArray(4)
         readFully(bytes, 0, 4)

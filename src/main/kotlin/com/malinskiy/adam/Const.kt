@@ -28,6 +28,9 @@ object Const {
     const val MAX_PACKET_LENGTH = 16384
     const val MAX_FILE_PACKET_LENGTH = 64 * 1024
 
+    const val ANDROID_FILE_SEPARATOR = "/"
+    val SYNC_IGNORED_FILES = setOf(".", "..")
+
     object Message {
         val OKAY = byteArrayOf('O'.toByte(), 'K'.toByte(), 'A'.toByte(), 'Y'.toByte())
         val FAIL = byteArrayOf('F'.toByte(), 'A'.toByte(), 'I'.toByte(), 'L'.toByte())
@@ -45,6 +48,7 @@ object Const {
         val DENT_V2 = byteArrayOf('D'.toByte(), 'N'.toByte(), 'T'.toByte(), '2'.toByte())
         val LSTAT_V2 = byteArrayOf('L'.toByte(), 'S'.toByte(), 'T'.toByte(), '2'.toByte())
         val RECV_V2 = byteArrayOf('R'.toByte(), 'C'.toByte(), 'V'.toByte(), '2'.toByte())
+        val SEND_V2 = byteArrayOf('S'.toByte(), 'N'.toByte(), 'D'.toByte(), '2'.toByte())
 
         val DONEDONE =
             byteArrayOf('D'.toByte(), 'O'.toByte(), 'N'.toByte(), 'E'.toByte(), 'D'.toByte(), 'O'.toByte(), 'N'.toByte(), 'E'.toByte())

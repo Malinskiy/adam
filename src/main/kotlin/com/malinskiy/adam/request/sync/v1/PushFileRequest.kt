@@ -17,30 +17,20 @@
 package com.malinskiy.adam.request.sync.v1
 
 import com.malinskiy.adam.Const
-import com.malinskiy.adam.exception.PushFailedException
 import com.malinskiy.adam.extension.toByteArray
-import com.malinskiy.adam.request.AsyncChannelRequest
-import com.malinskiy.adam.request.ValidationResponse
+import com.malinskiy.adam.request.sync.base.BasePushFileRequest
 import com.malinskiy.adam.transport.AndroidReadChannel
 import com.malinskiy.adam.transport.AndroidWriteChannel
-import io.ktor.util.cio.*
-import io.ktor.utils.io.*
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.channels.SendChannel
 import java.io.File
 import kotlin.coroutines.CoroutineContext
 
 class PushFileRequest(
-    val local: File,
-    val remotePath: String,
-    val mode: String = "0644",
+    local: File,
+    remotePath: String,
+    mode: String = "0777",
     coroutineContext: CoroutineContext = Dispatchers.IO
-) : AsyncChannelRequest<Double, Unit>() {
-
-    val fileReadChannel = local.readChannel(coroutineContext = coroutineContext)
-    val buffer = ByteArray(8 + Const.MAX_FILE_PACKET_LENGTH)
-    val totalBytes = local.length()
-    var currentPosition = 0L
+) : BasePushFileRequest(local, remotePath, mode, coroutineContext) {
 
     override suspend fun handshake(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel) {
         super.handshake(readChannel, writeChannel)
@@ -61,48 +51,4 @@ class PushFileRequest(
 
         writeChannel.write(cmd)
     }
-
-    override suspend fun readElement(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel): Double? {
-        val available = fileReadChannel.readAvailable(buffer, 8, Const.MAX_FILE_PACKET_LENGTH)
-        return when {
-            available < 0 -> {
-                Const.Message.DONE.copyInto(buffer)
-                (local.lastModified() / 1000).toInt().toByteArray().copyInto(buffer, destinationOffset = 4)
-                writeChannel.write(request = buffer, length = 8)
-                val transportResponse = readChannel.read()
-                readChannel.cancel(null)
-                writeChannel.close(null)
-                fileReadChannel.cancel()
-                return if (transportResponse.okay) {
-                    1.0
-                } else {
-                    throw PushFailedException("adb didn't acknowledge the file transfer: ${transportResponse.message ?: ""}")
-                }
-            }
-            available > 0 -> {
-                Const.Message.DATA.copyInto(buffer)
-                available.toByteArray().reversedArray().copyInto(buffer, destinationOffset = 4)
-                writeChannel.writeFully(buffer, 0, available + 8)
-                currentPosition += available
-                currentPosition.toDouble() / totalBytes
-            }
-            else -> currentPosition.toDouble() / totalBytes
-        }
-    }
-
-    override fun serialize() = createBaseRequest("sync:")
-
-    override fun close(channel: SendChannel<Double>) {
-        fileReadChannel.cancel()
-    }
-
-    override fun validate(): ValidationResponse {
-        val bytes = remotePath.toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
-
-        return if (bytes.size <= Const.MAX_REMOTE_PATH_LENGTH) {
-            ValidationResponse.Success
-        } else ValidationResponse(false, "Remote path should be less that ${Const.MAX_REMOTE_PATH_LENGTH} bytes")
-    }
-
-    override suspend fun writeElement(element: Unit, readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel) = Unit
 }

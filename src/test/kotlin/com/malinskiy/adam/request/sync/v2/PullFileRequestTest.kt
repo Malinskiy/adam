@@ -82,6 +82,8 @@ class PullFileRequestTest : CoroutineScope {
                 progress = execute.receiveOrNull() ?: break
             }
 
+            assertThat(progress).isEqualTo(1.0)
+
             server.dispose()
 
             assertThat(tempFile.readBytes()).isEqualTo(fixture.readBytes())
@@ -132,6 +134,8 @@ class PullFileRequestTest : CoroutineScope {
             while (!execute.isClosedForReceive) {
                 progress = execute.receiveOrNull() ?: break
             }
+
+            assertThat(progress).isEqualTo(1.0)
 
             server.dispose()
 

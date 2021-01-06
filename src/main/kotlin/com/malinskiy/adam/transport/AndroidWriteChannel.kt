@@ -57,9 +57,8 @@ class AndroidWriteChannel(private val delegate: ByteWriteChannel) : ByteWriteCha
         write(cmd)
     }
 
-    suspend fun writeSyncV2Request(type: ByteArray, remotePath: String, vararg flags: Int) {
+    suspend fun writeSyncV2Request(type: ByteArray, remotePath: String, flags: Int, mode: Int? = null) {
         val path = remotePath.toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
-        val flag = flags.reduce { acc, i -> acc or i }
 
         withDefaultBuffer {
             compatRewind()
@@ -72,9 +71,10 @@ class AndroidWriteChannel(private val delegate: ByteWriteChannel) : ByteWriteCha
             writeFully(path)
 
             compatRewind()
-            compatLimit(4 + 4)
+            mode?.let { compatLimit(4 + 4 + 4) } ?: compatLimit(4 + 4)
             put(type)
-            putInt(flag.reverseByteOrder())
+            mode?.let { putInt(it.reverseByteOrder()) }
+            putInt(flags.reverseByteOrder())
             compatRewind()
             writeFully(this)
         }

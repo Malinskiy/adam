@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package com.malinskiy.adam.request.sync.v1
+package com.malinskiy.adam.request.sync.v2
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.exception.PushFailedException
+import com.malinskiy.adam.request.Feature
 import com.malinskiy.adam.server.AndroidDebugBridgeServer
 import io.ktor.utils.io.*
 import kotlinx.coroutines.CoroutineScope
@@ -42,7 +43,7 @@ class PushFileRequestTest : CoroutineScope {
     fun testSerialize() {
         val testFile = temp.newFile("adam")
         val fileName = testFile.name
-        val bytes = PushFileRequest(testFile, "/data/local/tmp/$fileName").serialize()
+        val bytes = PushFileRequest(testFile, "/data/local/tmp/$fileName", listOf(Feature.SENDRECV_V2)).serialize()
         assertThat(bytes.toString(Const.DEFAULT_TRANSPORT_ENCODING))
             .isEqualTo("0005sync:")
     }
@@ -65,14 +66,17 @@ class PushFileRequestTest : CoroutineScope {
                 assertThat(actualCommand).isEqualTo("sync:")
                 output.respond(Const.Message.OKAY)
 
-                val receiveCmd = input.receiveSend()
-                assertThat(receiveCmd).isEqualTo("/sdcard/testfile,511")
+                val (receiveCmd, mode, flags) = input.receiveSendV2()
+                assertThat(receiveCmd).isEqualTo("/sdcard/testfile")
+                assertThat(mode.toString(8)).isEqualTo("777")
+                assertThat(flags).isEqualTo(0)
+
                 receiveFile = input.receiveFile(temp.newFile())
                 output.respond(Const.Message.OKAY)
                 output.close()
             }
 
-            val request = PushFileRequest(fixture, "/sdcard/testfile")
+            val request = PushFileRequest(fixture, "/sdcard/testfile", listOf(Feature.SENDRECV_V2))
             val execute = client.execute(request, this@PushFileRequestTest, "serial")
 
             var progress = 0.0
@@ -110,8 +114,11 @@ class PushFileRequestTest : CoroutineScope {
                 assertThat(actualCommand).isEqualTo("sync:")
                 output.respond(Const.Message.OKAY)
 
-                val receiveCmd = input.receiveSend()
-                assertThat(receiveCmd).isEqualTo("/sdcard/testfile,511")
+                val (receiveCmd, mode, flags) = input.receiveSendV2()
+                assertThat(receiveCmd).isEqualTo("/sdcard/testfile")
+                assertThat(mode.toString(8)).isEqualTo("777")
+                assertThat(flags).isEqualTo(0)
+
                 receiveFile = input.receiveFile(temp.newFile())
                 output.respond(Const.Message.FAIL)
                 val s = "CAFEBABE"
@@ -120,7 +127,7 @@ class PushFileRequestTest : CoroutineScope {
                 output.close()
             }
 
-            val request = PushFileRequest(fixture, "/sdcard/testfile")
+            val request = PushFileRequest(fixture, "/sdcard/testfile", listOf(Feature.SENDRECV_V2))
             val execute = client.execute(request, this@PushFileRequestTest, "serial")
 
             var progress = 0.0

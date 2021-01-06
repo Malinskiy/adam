@@ -18,9 +18,13 @@ package com.malinskiy.adam.integration.feature
 
 import assertk.assertThat
 import assertk.assertions.contains
+import assertk.assertions.isEqualTo
+import com.malinskiy.adam.extension.md5
 import com.malinskiy.adam.request.Feature
 import com.malinskiy.adam.request.shell.v1.ShellCommandRequest
+import com.malinskiy.adam.request.sync.v1.StatFileRequest
 import com.malinskiy.adam.request.sync.v2.PullFileRequest
+import com.malinskiy.adam.request.sync.v2.PushFileRequest
 import com.malinskiy.adam.rule.AdbDeviceRule
 import com.malinskiy.adam.rule.DeviceType
 import kotlinx.coroutines.GlobalScope
@@ -32,6 +36,7 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
+import java.io.File
 import kotlin.math.roundToInt
 
 class SendRecvV2E2ETest {
@@ -47,6 +52,7 @@ class SendRecvV2E2ETest {
     @Before
     fun setup() {
         runBlocking {
+            adbRule.adb.execute(ShellCommandRequest("rm -f /data/local/tmp/app-debug.apk"), adbRule.deviceSerial)
             withTimeout(10_000) {
                 while (true) {
                     var output =
@@ -65,7 +71,8 @@ class SendRecvV2E2ETest {
     @After
     fun teardown() {
         runBlocking {
-            adbRule.adb.execute(ShellCommandRequest("rm /data/local/tmp/testfile"), adbRule.deviceSerial)
+            adbRule.adb.execute(ShellCommandRequest("rm -f /data/local/tmp/testfile"), adbRule.deviceSerial)
+            adbRule.adb.execute(ShellCommandRequest("rm -f /data/local/tmp/app-debug.apk"), adbRule.deviceSerial)
         }
     }
 
@@ -93,5 +100,60 @@ class SendRecvV2E2ETest {
 
             assertThat(file.readText()).contains("cafebabe")
         }
+    }
+
+    @Test
+    fun testApkPushing() {
+        val testFile = File(javaClass.getResource("/app-debug.apk").toURI())
+        val fileName = testFile.name
+        runBlocking {
+            val channel =
+                adbRule.adb.execute(
+                    PushFileRequest(testFile, "/data/local/tmp/$fileName", adbRule.supportedFeatures, "0644", false),
+                    GlobalScope,
+                    serial = adbRule.deviceSerial
+                )
+
+            var percentage = 0
+            while (!channel.isClosedForReceive) {
+                val percentageDouble = channel.receiveOrNull() ?: break
+
+                val newPercentage = (percentageDouble * 100).roundToInt()
+                if (newPercentage != percentage) {
+                    print('.')
+                    percentage = newPercentage
+                }
+            }
+            val stats = adbRule.adb.execute(StatFileRequest("/data/local/tmp/app-debug.apk"), adbRule.deviceSerial)
+            assertThat(stats.size).isEqualTo(testFile.length().toUInt())
+
+            val sizeString = adbRule.adb.execute(ShellCommandRequest("${md5()} /data/local/tmp/app-debug.apk"), adbRule.deviceSerial)
+            val split = sizeString.output.split(" ").filter { it != "" }
+
+            /**
+             * I've observed a behaviour with eventual consistency issue:
+             * ls -ln returns a number lower than expected
+             */
+            assertThat(split[0]).isEqualTo(testFile.md5())
+
+            //TODO figure out why 644 is actually pushed as 666
+            assertThat(stats.mode).isEqualTo("100666".toUInt(radix = 8))
+        }
+    }
+
+    private suspend fun md5(): String {
+        var output = adbRule.adb.execute(ShellCommandRequest("ls /system/bin/md5"), adbRule.deviceSerial)
+        var value = output.output.trim { it <= ' ' }
+        if (!value.endsWith("No such file or directory")) {
+            return "md5"
+        }
+
+        output = adbRule.adb.execute(ShellCommandRequest("ls /system/bin/md5sum"), adbRule.deviceSerial)
+        value = output.output.trim { it <= ' ' }
+        if (!value.endsWith("No such file or directory")) {
+            return "md5sum"
+        }
+
+        throw RuntimeException("Android device should have md5 binary installed")
     }
 }

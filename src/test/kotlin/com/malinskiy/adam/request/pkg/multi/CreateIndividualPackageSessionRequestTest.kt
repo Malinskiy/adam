@@ -91,7 +91,7 @@ class CreateIndividualPackageSessionRequestTest {
     fun testRead() {
         val request = stub()
         val response = "Success [my-session-id]".toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
-        val byteBufferChannel: ByteWriteChannel = ByteChannelSequentialJVM(Buffer.Empty, false)
+        val byteBufferChannel: ByteWriteChannel = ByteChannelSequentialJVM(IoBuffer.Empty, false)
         runBlocking {
             val sessionId = request.readElement(
                 ByteReadChannel(response).toAndroidChannel(),
@@ -105,7 +105,7 @@ class CreateIndividualPackageSessionRequestTest {
     fun testReadException() {
         val request = stub()
         val response = "Failure".toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
-        val byteBufferChannel: ByteWriteChannel = ByteChannelSequentialJVM(Buffer.Empty, false)
+        val byteBufferChannel: ByteWriteChannel = ByteChannelSequentialJVM(IoBuffer.Empty, false)
         runBlocking {
             request.readElement(
                 ByteReadChannel(response).toAndroidChannel(),
@@ -118,7 +118,7 @@ class CreateIndividualPackageSessionRequestTest {
     fun testReadNoSession() {
         val request = stub()
         val response = "Success no session returned".toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
-        val byteBufferChannel: ByteWriteChannel = ByteChannelSequentialJVM(Buffer.Empty, false)
+        val byteBufferChannel: ByteWriteChannel = ByteChannelSequentialJVM(IoBuffer.Empty, false)
         runBlocking {
             request.readElement(
                 ByteReadChannel(response).toAndroidChannel(),
