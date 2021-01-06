@@ -110,7 +110,7 @@ class FileE2ETest {
             assertThat(split[0]).isEqualTo(testFile.md5())
 
             //TODO figure out why 644 is actually pushed as 666
-            assertThat(stats.mode).isEqualTo("100666".toUInt(radix = 8))
+            assertThat(stats.mode).isEqualTo("100777".toUInt(radix = 8))
         }
     }
 
