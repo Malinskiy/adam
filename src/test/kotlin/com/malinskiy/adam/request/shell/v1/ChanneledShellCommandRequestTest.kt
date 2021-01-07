@@ -22,14 +22,11 @@ import assertk.fail
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.server.AndroidDebugBridgeServer
 import io.ktor.utils.io.close
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.receiveOrNull
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
-import kotlin.coroutines.CoroutineContext
 
-class ChanneledShellCommandRequestTest : CoroutineScope {
+class ChanneledShellCommandRequestTest {
     @Test
     fun testReturnsProperContent() {
         runBlocking {
@@ -62,7 +59,4 @@ class ChanneledShellCommandRequestTest : CoroutineScope {
             server.dispose()
         }
     }
-
-    override val coroutineContext: CoroutineContext
-        get() = Dispatchers.IO
 }

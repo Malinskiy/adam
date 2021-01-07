@@ -32,6 +32,9 @@ import kotlinx.coroutines.channels.SendChannel
 import java.io.File
 import kotlin.coroutines.CoroutineContext
 
+/**
+ * @param coroutineContext if you don't specify your context then you'll have no control over the `wait for file to finish writing`: closing the channel doesn't close the underlying resources
+ */
 abstract class BasePullFileRequest(
     private val remotePath: String,
     private val local: File,

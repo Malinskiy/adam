@@ -49,9 +49,7 @@ class AndroidDebugBridgeServer : CoroutineScope {
                 val output = socket.openWriteChannel(autoFlush = true).toServerWriteChannel()
 
                 try {
-                    withContext(NonCancellable) {
-                        block(input, output)
-                    }
+                    block(input, output)
                 } catch (e: Throwable) {
                     e.printStackTrace()
                 } finally {

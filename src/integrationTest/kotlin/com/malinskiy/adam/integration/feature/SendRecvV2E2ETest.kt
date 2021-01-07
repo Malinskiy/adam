@@ -27,7 +27,6 @@ import com.malinskiy.adam.request.sync.v2.PullFileRequest
 import com.malinskiy.adam.request.sync.v2.PushFileRequest
 import com.malinskiy.adam.rule.AdbDeviceRule
 import com.malinskiy.adam.rule.DeviceType
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.channels.receiveOrNull
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
@@ -82,8 +81,8 @@ class SendRecvV2E2ETest {
             val file = temp.newFile()
 
             val channel = adbRule.adb.execute(
-                PullFileRequest("/data/local/tmp/testfile", file, adbRule.supportedFeatures),
-                GlobalScope,
+                PullFileRequest("/data/local/tmp/testfile", file, adbRule.supportedFeatures, coroutineContext = coroutineContext),
+                this,
                 adbRule.deviceSerial
             )
 
@@ -109,8 +108,15 @@ class SendRecvV2E2ETest {
         runBlocking {
             val channel =
                 adbRule.adb.execute(
-                    PushFileRequest(testFile, "/data/local/tmp/$fileName", adbRule.supportedFeatures, "0644", false),
-                    GlobalScope,
+                    PushFileRequest(
+                        testFile,
+                        "/data/local/tmp/$fileName",
+                        adbRule.supportedFeatures,
+                        "0644",
+                        false,
+                        coroutineContext = coroutineContext
+                    ),
+                    this,
                     serial = adbRule.deviceSerial
                 )
 

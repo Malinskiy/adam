@@ -27,6 +27,9 @@ import java.io.File
 import kotlin.coroutines.CoroutineContext
 import com.malinskiy.adam.request.sync.v2.PullFileRequest as PullV2FileRequest
 
+/**
+ * @param coroutineContext if you don't specify your context then you'll have no control over the `wait for file to finish writing`: closing the channel doesn't close the underlying resources
+ */
 class CompatPullFileRequest(
     private val source: String,
     private val realDestination: File,

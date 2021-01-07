@@ -24,7 +24,7 @@ import com.malinskiy.adam.request.pkg.multi.ApkSplitInstallationPackage
 import com.malinskiy.adam.request.shell.v1.ShellCommandRequest
 import com.malinskiy.adam.request.sync.v1.PushFileRequest
 import com.malinskiy.adam.rule.AdbDeviceRule
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.channels.receiveOrNull
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -64,10 +64,14 @@ class ApkE2ETest {
                 val testFile = File(javaClass.getResource("/app-debug.apk").toURI())
                 val fileName = testFile.name
                 val channel =
-                    client.execute(PushFileRequest(testFile, "/data/local/tmp/$fileName"), GlobalScope, serial = adb.deviceSerial)
+                    client.execute(
+                        PushFileRequest(testFile, "/data/local/tmp/$fileName", coroutineContext = coroutineContext),
+                        this,
+                        serial = adb.deviceSerial
+                    )
 
                 while (!channel.isClosedForReceive) {
-                    channel.poll()
+                    channel.receiveOrNull()
                 }
 
                 client.execute(InstallRemotePackageRequest("/data/local/tmp/$fileName", true), serial = adb.deviceSerial)

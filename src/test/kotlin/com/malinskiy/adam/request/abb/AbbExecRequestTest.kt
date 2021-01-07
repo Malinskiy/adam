@@ -23,8 +23,12 @@ import assertk.assertions.isTrue
 import com.malinskiy.adam.extension.toAndroidChannel
 import com.malinskiy.adam.extension.toRequestString
 import com.malinskiy.adam.request.Feature
+import com.malinskiy.adam.transport.AndroidReadChannel
+import com.malinskiy.adam.transport.AndroidWriteChannel
 import io.ktor.util.cio.readChannel
 import io.ktor.util.cio.writeChannel
+import io.ktor.utils.io.cancel
+import io.ktor.utils.io.close
 import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
@@ -58,9 +62,16 @@ class AbbExecRequestTest {
     fun testDummy() {
         runBlocking {
             val newFile = temp.newFile()
-            val readChannel = newFile.readChannel().toAndroidChannel()
-            val writeChannel = newFile.writeChannel().toAndroidChannel()
-            assertThat(AbbExecRequest(listOf(), supportedFeatures = emptyList()).readElement(readChannel, writeChannel)).isEqualTo(Unit)
+            var readChannel: AndroidReadChannel? = null
+            var writeChannel: AndroidWriteChannel? = null
+            try {
+                readChannel = newFile.readChannel(coroutineContext = coroutineContext).toAndroidChannel()
+                writeChannel = newFile.writeChannel(coroutineContext).toAndroidChannel()
+                assertThat(AbbExecRequest(listOf(), supportedFeatures = emptyList()).readElement(readChannel, writeChannel)).isEqualTo(Unit)
+            } finally {
+                readChannel?.cancel()
+                writeChannel?.close()
+            }
         }
     }
 }

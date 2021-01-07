@@ -26,8 +26,8 @@ import com.malinskiy.adam.request.sync.v1.PullFileRequest
 import com.malinskiy.adam.request.sync.v1.PushFileRequest
 import com.malinskiy.adam.request.sync.v1.StatFileRequest
 import com.malinskiy.adam.rule.AdbDeviceRule
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.channels.receiveOrNull
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import org.junit.After
@@ -85,7 +85,7 @@ class FileE2ETest {
         val fileName = testFile.name
         runBlocking {
             val channel =
-                adbRule.adb.execute(PushFileRequest(testFile, "/data/local/tmp/$fileName"), GlobalScope, serial = adbRule.deviceSerial)
+                adbRule.adb.execute(PushFileRequest(testFile, "/data/local/tmp/$fileName"), this, serial = adbRule.deviceSerial)
 
             var percentage = 0
             while (!channel.isClosedForReceive) {
@@ -140,23 +140,25 @@ class FileE2ETest {
                 }
             }
 
-            val channel = adbRule.adb.execute(
-                PullFileRequest("/data/local/tmp/testfile", testFile),
-                GlobalScope,
-                adbRule.deviceSerial
-            )
+            launch {
+                val channel = adbRule.adb.execute(
+                    PullFileRequest("/data/local/tmp/testfile", testFile, coroutineContext = coroutineContext),
+                    this,
+                    adbRule.deviceSerial
+                )
 
-            var percentage = 0
-            while (!channel.isClosedForReceive) {
-                val percentageDouble = channel.receiveOrNull() ?: break
+                var percentage = 0
+                while (!channel.isClosedForReceive) {
+                    val percentageDouble = channel.receiveOrNull() ?: break
 
-                val newPercentage = (percentageDouble * 100).roundToInt()
-                if (newPercentage != percentage) {
-                    print('.')
-                    percentage = newPercentage
+                    val newPercentage = (percentageDouble * 100).roundToInt()
+                    if (newPercentage != percentage) {
+                        print('.')
+                        percentage = newPercentage
+                    }
                 }
-            }
-            println()
+                println()
+            }.join()
 
             val sizeString = adbRule.adb.execute(ShellCommandRequest("ls -ln /data/local/tmp/testfile"), adbRule.deviceSerial)
             val split = sizeString.output.split(" ").filter { it != "" }

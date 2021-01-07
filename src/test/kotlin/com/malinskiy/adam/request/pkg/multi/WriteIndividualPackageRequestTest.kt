@@ -27,6 +27,7 @@ import com.malinskiy.adam.request.Feature
 import io.ktor.util.cio.writeChannel
 import io.ktor.utils.io.ByteReadChannel
 import io.ktor.utils.io.ByteWriteChannel
+import io.ktor.utils.io.close
 import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
@@ -78,12 +79,14 @@ class WriteIndividualPackageRequestTest {
         )
         val response = "Success".toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
         val actual = temp.newFileWithExtension("apk")
-        val byteBufferChannel: ByteWriteChannel = actual.writeChannel()
+
         runBlocking {
+            val byteWriteChannel = actual.writeChannel(coroutineContext)
             request.readElement(
                 ByteReadChannel(response).toAndroidChannel(),
-                byteBufferChannel.toAndroidChannel()
+                byteWriteChannel.toAndroidChannel()
             )
+            byteWriteChannel.close()
         }
 
         assertThat(actual.readBytes()).isEqualTo(fixture.readBytes())
@@ -100,8 +103,8 @@ class WriteIndividualPackageRequestTest {
         )
         val response = "Failure".toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
         val actual = temp.newFileWithExtension("apk")
-        val byteBufferChannel: ByteWriteChannel = actual.writeChannel()
         runBlocking {
+            val byteBufferChannel: ByteWriteChannel = actual.writeChannel(coroutineContext)
             request.readElement(
                 ByteReadChannel(response).toAndroidChannel(),
                 byteBufferChannel.toAndroidChannel()

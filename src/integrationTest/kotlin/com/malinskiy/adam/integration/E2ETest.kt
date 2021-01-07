@@ -33,7 +33,6 @@ import com.malinskiy.adam.request.security.SetDmVerityCheckingRequest
 import com.malinskiy.adam.request.shell.v1.ShellCommandRequest
 import com.malinskiy.adam.request.shell.v1.ShellCommandResult
 import com.malinskiy.adam.rule.AdbDeviceRule
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
@@ -153,7 +152,7 @@ class E2ETest {
             val channel = adbRule.adb.execute(
                 serial = adbRule.deviceSerial,
                 request = ChanneledLogcatRequest(),
-                scope = GlobalScope
+                scope = this
             )
 
             val line = channel.receive()

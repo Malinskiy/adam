@@ -27,6 +27,7 @@ import io.ktor.utils.io.ByteReadChannel
 import io.ktor.utils.io.close
 import io.ktor.utils.io.readIntLittleEndian
 import java.io.File
+import kotlin.coroutines.coroutineContext
 
 class ServerReadChannel(private val delegate: ByteReadChannel) : ByteReadChannel by delegate {
     suspend fun receiveCommand(): String {
@@ -156,7 +157,7 @@ class ServerReadChannel(private val delegate: ByteReadChannel) : ByteReadChannel
     }
 
     suspend fun receiveFile(file: File): File {
-        val channel = file.writeChannel()
+        val channel = file.writeChannel(coroutineContext)
         val headerBuffer = ByteArray(8)
         val dataBuffer = ByteArray(Const.MAX_FILE_PACKET_LENGTH)
         while (true) {

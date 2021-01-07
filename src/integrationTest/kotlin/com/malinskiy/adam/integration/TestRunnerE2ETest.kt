@@ -22,7 +22,7 @@ import com.malinskiy.adam.request.sync.v1.PushFileRequest
 import com.malinskiy.adam.request.testrunner.InstrumentOptions
 import com.malinskiy.adam.request.testrunner.TestRunnerRequest
 import com.malinskiy.adam.rule.AdbDeviceRule
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.receiveOrNull
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -71,7 +71,7 @@ class TestRunnerE2ETest {
                         clazz = listOf("com.example.AbstractFailingTest")
                     )
                 ), serial = rule.deviceSerial,
-                scope = GlobalScope
+                scope = this
             )
 
             var logPart: String? = null
@@ -84,9 +84,13 @@ class TestRunnerE2ETest {
         }
     }
 
-    private suspend fun installApk(apk: File, apkFileName: String) {
+    private suspend fun CoroutineScope.installApk(apk: File, apkFileName: String) {
         val channel =
-            rule.adb.execute(PushFileRequest(apk, "/data/local/tmp/$apkFileName"), GlobalScope, serial = rule.deviceSerial)
+            rule.adb.execute(
+                PushFileRequest(apk, "/data/local/tmp/$apkFileName", coroutineContext = coroutineContext),
+                this,
+                serial = rule.deviceSerial
+            )
 
         var percentage = 0
         while (!channel.isClosedForReceive) {

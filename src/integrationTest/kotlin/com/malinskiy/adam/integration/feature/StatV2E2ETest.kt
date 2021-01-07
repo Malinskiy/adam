@@ -24,7 +24,6 @@ import com.malinskiy.adam.request.sync.v1.PushFileRequest
 import com.malinskiy.adam.request.sync.v2.StatFileRequest
 import com.malinskiy.adam.rule.AdbDeviceRule
 import com.malinskiy.adam.rule.DeviceType
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.channels.receiveOrNull
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -45,7 +44,11 @@ class StatV2E2ETest {
         runBlocking {
             val fileName = testFile.name
             val channel =
-                adbRule.adb.execute(PushFileRequest(testFile, "/data/local/tmp/$fileName"), GlobalScope, serial = adbRule.deviceSerial)
+                adbRule.adb.execute(
+                    PushFileRequest(testFile, "/data/local/tmp/$fileName", coroutineContext = coroutineContext),
+                    this,
+                    serial = adbRule.deviceSerial
+                )
 
             var percentage = 0
             while (!channel.isClosedForReceive) {

@@ -21,18 +21,16 @@ import assertk.assertions.isEqualTo
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.exception.PushFailedException
 import com.malinskiy.adam.server.AndroidDebugBridgeServer
-import io.ktor.utils.io.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import io.ktor.utils.io.close
 import kotlinx.coroutines.channels.receiveOrNull
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
 import java.io.File
-import kotlin.coroutines.CoroutineContext
 
-class PushFileRequestTest : CoroutineScope {
+class PushFileRequestTest {
 
     @Rule
     @JvmField
@@ -49,95 +47,85 @@ class PushFileRequestTest : CoroutineScope {
 
     @Test
     fun testSingleChunkHappyPath() {
-        val finishedProgress = runBlocking {
+        runBlocking {
             val fixture = File(PushFileRequestTest::class.java.getResource("/fixture/sample.yaml").file)
+            val receiveFile = temp.newFile()
 
-            val server = AndroidDebugBridgeServer()
+            launch {
+                val server = AndroidDebugBridgeServer()
 
-            var receiveFile: File? = null
+                val client = server.startAndListen { input, output ->
+                    val transportCmd = input.receiveCommand()
+                    assertThat(transportCmd).isEqualTo("host:transport:serial")
+                    output.respond(Const.Message.OKAY)
 
-            val client = server.startAndListen { input, output ->
-                val transportCmd = input.receiveCommand()
-                assertThat(transportCmd).isEqualTo("host:transport:serial")
-                output.respond(Const.Message.OKAY)
+                    val actualCommand = input.receiveCommand()
+                    assertThat(actualCommand).isEqualTo("sync:")
+                    output.respond(Const.Message.OKAY)
 
-                val actualCommand = input.receiveCommand()
-                assertThat(actualCommand).isEqualTo("sync:")
-                output.respond(Const.Message.OKAY)
+                    val receiveCmd = input.receiveSend()
+                    assertThat(receiveCmd).isEqualTo("/sdcard/testfile,511")
+                    input.receiveFile(receiveFile)
+                    output.respond(Const.Message.OKAY)
+                    output.close()
+                }
 
-                val receiveCmd = input.receiveSend()
-                assertThat(receiveCmd).isEqualTo("/sdcard/testfile,511")
-                receiveFile = input.receiveFile(temp.newFile())
-                output.respond(Const.Message.OKAY)
-                output.close()
-            }
+                val request = PushFileRequest(fixture, "/sdcard/testfile")
+                val execute = client.execute(request, this, "serial")
 
-            val request = PushFileRequest(fixture, "/sdcard/testfile")
-            val execute = client.execute(request, this@PushFileRequestTest, "serial")
+                var progress = 0.0
+                while (!execute.isClosedForReceive) {
+                    progress = execute.receiveOrNull() ?: break
+                }
 
-            var progress = 0.0
-            while (!execute.isClosedForReceive) {
-                progress = execute.receiveOrNull() ?: break
-            }
-
-            assertThat(progress).isEqualTo(1.0)
+                assertThat(progress).isEqualTo(1.0)
+                server.dispose()
+            }.join()
 
             assertThat(receiveFile!!.readBytes()).isEqualTo(fixture.readBytes())
-
-            server.dispose()
-
-            return@runBlocking progress
         }
-
-        assertThat(finishedProgress).isEqualTo(1.0)
     }
 
     @Test(expected = PushFailedException::class)
     fun testTransportFailureOnDone() {
-        val finishedProgress = runBlocking {
+        runBlocking {
             val fixture = File(PushFileRequestTest::class.java.getResource("/fixture/sample.yaml").file)
+            val receiveFile = temp.newFile()
 
-            val server = AndroidDebugBridgeServer()
+            launch {
+                val server = AndroidDebugBridgeServer()
 
-            var receiveFile: File? = null
+                val client = server.startAndListen { input, output ->
+                    val transportCmd = input.receiveCommand()
+                    assertThat(transportCmd).isEqualTo("host:transport:serial")
+                    output.respond(Const.Message.OKAY)
 
-            val client = server.startAndListen { input, output ->
-                val transportCmd = input.receiveCommand()
-                assertThat(transportCmd).isEqualTo("host:transport:serial")
-                output.respond(Const.Message.OKAY)
+                    val actualCommand = input.receiveCommand()
+                    assertThat(actualCommand).isEqualTo("sync:")
+                    output.respond(Const.Message.OKAY)
 
-                val actualCommand = input.receiveCommand()
-                assertThat(actualCommand).isEqualTo("sync:")
-                output.respond(Const.Message.OKAY)
+                    val receiveCmd = input.receiveSend()
+                    assertThat(receiveCmd).isEqualTo("/sdcard/testfile,511")
+                    input.receiveFile(receiveFile)
+                    output.respond(Const.Message.FAIL)
+                    val s = "CAFEBABE"
+                    output.writeFully("0008".toByteArray(Const.DEFAULT_TRANSPORT_ENCODING), 0, 4)
+                    output.writeFully(s.toByteArray(Const.DEFAULT_TRANSPORT_ENCODING), 0, s.length)
+                    output.close()
+                }
 
-                val receiveCmd = input.receiveSend()
-                assertThat(receiveCmd).isEqualTo("/sdcard/testfile,511")
-                receiveFile = input.receiveFile(temp.newFile())
-                output.respond(Const.Message.FAIL)
-                val s = "CAFEBABE"
-                output.writeFully("0008".toByteArray(Const.DEFAULT_TRANSPORT_ENCODING), 0, 4)
-                output.writeFully(s.toByteArray(Const.DEFAULT_TRANSPORT_ENCODING), 0, s.length)
-                output.close()
-            }
+                val request = PushFileRequest(fixture, "/sdcard/testfile")
+                val execute = client.execute(request, this, "serial")
 
-            val request = PushFileRequest(fixture, "/sdcard/testfile")
-            val execute = client.execute(request, this@PushFileRequestTest, "serial")
+                var progress = 0.0
+                while (!execute.isClosedForReceive) {
+                    progress = execute.receiveOrNull() ?: break
+                }
+                server.dispose()
+            }.join()
 
-            var progress = 0.0
-            while (!execute.isClosedForReceive) {
-                progress = execute.receiveOrNull() ?: break
-            }
 
-            assertThat(receiveFile!!.readBytes()).isEqualTo(fixture.readBytes())
-
-            server.dispose()
-
-            return@runBlocking progress
+            assertThat(receiveFile.readBytes()).isEqualTo(fixture.readBytes())
         }
-
-        assertThat(finishedProgress).isEqualTo(1.0)
     }
-
-    override val coroutineContext: CoroutineContext
-        get() = Dispatchers.IO
 }

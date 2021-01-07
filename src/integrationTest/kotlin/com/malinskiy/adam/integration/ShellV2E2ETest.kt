@@ -25,8 +25,9 @@ import com.malinskiy.adam.request.shell.v2.ShellCommandInputChunk
 import com.malinskiy.adam.request.shell.v2.ShellV2CommandRequest
 import com.malinskiy.adam.rule.AdbDeviceRule
 import com.malinskiy.adam.rule.DeviceType
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
@@ -47,27 +48,31 @@ class ShellV2E2ETest {
     @Test
     fun testChanneled() = runBlocking {
         val stdio = Channel<ShellCommandInputChunk>()
-        val receiveChannel = adbRule.adb.execute(ChanneledShellCommandRequest("cat", stdio), GlobalScope, adbRule.deviceSerial)
-        stdio.send(
-            ShellCommandInputChunk(
-                stdin = "cafebabe"
+        val receiveChannel = adbRule.adb.execute(ChanneledShellCommandRequest("cat", stdio), this, adbRule.deviceSerial)
+        //Sending commands requires additional pool, otherwise we might deadlock
+        val stdioJob = launch(Dispatchers.IO) {
+            stdio.send(
+                ShellCommandInputChunk(
+                    stdin = "cafebabe"
+                )
             )
-        )
 
-        stdio.send(
-            ShellCommandInputChunk(
-                close = true
+            stdio.send(
+                ShellCommandInputChunk(
+                    close = true
+                )
             )
-        )
+        }
 
         val stdoutBuilder = StringBuilder()
         val stderrBuilder = StringBuilder()
-        var exitCode: Int = 1
+        var exitCode = 1
         for (i in receiveChannel) {
             i.stdout?.let { stdoutBuilder.append(it) }
             i.stderr?.let { stderrBuilder.append(it) }
             i.exitCode?.let { exitCode = it }
         }
+        stdioJob.join()
 
         assertThat(stdoutBuilder.toString()).isEqualTo("cafebabe")
         assertThat(stderrBuilder.toString()).isEmpty()

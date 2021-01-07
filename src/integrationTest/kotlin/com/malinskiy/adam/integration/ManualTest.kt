@@ -18,7 +18,6 @@ package com.malinskiy.adam.integration
 
 import com.malinskiy.adam.request.device.AsyncDeviceMonitorRequest
 import com.malinskiy.adam.rule.AdbDeviceRule
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.runBlocking
 import org.junit.Ignore
 import org.junit.Rule
@@ -35,7 +34,7 @@ class ManualTest {
         runBlocking {
             val execute = adbRule.adb.execute(
                 request = AsyncDeviceMonitorRequest(),
-                scope = GlobalScope
+                scope = this
             )
             for(i in 1..100) {
                 println(execute.receive())
