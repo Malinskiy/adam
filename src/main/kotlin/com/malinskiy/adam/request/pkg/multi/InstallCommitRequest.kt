@@ -58,7 +58,9 @@ class InstallCommitRequest(
 
     override suspend fun readElement(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel) {
         val result = readChannel.readStatus()
-        if (!result.contains("Success")) {
+        //Rather than checking for success, we check for Failure since some implementations of PackageManagerShellCommand ignore the
+        //logSuccess=true in doCommitSession
+        if (result.contains("Failure")) {
             throw RequestRejectedException("Failed to finalize session $parentSession: $result")
         }
     }
