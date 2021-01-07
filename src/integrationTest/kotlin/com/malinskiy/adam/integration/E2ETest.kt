@@ -53,11 +53,14 @@ class E2ETest {
         runBlocking {
             try {
                 val execute = adbRule.adb.execute(SetDmVerityCheckingRequest(false), adbRule.deviceSerial)
+                //Some devices just return ""
+                Assume.assumeFalse("This device doesn't support x-verity: service", execute.isEmpty())
+
                 assertThat(execute).contains("verity cannot be disabled/enabled - USER build")
             } catch (e: RequestRejectedException) {
                 if (e.message?.contains("closed") == true) {
                     //Some devices just terminate the connection. Don't fail
-                    Assume.assumeTrue("This device doesn't suppoert x-verity: service", false)
+                    Assume.assumeTrue("This device doesn't support x-verity: service", false)
                 } else {
                     throw e
                 }

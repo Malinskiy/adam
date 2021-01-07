@@ -41,7 +41,14 @@ class EmulatorCommandRequest(
     private val authToken: String? = null,
     private val cleanResponse: Boolean = true
 ) {
-    private suspend fun readAuthToken() = File(System.getProperty("user.home"), ".emulator_console_auth_token").readChannel().readUTF8Line()
+    private suspend fun readAuthToken(): String? {
+        val authTokenFile = File(System.getProperty("user.home"), ".emulator_console_auth_token")
+        return if (authTokenFile.exists() && authTokenFile.isFile) {
+            authTokenFile.readChannel().readUTF8Line()
+        } else {
+            null
+        }
+    }
 
     suspend fun process(readChannel: ByteReadChannel, writeChannel: ByteWriteChannel): String {
         val sessionBuilder = StringBuilder()

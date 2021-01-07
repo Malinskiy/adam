@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package com.malinskiy.adam.request.emu
+package com.malinskiy.adam.integration
 
 import assertk.assertThat
 import assertk.assertions.startsWith
+import com.malinskiy.adam.request.emu.EmulatorCommandRequest
 import com.malinskiy.adam.rule.AdbDeviceRule
 import com.malinskiy.adam.rule.DeviceType
 import kotlinx.coroutines.runBlocking
