@@ -18,7 +18,6 @@ package com.malinskiy.adam.integration
 
 import assertk.assertThat
 import assertk.assertions.*
-import com.malinskiy.adam.exception.RequestRejectedException
 import com.malinskiy.adam.request.device.FetchDeviceFeaturesRequest
 import com.malinskiy.adam.request.device.ListDevicesRequest
 import com.malinskiy.adam.request.framebuffer.RawImageScreenCaptureAdapter
@@ -30,12 +29,10 @@ import com.malinskiy.adam.request.misc.FetchHostFeaturesRequest
 import com.malinskiy.adam.request.misc.GetAdbServerVersionRequest
 import com.malinskiy.adam.request.prop.GetPropRequest
 import com.malinskiy.adam.request.prop.GetSinglePropRequest
-import com.malinskiy.adam.request.security.SetDmVerityCheckingRequest
 import com.malinskiy.adam.request.shell.v1.ShellCommandRequest
 import com.malinskiy.adam.request.shell.v1.ShellCommandResult
 import com.malinskiy.adam.rule.AdbDeviceRule
 import kotlinx.coroutines.runBlocking
-import org.junit.Assume
 import org.junit.Rule
 import org.junit.Test
 import java.io.File
@@ -47,26 +44,6 @@ class E2ETest {
     @Rule
     @JvmField
     val adbRule = AdbDeviceRule()
-
-    @Test
-    fun testSetDmVerityChecking() {
-        runBlocking {
-            try {
-                val execute = adbRule.adb.execute(SetDmVerityCheckingRequest(false), adbRule.deviceSerial)
-                //Some devices just return ""
-                Assume.assumeFalse("This device doesn't support x-verity: service", execute.isEmpty())
-
-                assertThat(execute).contains("verity cannot be disabled/enabled - USER build")
-            } catch (e: RequestRejectedException) {
-                if (e.message?.contains("closed") == true) {
-                    //Some devices just terminate the connection. Don't fail
-                    Assume.assumeTrue("This device doesn't support x-verity: service", false)
-                } else {
-                    throw e
-                }
-            }
-        }
-    }
 
     @Test
     fun testScreenCapture() {

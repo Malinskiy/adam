@@ -16,7 +16,10 @@
 
 package com.malinskiy.adam.integration
 
+import assertk.assertThat
+import assertk.assertions.contains
 import com.malinskiy.adam.request.device.AsyncDeviceMonitorRequest
+import com.malinskiy.adam.request.security.SetDmVerityCheckingRequest
 import com.malinskiy.adam.rule.AdbDeviceRule
 import kotlinx.coroutines.runBlocking
 import org.junit.Ignore
@@ -36,11 +39,19 @@ class ManualTest {
                 request = AsyncDeviceMonitorRequest(),
                 scope = this
             )
-            for(i in 1..100) {
+            for (i in 1..100) {
                 println(execute.receive())
             }
 
             execute.cancel()
+        }
+    }
+
+    @Test
+    fun testSetDmVerityChecking() {
+        runBlocking {
+            val execute = adbRule.adb.execute(SetDmVerityCheckingRequest(false), adbRule.deviceSerial)
+            assertThat(execute).contains("verity cannot be disabled/enabled - USER build")
         }
     }
 }
