@@ -24,6 +24,7 @@ import com.malinskiy.adam.request.device.FetchDeviceFeaturesRequest
 import com.malinskiy.adam.request.device.ListDevicesRequest
 import com.malinskiy.adam.request.misc.GetAdbServerVersionRequest
 import com.malinskiy.adam.request.prop.GetSinglePropRequest
+import com.malinskiy.adam.request.shell.v1.ShellCommandRequest
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.runBlocking
@@ -44,6 +45,7 @@ import java.time.Duration
 class AdbDeviceRule(val deviceType: DeviceType = DeviceType.ANY, vararg val requiredFeatures: Feature) : TestRule {
     lateinit var deviceSerial: String
     lateinit var supportedFeatures: List<Feature>
+    lateinit var lineSeparator: String
     val adb = AndroidDebugBridgeClientFactory().build()
     val initTimeout = Duration.ofSeconds(10)
 
@@ -91,6 +93,10 @@ class AdbDeviceRule(val deviceType: DeviceType = DeviceType.ANY, vararg val requ
                         )
                     }
 
+                    lineSeparator = adb.execute(
+                        ShellCommandRequest("echo"),
+                        device.serial
+                    ).output
 
                     return device
                 }

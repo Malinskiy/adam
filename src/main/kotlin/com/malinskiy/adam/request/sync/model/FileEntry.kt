@@ -44,7 +44,7 @@ data class FileEntryV1(
     val size: UInt,
     override val mtime: Instant
 ) : FileEntry() {
-    override fun exists() = size == 0.toUInt() && mode == 0.toUInt() && mtime.epochSecond == 0L
+    override fun exists() = !(size == 0.toUInt() && mode == 0.toUInt() && mtime.epochSecond == 0L)
 }
 
 data class FileEntryV2(

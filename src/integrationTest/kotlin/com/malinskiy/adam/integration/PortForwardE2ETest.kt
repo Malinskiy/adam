@@ -155,7 +155,7 @@ class PortForwardE2ETest {
     fun testReversePortForwardTcpPortAllocation() {
         runBlocking {
             val portString = adbRule.adb.execute(
-                ReversePortForwardRequest(RemoteTcpPortSpec(12042), LocalTcpPortSpec()),
+                ReversePortForwardRequest(RemoteTcpPortSpec(12042), LocalTcpPortSpec(12042)),
                 adbRule.deviceSerial
             )
 
@@ -163,11 +163,19 @@ class PortForwardE2ETest {
                 ListReversePortForwardsRequest(), adbRule.deviceSerial
             )
 
-            assertThat(portString).isNotNull()
-            val actual = portString!!.toInt()
-            val expected = (currentPortForwards.firstOrNull()?.localSpec as RemoteTcpPortSpec).port
+            if (portString != null) {
+                //Some devices return the allocated port
+                val actual = portString.toInt()
+                val expected = (currentPortForwards.firstOrNull()?.localSpec as RemoteTcpPortSpec).port
 
-            assertThat(actual).isEqualTo(expected)
+                assertThat(actual).isEqualTo(expected)
+            } else {
+                //Others do not
+                val actual = currentPortForwards.any {
+                    it.remoteSpec == LocalTcpPortSpec(12042) && it.localSpec == RemoteTcpPortSpec(12042)
+                }
+                assertThat(actual).isTrue()
+            }
         }
     }
 }

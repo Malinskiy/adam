@@ -26,6 +26,8 @@ import com.malinskiy.adam.transport.AndroidReadChannel
 import com.malinskiy.adam.transport.AndroidWriteChannel
 
 /**
+ * On some devices, this might not return the actual port if you're passing tcp:0
+ *
  * Doesn't work with SerialTarget, have to use the serial as a parameter for the execute method
  */
 class ReversePortForwardRequest(

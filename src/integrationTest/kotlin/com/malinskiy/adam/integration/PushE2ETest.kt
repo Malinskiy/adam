@@ -84,10 +84,10 @@ class PushE2ETest {
             assertThat(statFile("/data/local/tmp/testdir/Y/testfiley").isRegularFile()).isTrue()
             assertThat(statFile("/data/local/tmp/testdir/Y/Z/testfilez").isRegularFile()).isTrue()
 
-            assertThat(readFile("/data/local/tmp/testdir/X/testfilex")).isEqualTo("Xcafebabe\n")
-            assertThat(readFile("/data/local/tmp/testdir/Y/testfiley")).isEqualTo("Ycafebabe\n")
-            assertThat(readFile("/data/local/tmp/testdir/Y/Z/testfilez")).isEqualTo("Zcafebabe\n")
-            assertThat(readFile("/data/local/tmp/testdir/тестовыйфайл")).isEqualTo("кафебаба\n")
+            assertThat(readFile("/data/local/tmp/testdir/X/testfilex")).isEqualTo("Xcafebabe${adbRule.lineSeparator}")
+            assertThat(readFile("/data/local/tmp/testdir/Y/testfiley")).isEqualTo("Ycafebabe${adbRule.lineSeparator}")
+            assertThat(readFile("/data/local/tmp/testdir/Y/Z/testfilez")).isEqualTo("Zcafebabe${adbRule.lineSeparator}")
+            assertThat(readFile("/data/local/tmp/testdir/тестовыйфайл")).isEqualTo("кафебаба${adbRule.lineSeparator}")
         }
     }
 
