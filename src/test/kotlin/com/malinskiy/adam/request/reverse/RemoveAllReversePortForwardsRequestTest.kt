@@ -19,6 +19,7 @@ package com.malinskiy.adam.request.reverse
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import com.malinskiy.adam.Const
+import kotlinx.coroutines.runBlocking
 import org.junit.Test
 
 class RemoveAllReversePortForwardsRequestTest {
@@ -28,5 +29,13 @@ class RemoveAllReversePortForwardsRequestTest {
 
         assertThat(String(bytes, Const.DEFAULT_TRANSPORT_ENCODING))
             .isEqualTo("0017reverse:killforward-all")
+    }
+
+    @Test
+    fun testDummy() {
+        runBlocking {
+            assertThat(RemoveAllReversePortForwardsRequest().transform()).isEqualTo(Unit)
+            assertThat(RemoveAllReversePortForwardsRequest().process(ByteArray(1), 0, 1)).isEqualTo(Unit)
+        }
     }
 }

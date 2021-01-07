@@ -175,7 +175,7 @@ class PullRequest(
         serial: String?
     ): Boolean {
         val channel = execute(
-            CompatPullFileRequest(source, realDestination, size, supportedFeatures, this@PullRequest, coroutineContext),
+            CompatPullFileRequest(source, realDestination, supportedFeatures, this@PullRequest, size, coroutineContext),
             serial
         )
         var progress = 0.0

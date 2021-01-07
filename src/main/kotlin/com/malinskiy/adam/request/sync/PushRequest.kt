@@ -163,7 +163,7 @@ class PushRequest(
         serial: String?
     ): Boolean {
         val channel = execute(
-            CompatPushFileRequest(source, destination, mode, supportedFeatures, this@PushRequest, coroutineContext),
+            CompatPushFileRequest(source, destination, supportedFeatures, this@PushRequest, mode, coroutineContext),
             serial
         )
         var progress = 0.0

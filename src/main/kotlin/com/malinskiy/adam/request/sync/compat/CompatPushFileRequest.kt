@@ -30,9 +30,9 @@ import com.malinskiy.adam.request.sync.v2.PushFileRequest as PushV2FileRequest
 class CompatPushFileRequest(
     private val source: File,
     private val destination: String,
-    private val mode: String = "0777",
     private val supportedFeatures: List<Feature>,
     private val coroutineScope: CoroutineScope,
+    private val mode: String = "0777",
     private val coroutineContext: CoroutineContext = Dispatchers.IO
 ) : MultiRequest<ReceiveChannel<Double>>() {
     override suspend fun execute(androidDebugBridgeClient: AndroidDebugBridgeClient, serial: String?): ReceiveChannel<Double> {

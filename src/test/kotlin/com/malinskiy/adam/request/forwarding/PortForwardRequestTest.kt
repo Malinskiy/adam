@@ -19,6 +19,10 @@ package com.malinskiy.adam.request.forwarding
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import com.malinskiy.adam.Const
+import com.malinskiy.adam.exception.RequestRejectedException
+import com.malinskiy.adam.server.AndroidDebugBridgeServer
+import io.ktor.utils.io.close
+import kotlinx.coroutines.runBlocking
 import org.junit.Test
 
 class PortForwardRequestTest {
@@ -41,5 +45,47 @@ class PortForwardRequestTest {
 
         assertThat(String(bytes, Const.DEFAULT_TRANSPORT_ENCODING))
             .isEqualTo("0038host-serial:emulator-5554:forward:norebind:tcp:80;tcp:80")
+    }
+
+    @Test
+    fun testRead() {
+        runBlocking {
+            val server = AndroidDebugBridgeServer()
+
+            val client = server.startAndListen { input, output ->
+                val forwardCmd = input.receiveCommand()
+                assertThat(forwardCmd).isEqualTo("host-serial:serial:forward:tcp:0;tcp:8080")
+                output.respond(Const.Message.OKAY)
+
+                output.respond(Const.Message.OKAY)
+                output.respondStringV1("7070")
+                output.close()
+            }
+
+            val output = client.execute(PortForwardRequest(LocalTcpPortSpec(0), RemoteTcpPortSpec(8080), "serial"))
+            assertThat(output).isEqualTo(7070)
+
+            server.dispose()
+        }
+    }
+
+    @Test(expected = RequestRejectedException::class)
+    fun testReadFailure() {
+        runBlocking {
+            val server = AndroidDebugBridgeServer()
+
+            val client = server.startAndListen { input, output ->
+                val forwardCmd = input.receiveCommand()
+                assertThat(forwardCmd).isEqualTo("host-serial:serial:forward:tcp:0;tcp:8080")
+                output.respond(Const.Message.OKAY)
+
+                output.respond(Const.Message.FAIL)
+                output.respondStringV1("7070")
+                output.close()
+            }
+
+            val output = client.execute(PortForwardRequest(LocalTcpPortSpec(0), RemoteTcpPortSpec(8080), "serial"))
+            server.dispose()
+        }
     }
 }

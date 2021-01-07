@@ -18,6 +18,8 @@ package com.malinskiy.adam.request.abb
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import assertk.assertions.isFalse
+import assertk.assertions.isTrue
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.request.Feature
 import org.junit.Test
@@ -33,5 +35,17 @@ class AbbRequestTest {
         assertThat(String(array, 0, 15, Const.DEFAULT_TRANSPORT_ENCODING)).isEqualTo("0013abb:package")
         assertThat(array[15].toChar()).isEqualTo(AbbExecRequest.DELIMITER)
         assertThat(String(array, 16, 7, Const.DEFAULT_TRANSPORT_ENCODING)).isEqualTo("install")
+    }
+
+    @Test
+    fun testValidation() {
+        assertThat(AbbRequest(listOf(), listOf(Feature.ABB)).validate().success)
+            .isTrue()
+    }
+
+    @Test
+    fun testValidationFailure() {
+        assertThat(AbbRequest(listOf(), supportedFeatures = emptyList()).validate().success)
+            .isFalse()
     }
 }

@@ -114,4 +114,11 @@ class SideloadRequestTest {
             server.dispose()
         }
     }
+
+    @Test
+    fun testValidation() {
+        assertThat(SideloadRequest(temp.newFile()).validate().success).isTrue()
+        assertThat(SideloadRequest(temp.newFolder()).validate().success).isFalse()
+        assertThat(SideloadRequest(temp.newFile().apply { delete() }).validate().success).isFalse()
+    }
 }

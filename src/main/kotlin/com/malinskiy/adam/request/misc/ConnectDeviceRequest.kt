@@ -27,8 +27,8 @@ import java.nio.ByteBuffer
  * Connects a remote device
  */
 class ConnectDeviceRequest(
-    val host: String,
-    val port: Int = 5555
+    private val host: String,
+    private val port: Int = 5555
 ) : ComplexRequest<String>(target = HostTarget) {
 
     override fun serialize() = createBaseRequest("connect:$host:$port")

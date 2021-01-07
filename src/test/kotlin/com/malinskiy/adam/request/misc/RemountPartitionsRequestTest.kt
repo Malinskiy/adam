@@ -18,7 +18,11 @@ package com.malinskiy.adam.request.misc
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import com.malinskiy.adam.Const
 import com.malinskiy.adam.extension.toRequestString
+import com.malinskiy.adam.server.AndroidDebugBridgeServer
+import io.ktor.utils.io.close
+import kotlinx.coroutines.runBlocking
 import org.junit.Test
 
 class RemountPartitionsRequestTest {
@@ -31,5 +35,31 @@ class RemountPartitionsRequestTest {
     @Test
     fun testSerializeAutoReboot() {
         assertThat(RemountPartitionsRequest(true).serialize().toRequestString()).isEqualTo("000Aremount:-R")
+    }
+
+    @Test
+    fun testReturnsProperContent() {
+        runBlocking {
+            val server = AndroidDebugBridgeServer()
+
+            val client = server.startAndListen { input, output ->
+                val transportCmd = input.receiveCommand()
+                assertThat(transportCmd).isEqualTo("host:transport:serial")
+                output.respond(Const.Message.OKAY)
+
+                val shellCmd = input.receiveCommand()
+                assertThat(shellCmd).isEqualTo("remount:")
+                output.respondOkay()
+
+                val response = "something-something".toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
+                output.writeFully(response, 0, response.size)
+                output.close()
+            }
+
+            val output = client.execute(RemountPartitionsRequest(), serial = "serial")
+            assertThat(output).isEqualTo("something-something")
+
+            server.dispose()
+        }
     }
 }

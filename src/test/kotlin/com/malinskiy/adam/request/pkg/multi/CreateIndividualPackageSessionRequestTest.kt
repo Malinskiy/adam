@@ -24,14 +24,14 @@ import com.malinskiy.adam.extension.newFileWithExtension
 import com.malinskiy.adam.extension.toAndroidChannel
 import com.malinskiy.adam.extension.toRequestString
 import com.malinskiy.adam.request.Feature
-import io.ktor.utils.io.*
-import io.ktor.utils.io.core.*
+import io.ktor.utils.io.ByteChannelSequentialJVM
+import io.ktor.utils.io.ByteReadChannel
+import io.ktor.utils.io.ByteWriteChannel
+import io.ktor.utils.io.core.IoBuffer
 import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
-
-import kotlin.text.toByteArray
 
 class CreateIndividualPackageSessionRequestTest {
 
@@ -57,6 +57,19 @@ class CreateIndividualPackageSessionRequestTest {
         )
         assertThat(request.serialize().toRequestString())
             .isEqualTo("001Fabb_exec:package\u0000install-create")
+    }
+
+    @Test
+    fun serializeNoFeatures() {
+        val pkg = SingleFileInstallationPackage(temp.newFileWithExtension("apk"))
+        val request = CreateIndividualPackageSessionRequest(
+            supportedFeatures = listOf(),
+            pkg = pkg,
+            pkgList = listOf(pkg),
+            reinstall = false
+        )
+        assertThat(request.serialize().toRequestString())
+            .isEqualTo("0016exec:pm install-create")
     }
 
     @Test

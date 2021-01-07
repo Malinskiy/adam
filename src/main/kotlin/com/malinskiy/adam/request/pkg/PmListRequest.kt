@@ -19,7 +19,7 @@ package com.malinskiy.adam.request.pkg
 import com.malinskiy.adam.request.shell.v1.ShellCommandResult
 import com.malinskiy.adam.request.shell.v1.SyncShellCommandRequest
 
-class PmListRequest(val includePath: Boolean = false) : SyncShellCommandRequest<List<Package>>(
+class PmListRequest(private val includePath: Boolean = false) : SyncShellCommandRequest<List<Package>>(
     cmd = StringBuilder().apply {
         append("pm list packages")
 

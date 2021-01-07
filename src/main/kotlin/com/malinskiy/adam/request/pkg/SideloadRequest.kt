@@ -21,12 +21,13 @@ import com.malinskiy.adam.request.ComplexRequest
 import com.malinskiy.adam.request.ValidationResponse
 import com.malinskiy.adam.transport.AndroidReadChannel
 import com.malinskiy.adam.transport.AndroidWriteChannel
-import io.ktor.util.cio.*
-import io.ktor.utils.io.*
+import io.ktor.util.cio.readChannel
+import io.ktor.utils.io.ByteReadChannel
+import io.ktor.utils.io.cancel
 import java.io.File
 
 class SideloadRequest(
-    val pkg: File,
+    private val pkg: File,
     private var blockSize: Int = Const.MAX_FILE_PACKET_LENGTH
 ) : ComplexRequest<Boolean>() {
     override suspend fun readElement(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel): Boolean {
@@ -71,9 +72,9 @@ class SideloadRequest(
     override fun validate(): ValidationResponse {
         val message =
             if (!pkg.exists()) {
-                "Package ${pkg.absolutePath} doesn't exist"
+                ValidationResponse.packageShouldExist(pkg)
             } else if (!pkg.isFile) {
-                "Package ${pkg.absolutePath} is not a regular file"
+                ValidationResponse.packageShouldBeRegularFile(pkg)
             } else {
                 null
             }

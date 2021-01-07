@@ -22,7 +22,7 @@ import assertk.assertions.isEqualTo
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.request.forwarding.*
 import com.malinskiy.adam.server.AndroidDebugBridgeServer
-import io.ktor.utils.io.*
+import io.ktor.utils.io.close
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
@@ -61,6 +61,10 @@ class ListReversePortForwardsRequestTest {
                 ReversePortForwardingRule("xx", RemoteReservedPortSpec("namedsocket"), LocalUnixSocketPortSpec("/tmp/socket")),
                 ReversePortForwardingRule("xx", RemoteFilesystemPortSpec("namedsocket"), LocalUnixSocketPortSpec("/tmp/socket"))
             )
+
+            assertThat(output.first().serial).isEqualTo("xx")
+            assertThat(output.first().remoteSpec).isEqualTo(LocalTcpPortSpec(80))
+            assertThat(output.first().localSpec).isEqualTo(RemoteTcpPortSpec(80))
 
             server.dispose()
         }

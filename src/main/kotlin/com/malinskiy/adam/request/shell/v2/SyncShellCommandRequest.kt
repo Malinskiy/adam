@@ -17,6 +17,7 @@
 package com.malinskiy.adam.request.shell.v2
 
 import com.malinskiy.adam.Const
+import com.malinskiy.adam.exception.RequestValidationException
 import com.malinskiy.adam.request.ComplexRequest
 import com.malinskiy.adam.request.NonSpecifiedTarget
 import com.malinskiy.adam.request.Target
@@ -43,8 +44,7 @@ abstract class SyncShellCommandRequest<T : Any?>(val cmd: String, target: Target
     override fun serialize() = createBaseRequest("shell,v2,raw:$cmd")
     override suspend fun readElement(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel): T {
         loop@ while (true) {
-            when (MessageType.of(readChannel.readByte().toInt())) {
-                MessageType.STDIN -> TODO()
+            when (val messageType = MessageType.of(readChannel.readByte().toInt())) {
                 MessageType.STDOUT -> {
                     val length = readChannel.readIntLittleEndian()
                     readChannel.readFully(data, 0, length)
@@ -60,9 +60,9 @@ abstract class SyncShellCommandRequest<T : Any?>(val cmd: String, target: Target
                     exitCode = readChannel.readByte().toInt()
                     break@loop
                 }
-                MessageType.CLOSE_STDIN -> TODO()
-                MessageType.WINDOW_SIZE_CHANGE -> TODO()
-                MessageType.INVALID -> TODO()
+                MessageType.STDIN, MessageType.CLOSE_STDIN, MessageType.WINDOW_SIZE_CHANGE, MessageType.INVALID -> {
+                    throw RequestValidationException("Unsupported message $messageType")
+                }
             }
         }
 

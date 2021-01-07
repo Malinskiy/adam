@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Anton Malinskiy
+ * Copyright (C) 2020 Anton Malinskiy
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,26 +14,16 @@
  * limitations under the License.
  */
 
-package com.malinskiy.adam.request.misc
+package com.malinskiy.adam.server
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
-import com.malinskiy.adam.Const
-import kotlinx.coroutines.runBlocking
-import org.junit.Test
+import assertk.assertions.startsWith
+import io.ktor.utils.io.ByteReadChannel
+import io.ktor.utils.io.readUTF8Line
 
-class KillAdbRequestTest {
-    @Test
-    fun testSerialization() {
-        assertThat(String(KillAdbRequest().serialize(), Const.DEFAULT_TRANSPORT_ENCODING))
-            .isEqualTo("0009host:kill")
-    }
-
-    @Test
-    fun testDummy() {
-        runBlocking {
-            assertThat(KillAdbRequest().process(ByteArray(1), 0, 1)).isEqualTo(Unit)
-            assertThat(KillAdbRequest().transform()).isEqualTo(Unit)
-        }
-    }
+class ConsoleReadChannel(private val delegate: ByteReadChannel) : ByteReadChannel by delegate {
+    suspend fun receiveCommand() = delegate.readUTF8Line()!!
+    suspend fun receiveAuth() = receiveCommand().apply { assertThat(this).startsWith("auth ") }.substringAfter("auth ")
+    suspend fun receiveExit() = receiveCommand().apply { assertThat(this).isEqualTo("quit") }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 Anton Malinskiy
+ * Copyright (C) 2021 Anton Malinskiy
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 
-package com.malinskiy.adam.request.async
+package com.malinskiy.adam.request.shell.v1
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.fail
 import com.malinskiy.adam.Const
-import com.malinskiy.adam.request.shell.v1.ChanneledShellCommandRequest
 import com.malinskiy.adam.server.AndroidDebugBridgeServer
-import io.ktor.utils.io.*
+import io.ktor.utils.io.close
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.receiveOrNull

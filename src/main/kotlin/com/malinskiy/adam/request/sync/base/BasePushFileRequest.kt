@@ -23,18 +23,18 @@ import com.malinskiy.adam.request.AsyncChannelRequest
 import com.malinskiy.adam.request.ValidationResponse
 import com.malinskiy.adam.transport.AndroidReadChannel
 import com.malinskiy.adam.transport.AndroidWriteChannel
-import io.ktor.util.cio.*
-import io.ktor.utils.io.*
+import io.ktor.util.cio.readChannel
+import io.ktor.utils.io.cancel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.SendChannel
 import java.io.File
 import kotlin.coroutines.CoroutineContext
 
 abstract class BasePushFileRequest(
-    val local: File,
-    val remotePath: String,
-    val mode: String = "0777",
-    val coroutineContext: CoroutineContext = Dispatchers.IO
+    private val local: File,
+    protected val remotePath: String,
+    protected val mode: String = "0777",
+    coroutineContext: CoroutineContext = Dispatchers.IO
 ) : AsyncChannelRequest<Double, Unit>() {
     protected val fileReadChannel = local.readChannel(coroutineContext = coroutineContext)
     protected val buffer = ByteArray(8 + Const.MAX_FILE_PACKET_LENGTH)

@@ -25,8 +25,8 @@ import com.malinskiy.adam.request.ValidationResponse
 import com.malinskiy.adam.request.sync.v1.StatFileRequest
 import com.malinskiy.adam.transport.AndroidReadChannel
 import com.malinskiy.adam.transport.AndroidWriteChannel
-import io.ktor.util.cio.*
-import io.ktor.utils.io.*
+import io.ktor.util.cio.writeChannel
+import io.ktor.utils.io.close
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.SendChannel
 import java.io.File
@@ -65,7 +65,7 @@ abstract class BasePullFileRequest(
         val header = headerBuffer.copyOfRange(0, 4)
         when {
             header.contentEquals(Const.Message.DONE) -> {
-                fileWriteChannel.close(null)
+                fileWriteChannel.close()
                 readChannel.cancel(null)
                 writeChannel.close(null)
                 return 1.0

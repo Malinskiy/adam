@@ -23,11 +23,12 @@ import com.malinskiy.adam.exception.RequestRejectedException
 import com.malinskiy.adam.extension.toAndroidChannel
 import com.malinskiy.adam.extension.toRequestString
 import com.malinskiy.adam.request.Feature
-import io.ktor.utils.io.*
-import io.ktor.utils.io.core.*
+import io.ktor.utils.io.ByteChannelSequentialJVM
+import io.ktor.utils.io.ByteReadChannel
+import io.ktor.utils.io.ByteWriteChannel
+import io.ktor.utils.io.core.IoBuffer
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
-import kotlin.text.toByteArray
 
 class InstallCommitRequestTest {
     @Test
@@ -82,6 +83,17 @@ class InstallCommitRequestTest {
                 byteBufferChannel.toAndroidChannel()
             )
         }
+    }
+
+    @Test
+    fun testSerializeNoFeatures() {
+        assertThat(
+            InstallCommitRequest(
+                supportedFeatures = listOf(),
+                parentSession = "parent-session-id",
+                abandon = false
+            ).serialize().toRequestString()
+        ).isEqualTo("0028exec:pm install-commit parent-session-id")
     }
 
     private fun stub(): InstallCommitRequest {

@@ -94,4 +94,11 @@ class LegacySideloadRequestTest {
             server.dispose()
         }
     }
+
+    @Test
+    fun testValidation() {
+        assertThat(LegacySideloadRequest(temp.newFile()).validate().success).isTrue()
+        assertThat(LegacySideloadRequest(temp.newFolder()).validate().success).isFalse()
+        assertThat(LegacySideloadRequest(temp.newFile().apply { delete() }).validate().success).isFalse()
+    }
 }

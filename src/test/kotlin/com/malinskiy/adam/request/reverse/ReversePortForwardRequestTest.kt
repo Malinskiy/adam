@@ -19,9 +19,13 @@ package com.malinskiy.adam.request.reverse
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import com.malinskiy.adam.Const
+import com.malinskiy.adam.exception.RequestRejectedException
 import com.malinskiy.adam.request.forwarding.LocalTcpPortSpec
 import com.malinskiy.adam.request.forwarding.PortForwardingMode
 import com.malinskiy.adam.request.forwarding.RemoteTcpPortSpec
+import com.malinskiy.adam.server.AndroidDebugBridgeServer
+import io.ktor.utils.io.close
+import kotlinx.coroutines.runBlocking
 import org.junit.Test
 
 class ReversePortForwardRequestTest {
@@ -43,5 +47,54 @@ class ReversePortForwardRequestTest {
 
         assertThat(String(bytes, Const.DEFAULT_TRANSPORT_ENCODING))
             .isEqualTo("0026reverse:forward:norebind:tcp:80;tcp:80")
+    }
+
+    @Test
+    fun testRead() {
+        runBlocking {
+            val server = AndroidDebugBridgeServer()
+
+            val client = server.startAndListen { input, output ->
+                val hostCmd = input.receiveCommand()
+                assertThat(hostCmd).isEqualTo("host:transport:serial")
+                output.respond(Const.Message.OKAY)
+
+                val forwardCmd = input.receiveCommand()
+                assertThat(forwardCmd).isEqualTo("reverse:forward:tcp:8080;tcp:0")
+                output.respond(Const.Message.OKAY)
+
+                output.respond(Const.Message.OKAY)
+                output.respondStringV1("7070")
+                output.close()
+            }
+
+            val output = client.execute(ReversePortForwardRequest(RemoteTcpPortSpec(8080), LocalTcpPortSpec(0)), "serial")
+            assertThat(output).isEqualTo(7070)
+
+            server.dispose()
+        }
+    }
+
+    @Test(expected = RequestRejectedException::class)
+    fun testReadFailure() {
+        runBlocking {
+            val server = AndroidDebugBridgeServer()
+
+            val client = server.startAndListen { input, output ->
+                val hostCmd = input.receiveCommand()
+                assertThat(hostCmd).isEqualTo("host:transport:serial")
+                output.respond(Const.Message.OKAY)
+
+                val forwardCmd = input.receiveCommand()
+                assertThat(forwardCmd).isEqualTo("reverse:forward:tcp:8080;tcp:0")
+
+                output.respond(Const.Message.FAIL)
+                output.respondStringV1("7070")
+                output.close()
+            }
+
+            val output = client.execute(ReversePortForwardRequest(RemoteTcpPortSpec(8080), LocalTcpPortSpec(0)), "serial")
+            server.dispose()
+        }
     }
 }

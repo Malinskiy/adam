@@ -17,6 +17,7 @@
 package com.malinskiy.adam.server
 
 import com.malinskiy.adam.Const
+import com.malinskiy.adam.request.shell.v2.MessageType
 import io.ktor.utils.io.*
 import java.nio.ByteBuffer
 
@@ -144,5 +145,41 @@ class ServerWriteChannel(private val delegate: ByteWriteChannel) : ByteWriteChan
         respond(Const.Message.FAIL)
         writeIntLittleEndian(message.length)
         respondStringRaw(message)
+    }
+
+    suspend fun respondShellV2(stdout: String, stderr: String, exitCode: Int) {
+        respondShellV2Stdout(stdout)
+        respondShellV2Stderr(stderr)
+        respondShellV2Exit(exitCode)
+    }
+
+    suspend fun respondShellV2Exit(exitCode: Int) {
+        writeByte(MessageType.EXIT.toValue().toByte())
+        writeInt(1)
+        writeByte(exitCode)
+    }
+
+    suspend fun respondShellV2Stderr(stderr: String) {
+        writeByte(MessageType.STDERR.toValue().toByte())
+        respondStringV2(stderr)
+    }
+
+    suspend fun respondShellV2Stdout(stdout: String) {
+        writeByte(MessageType.STDOUT.toValue().toByte())
+        respondStringV2(stdout)
+    }
+
+    suspend fun respondStringV2(message: String) {
+        val bytes = message.toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
+        writeIntLittleEndian(bytes.size)
+        writeFully(bytes)
+    }
+
+    suspend fun respondShellV2WindowSizeChange() {
+        writeByte(MessageType.WINDOW_SIZE_CHANGE.toValue().toByte())
+    }
+
+    suspend fun respondShellV2Invalid() {
+        writeByte(MessageType.INVALID.toValue().toByte())
     }
 }

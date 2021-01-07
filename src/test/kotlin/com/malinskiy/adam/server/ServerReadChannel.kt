@@ -16,11 +16,16 @@
 
 package com.malinskiy.adam.server
 
+import assertk.assertThat
+import assertk.assertions.isEqualTo
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.exception.UnsupportedSyncProtocolException
 import com.malinskiy.adam.extension.toInt
-import io.ktor.util.cio.*
-import io.ktor.utils.io.*
+import com.malinskiy.adam.request.shell.v2.MessageType
+import io.ktor.util.cio.writeChannel
+import io.ktor.utils.io.ByteReadChannel
+import io.ktor.utils.io.close
+import io.ktor.utils.io.readIntLittleEndian
 import java.io.File
 
 class ServerReadChannel(private val delegate: ByteReadChannel) : ByteReadChannel by delegate {
@@ -175,5 +180,18 @@ class ServerReadChannel(private val delegate: ByteReadChannel) : ByteReadChannel
                 else -> throw RuntimeException("Something bad happened")
             }
         }
+    }
+
+    suspend fun receiveShellV2Stdin(): String {
+        readByte().apply { assertThat(this).isEqualTo(MessageType.STDIN.toValue().toByte()) }
+        val size = readIntLittleEndian()
+        val request = ByteArray(size)
+        readFully(request, 0, size)
+        return String(request, Const.DEFAULT_TRANSPORT_ENCODING)
+    }
+
+    suspend fun receiveShellV2StdinClose() {
+        readByte().apply { assertThat(this).isEqualTo(MessageType.CLOSE_STDIN.toValue().toByte()) }
+        assertThat(readIntLittleEndian()).isEqualTo(0)
     }
 }

@@ -23,6 +23,7 @@ import com.malinskiy.adam.rule.DeviceType
 import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
+import java.net.InetSocketAddress
 
 class EmulatorCommandRequestTest {
     @Rule
@@ -37,8 +38,7 @@ class EmulatorCommandRequestTest {
             val output = adbRule.adb.execute(
                 EmulatorCommandRequest(
                     "help",
-                    "localhost",
-                    port
+                    InetSocketAddress("localhost", port)
                 )
             )
             assertThat(output).startsWith("Android console commands")

@@ -14,22 +14,66 @@
  * limitations under the License.
  */
 
-package com.malinskiy.adam.request.sync.v2
+package com.malinskiy.adam.request.sync.compat
 
 import assertk.assertThat
 import assertk.assertions.containsExactly
 import assertk.assertions.isEqualTo
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.request.Feature
+import com.malinskiy.adam.request.sync.model.FileEntryV1
 import com.malinskiy.adam.request.sync.model.FileEntryV2
 import com.malinskiy.adam.server.AndroidDebugBridgeServer
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import java.time.Instant
 
-class ListFileRequestTest {
+class CompatListFileRequestTest {
     @Test
-    fun testSerialize() = runBlocking {
+    fun testV1() {
+        runBlocking {
+            val server = AndroidDebugBridgeServer()
+
+            val client = server.startAndListen { input, output ->
+                val transportCmd = input.receiveCommand()
+                assertThat(transportCmd).isEqualTo("host:transport:serial")
+                output.respond(Const.Message.OKAY)
+
+                val actualCommand = input.receiveCommand()
+                assertThat(actualCommand).isEqualTo("sync:")
+                output.respond(Const.Message.OKAY)
+
+                val listPath = input.receiveList()
+                assertThat(listPath).isEqualTo("/sdcard/")
+                output.respondList(
+                    420,
+                    123,
+                    1589042331,
+                    "some-file"
+                )
+                output.respondDone()
+            }
+
+            val list = client.execute(
+                CompatListFileRequest("/sdcard/", emptyList()), "serial"
+            )
+
+
+            server.dispose()
+
+            assertThat(list).containsExactly(
+                FileEntryV1(
+                    name = "some-file",
+                    mode = 123.toUInt(),
+                    mtime = Instant.ofEpochSecond(1589042331),
+                    size = 420.toUInt()
+                )
+            )
+        }
+    }
+
+    @Test
+    fun testV2() = runBlocking {
         val server = AndroidDebugBridgeServer()
 
         val client = server.startAndListen { input, output ->
@@ -61,7 +105,7 @@ class ListFileRequestTest {
         }
 
         val list = client.execute(
-            ListFileRequest("/sdcard/", listOf(Feature.LS_V2)), "serial"
+            CompatListFileRequest("/sdcard/", listOf(Feature.LS_V2)), "serial"
         )
         server.dispose()
 
@@ -81,18 +125,5 @@ class ListFileRequestTest {
                 ctime = Instant.ofEpochSecond(1589042333)
             )
         )
-
-        assertThat(list.first().name).isEqualTo("some-file")
-        assertThat(list.first().mode).isEqualTo(123.toUInt())
-        assertThat(list.first().size).isEqualTo(420.toULong())
-        assertThat(list.first().error).isEqualTo(0.toUInt())
-        assertThat(list.first().dev).isEqualTo(114.toULong())
-        assertThat(list.first().ino).isEqualTo(111221.toULong())
-        assertThat(list.first().nlink).isEqualTo(2.toUInt())
-        assertThat(list.first().uid).isEqualTo(0.toUInt())
-        assertThat(list.first().gid).isEqualTo(1000.toUInt())
-        assertThat(list.first().atime).isEqualTo(Instant.ofEpochSecond(1589042331))
-        assertThat(list.first().mtime).isEqualTo(Instant.ofEpochSecond(1589042332))
-        assertThat(list.first().ctime).isEqualTo(Instant.ofEpochSecond(1589042333))
     }
 }

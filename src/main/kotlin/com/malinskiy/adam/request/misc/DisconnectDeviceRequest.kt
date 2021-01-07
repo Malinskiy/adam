@@ -29,8 +29,8 @@ import java.nio.ByteBuffer
  * @param host target device that will be disconnected. if null then disconnects all devices
  */
 class DisconnectDeviceRequest(
-    val host: String? = null,
-    val port: Int = 5555
+    private val host: String? = null,
+    private val port: Int = 5555
 ) : ComplexRequest<String>(target = HostTarget) {
 
     override fun serialize() = createBaseRequest(

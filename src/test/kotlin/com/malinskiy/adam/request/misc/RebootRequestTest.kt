@@ -19,6 +19,7 @@ package com.malinskiy.adam.request.misc
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import com.malinskiy.adam.Const
+import kotlinx.coroutines.runBlocking
 import org.junit.Test
 
 class RebootRequestTest {
@@ -55,5 +56,13 @@ class RebootRequestTest {
         val actual = RebootRequest(RebootMode.SIDELOAD_AUTO_REBOOT).serialize().toString(Const.DEFAULT_TRANSPORT_ENCODING)
         assertThat(actual)
             .isEqualTo("001Breboot:sideload-auto-reboot")
+    }
+
+    @Test
+    fun testDummy() {
+        runBlocking {
+            assertThat(RebootRequest(RebootMode.RECOVERY).process(ByteArray(1), 0, 1)).isEqualTo(Unit)
+            assertThat(RebootRequest(RebootMode.RECOVERY).transform()).isEqualTo(Unit)
+        }
     }
 }

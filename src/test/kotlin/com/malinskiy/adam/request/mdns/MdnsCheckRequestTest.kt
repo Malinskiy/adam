@@ -21,11 +21,13 @@ import assertk.assertions.isEqualTo
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.extension.toAndroidChannel
 import com.malinskiy.adam.extension.toRequestString
-import io.ktor.utils.io.*
-import io.ktor.utils.io.core.*
+import io.ktor.utils.io.ByteChannelSequentialJVM
+import io.ktor.utils.io.ByteReadChannel
+import io.ktor.utils.io.ByteWriteChannel
+import io.ktor.utils.io.close
+import io.ktor.utils.io.core.IoBuffer
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
-import kotlin.text.toByteArray
 
 class MdnsCheckRequestTest {
     @Test
@@ -45,6 +47,22 @@ class MdnsCheckRequestTest {
             )
 
             assertThat(value).isEqualTo(MdnsStatus(true, "8787003"))
+            byteBufferChannel.close()
+        }
+    }
+
+    @Test
+    fun testReturnsUnavailable() {
+        runBlocking {
+            val response = "001Dmdns daemon unavailable87003]".toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
+            val byteBufferChannel: ByteWriteChannel = ByteChannelSequentialJVM(IoBuffer.Empty, false)
+
+            val value = MdnsCheckRequest().readElement(
+                ByteReadChannel(response).toAndroidChannel(),
+                byteBufferChannel.toAndroidChannel()
+            )
+
+            assertThat(value).isEqualTo(MdnsStatus(false, null))
             byteBufferChannel.close()
         }
     }

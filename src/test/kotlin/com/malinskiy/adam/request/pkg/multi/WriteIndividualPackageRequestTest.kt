@@ -24,8 +24,9 @@ import com.malinskiy.adam.extension.newFileWithExtension
 import com.malinskiy.adam.extension.toAndroidChannel
 import com.malinskiy.adam.extension.toRequestString
 import com.malinskiy.adam.request.Feature
-import io.ktor.util.cio.*
-import io.ktor.utils.io.*
+import io.ktor.util.cio.writeChannel
+import io.ktor.utils.io.ByteReadChannel
+import io.ktor.utils.io.ByteWriteChannel
 import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
@@ -53,6 +54,17 @@ class WriteIndividualPackageRequestTest {
         )
         assertThat(request.serialize().toRequestString())
             .isEqualTo("0042abb_exec:package\u0000install-write\u0000-S\u0000614\u0000session-id\u0000sample-fake.apk\u0000-")
+    }
+
+    @Test
+    fun serializeNoFeatures() {
+        val request = WriteIndividualPackageRequest(
+            supportedFeatures = emptyList(),
+            file = File(WriteIndividualPackageRequestTest::class.java.getResource("/fixture/sample-fake.apk").file),
+            session = "session-id"
+        )
+        assertThat(request.serialize().toRequestString())
+            .isEqualTo("0039exec:pm install-write -S 614 session-id sample-fake.apk -")
     }
 
     @Test

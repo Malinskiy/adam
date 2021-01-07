@@ -18,6 +18,5 @@ package com.malinskiy.adam.request.transform
 
 interface ResponseTransformer<T : Any?> {
     suspend fun process(bytes: ByteArray, offset: Int, limit: Int)
-
     fun transform(): T
 }

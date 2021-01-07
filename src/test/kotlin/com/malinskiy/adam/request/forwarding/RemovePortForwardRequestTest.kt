@@ -19,6 +19,7 @@ package com.malinskiy.adam.request.forwarding
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import com.malinskiy.adam.Const
+import kotlinx.coroutines.runBlocking
 import org.junit.Test
 
 class RemovePortForwardRequestTest {
@@ -28,5 +29,13 @@ class RemovePortForwardRequestTest {
 
         assertThat(String(bytes, Const.DEFAULT_TRANSPORT_ENCODING))
             .isEqualTo("0025host-serial:serial:killforward:tcp:80")
+    }
+
+    @Test
+    fun testDummy() {
+        runBlocking {
+            assertThat(RemovePortForwardRequest(serial = "serial", local = LocalTcpPortSpec()).process(ByteArray(1), 0, 1)).isEqualTo(Unit)
+            assertThat(RemovePortForwardRequest(serial = "serial", local = LocalTcpPortSpec()).transform()).isEqualTo(Unit)
+        }
     }
 }

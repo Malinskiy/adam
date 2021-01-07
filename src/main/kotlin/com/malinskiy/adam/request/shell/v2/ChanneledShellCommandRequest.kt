@@ -22,11 +22,14 @@ import com.malinskiy.adam.request.NonSpecifiedTarget
 import com.malinskiy.adam.request.Target
 import com.malinskiy.adam.transport.AndroidReadChannel
 import com.malinskiy.adam.transport.AndroidWriteChannel
-import io.ktor.utils.io.*
+import io.ktor.utils.io.readIntLittleEndian
+import io.ktor.utils.io.writeByte
+import io.ktor.utils.io.writeFully
+import io.ktor.utils.io.writeIntLittleEndian
 import kotlinx.coroutines.channels.ReceiveChannel
 
 open class ChanneledShellCommandRequest(
-    val cmd: String,
+    private val cmd: String,
     channel: ReceiveChannel<ShellCommandInputChunk>,
     target: Target = NonSpecifiedTarget
 ) : AsyncChannelRequest<ShellCommandResultChunk, ShellCommandInputChunk>(target = target, channel = channel) {

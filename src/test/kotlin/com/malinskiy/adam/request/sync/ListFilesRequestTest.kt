@@ -19,9 +19,10 @@ package com.malinskiy.adam.request.sync
 import assertk.assertThat
 import assertk.assertions.containsExactly
 import assertk.assertions.isEqualTo
+import assertk.assertions.isNull
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.server.AndroidDebugBridgeServer
-import io.ktor.utils.io.*
+import io.ktor.utils.io.close
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 
@@ -143,6 +144,17 @@ class ListFilesRequestTest {
                     type = AndroidFileType.DIRECTORY
                 )
             )
+
+            assertThat(files.first().permissions).isEqualTo("-rwxrwx--x")
+            assertThat(files.first().directory).isEqualTo("/sdcard/")
+            assertThat(files.first().date).isEqualTo("2020-10-24")
+            assertThat(files.first().group).isEqualTo("sdcard_rw")
+            assertThat(files.first().link).isNull()
+            assertThat(files.first().name).isEqualTo("Alarms")
+            assertThat(files.first().owner).isEqualTo("root")
+            assertThat(files.first().size).isEqualTo(4096L)
+            assertThat(files.first().time).isEqualTo("16:29")
+            assertThat(files.first().type).isEqualTo(AndroidFileType.REGULAR_FILE)
 
             server.dispose()
         }

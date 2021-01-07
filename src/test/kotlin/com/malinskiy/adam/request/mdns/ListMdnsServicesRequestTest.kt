@@ -22,11 +22,13 @@ import assertk.assertions.isEqualTo
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.extension.toAndroidChannel
 import com.malinskiy.adam.extension.toRequestString
-import io.ktor.utils.io.*
-import io.ktor.utils.io.core.*
+import io.ktor.utils.io.ByteChannelSequentialJVM
+import io.ktor.utils.io.ByteReadChannel
+import io.ktor.utils.io.ByteWriteChannel
+import io.ktor.utils.io.close
+import io.ktor.utils.io.core.IoBuffer
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
-import kotlin.text.toByteArray
 
 class ListMdnsServicesRequestTest {
     @Test
@@ -52,6 +54,10 @@ class ListMdnsServicesRequestTest {
                     url = "192.168.1.2:9999"
                 )
             )
+
+            assertThat(services.first().name).isEqualTo("adb-serial")
+            assertThat(services.first().serviceType).isEqualTo("_adb._tcp.")
+            assertThat(services.first().url).isEqualTo("192.168.1.2:9999")
 
             byteBufferChannel.close()
         }

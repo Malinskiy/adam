@@ -20,6 +20,7 @@ import assertk.assertThat
 import assertk.assertions.isEqualTo
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.request.forwarding.RemoteTcpPortSpec
+import kotlinx.coroutines.runBlocking
 import org.junit.Test
 
 class RemoveReversePortForwardRequestTest {
@@ -29,5 +30,13 @@ class RemoveReversePortForwardRequestTest {
 
         assertThat(String(bytes, Const.DEFAULT_TRANSPORT_ENCODING))
             .isEqualTo("001Areverse:killforward:tcp:80")
+    }
+
+    @Test
+    fun testDummy() {
+        runBlocking {
+            assertThat(RemoveReversePortForwardRequest(RemoteTcpPortSpec(8080)).transform()).isEqualTo(Unit)
+            assertThat(RemoveReversePortForwardRequest(RemoteTcpPortSpec(8080)).process(ByteArray(1), 0, 1)).isEqualTo(Unit)
+        }
     }
 }

@@ -33,7 +33,7 @@ open class ChanneledShellCommandRequest(
 
     override suspend fun readElement(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel): String? {
         while (readChannel.availableForRead == 0) {
-            if (readChannel.isClosedForRead || writeChannel.isClosedForWrite) return ""
+            if (readChannel.isClosedForRead || writeChannel.isClosedForWrite) return null
             delay(Const.READ_DELAY)
         }
 

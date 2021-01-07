@@ -19,14 +19,24 @@ package com.malinskiy.adam.request.forwarding
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import com.malinskiy.adam.Const
+import kotlinx.coroutines.runBlocking
 import org.junit.Test
 
 class RemoveAllPortForwardsRequestTest {
+
     @Test
     fun testSerializeDefault() {
         val bytes = RemoveAllPortForwardsRequest(serial = "serial").serialize()
 
         assertThat(String(bytes, Const.DEFAULT_TRANSPORT_ENCODING))
             .isEqualTo("0022host-serial:serial:killforward-all")
+    }
+
+    @Test
+    fun testDummy() {
+        runBlocking {
+            assertThat(RemoveAllPortForwardsRequest(serial = "serial").process(ByteArray(1), 0, 1)).isEqualTo(Unit)
+            assertThat(RemoveAllPortForwardsRequest(serial = "serial").transform()).isEqualTo(Unit)
+        }
     }
 }

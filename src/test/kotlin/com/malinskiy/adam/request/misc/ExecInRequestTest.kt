@@ -19,7 +19,8 @@ package com.malinskiy.adam.request.misc
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import com.malinskiy.adam.extension.toRequestString
-import io.ktor.utils.io.*
+import io.ktor.utils.io.ByteChannel
+import io.ktor.utils.io.cancel
 import org.junit.After
 import org.junit.Before
 import org.junit.Test

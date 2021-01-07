@@ -20,6 +20,7 @@ import com.malinskiy.adam.Const
 import io.ktor.util.cio.*
 import io.ktor.utils.io.*
 import java.io.File
+import java.net.InetSocketAddress
 
 /**
  * This request is completely different to other requests: it connects directly to emulator instead of adb server
@@ -35,9 +36,8 @@ import java.io.File
  * everything the emulator returns - set this to false
  */
 class EmulatorCommandRequest(
-    val cmd: String,
-    val hostname: String,
-    val port: Int,
+    private val cmd: String,
+    val address: InetSocketAddress,
     private val authToken: String? = null,
     private val cleanResponse: Boolean = true
 ) {

@@ -66,5 +66,10 @@ class ListFileRequestTest {
                 size = 420.toUInt()
             )
         )
+
+        assertThat(list.first().name).isEqualTo("some-file")
+        assertThat(list.first().mode).isEqualTo(123.toUInt())
+        assertThat(list.first().mtime).isEqualTo(Instant.ofEpochSecond(1589042331))
+        assertThat(list.first().size).isEqualTo(420.toUInt())
     }
 }

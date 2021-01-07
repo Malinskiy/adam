@@ -30,8 +30,12 @@ import com.malinskiy.adam.transport.AndroidReadChannel
 import com.malinskiy.adam.transport.AndroidWriteChannel
 import com.malinskiy.adam.transport.KtorSocketFactory
 import com.malinskiy.adam.transport.SocketFactory
-import io.ktor.network.sockets.*
-import io.ktor.utils.io.*
+import io.ktor.network.sockets.openReadChannel
+import io.ktor.network.sockets.openWriteChannel
+import io.ktor.utils.io.ByteReadChannel
+import io.ktor.utils.io.ByteWriteChannel
+import io.ktor.utils.io.cancel
+import io.ktor.utils.io.close
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.ReceiveChannel
@@ -124,7 +128,7 @@ class AndroidDebugBridgeClient(
     }
 
     suspend fun execute(request: EmulatorCommandRequest): String {
-        socketFactory.tcp(InetSocketAddress(request.hostname, request.port)).use { socket ->
+        socketFactory.tcp(request.address).use { socket ->
             var readChannel: ByteReadChannel? = null
             var writeChannel: ByteWriteChannel? = null
 

@@ -21,7 +21,7 @@ import com.malinskiy.adam.request.SynchronousRequest
 
 class RemovePortForwardRequest(
     private val local: LocalTcpPortSpec,
-    private val serial: String
+    serial: String
 ) : SynchronousRequest<Unit>(target = SerialTarget(serial)) {
     override fun serialize() =
         createBaseRequest("killforward:${local.toSpec()}")

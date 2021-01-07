@@ -18,7 +18,7 @@ package com.malinskiy.adam.request.misc
 
 import com.malinskiy.adam.request.SynchronousRequest
 
-class RebootRequest(val mode: RebootMode = RebootMode.DEFAULT) : SynchronousRequest<Unit>() {
+class RebootRequest(private val mode: RebootMode = RebootMode.DEFAULT) : SynchronousRequest<Unit>() {
     override suspend fun process(bytes: ByteArray, offset: Int, limit: Int) = Unit
 
     override fun serialize() = createBaseRequest("reboot:${mode.value}")
