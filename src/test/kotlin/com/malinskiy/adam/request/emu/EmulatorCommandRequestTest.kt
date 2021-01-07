@@ -30,6 +30,7 @@ class EmulatorCommandRequestTest {
             EmulatorConsoleServer().use { server ->
                 val (client, consoleAddr) = server.startAndListen { input, output ->
                     val authToken = input.receiveAuth()
+                    assertThat(authToken).isEqualTo("token")
                     output.writeAuth()
 
                     val cmd = input.receiveCommand()
@@ -40,7 +41,7 @@ class EmulatorCommandRequestTest {
                     output.close()
                 }
 
-                val output = client.execute(EmulatorCommandRequest("help", consoleAddr))
+                val output = client.execute(EmulatorCommandRequest("help", consoleAddr, authToken = "token"))
                 assertThat(output).isEqualTo("Android console commands:")
             }
         }
