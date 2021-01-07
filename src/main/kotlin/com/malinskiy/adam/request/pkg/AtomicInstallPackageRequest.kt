@@ -29,8 +29,12 @@ import kotlin.coroutines.CoroutineContext
  * Push one or more packages to the device and install them atomically
  *
  * Requires Feature.CMD support on the target device
+ * Even if CMD is supported, there is no promise that `cmd package install --multi-package`
+ * is available: there were version that didn't have this mode
+ *
  * Optionally uses Feature.ABB_EXEC
  * Support for Feature.APEX is required for installing apex packages
+ *
  *
  * @see com.malinskiy.adam.request.device.FetchDeviceFeaturesRequest
  */

@@ -22,7 +22,6 @@ import com.malinskiy.adam.request.ComplexRequest
 import com.malinskiy.adam.transport.AndroidReadChannel
 import com.malinskiy.adam.transport.AndroidWriteChannel
 import io.ktor.utils.io.ByteReadChannel
-import io.ktor.utils.io.close
 
 /**
  * Executes the command and provides the channel as the input to the command. Does not return anything
@@ -31,7 +30,8 @@ class ExecInRequest(private val cmd: String, private val channel: ByteReadChanne
     override suspend fun readElement(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel) {
         val buffer = ByteArray(Const.MAX_FILE_PACKET_LENGTH)
         channel.copyTo(writeChannel, buffer)
-        writeChannel.close()
+        //Have to poll
+        readChannel.readStatus()
     }
 
     override fun serialize() = createBaseRequest("exec:$cmd")

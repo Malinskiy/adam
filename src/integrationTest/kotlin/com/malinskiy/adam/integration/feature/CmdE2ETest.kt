@@ -18,6 +18,7 @@ package com.malinskiy.adam.integration.feature
 
 import assertk.assertThat
 import assertk.assertions.contains
+import com.malinskiy.adam.exception.RequestRejectedException
 import com.malinskiy.adam.request.Feature
 import com.malinskiy.adam.request.misc.ExecInRequest
 import com.malinskiy.adam.request.pkg.*
@@ -25,13 +26,10 @@ import com.malinskiy.adam.request.pkg.multi.ApkSplitInstallationPackage
 import com.malinskiy.adam.request.pkg.multi.SingleFileInstallationPackage
 import com.malinskiy.adam.rule.AdbDeviceRule
 import com.malinskiy.adam.rule.DeviceType
-import io.ktor.util.cio.*
+import io.ktor.util.cio.readChannel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
-import org.junit.After
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
+import org.junit.*
 import java.io.File
 import kotlin.system.measureTimeMillis
 
@@ -110,17 +108,25 @@ class CmdE2ETest {
         runBlocking {
             val appFile = File(javaClass.getResource("/app-debug.apk").toURI())
             val testFile = File(javaClass.getResource("/app-debug-androidTest.apk").toURI())
-            val success = client.execute(
-                AtomicInstallPackageRequest(
-                    listOf(
-                        SingleFileInstallationPackage(appFile),
-                        SingleFileInstallationPackage(testFile)
+            try {
+                val success = client.execute(
+                    AtomicInstallPackageRequest(
+                        listOf(
+                            SingleFileInstallationPackage(appFile),
+                            SingleFileInstallationPackage(testFile)
+                        ),
+                        listOf(Feature.CMD),
+                        true
                     ),
-                    listOf(Feature.CMD),
-                    true
-                ),
-                adb.deviceSerial
-            )
+                    adb.deviceSerial
+                )
+            } catch (e: RequestRejectedException) {
+                Assume.assumeTrue(
+                    "Device doesn't support `--multi-package` option",
+                    e.message?.contains("Unknown option --multi-package") == true
+                )
+                throw e
+            }
 
             //Takes some time until it shows in the pm list. Wait for 10 seconds max
             var packages: List<Package> = emptyList()

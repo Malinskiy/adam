@@ -23,7 +23,7 @@ enum class Feature {
     SHELL_V2,
 
     /**
-     * The 'cmd' command is available
+     * The 'cmd' command is available, Android 24+
      */
     CMD,
     STAT_V2,
