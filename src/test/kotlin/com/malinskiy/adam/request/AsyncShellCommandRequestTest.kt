@@ -19,7 +19,7 @@ package com.malinskiy.adam.request
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import com.malinskiy.adam.Const
-import com.malinskiy.adam.request.async.ChanneledShellCommandRequest
+import com.malinskiy.adam.request.shell.v1.ChanneledShellCommandRequest
 import org.junit.Test
 
 class AsyncShellCommandRequestTest {

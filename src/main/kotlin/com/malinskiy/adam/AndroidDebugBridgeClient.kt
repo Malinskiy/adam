@@ -21,15 +21,21 @@ import com.malinskiy.adam.exception.RequestValidationException
 import com.malinskiy.adam.extension.toAndroidChannel
 import com.malinskiy.adam.interactor.DiscoverAdbSocketInteractor
 import com.malinskiy.adam.log.AdamLogging
+import com.malinskiy.adam.request.AsyncChannelRequest
 import com.malinskiy.adam.request.ComplexRequest
-import com.malinskiy.adam.request.SetDeviceRequest
-import com.malinskiy.adam.request.async.AsyncChannelRequest
+import com.malinskiy.adam.request.MultiRequest
+import com.malinskiy.adam.request.emu.EmulatorCommandRequest
+import com.malinskiy.adam.request.misc.SetDeviceRequest
 import com.malinskiy.adam.transport.AndroidReadChannel
 import com.malinskiy.adam.transport.AndroidWriteChannel
 import com.malinskiy.adam.transport.KtorSocketFactory
 import com.malinskiy.adam.transport.SocketFactory
-import io.ktor.network.sockets.*
-import io.ktor.utils.io.*
+import io.ktor.network.sockets.openReadChannel
+import io.ktor.network.sockets.openWriteChannel
+import io.ktor.utils.io.ByteReadChannel
+import io.ktor.utils.io.ByteWriteChannel
+import io.ktor.utils.io.cancel
+import io.ktor.utils.io.close
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.ReceiveChannel
@@ -47,8 +53,10 @@ class AndroidDebugBridgeClient(
     private val socketAddress: InetSocketAddress = InetSocketAddress(host, port)
 
     suspend fun <T : Any?> execute(request: ComplexRequest<T>, serial: String? = null): T {
-        if (!request.validate()) {
-            throw RequestValidationException("Request ${request.javaClass.simpleName} did not pass validation")
+        val validationResponse = request.validate()
+        if (!validationResponse.success) {
+            val requestSimpleClassName = request.javaClass.simpleName
+            throw RequestValidationException("Request $requestSimpleClassName did not pass validation: ${validationResponse.message}")
         }
         socketFactory.tcp(socketAddress).use { socket ->
             val readChannel = socket.openReadChannel().toAndroidChannel()
@@ -70,14 +78,17 @@ class AndroidDebugBridgeClient(
         }
     }
 
-    fun <T : Any?> execute(request: AsyncChannelRequest<T>, scope: CoroutineScope, serial: String? = null): ReceiveChannel<T> {
-        if (!request.validate()) {
-            throw RequestValidationException("Request ${request.javaClass.simpleName} did not pass validation")
+    fun <T : Any?, I : Any?> execute(request: AsyncChannelRequest<T, I>, scope: CoroutineScope, serial: String? = null): ReceiveChannel<T> {
+        val validationResponse = request.validate()
+        if (!validationResponse.success) {
+            val requestSimpleClassName = request.javaClass.simpleName
+            throw RequestValidationException("Request $requestSimpleClassName did not pass validation: ${validationResponse.message}")
         }
         return scope.produce {
             socketFactory.tcp(socketAddress).use { socket ->
                 val readChannel = socket.openReadChannel().toAndroidChannel()
                 var writeChannel: AndroidWriteChannel? = null
+                var backChannel = request.channel
 
                 try {
                     writeChannel = socket.openWriteChannel(autoFlush = true).toAndroidChannel()
@@ -88,11 +99,20 @@ class AndroidDebugBridgeClient(
                     request.handshake(readChannel, writeChannel)
 
                     while (true) {
-                        if (isClosedForSend || readChannel.isClosedForRead || writeChannel.isClosedForWrite) {
+                        if (isClosedForSend ||
+                            readChannel.isClosedForRead ||
+                            writeChannel.isClosedForWrite ||
+                            request.channel?.isClosedForReceive == true
+                        ) {
                             break
                         }
-                        val element = request.readElement(readChannel, writeChannel)
-                        send(element)
+                        request.readElement(readChannel, writeChannel)?.let {
+                            send(it)
+                        }
+
+                        backChannel?.poll()?.let {
+                            request.writeElement(it, readChannel, writeChannel)
+                        }
                     }
                 } finally {
                     try {
@@ -105,6 +125,33 @@ class AndroidDebugBridgeClient(
                 }
             }
         }
+    }
+
+    suspend fun execute(request: EmulatorCommandRequest): String {
+        socketFactory.tcp(request.address).use { socket ->
+            var readChannel: ByteReadChannel? = null
+            var writeChannel: ByteWriteChannel? = null
+
+            try {
+                readChannel = socket.openReadChannel()
+                writeChannel = socket.openWriteChannel(true)
+
+                return request.process(readChannel, writeChannel)
+            } finally {
+                readChannel?.cancel()
+                writeChannel?.close()
+            }
+        }
+    }
+
+    suspend fun <T> execute(request: MultiRequest<T>, serial: String? = null): T {
+        val validationResponse = request.validate()
+        if (!validationResponse.success) {
+            val requestSimpleClassName = request.javaClass.simpleName
+            throw RequestValidationException("Request $requestSimpleClassName did not pass validation: ${validationResponse.message}")
+        }
+
+        return request.execute(this, serial)
     }
 
     private suspend fun processRequest(

@@ -20,13 +20,11 @@ import com.malinskiy.adam.AndroidDebugBridgeClient
 import com.malinskiy.adam.AndroidDebugBridgeClientFactory
 import io.ktor.network.selector.*
 import io.ktor.network.sockets.*
+import io.ktor.util.network.*
 import io.ktor.utils.io.*
 import kotlinx.coroutines.*
-import java.io.IOException
 import java.net.InetSocketAddress
-import java.net.Socket
 import kotlin.coroutines.CoroutineContext
-import kotlin.random.Random
 
 
 class AndroidDebugBridgeServer : CoroutineScope {
@@ -39,37 +37,13 @@ class AndroidDebugBridgeServer : CoroutineScope {
     private val job = SupervisorJob()
     var port: Int = 0
 
-    init {
-        val ports = generateSequence {
-            Random.Default.nextInt(6000, 7000)
-        }
-        for (port in ports) {
-            if (portAvailable(port)) {
-                this.port = port
-                break
-            }
-        }
-    }
-
-    private fun portAvailable(port: Int): Boolean {
-        try {
-            Socket("127.0.0.1", port).use { ignored ->
-                ignored.close()
-                return false
-            }
-        } catch (ignored: IOException) {
-            return true
-        }
-    }
-
     suspend fun startAndListen(block: suspend (ServerReadChannel, ServerWriteChannel) -> Unit): AndroidDebugBridgeClient {
-        val server = aSocket(ActorSelectorManager(Dispatchers.IO)).tcp().bind(InetSocketAddress("127.0.0.1", port))
+        val address = InetSocketAddress("127.0.0.1", port)
+        val server = aSocket(ActorSelectorManager(Dispatchers.IO)).tcp().bind(address)
+        port = server.localAddress.port
 
-        async(context = coroutineContext) {
-            //Wait for connection probe
-            server.accept().close()
-
-            while (true) {
+        async(context = job) {
+            while (isActive) {
                 val socket = server.accept()
                 val input = socket.openReadChannel().toServerReadChannel()
                 val output = socket.openWriteChannel(autoFlush = true).toServerWriteChannel()
@@ -88,10 +62,6 @@ class AndroidDebugBridgeServer : CoroutineScope {
         val client = AndroidDebugBridgeClientFactory().apply {
             port = this@AndroidDebugBridgeServer.port
         }.build()
-
-        while (portAvailable(port)) {
-            delay(100)
-        }
 
         return client
     }

@@ -20,35 +20,58 @@ import assertk.assertThat
 import assertk.assertions.contains
 import assertk.assertions.isEqualTo
 import com.malinskiy.adam.extension.md5
-import com.malinskiy.adam.request.sync.PullFileRequest
-import com.malinskiy.adam.request.sync.PushFileRequest
-import com.malinskiy.adam.request.sync.ShellCommandRequest
-import com.malinskiy.adam.request.sync.StatFileRequest
+import com.malinskiy.adam.request.shell.v1.ShellCommandRequest
+import com.malinskiy.adam.request.sync.v1.ListFileRequest
+import com.malinskiy.adam.request.sync.v1.PullFileRequest
+import com.malinskiy.adam.request.sync.v1.PushFileRequest
+import com.malinskiy.adam.request.sync.v1.StatFileRequest
 import com.malinskiy.adam.rule.AdbDeviceRule
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.channels.receiveOrNull
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import org.junit.After
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TemporaryFolder
 import java.io.File
 import kotlin.math.roundToInt
 
 class FileE2ETest {
-    @get:Rule
+    @Rule
     @JvmField
     val adbRule = AdbDeviceRule()
 
+    @Rule
+    @JvmField
+    val temp = TemporaryFolder()
+
+    @Before
+    fun setup() {
+        runBlocking {
+            adbRule.adb.execute(ShellCommandRequest("rm /data/local/tmp/app-debug.apk"), adbRule.deviceSerial)
+            adbRule.adb.execute(ShellCommandRequest("rm /data/local/tmp/testfile"), adbRule.deviceSerial)
+        }
+    }
+
+    @After
+    fun teardown() {
+        runBlocking {
+            adbRule.adb.execute(ShellCommandRequest("rm /data/local/tmp/app-debug.apk"), adbRule.deviceSerial)
+            adbRule.adb.execute(ShellCommandRequest("rm /data/local/tmp/testfile"), adbRule.deviceSerial)
+        }
+    }
+
     private suspend fun md5(): String {
         var output = adbRule.adb.execute(ShellCommandRequest("ls /system/bin/md5"), adbRule.deviceSerial)
-        var value = output.trim { it <= ' ' }
+        var value = output.output.trim { it <= ' ' }
         if (!value.endsWith("No such file or directory")) {
             return "md5"
         }
 
         output = adbRule.adb.execute(ShellCommandRequest("ls /system/bin/md5sum"), adbRule.deviceSerial)
-        value = output.trim { it <= ' ' }
+        value = output.output.trim { it <= ' ' }
         if (!value.endsWith("No such file or directory")) {
             return "md5sum"
         }
@@ -62,7 +85,7 @@ class FileE2ETest {
         val fileName = testFile.name
         runBlocking {
             val channel =
-                adbRule.adb.execute(PushFileRequest(testFile, "/data/local/tmp/$fileName"), GlobalScope, serial = adbRule.deviceSerial)
+                adbRule.adb.execute(PushFileRequest(testFile, "/data/local/tmp/$fileName"), this, serial = adbRule.deviceSerial)
 
             var percentage = 0
             while (!channel.isClosedForReceive) {
@@ -75,10 +98,10 @@ class FileE2ETest {
                 }
             }
             val stats = adbRule.adb.execute(StatFileRequest("/data/local/tmp/app-debug.apk"), adbRule.deviceSerial)
-            assertThat(stats.size).isEqualTo(testFile.length().toInt())
+            assertThat(stats.size).isEqualTo(testFile.length().toUInt())
 
             val sizeString = adbRule.adb.execute(ShellCommandRequest("${md5()} /data/local/tmp/app-debug.apk"), adbRule.deviceSerial)
-            val split = sizeString.split(" ").filter { it != "" }
+            val split = sizeString.output.split(" ").filter { it != "" }
 
             /**
              * I've observed a behaviour with eventual consistency issue:
@@ -87,21 +110,22 @@ class FileE2ETest {
             assertThat(split[0]).isEqualTo(testFile.md5())
 
             //TODO figure out why 644 is actually pushed as 666
-            assertThat(stats.mode).isEqualTo("100666".toInt(radix = 8))
+            assertThat(stats.mode).isEqualTo("100777".toUInt(radix = 8))
         }
     }
 
-    @After
-    fun cleanup() {
-        runBlocking {
-            adbRule.adb.execute(ShellCommandRequest("rm /data/local/tmp/testfile"), serial = adbRule.deviceSerial)
+    @Test
+    fun testListFile() = runBlocking {
+        val list = adbRule.adb.execute(ListFileRequest("/sdcard/"), adbRule.deviceSerial)
+        for (i in list) {
+            println(i)
         }
     }
 
     @Test
     fun testFilePulling() {
         runBlocking {
-            val testFile = createTempFile()
+            val testFile = temp.newFile()
 
             withTimeout(10_000) {
                 while (true) {
@@ -110,32 +134,34 @@ class FileE2ETest {
                     println(output)
                     output = adbRule.adb.execute(ShellCommandRequest("cat /data/local/tmp/testfile"), serial = adbRule.deviceSerial)
                     println(output)
-                    if (output.contains("cafebabe")) {
+                    if (output.output.contains("cafebabe") && output.exitCode == 0) {
                         break
                     }
                 }
             }
 
-            val channel = adbRule.adb.execute(
-                PullFileRequest("/data/local/tmp/testfile", testFile),
-                GlobalScope,
-                adbRule.deviceSerial
-            )
+            launch {
+                val channel = adbRule.adb.execute(
+                    PullFileRequest("/data/local/tmp/testfile", testFile, coroutineContext = coroutineContext),
+                    this,
+                    adbRule.deviceSerial
+                )
 
-            var percentage = 0
-            while (!channel.isClosedForReceive) {
-                val percentageDouble = channel.receiveOrNull() ?: break
+                var percentage = 0
+                while (!channel.isClosedForReceive) {
+                    val percentageDouble = channel.receiveOrNull() ?: break
 
-                val newPercentage = (percentageDouble * 100).roundToInt()
-                if (newPercentage != percentage) {
-                    print('.')
-                    percentage = newPercentage
+                    val newPercentage = (percentageDouble * 100).roundToInt()
+                    if (newPercentage != percentage) {
+                        print('.')
+                        percentage = newPercentage
+                    }
                 }
-            }
-            println()
+                println()
+            }.join()
 
             val sizeString = adbRule.adb.execute(ShellCommandRequest("ls -ln /data/local/tmp/testfile"), adbRule.deviceSerial)
-            val split = sizeString.split(" ").filter { it != "" }
+            val split = sizeString.output.split(" ").filter { it != "" }
 
             /**
              * Some android ls implementations print the number of hard links

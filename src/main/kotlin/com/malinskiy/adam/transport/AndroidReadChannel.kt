@@ -18,9 +18,9 @@ package com.malinskiy.adam.transport
 
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.Const.Message.OKAY
-import com.malinskiy.adam.log.AdamLogging
-import com.malinskiy.adam.request.TransportResponse
-import io.ktor.utils.io.ByteReadChannel
+import com.malinskiy.adam.extension.copyTo
+import com.malinskiy.adam.request.transform.StringResponseTransformer
+import io.ktor.utils.io.*
 
 class AndroidReadChannel(private val delegate: ByteReadChannel) : ByteReadChannel by delegate {
     suspend fun read(): TransportResponse {
@@ -29,17 +29,7 @@ class AndroidReadChannel(private val delegate: ByteReadChannel) : ByteReadChanne
 
         val ok = bytes.isOkay()
         val message = if (!ok) {
-            delegate.readFully(bytes, 0, 4)
-            val responseLength = String(bytes, Const.DEFAULT_TRANSPORT_ENCODING)
-            val errorMessageLength = responseLength.toIntOrNull(16)
-            if (errorMessageLength == null) {
-                log.warn { "Unexpected error message length $responseLength" }
-                null
-            } else {
-                val errorBytes = ByteArray(errorMessageLength)
-                delegate.readFully(errorBytes, 0, errorMessageLength)
-                String(errorBytes, Const.DEFAULT_TRANSPORT_ENCODING)
-            }
+            readOptionalProtocolString()
         } else {
             null
         }
@@ -49,7 +39,27 @@ class AndroidReadChannel(private val delegate: ByteReadChannel) : ByteReadChanne
 
     private fun ByteArray.isOkay() = contentEquals(OKAY)
 
-    companion object {
-        private val log = AdamLogging.logger {}
+    suspend fun readStatus(): String {
+        withDefaultBuffer {
+            val transformer = StringResponseTransformer()
+            copyTo(transformer, this)
+            return transformer.transform()
+        }
+    }
+
+    suspend fun readOptionalProtocolString(): String? {
+        val responseLength = withDefaultBuffer {
+            val transformer = StringResponseTransformer()
+            copyTo(transformer, this, limit = 4L)
+            transformer.transform()
+        }
+        val errorMessageLength = responseLength.toIntOrNull(16)
+        return if (errorMessageLength == null) {
+            readStatus()
+        } else {
+            val errorBytes = ByteArray(errorMessageLength)
+            delegate.readFully(errorBytes, 0, errorMessageLength)
+            String(errorBytes, Const.DEFAULT_TRANSPORT_ENCODING)
+        }
     }
 }

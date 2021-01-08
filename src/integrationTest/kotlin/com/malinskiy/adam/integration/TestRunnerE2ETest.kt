@@ -16,23 +16,42 @@
 
 package com.malinskiy.adam.integration
 
-import com.malinskiy.adam.request.sync.InstallRemotePackageRequest
-import com.malinskiy.adam.request.sync.PushFileRequest
+import com.malinskiy.adam.request.pkg.InstallRemotePackageRequest
+import com.malinskiy.adam.request.shell.v1.ShellCommandRequest
+import com.malinskiy.adam.request.sync.v1.PushFileRequest
 import com.malinskiy.adam.request.testrunner.InstrumentOptions
 import com.malinskiy.adam.request.testrunner.TestRunnerRequest
 import com.malinskiy.adam.rule.AdbDeviceRule
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.receiveOrNull
 import kotlinx.coroutines.runBlocking
+import org.junit.After
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import java.io.File
 import kotlin.math.roundToInt
 
 class TestRunnerE2ETest {
-    @get:Rule
+    @Rule
     @JvmField
     val rule = AdbDeviceRule()
+
+    @Before
+    fun setup() {
+        runBlocking {
+            rule.adb.execute(ShellCommandRequest("rm /data/local/tmp/app-debug.apk"), rule.deviceSerial)
+            rule.adb.execute(ShellCommandRequest("rm /data/local/tmp/app-debug-androidTest.apk"), rule.deviceSerial)
+        }
+    }
+
+    @After
+    fun teardown() {
+        runBlocking {
+            rule.adb.execute(ShellCommandRequest("rm /data/local/tmp/app-debug.apk"), rule.deviceSerial)
+            rule.adb.execute(ShellCommandRequest("rm /data/local/tmp/app-debug-androidTest.apk"), rule.deviceSerial)
+        }
+    }
 
     @Test
     fun test1() {
@@ -52,7 +71,7 @@ class TestRunnerE2ETest {
                         clazz = listOf("com.example.AbstractFailingTest")
                     )
                 ), serial = rule.deviceSerial,
-                scope = GlobalScope
+                scope = this
             )
 
             var logPart: String? = null
@@ -65,9 +84,13 @@ class TestRunnerE2ETest {
         }
     }
 
-    private suspend fun installApk(apk: File, apkFileName: String) {
+    private suspend fun CoroutineScope.installApk(apk: File, apkFileName: String) {
         val channel =
-            rule.adb.execute(PushFileRequest(apk, "/data/local/tmp/$apkFileName"), GlobalScope, serial = rule.deviceSerial)
+            rule.adb.execute(
+                PushFileRequest(apk, "/data/local/tmp/$apkFileName", coroutineContext = coroutineContext),
+                this,
+                serial = rule.deviceSerial
+            )
 
         var percentage = 0
         while (!channel.isClosedForReceive) {

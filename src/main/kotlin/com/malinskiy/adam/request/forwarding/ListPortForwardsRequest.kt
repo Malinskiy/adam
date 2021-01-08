@@ -27,13 +27,10 @@ class ListPortForwardsRequest(serial: String) : ComplexRequest<List<PortForwardi
     override suspend fun readElement(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel): List<PortForwardingRule> {
         val sizeBuffer: ByteBuffer = ByteBuffer.allocate(4)
         readChannel.readFully(sizeBuffer)
-        sizeBuffer.rewind()
-
         val size = String(sizeBuffer.array(), Const.DEFAULT_TRANSPORT_ENCODING).toInt(radix = 16)
 
         val payloadBuffer = ByteBuffer.allocate(size)
         readChannel.readFully(payloadBuffer)
-        payloadBuffer.rewind()
         val payload = String(payloadBuffer.array(), Const.DEFAULT_TRANSPORT_ENCODING)
         return payload.lines().mapNotNull { line ->
             if (line.isNotEmpty()) {
@@ -52,8 +49,3 @@ class ListPortForwardsRequest(serial: String) : ComplexRequest<List<PortForwardi
     override fun serialize() = createBaseRequest("list-forward")
 }
 
-data class PortForwardingRule(
-    val serial: String,
-    val localSpec: LocalPortSpec,
-    val remoteSpec: RemotePortSpec
-)

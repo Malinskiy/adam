@@ -19,9 +19,8 @@ package com.malinskiy.adam.request.forwarding
 import assertk.assertThat
 import assertk.assertions.containsExactly
 import assertk.assertions.isEqualTo
-import com.malinskiy.adam.Const
 import com.malinskiy.adam.server.AndroidDebugBridgeServer
-import io.ktor.utils.io.close
+import io.ktor.utils.io.*
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 
@@ -34,15 +33,19 @@ class ListPortForwardsRequestTest {
             val client = server.startAndListen { input, output ->
                 val transportCmd = input.receiveCommand()
                 assertThat(transportCmd).isEqualTo("host-serial:xx:list-forward")
-                output.respond(Const.Message.OKAY)
+                output.respondOkay()
 
-                val response = ("00E6xx tcp:80 tcp:80\n" +
-                        "xx local:/tmp/socket localabstract:namedsocket\n" +
-                        "xx local:/tmp/socket localreserved:namedsocket\n" +
-                        "xx local:/tmp/socket localfilesystem:namedsocket\n" +
-                        "xx local:/tmp/socket dev:/dev/chardev\n" +
-                        "xx local:/tmp/socket jdwp:1001\n\n").toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
-                output.writeFully(response, 0, response.size)
+                output.respondStringV1(
+                    """
+                        xx tcp:80 tcp:80
+                        xx local:/tmp/socket localabstract:namedsocket
+                        xx local:/tmp/socket localreserved:namedsocket
+                        xx local:/tmp/socket localfilesystem:namedsocket
+                        xx local:/tmp/socket dev:/dev/chardev
+                        xx local:/tmp/socket jdwp:1001
+                        
+                    """.trimIndent()
+                )
                 output.close()
             }
 

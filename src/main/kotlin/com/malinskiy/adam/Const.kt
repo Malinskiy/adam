@@ -18,8 +18,9 @@ package com.malinskiy.adam
 
 object Const {
     const val MAX_REMOTE_PATH_LENGTH = 1024
+    const val DEFAULT_BUFFER_SIZE = 1024
     const val READ_DELAY = 100L
-    val DEFAULT_TRANSPORT_ENCODING = Charsets.ISO_8859_1
+    val DEFAULT_TRANSPORT_ENCODING = Charsets.UTF_8
     const val DEFAULT_ADB_HOST = "127.0.0.1"
     const val DEFAULT_ADB_PORT = 5037
 
@@ -27,14 +28,42 @@ object Const {
     const val MAX_PACKET_LENGTH = 16384
     const val MAX_FILE_PACKET_LENGTH = 64 * 1024
 
+    const val ANDROID_FILE_SEPARATOR = "/"
+    val SYNC_IGNORED_FILES = setOf(".", "..")
 
     object Message {
         val OKAY = byteArrayOf('O'.toByte(), 'K'.toByte(), 'A'.toByte(), 'Y'.toByte())
         val FAIL = byteArrayOf('F'.toByte(), 'A'.toByte(), 'I'.toByte(), 'L'.toByte())
-        val STAT = byteArrayOf('S'.toByte(), 'T'.toByte(), 'A'.toByte(), 'T'.toByte())
-        val RECV = byteArrayOf('R'.toByte(), 'E'.toByte(), 'C'.toByte(), 'V'.toByte())
+
         val DATA = byteArrayOf('D'.toByte(), 'A'.toByte(), 'T'.toByte(), 'A'.toByte())
         val DONE = byteArrayOf('D'.toByte(), 'O'.toByte(), 'N'.toByte(), 'E'.toByte())
-        val SEND = byteArrayOf('S'.toByte(), 'E'.toByte(), 'N'.toByte(), 'D'.toByte())
+
+        val LSTAT_V1 = byteArrayOf('S'.toByte(), 'T'.toByte(), 'A'.toByte(), 'T'.toByte())
+        val LIST_V1 = byteArrayOf('L'.toByte(), 'I'.toByte(), 'S'.toByte(), 'T'.toByte())
+        val DENT_V1 = byteArrayOf('D'.toByte(), 'E'.toByte(), 'N'.toByte(), 'T'.toByte())
+        val SEND_V1 = byteArrayOf('S'.toByte(), 'E'.toByte(), 'N'.toByte(), 'D'.toByte())
+        val RECV_V1 = byteArrayOf('R'.toByte(), 'E'.toByte(), 'C'.toByte(), 'V'.toByte())
+
+        val LIST_V2 = byteArrayOf('L'.toByte(), 'I'.toByte(), 'S'.toByte(), '2'.toByte())
+        val DENT_V2 = byteArrayOf('D'.toByte(), 'N'.toByte(), 'T'.toByte(), '2'.toByte())
+        val LSTAT_V2 = byteArrayOf('L'.toByte(), 'S'.toByte(), 'T'.toByte(), '2'.toByte())
+        val RECV_V2 = byteArrayOf('R'.toByte(), 'C'.toByte(), 'V'.toByte(), '2'.toByte())
+        val SEND_V2 = byteArrayOf('S'.toByte(), 'N'.toByte(), 'D'.toByte(), '2'.toByte())
+
+        val DONEDONE =
+            byteArrayOf('D'.toByte(), 'O'.toByte(), 'N'.toByte(), 'E'.toByte(), 'D'.toByte(), 'O'.toByte(), 'N'.toByte(), 'E'.toByte())
+        val FAILFAIL =
+            byteArrayOf('F'.toByte(), 'A'.toByte(), 'I'.toByte(), 'L'.toByte(), 'F'.toByte(), 'A'.toByte(), 'I'.toByte(), 'L'.toByte())
+    }
+
+    object FileType {
+        val S_IFMT = "170000".toUInt(8)
+        val S_IFIFO = "10000".toUInt(8)
+        val S_IFCHR = "20000".toUInt(8)
+        val S_IFDIR = "40000".toUInt(8)
+        val S_IFBLK = "60000".toUInt(8)
+        val S_IFREG = "100000".toUInt(8)
+        val S_IFLNK = "120000".toUInt(8)
+        val S_IFSOCK = "140000".toUInt(8)
     }
 }

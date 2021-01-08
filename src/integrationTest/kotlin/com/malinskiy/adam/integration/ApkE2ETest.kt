@@ -19,44 +19,102 @@ package com.malinskiy.adam.integration
 import assertk.assertThat
 import assertk.assertions.contains
 import assertk.assertions.doesNotContain
-import com.malinskiy.adam.request.sync.*
+import com.malinskiy.adam.request.pkg.*
+import com.malinskiy.adam.request.pkg.multi.ApkSplitInstallationPackage
+import com.malinskiy.adam.request.shell.v1.ShellCommandRequest
+import com.malinskiy.adam.request.sync.v1.PushFileRequest
 import com.malinskiy.adam.rule.AdbDeviceRule
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.channels.receiveOrNull
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
+import org.junit.After
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import java.io.File
+import kotlin.system.measureTimeMillis
 
 class ApkE2ETest {
 
-    @get:Rule
+    @Rule
     @JvmField
     val adb = AdbDeviceRule()
-    val server = adb.adb
+    val client = adb.adb
+
+    @Before
+    fun setup() {
+        runBlocking {
+            client.execute(UninstallRemotePackageRequest("com.example"), adb.deviceSerial)
+            client.execute(ShellCommandRequest("rm /data/local/tmp/app-debug.apk"), adb.deviceSerial)
+        }
+    }
+
+    @After
+    fun teardown() {
+        runBlocking {
+            client.execute(UninstallRemotePackageRequest("com.example"), adb.deviceSerial)
+            client.execute(ShellCommandRequest("rm /data/local/tmp/app-debug.apk"), adb.deviceSerial)
+        }
+    }
 
     @Test
     fun testScenario1() {
         runBlocking {
-            val testFile = File(javaClass.getResource("/app-debug.apk").toURI())
-            val fileName = testFile.name
-            val channel =
-                server.execute(PushFileRequest(testFile, "/data/local/tmp/$fileName"), GlobalScope, serial = adb.deviceSerial)
+            measureTimeMillis {
+                val testFile = File(javaClass.getResource("/app-debug.apk").toURI())
+                val fileName = testFile.name
+                val channel =
+                    client.execute(
+                        PushFileRequest(testFile, "/data/local/tmp/$fileName", coroutineContext = coroutineContext),
+                        this,
+                        serial = adb.deviceSerial
+                    )
 
-            while (!channel.isClosedForReceive) {
-                channel.poll()
-            }
+                while (!channel.isClosedForReceive) {
+                    channel.receiveOrNull()
+                }
 
-            server.execute(InstallRemotePackageRequest("/data/local/tmp/$fileName", true), serial = adb.deviceSerial)
+                client.execute(InstallRemotePackageRequest("/data/local/tmp/$fileName", true), serial = adb.deviceSerial)
+            }.let { println(it) }
 
-            var packages = server.execute(PmListRequest(), serial = adb.deviceSerial)
+            var packages = client.execute(PmListRequest(), serial = adb.deviceSerial)
             assertThat(packages)
                 .contains(Package("com.example"))
 
-            server.execute(UninstallRemotePackageRequest("com.example"), adb.deviceSerial)
+            client.execute(UninstallRemotePackageRequest("com.example"), adb.deviceSerial)
 
-            packages = server.execute(PmListRequest(), serial = adb.deviceSerial)
+            packages = client.execute(PmListRequest(), serial = adb.deviceSerial)
             assertThat(packages)
                 .doesNotContain(Package("com.example"))
+        }
+    }
+
+    @Test
+    fun testApkSplitInstall() {
+        runBlocking {
+            val appFile1 = File(javaClass.getResource("/split/base-en.apk").toURI())
+            val appFile2 = File(javaClass.getResource("/split/standalone-hdpi.apk").toURI())
+            client.execute(
+                InstallSplitPackageRequest(
+                    ApkSplitInstallationPackage(appFile1, appFile2),
+                    listOf(),
+                    true
+                ),
+                adb.deviceSerial
+            )
+
+            //Takes some time until it shows in the pm list. Wait for 10 seconds max
+            var packages: List<Package> = emptyList()
+            for (i in 1..100) {
+                packages = client.execute(PmListRequest(), serial = adb.deviceSerial)
+                if (packages.contains(Package("com.example"))) {
+                    break
+                }
+                delay(100)
+            }
+
+            assertThat(packages)
+                .contains(Package("com.example"))
         }
     }
 }

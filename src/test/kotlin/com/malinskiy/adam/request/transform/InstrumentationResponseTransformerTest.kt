@@ -21,7 +21,6 @@ import assertk.assertions.containsExactly
 import assertk.assertions.isEqualTo
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.request.testrunner.TestEvent
-import com.malinskiy.adam.request.testrunner.TestIdentifier
 import com.malinskiy.adam.request.testrunner.TestRunFailed
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
@@ -45,7 +44,6 @@ class InstrumentationResponseTransformerTest {
             }
             transformer.close()?.let { events.addAll(it) }
 
-            val id = TestIdentifier("com.example.AbstractFailingTest", "testAlwaysFailing")
             assertThat(events.map { it.toString() }.reduce { acc, s -> acc + "\n" + s })
                 .isEqualTo(javaClass.getResourceAsStream("/instrumentation/log_3.expected").reader().readText())
         }

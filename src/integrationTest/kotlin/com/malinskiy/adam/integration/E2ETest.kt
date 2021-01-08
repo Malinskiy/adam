@@ -18,13 +18,20 @@ package com.malinskiy.adam.integration
 
 import assertk.assertThat
 import assertk.assertions.*
-import com.malinskiy.adam.request.async.ChanneledLogcatRequest
-import com.malinskiy.adam.request.devices.ListDevicesRequest
-import com.malinskiy.adam.request.forwarding.*
-import com.malinskiy.adam.request.sync.*
+import com.malinskiy.adam.request.device.FetchDeviceFeaturesRequest
+import com.malinskiy.adam.request.device.ListDevicesRequest
+import com.malinskiy.adam.request.framebuffer.RawImageScreenCaptureAdapter
+import com.malinskiy.adam.request.framebuffer.ScreenCaptureRequest
+import com.malinskiy.adam.request.logcat.ChanneledLogcatRequest
+import com.malinskiy.adam.request.mdns.ListMdnsServicesRequest
+import com.malinskiy.adam.request.mdns.MdnsCheckRequest
+import com.malinskiy.adam.request.misc.FetchHostFeaturesRequest
+import com.malinskiy.adam.request.misc.GetAdbServerVersionRequest
+import com.malinskiy.adam.request.prop.GetPropRequest
+import com.malinskiy.adam.request.prop.GetSinglePropRequest
+import com.malinskiy.adam.request.shell.v1.ShellCommandRequest
+import com.malinskiy.adam.request.shell.v1.ShellCommandResult
 import com.malinskiy.adam.rule.AdbDeviceRule
-import com.malinskiy.adam.screencapture.RawImageScreenCaptureAdapter
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
@@ -34,7 +41,7 @@ import javax.imageio.ImageIO
 
 
 class E2ETest {
-    @get:Rule
+    @Rule
     @JvmField
     val adbRule = AdbDeviceRule()
 
@@ -53,13 +60,58 @@ class E2ETest {
     }
 
     @Test
+    fun testMdns() = runBlocking {
+        adbRule.adb.execute(ListMdnsServicesRequest()).let { println(it) }
+        adbRule.adb.execute(MdnsCheckRequest()).let { println(it) }
+    }
+
+    @Test
     fun testEcho() {
         runBlocking {
             val response = adbRule.adb.execute(
                 ShellCommandRequest("echo hello"),
                 adbRule.deviceSerial
             )
-            assertThat(response).isEqualTo("hello")
+            assertThat(response).isEqualTo(ShellCommandResult("hello${adbRule.lineSeparator}", 0))
+        }
+    }
+
+    @Test
+    fun testExitCode() {
+        runBlocking {
+            val response = adbRule.adb.execute(
+                ShellCommandRequest("false"),
+                adbRule.deviceSerial
+            )
+            assertThat(response.exitCode).isNotEqualTo(0)
+        }
+    }
+
+    @Test
+    fun testExitCodeParsing() {
+        runBlocking {
+            val response = adbRule.adb.execute(
+                ShellCommandRequest("echo -n 1"),
+                adbRule.deviceSerial
+            )
+            assertThat(response.exitCode).isEqualTo(0)
+            assertThat(response.output).isEqualTo("1")
+        }
+    }
+
+    @Test
+    fun testShellLineEnding() {
+        runBlocking {
+            val lineSeparator = adbRule.adb.execute(
+                ShellCommandRequest("echo"),
+                adbRule.deviceSerial
+            ).output
+
+            val response = adbRule.adb.execute(
+                ShellCommandRequest("uname"),
+                adbRule.deviceSerial
+            )
+            assertThat(response.output).endsWith(lineSeparator)
         }
     }
 
@@ -81,7 +133,7 @@ class E2ETest {
                 GetSinglePropRequest("sys.boot_completed"),
                 adbRule.deviceSerial
             )
-            assertThat(response).isEqualTo("1")
+            assertThat(response).isEqualTo("1${adbRule.lineSeparator}")
         }
     }
 
@@ -91,66 +143,12 @@ class E2ETest {
             val channel = adbRule.adb.execute(
                 serial = adbRule.deviceSerial,
                 request = ChanneledLogcatRequest(),
-                scope = GlobalScope
+                scope = this
             )
 
             val line = channel.receive()
             assertThat(line).startsWith("--------- beginning of")
             channel.cancel()
-        }
-    }
-
-    @Test
-    fun testPortForward() {
-        runBlocking {
-            adbRule.adb.execute(
-                PortForwardRequest(LocalTcpPortSpec(12042), RemoteTcpPortSpec(12042), serial = adbRule.deviceSerial),
-                adbRule.deviceSerial
-            )
-
-            val portForwards = adbRule.adb.execute(
-                ListPortForwardsRequest(adbRule.deviceSerial),
-                adbRule.deviceSerial
-            )
-
-            assertThat(portForwards).hasSize(1)
-            val rule = portForwards[0]
-            assertThat(rule.serial).isEqualTo(adbRule.deviceSerial)
-            assertThat(rule.localSpec).isInstanceOf(LocalTcpPortSpec::class)
-            assertThat((rule.localSpec as LocalTcpPortSpec).port).isEqualTo(12042)
-
-            assertThat(rule.remoteSpec).isInstanceOf(RemoteTcpPortSpec::class)
-            assertThat((rule.remoteSpec as RemoteTcpPortSpec).port).isEqualTo(12042)
-
-            adbRule.adb.execute(RemovePortForwardRequest(LocalTcpPortSpec(12042), serial = adbRule.deviceSerial), adbRule.deviceSerial)
-
-            val afterAllForwards = adbRule.adb.execute(
-                ListPortForwardsRequest(adbRule.deviceSerial), adbRule.deviceSerial
-            )
-
-            assertThat(afterAllForwards).isEmpty()
-        }
-    }
-
-    @Test
-    fun testPortForwardKillSingle() {
-        runBlocking {
-            adbRule.adb.execute(
-                PortForwardRequest(LocalTcpPortSpec(12042), RemoteTcpPortSpec(12042), serial = adbRule.deviceSerial),
-                adbRule.deviceSerial
-            )
-
-            adbRule.adb.execute(
-                RemovePortForwardRequest(LocalTcpPortSpec(12042), serial = adbRule.deviceSerial),
-                adbRule.deviceSerial
-            )
-
-            val portForwards = adbRule.adb.execute(
-                ListPortForwardsRequest(adbRule.deviceSerial),
-                adbRule.deviceSerial
-            )
-
-            assertThat(portForwards).isEmpty()
         }
     }
 
@@ -182,5 +180,17 @@ class E2ETest {
              */
             assertThat(actual).isEqualTo(expectedInt)
         }
+    }
+
+    @Test
+    fun testFetchDeviceFeatures() = runBlocking {
+        val features = adbRule.adb.execute(FetchDeviceFeaturesRequest(adbRule.deviceSerial))
+        //No exception means it's working, but every emulator has a different feature set
+    }
+
+    @Test
+    fun testFetchHostFeatures() = runBlocking {
+        adbRule.adb.execute(FetchHostFeaturesRequest()).let { println(it) }
+        //No exception means it's working
     }
 }

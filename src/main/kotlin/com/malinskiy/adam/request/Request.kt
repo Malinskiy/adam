@@ -52,11 +52,17 @@ open abstract class Request(val target: Target = HostTarget) {
     @Throws(UnsupportedEncodingException::class)
     protected fun createBaseRequest(request: String): ByteArray {
         val fullRequest = target.serialize() + request
-        return String.format("%04X%s", fullRequest.length, fullRequest)
+        val result = String.format("%04X%s", fullRequest.length, fullRequest)
             .toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
+
+        //Need to set proper length in case there are multi-byte characters
+        val actualLength = result.size - 4
+        String.format("%04X", actualLength).toByteArray(Const.DEFAULT_TRANSPORT_ENCODING).copyInto(result, 0, 0, 4)
+
+        return result
     }
 
-    open fun validate(): Boolean = true
+    open fun validate(): ValidationResponse = ValidationResponse.Success
 
     companion object {
         private val log = AdamLogging.logger {}

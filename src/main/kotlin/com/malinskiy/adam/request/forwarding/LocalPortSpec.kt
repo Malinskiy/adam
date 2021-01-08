@@ -34,7 +34,10 @@ sealed class LocalPortSpec {
     }
 }
 
-data class LocalTcpPortSpec(val port: Int) : LocalPortSpec() {
+/**
+ * Default value 0 will allocate a random port that will be returned by the request
+ */
+data class LocalTcpPortSpec(val port: Int = 0) : LocalPortSpec() {
     override fun toSpec() = "tcp:$port"
 }
 
