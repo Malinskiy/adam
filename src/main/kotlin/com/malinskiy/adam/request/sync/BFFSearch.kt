@@ -22,23 +22,24 @@ internal class BFFSearch<S, D> {
     suspend fun execute(
         source: S,
         destination: D,
-        visitor: suspend (currentDir: S, newDirs: MutableList<S>, newFiles: MutableList<SyncFile>, destinationRoot: D) -> Unit
-    ): List<SyncFile> {
+        visitor: suspend (currentDir: S, newDirs: MutableList<S>, newFiles: MutableList<SyncFile>, newTargetDirs: MutableList<D>, destinationRoot: D) -> Unit
+    ): Pair<List<SyncFile>, List<D>> {
         /**
          * Iterate instead of recursion
          */
         val fileList = mutableListOf<SyncFile>()
+        val dirList = mutableListOf<D>()
         var directoriesToTraverse = listOf(source)
 
         while (directoriesToTraverse.isNotEmpty()) {
             //We have to use a second collection because we're iterating over directoriesToTraverse
             val currentDepthDirs = mutableListOf<S>()
             for (dir in directoriesToTraverse) {
-                visitor(dir, currentDepthDirs, fileList, destination)
+                visitor(dir, currentDepthDirs, fileList, dirList, destination)
             }
             directoriesToTraverse = currentDepthDirs
         }
 
-        return fileList
+        return Pair(fileList, dirList)
     }
 }

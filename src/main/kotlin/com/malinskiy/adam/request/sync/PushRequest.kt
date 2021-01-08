@@ -22,6 +22,7 @@ import com.malinskiy.adam.annotation.Features
 import com.malinskiy.adam.exception.PushFailedException
 import com.malinskiy.adam.request.Feature
 import com.malinskiy.adam.request.MultiRequest
+import com.malinskiy.adam.request.shell.v1.ShellCommandRequest
 import com.malinskiy.adam.request.sync.compat.CompatPushFileRequest
 import com.malinskiy.adam.request.sync.compat.CompatStatFileRequest
 import com.malinskiy.adam.request.sync.model.SyncFile
@@ -122,18 +123,21 @@ class PushRequest(
      * @param destination might not exist. doesn't have file separator at end
      */
     private suspend fun AndroidDebugBridgeClient.pushFolder(destination: String, serial: String?): Boolean {
-        val filesToPush = BFFSearch<File, String>().execute(
+        val (filesToPush, dirsToCreate) = BFFSearch<File, String>().execute(
             source,
             destination
-        ) { currentDir, newDirs, newFiles, destinationRoot ->
+        ) { currentDir, newDirs, newFiles, newTargetDirs, destinationRoot ->
             val ls = currentDir.listFiles()?.filterNot { Const.SYNC_IGNORED_FILES.contains(it.name) }
             if (ls.isNullOrEmpty()) return@execute
             for (file in ls) {
+                val localRelativePath = file.toRelativeString(source)
+                val remoteRelativePath = localRelativePath.replace(File.separator, Const.ANDROID_FILE_SEPARATOR)
                 when {
-                    file.isDirectory -> newDirs.add(file)
+                    file.isDirectory -> {
+                        newTargetDirs.add(destinationRoot + Const.ANDROID_FILE_SEPARATOR + remoteRelativePath)
+                        newDirs.add(file)
+                    }
                     file.isFile -> {
-                        val localRelativePath = file.toRelativeString(source)
-                        val remoteRelativePath = localRelativePath.replace(File.separator, Const.ANDROID_FILE_SEPARATOR)
                         newFiles.add(
                             SyncFile(
                                 local = file,
@@ -148,12 +152,47 @@ class PushRequest(
             }
         }
 
+        createRemoteDirectories(destination, serial, dirsToCreate)
+
         filesToPush.forEach { file ->
             val fileSuccess = doPushFile(file.local, file.remote, mode, serial)
             if (!fileSuccess) return false
         }
 
         return true
+    }
+
+    /**
+     * If we don't do this, we might get `secure_mkdirs failed`
+     * TODO: optimize with the -p flag
+     */
+    private suspend fun AndroidDebugBridgeClient.createRemoteDirectories(
+        destination: String,
+        serial: String?,
+        dirsToCreate: List<String>
+    ) {
+        execute(ShellCommandRequest("mkdir -p $destination"), serial)
+
+        val cmdBuilder = StringBuilder()
+        cmdBuilder.append("mkdir")
+        val limit = 1024 * 4
+        for (dir in dirsToCreate) {
+            val escapedDirArg = " \'$dir\'"
+            //This check might fail for multi-byte encodings
+            if (cmdBuilder.length + escapedDirArg.length > limit) {
+                execute(ShellCommandRequest(cmdBuilder.toString()), serial)
+                cmdBuilder.clear()
+                cmdBuilder.append("mkdir")
+                cmdBuilder.append(escapedDirArg)
+            } else {
+                cmdBuilder.append(escapedDirArg)
+            }
+        }
+
+        if (cmdBuilder.isNotEmpty()) {
+            execute(ShellCommandRequest(cmdBuilder.toString()), serial)
+        }
+        cmdBuilder.clear()
     }
 
     private suspend fun AndroidDebugBridgeClient.doPushFile(
