@@ -18,6 +18,8 @@ package com.malinskiy.adam.request.pkg
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import assertk.assertions.isFalse
+import assertk.assertions.isTrue
 import com.malinskiy.adam.Const
 import org.junit.Test
 
@@ -44,5 +46,12 @@ class InstallRemotePackageRequestTest {
         val value = String(request.serialize(), Const.DEFAULT_TRANSPORT_ENCODING)
         assertThat(value)
             .isEqualTo("003Bshell:pm install -r -g -r /data/local/tmp/file.apk;echo x$?")
+    }
+
+    @Test
+    fun testValidation() {
+        assertThat(InstallRemotePackageRequest("/data/local/tmp/file.apk", true, emptyList()).validate().success).isTrue()
+        assertThat(InstallRemotePackageRequest("/data/local/tmp/file.apex", true, emptyList()).validate().success).isFalse()
+        assertThat(InstallRemotePackageRequest("/data/local/tmp/file.bin", true, emptyList()).validate().success).isFalse()
     }
 }
