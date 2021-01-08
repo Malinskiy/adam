@@ -19,7 +19,7 @@
 syntax = "proto2";
 package android.am;
 
-option java_package = "com.android.commands.am";
+option java_package = "com.malinskiy.adam.request.testrunner.proto";
 
 message ResultsBundleEntry {
   optional string key = 1;
