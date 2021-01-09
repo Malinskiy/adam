@@ -26,7 +26,18 @@ import com.malinskiy.adam.transport.AndroidWriteChannel
 import kotlinx.coroutines.channels.SendChannel
 
 /**
+ * @param outputLogPath if specified with protobuf then write output as protobuf to a file (machine
+ * readable). If path is not specified, default directory and file name will
+ * be used: /sdcard/instrument-logs/log-yyyyMMdd-hhmmss-SSS.instrumentation_data_proto
+ *
  * @param protobuf API 26+
+ *
+ * @param noIsolatedStorage don't use isolated storage sandbox and mount full external storage
+ * @param noHiddenApiChecks disable restrictions on use of hidden API
+ * @param noWindowAnimations turn off window animations while running
+ * @param userId Specify user instrumentation runs in; current user if not specified
+ * @param abi Launch the instrumented process with the selected ABI. This assumes that the process supports the selected ABI.
+ * @param profilingOutputPath write profiling data to <FILE>
  *
  * @see https://android.googlesource.com/platform/frameworks/base/+/master/cmds/am/src/com/android/commands/am/Am.java#155
  */
@@ -36,11 +47,12 @@ class TestRunnerRequest(
     private val runnerClass: String = "android.support.test.runner.AndroidJUnitRunner",
     private val noHiddenApiChecks: Boolean = false,
     private val noWindowAnimations: Boolean = false,
+    private val noIsolatedStorage: Boolean = false,
     private val userId: Int? = null,
     private val abi: String? = null,
     private val profilingOutputPath: String? = null,
     private val outputLogPath: String? = null,
-    private val protobuf: Boolean = false
+    private val protobuf: Boolean = false,
 ) : AsyncChannelRequest<List<TestEvent>, Unit>() {
     private val buffer = ByteArray(Const.MAX_PACKET_LENGTH)
 
@@ -81,6 +93,10 @@ class TestRunnerRequest(
             append(" --no-window-animation")
         }
 
+        if (noIsolatedStorage) {
+            append(" --no-isolated-storage")
+        }
+
         if (userId != null) {
             append(" --user $userId")
         }
@@ -93,12 +109,12 @@ class TestRunnerRequest(
             append(" -p $profilingOutputPath")
         }
 
-        if (outputLogPath != null) {
-            append(" -f $outputLogPath")
-        }
-
         if (protobuf) {
             append(" -m")
+        }
+
+        if (outputLogPath != null) {
+            append(" -f $outputLogPath")
         }
 
         append(instrumentOptions.toString())
