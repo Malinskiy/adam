@@ -18,10 +18,16 @@ package com.malinskiy.adam.request.testrunner
 
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.request.AsyncChannelRequest
+import com.malinskiy.adam.request.transform.InstrumentationResponseTransformer
+import com.malinskiy.adam.request.transform.ProgressiveResponseTransformer
+import com.malinskiy.adam.request.transform.ProtoInstrumentationResponseTransformer
 import com.malinskiy.adam.transport.AndroidReadChannel
 import com.malinskiy.adam.transport.AndroidWriteChannel
+import kotlinx.coroutines.channels.SendChannel
 
 /**
+ * @param protobuf API 26+
+ *
  * @see https://android.googlesource.com/platform/frameworks/base/+/master/cmds/am/src/com/android/commands/am/Am.java#155
  */
 class TestRunnerRequest(
@@ -33,16 +39,25 @@ class TestRunnerRequest(
     private val userId: Int? = null,
     private val abi: String? = null,
     private val profilingOutputPath: String? = null,
-    private val outputLogPath: String? = null
-) : AsyncChannelRequest<String, Unit>() {
+    private val outputLogPath: String? = null,
+    private val protobuf: Boolean = false
+) : AsyncChannelRequest<List<TestEvent>, Unit>() {
     private val buffer = ByteArray(Const.MAX_PACKET_LENGTH)
 
-    override suspend fun readElement(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel): String? {
+    private val transformer: ProgressiveResponseTransformer<List<TestEvent>?> by lazy {
+        if (protobuf) {
+            ProtoInstrumentationResponseTransformer()
+        } else {
+            InstrumentationResponseTransformer()
+        }
+    }
+
+    override suspend fun readElement(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel): List<TestEvent>? {
         val available = readChannel.readAvailable(buffer, 0, Const.MAX_PACKET_LENGTH)
 
         return when {
             available > 0 -> {
-                String(buffer, 0, available, Const.DEFAULT_TRANSPORT_ENCODING)
+                transformer.process(buffer, 0, available)
             }
             available < 0 -> {
                 readChannel.cancel(null)
@@ -82,10 +97,18 @@ class TestRunnerRequest(
             append(" -f $outputLogPath")
         }
 
+        if (protobuf) {
+            append(" -m")
+        }
+
         append(instrumentOptions.toString())
 
         append(" $testPackage/$runnerClass")
     }.toString())
+
+    override suspend fun close(channel: SendChannel<List<TestEvent>>) {
+        transformer.transform()?.let { channel.send(it) }
+    }
 
     override suspend fun writeElement(element: Unit, readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel) = Unit
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 Anton Malinskiy
+  * Copyright (C) 2021 Anton Malinskiy
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,10 @@ package com.malinskiy.adam.request.transform
 
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.request.testrunner.*
+import com.malinskiy.adam.request.testrunner.model.Status
+import com.malinskiy.adam.request.testrunner.model.TokenType
 
-class InstrumentationResponseTransformer : ResponseTransformer<List<TestEvent>?> {
+class InstrumentationResponseTransformer : ProgressiveResponseTransformer<List<TestEvent>?> {
     var buffer = StringBuffer()
 
     private var startReported = false
@@ -28,11 +30,8 @@ class InstrumentationResponseTransformer : ResponseTransformer<List<TestEvent>?>
     private var testsExpected = 0
     private var testsExecuted = 0
 
-    override suspend fun process(bytes: ByteArray, offset: Int, limit: Int) {
+    override suspend fun process(bytes: ByteArray, offset: Int, limit: Int): List<TestEvent>? {
         buffer.append(String(bytes, offset, limit, Const.DEFAULT_TRANSPORT_ENCODING))
-    }
-
-    override fun transform(): List<TestEvent>? {
         val tokenPosition = buffer.indexOfAny(
             listOf(
                 TokenType.INSTRUMENTATION_STATUS_CODE.name,
@@ -53,7 +52,7 @@ class InstrumentationResponseTransformer : ResponseTransformer<List<TestEvent>?>
         return parse(atom)
     }
 
-    fun close(): List<TestEvent>? {
+    override fun transform(): List<TestEvent>? {
         if (finishReported) return null
 
         return if (!startReported) {
@@ -224,40 +223,3 @@ private fun List<String>.toMap(): Map<String, String> {
     }.toMap()
 }
 
-enum class TokenType {
-    INSTRUMENTATION_STATUS,
-    INSTRUMENTATION_STATUS_CODE,
-    INSTRUMENTATION_RESULT,
-    INSTRUMENTATION_CODE,
-    INSTRUMENTATION_FAILED
-}
-
-enum class Status(val value: Int) {
-    SUCCESS(0),
-    START(1),
-    IN_PROGRESS(2),
-
-    /**
-     * JUnit3 runner code, treated as FAILURE
-     */
-    ERROR(-1),
-    FAILURE(-2),
-    IGNORED(-3),
-    ASSUMPTION_FAILURE(-4),
-    UNKNOWN(6666);
-
-    companion object {
-        fun valueOf(value: Int?): Status {
-            return when (value) {
-                0 -> SUCCESS
-                1 -> START
-                2 -> IN_PROGRESS
-                -1 -> ERROR
-                -2 -> FAILURE
-                -3 -> IGNORED
-                -4 -> ASSUMPTION_FAILURE
-                else -> UNKNOWN
-            }
-        }
-    }
-}

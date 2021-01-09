@@ -27,3 +27,4 @@ data class TestEnded(val id: TestIdentifier, val metrics: Map<String, String>) :
 data class TestRunFailed(val error: String) : TestEvent()
 data class TestRunStopped(val elapsedTimeMillis: Long) : TestEvent()
 data class TestRunEnded(val elapsedTimeMillis: Long, val metrics: Map<String, String>) : TestEvent()
+data class TestLogcat(val id: TestIdentifier, val log: String)

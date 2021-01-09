@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 Anton Malinskiy
+ * Copyright (C) 2021 Anton Malinskiy
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,9 +14,12 @@
  * limitations under the License.
  */
 
-package com.malinskiy.adam.request.testrunner
+package com.malinskiy.adam.request.testrunner.model
 
-data class TestIdentifier(
-    val className: String,
-    val testName: String
-)
+enum class TokenType {
+    INSTRUMENTATION_STATUS,
+    INSTRUMENTATION_STATUS_CODE,
+    INSTRUMENTATION_RESULT,
+    INSTRUMENTATION_CODE,
+    INSTRUMENTATION_FAILED
+}

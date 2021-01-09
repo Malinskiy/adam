@@ -44,5 +44,5 @@ abstract class AsyncChannelRequest<T : Any?, I : Any?>(
      * Optionally send a message
      * The transport connection is not available at this point
      */
-    open fun close(channel: SendChannel<T>) = Unit
+    open suspend fun close(channel: SendChannel<T>) = Unit
 }

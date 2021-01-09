@@ -17,14 +17,12 @@
 package com.malinskiy.adam.request.testrunner
 
 import assertk.assertThat
+import assertk.assertions.containsOnly
 import assertk.assertions.isEqualTo
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.extension.toAndroidChannel
 import com.malinskiy.adam.server.AndroidDebugBridgeServer
-import io.ktor.utils.io.ByteChannel
-import io.ktor.utils.io.ByteReadChannel
-import io.ktor.utils.io.ByteWriteChannel
-import io.ktor.utils.io.close
+import io.ktor.utils.io.*
 import kotlinx.coroutines.channels.receiveOrNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -89,13 +87,13 @@ class TestRunnerRequestTest {
                     serial = "serial",
                     scope = this
                 )
-                val builder = StringBuilder()
+                val events = mutableListOf<TestEvent>()
                 while (!channel.isClosedForReceive) {
                     val chunk = channel.receiveOrNull() ?: break
-                    builder.append(chunk)
+                    events.addAll(chunk)
                 }
 
-                assertThat(builder.toString()).isEqualTo("something-something")
+                assertThat(events).containsOnly(TestRunFailed("No test results"))
 
                 server.dispose()
             }.join()

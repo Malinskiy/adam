@@ -1,0 +1,163 @@
+TestRunStartedEvent(testCount=1)
+TestStarted(id=TestIdentifier(className=com.example.AbstractFailingTest, testName=testAlwaysFailing))
+TestFailed(id=TestIdentifier(className=com.example.AbstractFailingTest, testName=testAlwaysFailing), stackTrace=java.lang.AssertionError
+	at org.junit.Assert.fail(Assert.java:86)
+	at org.junit.Assert.assertTrue(Assert.java:41)
+	at org.junit.Assert.assertTrue(Assert.java:52)
+	at com.example.AbstractFailingTest.testAlwaysFailing(AbstractFailingTest.kt:22)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:50)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:47)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at android.support.test.rule.ActivityTestRule$ActivityStatement.evaluate(ActivityTestRule.java:433)
+	at org.junit.rules.RunRules.evaluate(RunRules.java:20)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:325)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:78)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:57)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runners.Suite.runChild(Suite.java:128)
+	at org.junit.runners.Suite.runChild(Suite.java:27)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+	at android.support.test.internal.runner.TestExecutor.execute(TestExecutor.java:58)
+	at android.support.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:375)
+	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2189)
+)
+TestEnded(id=TestIdentifier(className=com.example.AbstractFailingTest, testName=testAlwaysFailing), metrics={com.malinskiy.adam.logcat=--------- beginning of main
+01-09 23:49:55.061 10254 17117 17117 I MonitoringInstr: Activities that are still in CREATED to STOPPED: 0
+01-09 23:49:55.062 10254 17117 17139 W ActivityTestRule: getActivityIntent() returned null using default: Intent(Intent.ACTION_MAIN)
+01-09 23:49:55.063 10254 17117 17139 I ActivityTestRule: Launching activity: ComponentInfo{com.example/com.example.MainActivity}
+01-09 23:49:55.068 10254 17117 17141 D MonitoringInstr: execStartActivity(context, ibinder, ibinder, activity, intent, int, bundle
+--------- beginning of system
+01-09 23:49:55.069  1000  2027  4636 I ActivityTaskManager: START u0 {act=android.intent.action.MAIN flg=0x14000000 cmp=com.example/.MainActivity} from uid 10254
+01-09 23:49:55.084  1000  2027  2049 E system_server: Invalid ID 0x00000000.
+01-09 23:49:55.085  1000  2027  2815 W InputReader: Device has associated, but no associated display id.
+01-09 23:49:55.088  1000  2027  2815 I chatty  : uid=1000(system) Binder:2027_F identical 28 lines
+01-09 23:49:55.088  1000  2027  2815 W InputReader: Device has associated, but no associated display id.
+01-09 23:49:55.088 10254 17117 17117 W ActivityThread: handleWindowVisibility: no activity for token android.os.BinderProxy@6ce4f93
+01-09 23:49:55.091   gps  1795  2251 E GnssHAL_GnssInterface: gnssSvStatusCb: a: input svInfo.flags is 8
+01-09 23:49:55.091   gps  1795  2251 E GnssHAL_GnssInterface: gnssSvStatusCb: b: input svInfo.flags is 8
+01-09 23:49:55.091  1000  2027  2815 W InputReader: Device has associated, but no associated display id.
+01-09 23:49:55.091  1000  2027  2815 I chatty  : uid=1000(system) Binder:2027_F identical 8 lines
+01-09 23:49:55.091  1000  2027  2815 W InputReader: Device has associated, but no associated display id.
+01-09 23:49:55.101 10254 17117 17117 W RenderThread: type=1400 audit(0.0:1415): avc: denied { write } for name="property_service" dev="tmpfs" ino=758 scontext=u:r:untrusted_app_27:s0:c512,c768 tcontext=u:object_r:property_socket:s0 tclass=sock_file permissive=0
+01-09 23:49:55.104  1000  1816  2561 E SurfaceFlinger: ro.sf.lcd_density must be defined as a build property
+01-09 23:49:55.104  1000  1816  2561 E SurfaceFlinger: ro.sf.lcd_density must be defined as a build property
+01-09 23:49:55.111 10254 17117 17144 D libEGL  : Emulator has host GPU support, qemu.gles is set to 1.
+01-09 23:49:55.112 10254 17117 17144 W libc    : Unable to set property "qemu.gles" to "1": connection failed; errno=13 (Permission denied)
+01-09 23:49:55.125 10254 17117 17144 D libEGL  : loaded /vendor/lib/egl/libEGL_emulation.so
+01-09 23:49:55.126 10254 17117 17144 D libEGL  : loaded /vendor/lib/egl/libGLESv1_CM_emulation.so
+01-09 23:49:55.126 10254 17117 17144 D libEGL  : loaded /vendor/lib/egl/libGLESv2_emulation.so
+01-09 23:49:55.131  1000  1797  1945 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+01-09 23:49:55.131 10254 17117 17117 D LifecycleMonitor: Lifecycle status change: com.example.MainActivity@b0451ef in: PRE_ON_CREATE
+01-09 23:49:55.154  1000  2027  2049 W InputReader: Device has associated, but no associated display id.
+01-09 23:49:55.154  1000  2027  2049 I chatty  : uid=1000(system) android.anim identical 8 lines
+01-09 23:49:55.154  1000  2027  2049 W InputReader: Device has associated, but no associated display id.
+01-09 23:49:55.200 10254 17117 17117 D LifecycleMonitor: Lifecycle status change: com.example.MainActivity@b0451ef in: CREATED
+01-09 23:49:55.201 10254 17117 17117 D LifecycleMonitor: Lifecycle status change: com.example.MainActivity@b0451ef in: STARTED
+01-09 23:49:55.204 10254 17117 17117 D LifecycleMonitor: Lifecycle status change: com.example.MainActivity@b0451ef in: RESUMED
+01-09 23:49:55.217 10098  2727 14416 I Icing   : Indexing done com.google.android.gms-apps
+01-09 23:49:55.224 10098  2727 14416 I Icing   : Indexing com.google.android.gms-apps from com.google.android.gms
+01-09 23:49:55.225 10098  2727 14416 I Icing   : Indexing done com.google.android.gms-apps
+01-09 23:49:55.226 10098  2727 14416 I Icing   : Indexing com.google.android.gms-apps from com.google.android.gms
+01-09 23:49:55.226 10098  2727 14416 I Icing   : Indexing done com.google.android.gms-apps
+01-09 23:49:55.234 10098  2727 14416 I Icing   : Indexing com.google.android.gms-apps from com.google.android.gms
+01-09 23:49:55.234 10098  2727 14416 I Icing   : Indexing done com.google.android.gms-apps
+01-09 23:49:55.247 10254 17117 17142 D HostConnection: HostConnection::get() New Host Connection established 0xd633f190, tid 17142
+01-09 23:49:55.248 10254 17117 17142 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_native_sync_v3 ANDROID_EMU_native_sync_v4 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_YUV420_888_to_NV21 ANDROID_EMU_YUV_Cache ANDROID_EMU_async_unmap_buffer GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_async_frame_commands ANDROID_EMU_gles_max_version_3_0 
+01-09 23:49:55.252 10254 17117 17142 W OpenGLRenderer: Failed to choose config with EGL_SWAP_BEHAVIOR_PRESERVED, retrying without...
+01-09 23:49:55.253 10254 17117 17142 D eglCodecCommon: setVertexArrayObject: set vao to 0 (0) 0 0
+01-09 23:49:55.253 10254 17117 17142 D EGL_emulation: eglCreateContext: 0xd631a2a0: maj 3 min 0 rcv 3
+01-09 23:49:55.264  root  1929  1929 E netmgr  : Failed to open QEMU pipe 'qemud:network': Invalid argument
+01-09 23:49:55.270 10254 17117 17142 D EGL_emulation: eglMakeCurrent: 0xd631a2a0: ver 3 0 (tinfo 0xd630f7e0)
+01-09 23:49:55.276  1000  1797  1945 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+01-09 23:49:55.279  1000  1681  1681 I hwservicemanager: getTransport: Cannot find entry android.hardware.graphics.mapper@3.0::IMapper/default in either framework or device manifest.
+01-09 23:49:55.279 10254 17117 17142 W Gralloc3: mapper 3.x is not supported
+01-09 23:49:55.280 10254 17117 17142 D HostConnection: createUnique: call
+01-09 23:49:55.280 10254 17117 17142 D HostConnection: HostConnection::get() New Host Connection established 0xd633f2d0, tid 17142
+01-09 23:49:55.281 10254 17117 17142 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_native_sync_v3 ANDROID_EMU_native_sync_v4 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_host_composition_v1 ANDROID_EMU_host_composition_v2 ANDROID_EMU_YUV420_888_to_NV21 ANDROID_EMU_YUV_Cache ANDROID_EMU_async_unmap_buffer GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_async_frame_commands ANDROID_EMU_gles_max_version_3_0 
+01-09 23:49:55.281 10254 17117 17142 D eglCodecCommon: allocate: Ask for block of size 0x1000
+01-09 23:49:55.281 10254 17117 17142 D eglCodecCommon: allocate: ioctl allocate returned offset 0x3ff7ff000 size 0x2000
+01-09 23:49:55.282  1000  1797  1945 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+01-09 23:49:55.285  1000  1797  1945 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+01-09 23:49:55.286 10254 17117 17142 D EGL_emulation: eglMakeCurrent: 0xd631a2a0: ver 3 0 (tinfo 0xd630f7e0)
+01-09 23:49:55.288 10254 17117 17142 D eglCodecCommon: setVertexArrayObject: set vao to 0 (0) 0 0
+01-09 23:49:55.371  1000  2027  2053 I ActivityTaskManager: Displayed com.example/.MainActivity: +296ms
+01-09 23:49:55.379 10254 17117 17117 I AssistStructure: Flattened final assist data: 736 bytes, containing 1 windows, 3 views
+01-09 23:49:55.388 10098  2534  2534 W lil     : Pending fill request while another request in the same session was triggered. [CONTEXT service_id=177 ]
+01-09 23:49:55.428  1000  2027  2817 W InputReader: Device has associated, but no associated display id.
+01-09 23:49:55.429  1000  2027  2817 I chatty  : uid=1000(system) Binder:2027_10 identical 8 lines
+01-09 23:49:55.429  1000  2027  2817 W InputReader: Device has associated, but no associated display id.
+01-09 23:49:55.431 10254 17117 17117 D LifecycleMonitor: Lifecycle status change: com.example.MainActivity@b0451ef in: PAUSED
+01-09 23:49:55.433  1000  2027  2815 W InputReader: Device has associated, but no associated display id.
+01-09 23:49:55.437  1000  2027  2815 I chatty  : uid=1000(system) Binder:2027_F identical 28 lines
+01-09 23:49:55.437  1000  2027  2815 W InputReader: Device has associated, but no associated display id.
+01-09 23:49:55.441 10090  2421  2849 D EGL_emulation: eglMakeCurrent: 0xe957fee0: ver 3 0 (tinfo 0xde4c6490)
+01-09 23:49:55.441 10110  2974  3167 D EGL_emulation: eglMakeCurrent: 0xd631b0e0: ver 3 0 (tinfo 0xd630f900)
+01-09 23:49:55.444  1000  1797  1945 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 5312512
+01-09 23:49:55.452 10254 17117 17142 D EGL_emulation: eglMakeCurrent: 0xd631a2a0: ver 3 0 (tinfo 0xd630f7e0)
+01-09 23:49:55.454 10254 17117 17117 D LifecycleMonitor: Lifecycle status change: com.example.MainActivity@b0451ef in: STOPPED
+01-09 23:49:55.459 10254 17117 17117 D LifecycleMonitor: Lifecycle status change: com.example.MainActivity@b0451ef in: DESTROYED
+01-09 23:49:55.466 10254 17117 17139 I TestRunner: failed: testAlwaysFailing(com.example.AbstractFailingTest)
+01-09 23:49:55.466 10254 17117 17139 I TestRunner: ----- begin exception -----
+01-09 23:49:55.467 10254 17117 17139 I TestRunner: java.lang.AssertionError
+01-09 23:49:55.467 10254 17117 17139 I TestRunner: 	at org.junit.Assert.fail(Assert.java:86)
+01-09 23:49:55.467 10254 17117 17139 I TestRunner: 	at org.junit.Assert.assertTrue(Assert.java:41)
+01-09 23:49:55.467 10254 17117 17139 I TestRunner: 	at org.junit.Assert.assertTrue(Assert.java:52)
+01-09 23:49:55.467 10254 17117 17139 I TestRunner: 	at com.example.AbstractFailingTest.testAlwaysFailing(AbstractFailingTest.kt:22)
+01-09 23:49:55.467 10254 17117 17139 I TestRunner: 	at java.lang.reflect.Method.invoke(Native Method)
+01-09 23:49:55.467 10254 17117 17139 I TestRunner: 	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:50)
+01-09 23:49:55.467 10254 17117 17139 I TestRunner: 	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+01-09 23:49:55.467 10254 17117 17139 I TestRunner: 	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:47)
+01-09 23:49:55.467 10254 17117 17139 I TestRunner: 	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+01-09 23:49:55.467 10254 17117 17139 I TestRunner: 	at android.support.test.rule.ActivityTestRule$ActivityStatement.evaluate(ActivityTestRule.java:433)
+01-09 23:49:55.467 10254 17117 17139 I TestRunner: 	at org.junit.rules.RunRules.evaluate(RunRules.java:20)
+01-09 23:49:55.467 10254 17117 17139 I TestRunner: 	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:325)
+01-09 23:49:55.467 10254 17117 17139 I TestRunner: 	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:78)
+01-09 23:49:55.467 10254 17117 17139 I TestRunner: 	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:57)
+01-09 23:49:55.467 10254 17117 17139 I TestRunner: 	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+01-09 23:49:55.467 10254 17117 17139 I TestRunner: 	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+01-09 23:49:55.467 10254 17117 17139 I TestRunner: 	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+01-09 23:49:55.467 10254 17117 17139 I TestRunner: 	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+01-09 23:49:55.467 10254 17117 17139 I TestRunner: 	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+01-09 23:49:55.467 10254 17117 17139 I TestRunner: 	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+01-09 23:49:55.467 10254 17117 17139 I TestRunner: 	at org.junit.runners.Suite.runChild(Suite.java:128)
+01-09 23:49:55.467 10254 17117 17139 I TestRunner: 	at org.junit.runners.Suite.runChild(Suite.java:27)
+01-09 23:49:55.467 10254 17117 17139 I TestRunner: 	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+01-09 23:49:55.467 10254 17117 17139 I TestRunner: 	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+01-09 23:49:55.467 10254 17117 17139 I TestRunner: 	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+01-09 23:49:55.467 10254 17117 17139 I TestRunner: 	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+01-09 23:49:55.467 10254 17117 17139 I TestRunner: 	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+01-09 23:49:55.467 10254 17117 17139 I TestRunner: 	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+01-09 23:49:55.467 10254 17117 17139 I TestRunner: 	at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+01-09 23:49:55.467 10254 17117 17139 I TestRunner: 	at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+01-09 23:49:55.467 10254 17117 17139 I TestRunner: 	at android.support.test.internal.runner.TestExecutor.execute(TestExecutor.java:58)
+01-09 23:49:55.467 10254 17117 17139 I TestRunner: 	at android.support.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:375)
+01-09 23:49:55.467 10254 17117 17139 I TestRunner: 	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2189)
+01-09 23:49:55.467 10254 17117 17139 I TestRunner: ----- end exception -----
+01-09 23:49:55.471 10254 17117 17139 I TestRunner: finished: testAlwaysFailing(com.example.AbstractFailingTest)
+01-09 23:49:55.480  1000  2027  2812 D WindowManager: relayoutVisibleWindow: Window{ee55c84 u0 com.google.android.apps.nexuslauncher/com.google.android.apps.nexuslauncher.NexusLauncherActivity EXITING} mAnimatingExit=true, mRemoveOnExit=false, mDestroying=false
+01-09 23:49:55.480  1000  2027  2815 D WindowManager: relayoutVisibleWindow: Window{3344f1b u0 com.google.android.apps.nexuslauncher/com.google.android.apps.nexuslauncher.NexusLauncherActivity EXITING} mAnimatingExit=true, mRemoveOnExit=false, mDestroying=false
+01-09 23:49:55.484  1000  1797  1945 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+01-09 23:49:55.489  1000  1797  1945 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+01-09 23:49:55.493  1000  1797  1797 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+01-09 23:49:55.497  1000  1797  1797 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+01-09 23:49:55.500 10090  2421  2849 D EGL_emulation: eglMakeCurrent: 0xe957fee0: ver 3 0 (tinfo 0xde4c6490)
+01-09 23:49:55.501  1000  1797  1945 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+01-09 23:49:55.509  1000  1797  1945 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+01-09 23:49:55.515  1000  2027  4636 I ActivityTaskManager: Activity reported stop, but no longer stopping: ActivityRecord{5645067 u0 com.google.android.apps.nexuslauncher/.NexusLauncherActivity t4}
+01-09 23:49:55.515 10110  2974  3167 D EGL_emulation: eglMakeCurrent: 0xd631b0e0: ver 3 0 (tinfo 0xd630f900)
+})
+TestRunEnded(elapsedTimeMillis=526, metrics={})

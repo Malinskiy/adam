@@ -16,19 +16,19 @@
 
 package com.malinskiy.adam.integration
 
+import assertk.assertThat
+import assertk.assertions.contains
+import assertk.assertions.isTrue
+import com.malinskiy.adam.Const
 import com.malinskiy.adam.request.pkg.InstallRemotePackageRequest
 import com.malinskiy.adam.request.shell.v1.ShellCommandRequest
 import com.malinskiy.adam.request.sync.v1.PushFileRequest
-import com.malinskiy.adam.request.testrunner.InstrumentOptions
-import com.malinskiy.adam.request.testrunner.TestRunnerRequest
+import com.malinskiy.adam.request.testrunner.*
 import com.malinskiy.adam.rule.AdbDeviceRule
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.receiveOrNull
 import kotlinx.coroutines.runBlocking
-import org.junit.After
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
+import org.junit.*
 import java.io.File
 import kotlin.math.roundToInt
 
@@ -74,13 +74,60 @@ class TestRunnerE2ETest {
                 scope = this
             )
 
-            var logPart: String? = null
-            do {
-                logPart?.let { print(it) }
-                logPart = channel.receiveOrNull()
-            } while (logPart != null)
+            val events = mutableListOf<TestEvent>()
+            for (list in channel) {
+                events.addAll(list)
+            }
 
-            println()
+            println(events)
+        }
+    }
+
+    @Test
+    fun testProto() {
+        val apk = File(javaClass.getResource("/app-debug.apk").toURI())
+        val testApk = File(javaClass.getResource("/app-debug-androidTest.apk").toURI())
+        val apkFileName = apk.name
+        val testApkFileName = testApk.name
+
+        runBlocking {
+            val output = rule.adb.execute(ShellCommandRequest("getprop ro.build.version.sdk"), rule.deviceSerial).output
+            val sdk = output.trim().toIntOrNull() ?: 0
+            Assume.assumeTrue("This device doesn't support proto output of am instrument", sdk >= 26)
+
+            installApk(apk, apkFileName)
+            installApk(testApk, testApkFileName)
+
+            val channel = rule.adb.execute(
+                TestRunnerRequest(
+                    "com.example.test",
+                    InstrumentOptions(
+                        clazz = listOf("com.example.AbstractFailingTest")
+                    ),
+                    protobuf = true
+                ), serial = rule.deviceSerial,
+                scope = this
+            )
+
+            val events = mutableListOf<TestEvent>()
+            for (list in channel) {
+                events.addAll(list)
+            }
+
+            assertThat(events).contains(TestRunStartedEvent(1))
+            assertThat(events).contains(TestStarted(TestIdentifier("com.example.AbstractFailingTest", "testAlwaysFailing")))
+
+            assertThat(events.any {
+                it is TestFailed && it.id.className == "com.example.AbstractFailingTest" && it.id.testName == "testAlwaysFailing" && it.stackTrace.isNotEmpty()
+            }).isTrue()
+
+            assertThat(events.any {
+                it is TestEnded && it.id.className == "com.example.AbstractFailingTest" && it.id.testName == "testAlwaysFailing" && it.metrics[Const.TEST_LOGCAT_METRIC]!!.isNotEmpty()
+            }).isTrue()
+
+            assertThat(events.any {
+                it is TestRunEnded && it.metrics.isEmpty() && it.elapsedTimeMillis > 0
+            })
         }
     }
 
