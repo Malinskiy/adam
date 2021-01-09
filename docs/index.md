@@ -21,24 +21,68 @@ To optimize the resources usage adam uses coroutines instead of blocking threads
 Full E2E testing with at least Android emulator is also used to guarantee stability.
 
 ## Supported functionality
-* Package install, uninstall, list
-* Logcat
-* Props
-* Instrumented tests
-* Port forwarding
+* Android Binder Bridge: "abb" and "abb_exec"
+* Restart adbd on device: "root:", "unroot:", as well as switching transport "usb:", "tcpip:"
+* Connected device list monitoring
+  * List connected devices
+  * Monitor connected devices continuously
+* Fetch device and host features
+* Emulator commands (`gsm call`, `rotate`, etc)
+* Files
+  * List file using `ls`
+  * Push/pull files and folders(recursive)
+  * Stat, list, pull and push using `sync:`
+  * Support for stat_v2, sendrecv_v2, ls_v2
+* Port-forwarding (including reverse port-forwarding)
+  * List ports
+  * Add rule
+  * Remove rule
+  * Remove all rules
 * Screen capture
-* File push, pull, stat
-* List connected devices (including continuous monitoring)
-* Reboot
+  * Dynamic adapters with raw buffer and fast BufferedImage conversion
+  * Supports legacy devices as well as new sRGB and DCI-P3 ones
+* Logcat
+  * Fetch logcat log
+  * Monitor logcat continuously
+* mDNS
+  * List mDNS services
+  * mDNS support check
+* Package install, uninstall, list
+  * Streaming installation
+  * Atomic multi-package installation
+  * Apk split installation
+  * Supports APEX
+  * Sideload (with pre-KitKat support)
+  * Install sessions support
+* Props
+  * Get single prop
+  * Get all props
+* Security
+  * dm-verify
+* Shell
+  * Basic `shell:` support (with stdout and patched exit code)
+  * shell_v2 support (with separated stdout, stderr and exit code as well as stdin)
+* Instrumented tests
+  * raw output parsing
+  * proto output parsing
+* Miscellaneous
+  * Connect/disconnect/reconnect device
+  * Exec shell with stdin on legacy devices without shell_v2 support
+  * adb server version
+  * kill adb server
+  * adb over WiFi pairing setup
+  * remount partition
 
-**+** any device shell commands (including continuous streaming output)
+Not to mention any device shell commands (including continuous streaming of stdout, stderr and stdin).
 
 # Getting started
+
 ![Maven Central](https://img.shields.io/maven-central/v/com.malinskiy/adam)
 
 To add a dependency on Adam using Maven, use the following:
 
 ```xml
+
 <dependency>
   <groupId>com.malinskiy.marathon</groupId>
   <artifactId>adam</artifactId>
