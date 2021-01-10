@@ -1,6 +1,9 @@
 ---
-layout: default title: "adbd (on-device)"
-nav_order: 11 has_toc: false permalink: /docs/adbd
+layout: default
+title: "adbd (on-device)"
+nav_order: 11
+has_toc: false
+permalink: /docs/adbd
 ---
 
 ## Root permissions

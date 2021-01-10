@@ -1,6 +1,9 @@
 ---
-layout: default title: "Android Binder Bridge"
-nav_order: 10 has_toc: false permalink: /docs/abb
+layout: default
+title: "Android Binder Bridge"
+nav_order: 10
+has_toc: false
+permalink: /docs/abb
 ---
 
 Android Binder Bridge gives the ability to communicate directly with the services on the devices. An example of service is `package` which

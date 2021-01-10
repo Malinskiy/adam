@@ -1,6 +1,9 @@
 ---
-layout: default title: "Emulator console"
-nav_order: 4 has_toc: false permalink: /docs/emu
+layout: default
+title: "Emulator console"
+nav_order: 4
+has_toc: false
+permalink: /docs/emu
 ---
 
 ## Run emulator console command

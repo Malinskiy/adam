@@ -1,6 +1,8 @@
 ---
-layout: default title:  "Package management"
-has_children: true nav_order: 2
+layout: default
+title:  "Package management"
+has_children: true
+nav_order: 2
 ---
 
 ## Install a package

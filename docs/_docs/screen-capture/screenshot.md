@@ -1,5 +1,6 @@
 ---
-layout: default title:  "Screenshot"
+layout: default
+title:  "Screenshot"
 nav_order: 7
 ---
 

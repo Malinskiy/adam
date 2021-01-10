@@ -1,6 +1,8 @@
 ---
-layout: default title:  "ls wrapper"
-parent: Files nav_order: 4
+layout: default
+title:  "ls wrapper"
+parent: Files
+nav_order: 4
 ---
 
 ## List files using ls

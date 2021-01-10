@@ -1,5 +1,7 @@
 ---
-layout: default title: Miscellaneous nav_order: 6 has_children: true has_toc: false permalink: /docs/misc
+layout: default
+title: Miscellaneous
+nav_order: 12
 ---
 
 ## Get adb server version
@@ -38,4 +40,25 @@ val output: String = adb.execute(request = SetDmVerityCheckingRequest(false), "e
 
 ```kotlin
 val features: List<Feature> = adb.execute(request = FetchHostFeaturesRequest())
+```
+
+## Check if mDNS discovery is available
+mDNS is used for automatic discovery and connection of remote devices (for example with Android 11 ADB over WiFi)
+
+```kotlin
+val status: MdnsStatus = adb.execute(MdnsCheckRequest())
+```
+
+## List all mDNS discovered services
+
+```kotlin
+val services: List<MdnsService> = adb.execute(ListMdnsServicesRequest())
+```
+
+```kotlin
+data class MdnsService(
+    val name: String,
+    val serviceType: String,
+    val url: String
+)
 ```

@@ -1,5 +1,6 @@
 ---
-layout: default title:  "Device properties (getprop)"
+layout: default
+title:  "Device properties (getprop)"
 nav_order: 5
 ---
 

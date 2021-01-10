@@ -1,5 +1,10 @@
 ---
-layout: default title: Shell nav_order: 1 has_children: true has_toc: false permalink: /docs/shell
+layout: default
+title: Shell
+nav_order: 1
+has_children: true
+has_toc: false
+permalink: /docs/shell
 ---
 
 # Shell requests

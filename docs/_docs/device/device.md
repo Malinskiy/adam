@@ -1,6 +1,9 @@
 ---
-layout: default title: "Device management"
-nav_order: 3 has_toc: false permalink: /docs/monitor-devices
+layout: default
+title: "Device management"
+nav_order: 3
+has_toc: false
+permalink: /docs/monitor-devices
 ---
 
 ## List devices
@@ -105,3 +108,20 @@ val output = adb.execute(PairDeviceRequest("10.0.0.2:39567", "123456"))
 ```
 
 The target device should be in the form of `host[:port]`, port is optional.
+
+## Reboot device
+
+If you need to reboot a particular device (for example if it stopped executing requests properly):
+```kotlin
+adb.execute(request = RebootRequest(), serial = "emulator-5554")
+```
+
+Or if you want to reboot to recovery:
+```kotlin
+adb.execute(request = RebootRequest(mode = RECOVERY), serial = "emulator-5554")
+```
+
+Or bootloader:
+```kotlin
+adb.execute(request = RebootRequest(mode = BOOTLOADER), serial = "emulator-5554")
+```

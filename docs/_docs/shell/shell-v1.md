@@ -1,6 +1,8 @@
 ---
-layout: default title:  "Shell v1"
-parent: Shell nav_order: 1
+layout: default
+title:  "Shell v1"
+parent: Shell
+nav_order: 1
 ---
 
 ## Execute shell command

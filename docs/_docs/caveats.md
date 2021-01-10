@@ -1,5 +1,6 @@
 ---
-layout: default title:  "Caveats"
+layout: default
+title:  "Caveats"
 nav_order: 15
 ---
 # Caveats

@@ -1,5 +1,7 @@
 ---
-layout: default title: Sideload parent: "Package management"
+layout: default
+title: Sideload
+parent: "Package management"
 nav_order: 2
 ---
 
