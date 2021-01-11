@@ -1,5 +1,6 @@
 ![Maven Central](https://img.shields.io/maven-central/v/com.malinskiy/adam)
 ![Codecov](https://img.shields.io/codecov/c/github/Malinskiy/adam)
+![Documentation](https://img.shields.io/badge/docs-documentation-green?link=https://malinskiy.github.io/adam/)
 
 # adam
 Android Debug Bridge helper written in Kotlin
