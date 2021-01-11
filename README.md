@@ -70,6 +70,9 @@ Full E2E testing with at least Android emulator is also used to guarantee stabil
 
 Not to mention any device shell commands.
 
+## API compatibility
+Until v1.0.0 release, there is no guarantee that the interfaces and requests will not change. 
+
 License
 -------
 
