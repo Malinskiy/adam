@@ -122,7 +122,7 @@ class TestRunnerE2ETest {
             }).isTrue()
 
             assertThat(events.any {
-                it is TestEnded && it.id.className == "com.example.AbstractFailingTest" && it.id.testName == "testAlwaysFailing" && it.metrics[Const.TEST_LOGCAT_METRIC]!!.isNotEmpty()
+                it is TestEnded && it.id.className == "com.example.AbstractFailingTest" && it.id.testName == "testAlwaysFailing"
             }).isTrue()
 
             assertThat(events.any {
