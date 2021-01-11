@@ -12,6 +12,7 @@ object Versions {
     val junit = "4.12"
     val imageComparison = "4.3.0"
     val dokka = kotlin
+    val pdbank = "0.9.1"
 }
 
 object BuildPlugins {
@@ -24,6 +25,7 @@ object Libraries {
     val kxml = "net.sf.kxml:kxml2:${Versions.kxml}"
     val ktorNetwork = "io.ktor:ktor-network-jvm:${Versions.ktor}"
     val logging = "io.github.microutils:kotlin-logging:${Versions.logging}"
+    val pdbank = "pro.streem.pbandk:pbandk-runtime-jvm:${Versions.pdbank}"
 }
 
 object TestLibraries {

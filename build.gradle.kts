@@ -105,6 +105,7 @@ dependencies {
     implementation(Libraries.coroutines)
     implementation(Libraries.ktorNetwork)
     implementation(Libraries.logging)
+    implementation(Libraries.pdbank)
 
     testImplementation(TestLibraries.assertk)
     testImplementation(TestLibraries.junit)

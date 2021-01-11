@@ -46,6 +46,7 @@ class AdbDeviceRule(val deviceType: DeviceType = DeviceType.ANY, vararg val requ
     lateinit var deviceSerial: String
     lateinit var supportedFeatures: List<Feature>
     lateinit var lineSeparator: String
+    
     val adb = AndroidDebugBridgeClientFactory().build()
     val initTimeout = Duration.ofSeconds(10)
 

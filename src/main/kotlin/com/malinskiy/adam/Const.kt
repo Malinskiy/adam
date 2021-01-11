@@ -28,6 +28,10 @@ object Const {
     const val MAX_PACKET_LENGTH = 16384
     const val MAX_FILE_PACKET_LENGTH = 64 * 1024
 
+    const val MAX_PROTOBUF_LOGCAT_LENGTH = 10_000
+    const val MAX_PROTOBUF_PACKET_LENGTH = 10 * 1024 * 1024L //10Mb
+    const val TEST_LOGCAT_METRIC = "com.malinskiy.adam.logcat"
+
     const val ANDROID_FILE_SEPARATOR = "/"
     val SYNC_IGNORED_FILES = setOf(".", "..")
 

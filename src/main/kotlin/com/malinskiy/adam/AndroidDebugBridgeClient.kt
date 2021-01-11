@@ -30,16 +30,14 @@ import com.malinskiy.adam.transport.AndroidReadChannel
 import com.malinskiy.adam.transport.AndroidWriteChannel
 import com.malinskiy.adam.transport.KtorSocketFactory
 import com.malinskiy.adam.transport.SocketFactory
-import io.ktor.network.sockets.openReadChannel
-import io.ktor.network.sockets.openWriteChannel
-import io.ktor.utils.io.ByteReadChannel
-import io.ktor.utils.io.ByteWriteChannel
-import io.ktor.utils.io.cancel
-import io.ktor.utils.io.close
+import io.ktor.network.sockets.*
+import io.ktor.utils.io.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.channels.produce
+import kotlinx.coroutines.withContext
 import java.net.InetAddress
 import java.net.InetSocketAddress
 import java.time.Duration
@@ -116,7 +114,9 @@ class AndroidDebugBridgeClient(
                     }
                 } finally {
                     try {
-                        request.close(channel)
+                        withContext(NonCancellable) {
+                            request.close(channel)
+                        }
                         writeChannel?.close()
                         readChannel.cancel()
                     } catch (e: Exception) {

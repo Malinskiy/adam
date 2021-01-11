@@ -25,8 +25,8 @@ import com.malinskiy.adam.request.ValidationResponse
 import com.malinskiy.adam.request.sync.v1.StatFileRequest
 import com.malinskiy.adam.transport.AndroidReadChannel
 import com.malinskiy.adam.transport.AndroidWriteChannel
-import io.ktor.util.cio.writeChannel
-import io.ktor.utils.io.close
+import io.ktor.util.cio.*
+import io.ktor.utils.io.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.SendChannel
 import java.io.File
@@ -97,7 +97,7 @@ abstract class BasePullFileRequest(
         }
     }
 
-    override fun close(channel: SendChannel<Double>) {
+    override suspend fun close(channel: SendChannel<Double>) {
         fileWriteChannel.close()
     }
 

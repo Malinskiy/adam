@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 Anton Malinskiy
+ * Copyright (C) 2021 Anton Malinskiy
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,9 +14,12 @@
  * limitations under the License.
  */
 
-package com.malinskiy.adam.request.testrunner
+package com.malinskiy.adam.request.testrunner.model
 
-data class TestIdentifier(
-    val className: String,
-    val testName: String
+import com.malinskiy.adam.Const
+
+data class TestStatusAggregator(
+    var statusCode: Status,
+    val logcatBuilder: StringBuilder = StringBuilder(Const.MAX_PROTOBUF_LOGCAT_LENGTH),
+    val metrics: MutableMap<String, String> = mutableMapOf()
 )

@@ -22,7 +22,7 @@ import java.nio.ByteBuffer
 
 internal const val DEFAULT_BUFFER_SIZE = 4096
 
-val AdamFilePool: ObjectPool<ByteBuffer> = ByteBufferPool(Const.MAX_FILE_PACKET_LENGTH, DEFAULT_BUFFER_SIZE)
+val AdamFilePool: ObjectPool<ByteBuffer> = ByteBufferPool(DEFAULT_BUFFER_SIZE, Const.MAX_FILE_PACKET_LENGTH)
 val AdamDefaultPool: ObjectPool<ByteBuffer> = ByteBufferPool(Const.DEFAULT_BUFFER_SIZE, DEFAULT_BUFFER_SIZE)
 
 inline fun <R> withDefaultBuffer(block: ByteBuffer.() -> R): R {

@@ -23,8 +23,8 @@ import com.malinskiy.adam.request.AsyncChannelRequest
 import com.malinskiy.adam.request.ValidationResponse
 import com.malinskiy.adam.transport.AndroidReadChannel
 import com.malinskiy.adam.transport.AndroidWriteChannel
-import io.ktor.util.cio.readChannel
-import io.ktor.utils.io.cancel
+import io.ktor.util.cio.*
+import io.ktor.utils.io.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.SendChannel
 import java.io.File
@@ -73,7 +73,7 @@ abstract class BasePushFileRequest(
 
     override fun serialize() = createBaseRequest("sync:")
 
-    override fun close(channel: SendChannel<Double>) {
+    override suspend fun close(channel: SendChannel<Double>) {
         fileReadChannel.cancel()
     }
 

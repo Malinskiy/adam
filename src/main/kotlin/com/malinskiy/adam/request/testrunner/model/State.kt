@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 Anton Malinskiy
+ * Copyright (C) 2021 Anton Malinskiy
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,9 +14,11 @@
  * limitations under the License.
  */
 
-package com.malinskiy.adam.request.testrunner
+package com.malinskiy.adam.request.testrunner.model
 
-data class TestIdentifier(
-    val className: String,
-    val testName: String
-)
+sealed class State(val terminal: Boolean)
+
+object NotStarted : State(false)
+object Running : State(false)
+object Finished : State(true)
+object Cancelled : State(true)

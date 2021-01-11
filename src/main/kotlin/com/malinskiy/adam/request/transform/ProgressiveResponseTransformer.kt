@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 Anton Malinskiy
+ * Copyright (C) 2021 Anton Malinskiy
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.malinskiy.adam.request.testrunner
+package com.malinskiy.adam.request.transform
 
-data class TestIdentifier(
-    val className: String,
-    val testName: String
-)
+interface ProgressiveResponseTransformer<T : Any?> {
+    suspend fun process(bytes: ByteArray, offset: Int, limit: Int): T
+    fun transform(): T
+}
