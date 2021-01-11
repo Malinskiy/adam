@@ -61,13 +61,18 @@ class AbbExecRequestTest {
     @Test
     fun testDummy() {
         runBlocking {
-            val newFile = temp.newFile()
+            val newFile = temp.newFile().apply { writeText("cafebabe") }
             var readChannel: AndroidReadChannel? = null
             var writeChannel: AndroidWriteChannel? = null
             try {
                 readChannel = newFile.readChannel(coroutineContext = coroutineContext).toAndroidChannel()
                 writeChannel = newFile.writeChannel(coroutineContext).toAndroidChannel()
-                assertThat(AbbExecRequest(listOf(), supportedFeatures = emptyList()).readElement(readChannel, writeChannel)).isEqualTo(Unit)
+                assertThat(
+                    AbbExecRequest(listOf(), supportedFeatures = emptyList()).readElement(
+                        readChannel,
+                        writeChannel
+                    )
+                ).isEqualTo("cafebabe")
             } finally {
                 readChannel?.cancel()
                 writeChannel?.close()

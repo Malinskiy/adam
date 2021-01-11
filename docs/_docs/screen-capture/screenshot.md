@@ -1,8 +1,7 @@
 ---
 layout: default
 title:  "Screenshot"
-parent: Sync requests
-nav_order: 5
+nav_order: 7
 ---
 
 ## Capture a screenshot

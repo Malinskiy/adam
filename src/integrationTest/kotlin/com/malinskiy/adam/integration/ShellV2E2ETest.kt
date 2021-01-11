@@ -22,7 +22,7 @@ import assertk.assertions.isEqualTo
 import com.malinskiy.adam.request.Feature
 import com.malinskiy.adam.request.shell.v2.ChanneledShellCommandRequest
 import com.malinskiy.adam.request.shell.v2.ShellCommandInputChunk
-import com.malinskiy.adam.request.shell.v2.ShellV2CommandRequest
+import com.malinskiy.adam.request.shell.v2.ShellCommandRequest
 import com.malinskiy.adam.rule.AdbDeviceRule
 import com.malinskiy.adam.rule.DeviceType
 import kotlinx.coroutines.Dispatchers
@@ -39,7 +39,7 @@ class ShellV2E2ETest {
 
     @Test
     fun testDefault() = runBlocking {
-        val result = adbRule.adb.execute(ShellV2CommandRequest("echo foo; echo bar >&2; exit 17"), adbRule.deviceSerial)
+        val result = adbRule.adb.execute(ShellCommandRequest("echo foo; echo bar >&2; exit 17"), adbRule.deviceSerial)
         assertThat(result.exitCode).isEqualTo(17)
         assertThat(result.stdout).isEqualTo("foo\n")
         assertThat(result.stderr).isEqualTo("bar\n")

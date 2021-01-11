@@ -1,8 +1,7 @@
 ---
 layout: default
 title:  "Device properties (getprop)"
-parent: Sync requests
-nav_order: 3
+nav_order: 5
 ---
 
 Retrieving device properties (equivalent to executing `getprop` on the device) can be done using the requests below.

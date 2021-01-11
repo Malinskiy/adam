@@ -21,24 +21,68 @@ To optimize the resources usage adam uses coroutines instead of blocking threads
 Full E2E testing with at least Android emulator is also used to guarantee stability.
 
 ## Supported functionality
+* Shell
+  * Basic `shell:` support (with stdout and patched exit code)
+  * shell_v2 support (with separated stdout, stderr and exit code as well as stdin)
+  * Exec shell with stdin on legacy devices without shell_v2 support
 * Package install, uninstall, list
-* Logcat
+  * Streaming installation
+  * Atomic multi-package installation
+  * Apk split installation
+  * Supports APEX
+  * Sideload (with pre-KitKat support)
+  * Install sessions support
+* Device management
+  * List connected devices
+  * Monitor connected devices continuously
+  * Fetch device features
+  * Connect/disconnect/reconnect device
+  * adb over WiFi pairing setup
+  * Reboot device
+* Files
+  * List file using `ls`
+  * Push/pull files and folders(recursive)
+  * Stat, list, pull and push using `sync:`
+  * Support for stat_v2, sendrecv_v2, ls_v2
+* Emulator commands (`gsm call`, `rotate`, etc)
 * Props
+  * Get single prop
+  * Get all props
 * Instrumented tests
-* Port forwarding
+  * Raw output parsing
+  * Proto output parsing
 * Screen capture
-* File push, pull, stat
-* List connected devices (including continuous monitoring)
-* Reboot
+  * Dynamic adapters with raw buffer and fast BufferedImage conversion
+  * Supports legacy devices as well as new sRGB and DCI-P3 ones
+* Logcat
+  * Fetch logcat log
+  * Monitor logcat continuously
+* Port-forwarding (including reverse port-forwarding)
+  * List ports
+  * Add rule
+  * Remove rule
+  * Remove all rules
+* Android Binder Bridge: "abb" and "abb_exec"
+* Restart adbd on device: "root:", "unroot:", as well as switching transport "usb:", "tcpip:"
+* Miscellaneous
+  * Fetch adb server version
+  * Kill adb server
+  * Remount partition
+  * Enable/disable dm-verity checking on userdebug builds
+  * Fetch host features
+  * Check if mDNS discovery is available
+  * List all mDNS discovered services
 
-**+** any device shell commands (including continuous streaming output)
+Not to mention any device shell commands.
 
 # Getting started
+
 ![Maven Central](https://img.shields.io/maven-central/v/com.malinskiy/adam)
 
 To add a dependency on Adam using Maven, use the following:
 
 ```xml
+
 <dependency>
   <groupId>com.malinskiy.marathon</groupId>
   <artifactId>adam</artifactId>

@@ -1,8 +1,7 @@
 ---
 layout: default
 title:  "Test runner (am instrument)"
-parent: Async requests
-nav_order: 5
+nav_order: 6
 ---
 
 ## Test runner request
@@ -10,7 +9,6 @@ nav_order: 5
 
 1. TOC
 {:toc}
-
 
 
 Executing tests can be done using the `TestRunnerRequest`:

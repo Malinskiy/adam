@@ -41,8 +41,8 @@ First, we try to receive the output. This might succeed, then we print the strin
 Second, we check some external signal to stop streaming logcat (user pressed a key or something else). To close the whole request we need
  to cancel the channel. Then we break out of the loop.
  
-Third, we want to continue this loop until we reach other the device failure to provide us the output or we receive some external signal
- to stop.
- 
-There are many more options available for [`ChanneledLogcatRequest`]({% link _docs/async-requests/stream-logcat.md %}) that change the
- format of the output as well as filtering and more.
+Third, we want to continue this loop until we reach other the device failure to provide us the output or we receive some external signal to
+stop.
+
+There are many more options available for [`ChanneledLogcatRequest`]({% link _docs/logcat/logcat.md %}) that change the format of the output
+as well as filtering and more.

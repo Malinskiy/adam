@@ -1,11 +1,11 @@
 ---
 layout: default
-title:  "List files in directory"
-parent: Sync requests
-nav_order: 5
+title:  "ls wrapper"
+parent: Files
+nav_order: 4
 ---
 
-## List files
+## List files using ls
 
 Traversing directories can be done using the following wrapper around `ls`:
 
@@ -14,7 +14,7 @@ val files: List<AndroidFile> = adb.execute(
     request = ListFilesRequest(
         directory = "/sdcard/"
     ),
-    serial = "emulator-5554" 
+    serial = "emulator-5554"
 )
 ```
 
