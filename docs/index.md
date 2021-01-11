@@ -21,32 +21,10 @@ To optimize the resources usage adam uses coroutines instead of blocking threads
 Full E2E testing with at least Android emulator is also used to guarantee stability.
 
 ## Supported functionality
-* Android Binder Bridge: "abb" and "abb_exec"
-* Restart adbd on device: "root:", "unroot:", as well as switching transport "usb:", "tcpip:"
-* Connected device list monitoring
-  * List connected devices
-  * Monitor connected devices continuously
-* Fetch device and host features
-* Emulator commands (`gsm call`, `rotate`, etc)
-* Files
-  * List file using `ls`
-  * Push/pull files and folders(recursive)
-  * Stat, list, pull and push using `sync:`
-  * Support for stat_v2, sendrecv_v2, ls_v2
-* Port-forwarding (including reverse port-forwarding)
-  * List ports
-  * Add rule
-  * Remove rule
-  * Remove all rules
-* Screen capture
-  * Dynamic adapters with raw buffer and fast BufferedImage conversion
-  * Supports legacy devices as well as new sRGB and DCI-P3 ones
-* Logcat
-  * Fetch logcat log
-  * Monitor logcat continuously
-* mDNS
-  * List mDNS services
-  * mDNS support check
+* Shell
+  * Basic `shell:` support (with stdout and patched exit code)
+  * shell_v2 support (with separated stdout, stderr and exit code as well as stdin)
+  * Exec shell with stdin on legacy devices without shell_v2 support
 * Package install, uninstall, list
   * Streaming installation
   * Atomic multi-package installation
@@ -54,26 +32,48 @@ Full E2E testing with at least Android emulator is also used to guarantee stabil
   * Supports APEX
   * Sideload (with pre-KitKat support)
   * Install sessions support
+* Device management
+  * List connected devices
+  * Monitor connected devices continuously
+  * Fetch device features
+  * Connect/disconnect/reconnect device
+  * adb over WiFi pairing setup
+  * Reboot device
+* Files
+  * List file using `ls`
+  * Push/pull files and folders(recursive)
+  * Stat, list, pull and push using `sync:`
+  * Support for stat_v2, sendrecv_v2, ls_v2
+* Emulator commands (`gsm call`, `rotate`, etc)
 * Props
   * Get single prop
   * Get all props
-* Security
-  * dm-verify
-* Shell
-  * Basic `shell:` support (with stdout and patched exit code)
-  * shell_v2 support (with separated stdout, stderr and exit code as well as stdin)
 * Instrumented tests
-  * raw output parsing
-  * proto output parsing
+  * Raw output parsing
+  * Proto output parsing
+* Screen capture
+  * Dynamic adapters with raw buffer and fast BufferedImage conversion
+  * Supports legacy devices as well as new sRGB and DCI-P3 ones
+* Logcat
+  * Fetch logcat log
+  * Monitor logcat continuously
+* Port-forwarding (including reverse port-forwarding)
+  * List ports
+  * Add rule
+  * Remove rule
+  * Remove all rules
+* Android Binder Bridge: "abb" and "abb_exec"
+* Restart adbd on device: "root:", "unroot:", as well as switching transport "usb:", "tcpip:"
 * Miscellaneous
-  * Connect/disconnect/reconnect device
-  * Exec shell with stdin on legacy devices without shell_v2 support
-  * adb server version
-  * kill adb server
-  * adb over WiFi pairing setup
-  * remount partition
+  * Fetch adb server version
+  * Kill adb server
+  * Remount partition
+  * Enable/disable dm-verity checking on userdebug builds
+  * Fetch host features
+  * Check if mDNS discovery is available
+  * List all mDNS discovered services
 
-Not to mention any device shell commands (including continuous streaming of stdout, stderr and stdin).
+Not to mention any device shell commands.
 
 # Getting started
 
