@@ -18,7 +18,7 @@ val success = client.execute(
 )
 ```
 
-### Sideload for legacy devices
+### Sideload for legacy devices (pre KitKat)
 
 ```kotlin
 val success = client.execute(

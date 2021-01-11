@@ -6,6 +6,9 @@ has_toc: false
 permalink: /docs/monitor-devices
 ---
 
+1. TOC
+{:toc}
+
 ## List devices
 
 This request will capture a snapshot of device states at a point of execution:
@@ -53,7 +56,9 @@ Here is a list of features adam is aware of:
 
 There are more features, but adam is not using them at the moment.
 
-Every time you see in the documentation something like Requires Feature.ABB {: .label .label-yellow }
+Every time you see in the documentation something like 
+Requires Feature.ABB 
+{: .label .label-yellow }
 
 it means that this request will not succeed unless the device has support for a particular feature. You can check the support by executing
 the `FetchDeviceFeaturesRequest` beforehand or catch the `RequestValidationException`.

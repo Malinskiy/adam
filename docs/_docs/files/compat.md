@@ -7,7 +7,10 @@ nav_order: 1
 
 ## Stat file
 
-Optionally uses Feature.STAT_V2 {: .label .label-blue } The following request will return file stats:
+Optionally uses Feature.STAT_V2 
+{: .label .label-blue } 
+
+The following request will return file stats:
 
 ```kotlin
 val stats = adb.execute(CompatStatFileRequest("/data/local/tmp/app-debug.apk", supportedFeaturesList), "emulator-5554")
@@ -38,7 +41,10 @@ Name is optional and is only filled by list requests but not stat requests.
 
 ## List files
 
-Optionally uses Feature.LS_V2 {: .label .label-blue } The following request willCpm return list of files for a particular path:
+Optionally uses Feature.LS_V2 
+{: .label .label-blue }
+
+The following request will return list of files for a particular path:
 
 ```kotlin
 val list: List<FileEntry> = adb.execute(CompatListFileRequest("/sdcard/", supportedFeaturesList), "emulator-5554")
@@ -46,7 +52,10 @@ val list: List<FileEntry> = adb.execute(CompatListFileRequest("/sdcard/", suppor
 
 ## Pull file
 
-Optionally uses Feature.SENDRECV_V2 {: .label .label-blue } Use the following to pull a file(not a folder) with a known path on the device
+Optionally uses Feature.SENDRECV_V2 
+{: .label .label-blue } 
+
+Use the following to pull a file(not a folder) with a known path on the device
 
 ```kotlin
 launch {
@@ -66,8 +75,10 @@ launch {
 
 ## Push file
 
-Optionally uses Feature.SENDRECV_V2 {: .label .label-blue } To push a local file to Android device's folder (`remotePath` should be the full
-path with the name of the target file):
+Optionally uses Feature.SENDRECV_V2 
+{: .label .label-blue } 
+
+To push a local file to Android device's folder (`remotePath` should be the full path with the name of the target file):
 
 ```kotlin
 launch {

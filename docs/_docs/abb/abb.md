@@ -11,7 +11,8 @@ is handling the package management. To see the full list available services use 
 
 ## Execute with stdout, stderr and exit code
 
-Requires Feature.ABB {: .label .label-yellow }
+Requires Feature.ABB 
+{: .label .label-yellow }
 
 Executing something on a service is equivalent to executing an arbitrary `cmd` sub-command (`cmd package list`,
 `cmd statusbar expand-notifications`, etc) on the device. Here is an example of listing currently available services:
@@ -29,7 +30,8 @@ This will give you the result of the execution that includes stdout, stderr and 
 
 ## Executing with stdout only
 
-Requires Feature.ABB_EXEC {: .label .label-yellow }
+Requires Feature.ABB_EXEC 
+{: .label .label-yellow }
 
 Some devices will not support the abb requests, instead they will support abb_exec that only returns stdout.
 

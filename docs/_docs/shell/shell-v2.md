@@ -5,15 +5,17 @@ parent: Shell
 nav_order: 2
 ---
 
-## Execute shell command
+This is a description of requests in `com.malinskiy.adam.request.shell.v2`
 
-Requires Feature.SHELL_V2 {: .label .label-yellow }
+## Execute shell command
+Requires Feature.SHELL_V2 
+{: .label .label-yellow }
 
 You can execute arbitrary commands (`ls`, `date`, etc) on the device using the `ShellCommandRequest`:
 
 ```kotlin
 val response: ShellCommandResult = adb.execute(
-    request = ShellV2CommandRequest("echo hello"),
+    request = ShellCommandRequest("echo hello"),
     serial = "emulator-5554"
 )
 ```
@@ -31,8 +33,8 @@ data class ShellCommandResult(
 This request expects that the command returns immediately, or you don't want to stream the output.
 
 ## Streaming shell request
-
-Requires Feature.SHELL_V2 {: .label .label-yellow }
+Requires Feature.SHELL_V2 
+{: .label .label-yellow }
 
 You can execute arbitrary commands (`cat`, `tail -f`, etc) on the device using the `ChanneledShellCommandRequest`. Shell v2 brings in
 support for stdin implemented as a separate channel.

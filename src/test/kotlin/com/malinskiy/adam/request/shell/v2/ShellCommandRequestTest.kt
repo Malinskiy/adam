@@ -50,7 +50,7 @@ class ShellCommandRequestTest {
             }
 
 
-            val output = client.execute(ShellV2CommandRequest("echo foo; echo bar >&2; exit 17"), serial = "serial")
+            val output = client.execute(ShellCommandRequest("echo foo; echo bar >&2; exit 17"), serial = "serial")
             assertThat(output.stdout).isEqualTo("foo\n")
             assertThat(output.stderr).isEqualTo("bar\n")
             assertThat(output.exitCode).isEqualTo(17)
@@ -98,7 +98,7 @@ class ShellCommandRequestTest {
             }
 
 
-            val output = client.execute(ShellV2CommandRequest("echo foo; echo bar >&2; exit 17"), serial = "serial")
+            val output = client.execute(ShellCommandRequest("echo foo; echo bar >&2; exit 17"), serial = "serial")
             assertThat(output.stdout).isEqualTo("foo\n")
             assertThat(output.stderr).isEqualTo("bar\n")
             assertThat(output.exitCode).isEqualTo(17)

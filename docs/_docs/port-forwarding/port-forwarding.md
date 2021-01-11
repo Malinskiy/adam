@@ -5,10 +5,10 @@ nav_order: 9
 ---
 
 ## Port forwarding and reverse port forwarding
-
 {: .no_toc }
 
-1. TOC {:toc}
+1. TOC
+{:toc}
 
 # Port-forwarding
 

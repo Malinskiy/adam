@@ -5,6 +5,9 @@ has_children: true
 nav_order: 2
 ---
 
+1. TOC
+{:toc}
+
 ## Install a package
 
 ### Default installation mode
@@ -24,17 +27,23 @@ val output: String = adb.execute(
 ```
 
 ### Streaming installation
+<div markdown="1">
+Requires Feature.CMD or Feature.ABB_EXEC 
+{: .label .label-yellow } 
+Optionally uses Feature.APEX 
+{: .label .label-blue }
+</div>
 
-Requires Feature.CMD or Feature.ABB_EXEC {: .label .label-yellow } Optionally uses Feature.APEX {: .label .label-blue }
-
-This mode streams the package file so that you don't need to push the file anywhere on the device.
+This mode streams the package file so that you don't need to push the file to the device beforehand. This saves you a couple of requests,
+ namely push file and delete file at the end.
 
 ```kotlin
 val success = client.execute(
     StreamingPackageInstallRequest(
         pkg = testFile,
         supportedFeatures,
-        reinstall = false
+        reinstall = false,
+        extraArgs = emptyList()
     ),
     serial = "emulator-5554"
 )
@@ -42,7 +51,8 @@ val success = client.execute(
 
 ### Split apk
 
-Optionally uses Feature.CMD or Feature.ABB_EXEC {: .label .label-blue }
+Optionally uses Feature.CMD or Feature.ABB_EXEC 
+{: .label .label-blue }
 
 Install an apk split as follows:
 
@@ -51,7 +61,8 @@ val success = client.execute(
     InstallSplitPackageRequest(
         pkg = ApkSplitInstallationPackage(appFile1, appFile2),
         supportedFeatures,
-        reinstall = false
+        reinstall = false,
+        extraArgs = emptyList()
     ),
     serial = "emulator-5554"
 )
@@ -61,8 +72,13 @@ If both `CMD` and `ABB_EXEC` features are missing then falls back to 'exec:'. In
 install the split packages at all.
 
 ### Atomic multi-package install
+<div markdown="1">
+Requires Feature.CMD or Feature.ABB_EXEC 
+{: .label .label-yellow } 
 
-Requires Feature.CMD or Feature.ABB_EXEC {: .label .label-yellow } Optionally uses Feature.APEX {: .label .label-blue }
+Optionally uses Feature.APEX 
+{: .label .label-blue }
+</div>
 
 This request installs multiple packages as a single atomic operation. If one of them fails - all will fail.
 
@@ -74,7 +90,8 @@ val success = client.execute(
             ApkSplitInstallationPackage(appFile1, appFile2)
         ),
         supportedFeatures,
-        reinstall = false
+        reinstall = false,
+        extraArgs = emptyList()
     ),
     serial = "emulator-5554"
 )

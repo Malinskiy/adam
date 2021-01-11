@@ -23,7 +23,7 @@ val log = adb.execute(
 ```kotlin
 class SyncLogcatRequest(
     since: Instant? = null,
-    modes: List<LogcatReadMode> = listOf(LogcatReadMode.long), //
+    modes: List<LogcatReadMode> = listOf(LogcatReadMode.long),
     buffers: List<LogcatBuffer> = listOf(LogcatBuffer.default),
     pid: Long? = null,
     lastReboot: Boolean? = null,
