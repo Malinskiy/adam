@@ -15,3 +15,10 @@
  */
 
 rootProject.name = "adam"
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        jcenter()
+        google()
+    }
+}

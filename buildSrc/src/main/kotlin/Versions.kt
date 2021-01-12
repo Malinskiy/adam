@@ -13,6 +13,11 @@ object Versions {
     val imageComparison = "4.3.0"
     val dokka = kotlin
     val pdbank = "0.9.1"
+    
+    val grpc = "1.32.1"
+    val grpcKotlin = "1.0.0"
+    val protobufGradle = "0.8.14"
+    val protobuf = "3.11.0"
 }
 
 object BuildPlugins {
