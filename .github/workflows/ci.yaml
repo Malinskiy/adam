@@ -12,17 +12,21 @@ jobs:
       - uses: malinskiy/action-android/install-sdk@release/0.0.8
       - name: gradle test jacocoTestReport
         run: ./gradlew test jacocoTestReport
+      - name: archive test results
+        run: (cd build/reports/tests/test; zip -r -X ../../../../test-result.zip .)
       - name: Save test output
         uses: actions/upload-artifact@master
         if: failure()
         with:
           name: test-result
-          path: build/reports/tests/test
+          path: test-result.zip
+      - name: archive test coverage
+        run: (cd build/reports/jacoco/test/html; zip -r -X ../../../../test-coverage.zip .)
       - name: Save coverage output
         uses: actions/upload-artifact@master
         with:
           name: test-coverage
-          path: build/reports/jacoco/test/html
+          path: test-coverage.zip
       - name: codecov unit tests
         run: bash <(curl -s https://codecov.io/bash) -f ./build/reports/jacoco/test/jacocoTestReport.xml -F unit
         env:
@@ -49,17 +53,21 @@ jobs:
           abi: x86
       - name: Generate integration code coverage report
         run: ./gradlew jacocoIntegrationTestReport
+      - name: archive integration test results
+        run: (cd build/reports/tests/integrationTest; zip -r -X ../../../../integration-test-result.zip .)
       - name: Save integration test output
         uses: actions/upload-artifact@master
         if: failure()
         with:
           name: integration-test-result
-          path: build/reports/tests/integrationTest
+          path: integration-test-result.zip
+      - name: archive test coverage
+        run: (cd build/reports/jacoco/jacocoIntegrationTestReport/html; zip -r -X ../../../../integration-test-coverage.zip .)
       - name: Save coverage output
         uses: actions/upload-artifact@master
         with:
           name: integration-test-coverage
-          path: build/reports/jacoco/jacocoIntegrationTestReport/html
+          path: integration-test-coverage.zip
       - name: Save logcat output
         uses: actions/upload-artifact@master
         if: failure()
