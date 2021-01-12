@@ -146,11 +146,11 @@ dependencies {
     implementation(Libraries.javaxAnnotations)
 
     testImplementation(TestLibraries.assertk)
-    testImplementation(TestLibraries.junit)
+    testImplementation(TestLibraries.junit4)
     testImplementation(TestLibraries.imageComparison)
     testImplementation(kotlin("reflect", version = Versions.kotlin))
 
     integrationTestImplementation(TestLibraries.assertk)
-    integrationTestImplementation(TestLibraries.junit)
+    integrationTestImplementation(TestLibraries.junit4)
     integrationTestImplementation(kotlin("reflect", version = Versions.kotlin))
 }

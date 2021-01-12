@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-rootProject.name = "adam"
+rootProject.name = "adam-root"
 pluginManagement {
     repositories {
         gradlePluginPortal()
@@ -23,3 +23,4 @@ pluginManagement {
     }
 }
 include("adam")
+include("adam-junit4-android")

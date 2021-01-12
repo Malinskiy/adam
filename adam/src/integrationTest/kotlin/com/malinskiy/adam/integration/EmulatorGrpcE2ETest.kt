@@ -16,40 +16,20 @@
 
 package com.malinskiy.adam.integration
 
-import assertk.assertThat
-import assertk.assertions.startsWith
-import com.android.emulator.control.*
+import com.android.emulator.control.EmulatorControllerGrpcKt
 import com.google.protobuf.Empty
-import com.malinskiy.adam.request.emu.EmulatorCommandRequest
-import com.malinskiy.adam.rule.AdbDeviceRule
-import com.malinskiy.adam.rule.DeviceType
+import com.malinskiy.adam.junit4.rule.EmulatorRule
 import io.grpc.ManagedChannelBuilder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asExecutor
 import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
-import java.net.InetSocketAddress
 
-class EmulatorCommandRequestTest {
+class EmulatorGrpcE2ETest {
     @Rule
     @JvmField
-    val adbRule = AdbDeviceRule(deviceType = DeviceType.EMULATOR)
-
-    @Test
-    fun testHelpCommand() {
-        runBlocking {
-            val port = adbRule.deviceSerial.substringAfter('-').toInt()
-
-            val output = adbRule.adb.execute(
-                EmulatorCommandRequest(
-                    "help",
-                    InetSocketAddress("localhost", port)
-                )
-            )
-            assertThat(output).startsWith("Android console commands")
-        }
-    }
+    val emulator = EmulatorRule()
 
     @Test
     fun testProto() {
