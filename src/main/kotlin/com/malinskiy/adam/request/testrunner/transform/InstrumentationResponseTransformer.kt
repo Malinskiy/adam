@@ -44,7 +44,9 @@ class InstrumentationResponseTransformer : ProgressiveResponseTransformer<List<T
         }
 
         val nextLineBreak = buffer.indexOf('\n', startIndex = tokenPosition)
-
+        if (nextLineBreak == -1) {
+            return null
+        }
 
         val atom = buffer.substring(0, nextLineBreak).lines()
         buffer = buffer.delete(0, nextLineBreak + 1)
