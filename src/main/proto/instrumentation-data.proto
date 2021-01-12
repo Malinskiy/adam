@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Anton Malinskiy
+ * Copyright (C) 2016 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,10 @@
  * limitations under the License.
  */
 
-// This proto definition is copied from frameworks/base/cmds/am/proto/instrumentation_data.proto.
-
 syntax = "proto2";
 package android.am;
 
-option java_package = "com.malinskiy.adam.request.testrunner.proto";
+option java_package = "com.android.commands.am";
 
 message ResultsBundleEntry {
   optional string key = 1;

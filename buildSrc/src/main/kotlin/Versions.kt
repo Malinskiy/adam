@@ -17,7 +17,7 @@ object Versions {
     val grpc = "1.32.1"
     val grpcKotlin = "1.0.0"
     val protobufGradle = "0.8.14"
-    val protobuf = "3.11.0"
+    val protobuf = "3.14.0"
 }
 
 object BuildPlugins {
@@ -30,7 +30,6 @@ object Libraries {
     val kxml = "net.sf.kxml:kxml2:${Versions.kxml}"
     val ktorNetwork = "io.ktor:ktor-network-jvm:${Versions.ktor}"
     val logging = "io.github.microutils:kotlin-logging:${Versions.logging}"
-    val pdbank = "pro.streem.pbandk:pbandk-runtime-jvm:${Versions.pdbank}"
 }
 
 object TestLibraries {

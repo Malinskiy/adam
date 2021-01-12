@@ -18,9 +18,14 @@ package com.malinskiy.adam.integration
 
 import assertk.assertThat
 import assertk.assertions.startsWith
+import com.android.emulator.control.*
+import com.google.protobuf.Empty
 import com.malinskiy.adam.request.emu.EmulatorCommandRequest
 import com.malinskiy.adam.rule.AdbDeviceRule
 import com.malinskiy.adam.rule.DeviceType
+import io.grpc.ManagedChannelBuilder
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.asExecutor
 import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
@@ -43,6 +48,20 @@ class EmulatorCommandRequestTest {
                 )
             )
             assertThat(output).startsWith("Android console commands")
+        }
+    }
+
+    @Test
+    fun testProto() {
+        runBlocking {
+            val channel = ManagedChannelBuilder.forAddress("localhost", 8554).apply {
+                usePlaintext()
+                executor(Dispatchers.IO.asExecutor())
+            }.build()
+
+            val emulator = EmulatorControllerGrpcKt.EmulatorControllerCoroutineStub(channel)
+            val status = emulator.getStatus(Empty.getDefaultInstance())
+            println(status)
         }
     }
 }

@@ -16,15 +16,12 @@
 
 package com.malinskiy.adam.request.transform
 
+import com.android.commands.am.InstrumentationData
+import com.google.protobuf.InvalidProtocolBufferException
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.extension.*
 import com.malinskiy.adam.request.testrunner.*
 import com.malinskiy.adam.request.testrunner.model.*
-import com.malinskiy.adam.request.testrunner.proto.ResultsBundleEntry
-import com.malinskiy.adam.request.testrunner.proto.Session
-import com.malinskiy.adam.request.testrunner.proto.SessionStatusCode
-import pbandk.InvalidProtocolBufferException
-import pbandk.decodeFromByteBuffer
 import java.io.File
 import java.io.RandomAccessFile
 import java.nio.MappedByteBuffer
@@ -65,14 +62,15 @@ class ProtoInstrumentationResponseTransformer(maxProtobufPacketLength: Long = Co
 
         try {
             buffer.compatPosition(0)
-            val session = Session.decodeFromByteBuffer(buffer)
+            val session = InstrumentationData.Session.parseFrom(buffer)
             val events = mutableListOf<TestEvent>()
-            for (status in session.testStatus) {
+            for (status in session.testStatusList ?: emptyList()) {
                 if (state == NotStarted) {
-                    val testCount = status.results?.entries?.filter { entry -> entry.key?.let { it == StatusKey.NUMTESTS.value } ?: false }
-                        ?.mapNotNull { it.valueInt }
-                        ?.firstOrNull()
-                        ?: 0
+                    val testCount =
+                        status.results?.entriesList?.filter { entry -> entry.key?.let { it == StatusKey.NUMTESTS.value } ?: false }
+                            ?.mapNotNull { it.valueInt }
+                            ?.firstOrNull()
+                            ?: 0
 
                     if (testCount == 0) return null
 
@@ -84,7 +82,7 @@ class ProtoInstrumentationResponseTransformer(maxProtobufPacketLength: Long = Co
                 var testMethodName = ""
                 var stackTrace = ""
                 val testMetrics = mutableMapOf<String, String>()
-                status.results?.entries?.forEach { entry ->
+                status.results?.entriesList?.forEach { entry ->
                     if (entry.key != null) {
                         when (StatusKey.of(entry.key)) {
                             StatusKey.TEST -> testMethodName = entry.valueString ?: testClassName
@@ -120,14 +118,14 @@ class ProtoInstrumentationResponseTransformer(maxProtobufPacketLength: Long = Co
                 }
             }
 
-            if (session.sessionStatus != null) {
+            if (session.hasSessionStatus()) {
                 state = Finished
 
                 val testRunMetrics = mutableMapOf<String, String>()
                 when (session.sessionStatus.statusCode) {
-                    SessionStatusCode.SESSION_FINISHED, null -> {
-                        if ((session.sessionStatus.resultCode ?: SessionResultCode.ERROR.value) == SessionResultCode.ERROR.value) {
-                            val errorMessage = session.sessionStatus.results?.entries
+                    InstrumentationData.SessionStatusCode.SESSION_FINISHED -> {
+                        if ((session.sessionStatus.resultCode) == SessionResultCode.ERROR.value) {
+                            val errorMessage = session.sessionStatus.results?.entriesList
                                 ?.filter { entry ->
                                     entry.key?.let { it == StatusKey.SHORTMSG.value } ?: false
                                 }
@@ -135,13 +133,13 @@ class ProtoInstrumentationResponseTransformer(maxProtobufPacketLength: Long = Co
                             events.add(TestRunFailed(errorMessage))
                         }
 
-                        session.sessionStatus.results?.entries?.forEach { entry ->
+                        session.sessionStatus.results?.entriesList?.forEach { entry ->
                             if (entry.key != null && StatusKey.of(entry.key) == StatusKey.UNKNOWN) {
                                 testRunMetrics[entry.key] = entry.valueToString()
                             }
                         }
                     }
-                    SessionStatusCode.SESSION_ABORTED -> {
+                    InstrumentationData.SessionStatusCode.SESSION_ABORTED -> {
                         val errorText = session.sessionStatus.errorText ?: ""
                         val lastTest = testStatuses.entries.lastOrNull()
 
@@ -154,10 +152,10 @@ class ProtoInstrumentationResponseTransformer(maxProtobufPacketLength: Long = Co
 
                         events.add(TestRunFailed(errorText))
                     }
-                    is SessionStatusCode.UNRECOGNIZED -> Unit
+                    else -> Unit
                 }
 
-                val sessionOutput = session.sessionStatus.results?.entries
+                val sessionOutput = session.sessionStatus.results?.entriesList
                     ?.filter { it.key == StatusKey.STREAM.value }
                     ?.mapNotNull { it.valueToString() }
                     ?.firstOrNull()
@@ -171,9 +169,9 @@ class ProtoInstrumentationResponseTransformer(maxProtobufPacketLength: Long = Co
 
             /**
              * Handling fragmentation
-             * This will fail if the protobuf message contains the field multiple times and protoSize is not equal to actual read size
+             * This will fail if the protobuf message contains the field multiple times and serializedSize is not equal to actual read size
              */
-            val readSize = session.protoSize
+            val readSize = session.serializedSize
             val currentLimit = buffer.limit()
             buffer.compatPosition(readSize)
             buffer.compact()
@@ -238,7 +236,15 @@ class ProtoInstrumentationResponseTransformer(maxProtobufPacketLength: Long = Co
     }
 }
 
-private fun ResultsBundleEntry.valueToString(): String {
-    return valueString ?: valueInt?.toString() ?: valueLong?.toString() ?: valueFloat?.toString() ?: valueDouble?.toString()
-    ?: valueBytes?.toString() ?: valueBundle?.toString() ?: ""
+private fun InstrumentationData.ResultsBundleEntry.valueToString(): String {
+    return when {
+        hasValueString() -> valueString
+        hasValueInt() -> valueInt.toString()
+        hasValueLong() -> valueLong.toString()
+        hasValueFloat() -> valueFloat.toString()
+        hasValueDouble() -> valueDouble.toString()
+        hasValueBytes() -> valueBytes.toString()
+        hasValueBundle() -> valueBundle.toString()
+        else -> ""
+    }
 }

@@ -1,8 +1,4 @@
-import com.google.protobuf.gradle.generateProtoTasks
-import com.google.protobuf.gradle.id
-import com.google.protobuf.gradle.plugins
-import com.google.protobuf.gradle.protobuf
-import com.google.protobuf.gradle.protoc
+import com.google.protobuf.gradle.*
 
 buildscript {
     repositories {
@@ -26,6 +22,7 @@ plugins {
     id("jacoco")
     id("org.jetbrains.dokka") version Versions.dokka
     id("com.google.protobuf") version Versions.protobufGradle
+    id("idea")
 }
 
 protobuf {
@@ -45,15 +42,18 @@ protobuf {
     }
     generateProtoTasks {
         all().forEach {
+            it.builtins { 
+                remove("java")
+            }
             it.plugins {
-//                id("java") {
-//                    option("lite")
-//                }
+                id("java") {
+                    option("lite")
+                }
                 id("grpc") {
-//                    option("lite")
+                    option("lite")
                 }
                 id("grpckt") {
-//                    option("lite")
+                    option("lite")
                 }
             }
         }
@@ -144,9 +144,9 @@ dependencies {
     implementation(Libraries.coroutines)
     implementation(Libraries.ktorNetwork)
     implementation(Libraries.logging)
-    implementation(Libraries.pdbank)
-    api("com.google.protobuf:protobuf-java:${Versions.protobuf}")
-    api("io.grpc:grpc-kotlin-stub:${Versions.grpcKotlin}")
+    api("com.google.protobuf:protobuf-javalite:${Versions.protobuf}")
+    api("io.grpc:grpc-kotlin-stub-lite:${Versions.grpcKotlin}")
+    api("io.grpc:grpc-okhttp:1.34.1")
     implementation("javax.annotation:javax.annotation-api:1.3.2")
 
     testImplementation(TestLibraries.assertk)
