@@ -18,6 +18,7 @@ object Versions {
     val grpcKotlin = "1.0.0"
     val protobufGradle = "0.8.14"
     val protobuf = "3.14.0"
+    val javax = "1.3.2"
 }
 
 object BuildPlugins {
@@ -30,6 +31,10 @@ object Libraries {
     val kxml = "net.sf.kxml:kxml2:${Versions.kxml}"
     val ktorNetwork = "io.ktor:ktor-network-jvm:${Versions.ktor}"
     val logging = "io.github.microutils:kotlin-logging:${Versions.logging}"
+    val protobufLite = "com.google.protobuf:protobuf-javalite:${Versions.protobuf}"
+    val grpcKotlinStubLite = "io.grpc:grpc-kotlin-stub-lite:${Versions.grpcKotlin}"
+    val grpcOkhttp = "io.grpc:grpc-okhttp:1.34.1"
+    val javaxAnnotations = "javax.annotation:javax.annotation-api:${Versions.javax}"
 }
 
 object TestLibraries {
