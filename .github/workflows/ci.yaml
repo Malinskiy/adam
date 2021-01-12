@@ -10,8 +10,8 @@ jobs:
         with:
           java-version: 1.8
       - uses: malinskiy/action-android/install-sdk@release/0.0.8
-      - name: gradle test jacocoTestReport
-        run: ./gradlew test jacocoTestReport
+      - name: gradle :adam:test :adam:jacocoTestReport
+        run: ./gradlew :adam:test :adam:jacocoTestReport
       - name: Save test output
         uses: actions/upload-artifact@master
         if: failure()
@@ -43,12 +43,12 @@ jobs:
         uses: malinskiy/action-android/emulator-run-cmd@release/0.0.8
         timeout-minutes: 20
         with:
-          cmd: ./gradlew integrationTest
+          cmd: ./gradlew :adam:integrationTest
           api: ${{ matrix.api }}
           tag: default
           abi: x86
       - name: Generate integration code coverage report
-        run: ./gradlew jacocoIntegrationTestReport
+        run: ./gradlew :adam:jacocoIntegrationTestReport
       - name: Save integration test output
         uses: actions/upload-artifact@master
         if: failure()

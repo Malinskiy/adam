@@ -16,7 +16,7 @@ if [ -z "$GPG_PASSPHRASE" ]; then
   exit 1
 fi
 
-DTASK=":publishDefaultPublicationToOSSHRRepository"
+DTASK=":adam:publishDefaultPublicationToOSSHRRepository"
 TARGETS="$DTASK"
 
 echo "Value of TEST_ENVVAR is $TEST_ENVVAR"

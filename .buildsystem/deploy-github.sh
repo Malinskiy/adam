@@ -16,7 +16,7 @@ if [ -z "$GPG_PASSPHRASE" ]; then
   exit 1
 fi
 
-DTASK=":publishDefaultPublicationToGitHubRepository"
+DTASK=":adam:publishDefaultPublicationToGitHubRepository"
 TARGETS="$DTASK"
 
 if [ -n "$GIT_TAG_NAME" ]; then

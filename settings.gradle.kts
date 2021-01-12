@@ -22,3 +22,4 @@ pluginManagement {
         google()
     }
 }
+include("adam")

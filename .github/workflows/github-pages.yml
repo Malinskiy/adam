@@ -15,7 +15,7 @@ jobs:
         with:
           java-version: 1.8
       - name: Generate dokka files
-        run: ./gradlew dokkaHtml
+        run: ./gradlew :adam:dokkaHtml
       - uses: helaili/jekyll-action@2.0.4
         env:
           JEKYLL_PAT: ${{ secrets.JEKYLL_PAT }}
