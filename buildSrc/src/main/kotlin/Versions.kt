@@ -1,5 +1,5 @@
 object Versions {
-    val adam = System.getenv("GIT_TAG_NAME") ?: "0.1.0"
+    val adam = System.getenv("GIT_TAG_NAME") ?: "0.3.0"
     val kotlin = "1.4.20"
     val coroutines = "1.3.9"
 
@@ -9,25 +9,29 @@ object Versions {
     val logging = "1.7.6"
 
     val assertk = "0.19"
-    val junit = "4.12"
+    val junit4 = "4.12"
     val imageComparison = "4.3.0"
     val dokka = kotlin
     val pdbank = "0.9.1"
-    
+
     val grpc = "1.32.1"
     val grpcKotlin = "1.0.0"
     val protobufGradle = "0.8.14"
     val protobuf = "3.14.0"
     val javax = "1.3.2"
+
+    val androidGradle = "4.0.0"
+    val testMonitor = "1.3.0"
 }
 
 object BuildPlugins {
     val kotlinPlugin = "org.jetbrains.kotlin:kotlin-gradle-plugin:${Versions.kotlin}"
+    val androidGradle = "com.android.tools.build:gradle:${Versions.androidGradle}"
 }
 
 object Libraries {
     val annotations = "org.jetbrains:annotations:${Versions.annotations}"
-    val coroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.coroutines}}"
+    val coroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.coroutines}"
     val kxml = "net.sf.kxml:kxml2:${Versions.kxml}"
     val ktorNetwork = "io.ktor:ktor-network-jvm:${Versions.ktor}"
     val logging = "io.github.microutils:kotlin-logging:${Versions.logging}"
@@ -37,8 +41,12 @@ object Libraries {
     val javaxAnnotations = "javax.annotation:javax.annotation-api:${Versions.javax}"
 }
 
+object AndroidX {
+    val testMonitor = "androidx.test:monitor:${Versions.testMonitor}@aar"
+}
+
 object TestLibraries {
     val assertk = "com.willowtreeapps.assertk:assertk:${Versions.assertk}"
-    val junit = "junit:junit:${Versions.junit}"
+    val junit4 = "junit:junit:${Versions.junit4}"
     val imageComparison = "com.github.romankh3:image-comparison:${Versions.imageComparison}"
 }

@@ -40,22 +40,25 @@ android {
     }
 }
 
-dependencies {
-    implementation(kotlin("stdlib-jdk8", version = Versions.kotlin))
-    implementation(project(":adam"))
-    implementation(TestLibraries.junit4)
-    implementation(Libraries.coroutines)
-    implementation("androidx.test:monitor:1.3.0@aar")
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
 }
 
-publishing {
-    publications {
-        create("aar", MavenPublication::class.java) {
-            Deployment.customizePom(project, pom)
-            groupId = "com.malinskiy"
-            artifactId = "adam-junit4-android"
-            version = "0.0.1-SNAPSHOT"
-            artifact(buildDir.resolve("outputs/aar/adam-junit4-android-debug.aar"))
-        }
-    }
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile::class) {
+    kotlinOptions.jvmTarget = "1.8"
+    kotlinOptions.apiVersion = "1.4"
+}
+
+dependencies {
+    implementation(kotlin("stdlib-jdk8", version = Versions.kotlin))
+    api(project(":adam"))
+    api(TestLibraries.junit4)
+    api(Libraries.coroutines)
+    api(AndroidX.testMonitor)
+    api(project(":adam-junit4-android-contract"))
+}
+
+afterEvaluate {
+    Deployment.initialize(project)
 }

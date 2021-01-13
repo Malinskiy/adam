@@ -18,35 +18,42 @@ package com.malinskiy.adam.junit4.rule
 
 import androidx.test.platform.app.InstrumentationRegistry
 import com.android.emulator.control.EmulatorControllerGrpcKt
+import com.malinskiy.adam.junit4.android.contract.TestRunnerContract
+import com.malinskiy.adam.junit4.android.rule.Mode
 import io.grpc.ManagedChannel
 import io.grpc.ManagedChannelBuilder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asExecutor
+import org.junit.Assert
+import org.junit.Assume
 import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
 import java.util.concurrent.TimeUnit
 
-class EmulatorRule : TestRule {
-    var grpc: EmulatorControllerGrpcKt.EmulatorControllerCoroutineStub? = null
+class EmulatorRule(val mode: Mode = Mode.ASSERT) : TestRule {
+    lateinit var grpc: EmulatorControllerGrpcKt.EmulatorControllerCoroutineStub
     private var channel: ManagedChannel? = null
 
     override fun apply(base: Statement, description: Description): Statement {
         return object : Statement() {
             override fun evaluate() {
                 val arguments = InstrumentationRegistry.getArguments()
-                val grpcPort = arguments.getString("ADAM_GRPC_PORT")?.toIntOrNull()
-                val adbPort = arguments.getString("ADAM_ADB_PORT")?.toIntOrNull()
-                val consolePort = arguments.getString("ADAM_CONSOLE_PORT")?.toIntOrNull()
+                val grpcPort = arguments.getString(TestRunnerContract.grpcPortArgumentName)?.toIntOrNull()
 
                 if (grpcPort != null) {
-                    channel = ManagedChannelBuilder.forAddress("localhost", 8554).apply {
+                    val localChannel = ManagedChannelBuilder.forAddress("localhost", grpcPort).apply {
                         usePlaintext()
                         executor(Dispatchers.IO.asExecutor())
                     }.build()
-                    grpc = EmulatorControllerGrpcKt.EmulatorControllerCoroutineStub(channel!!)
+                    channel = localChannel
+                    grpc = EmulatorControllerGrpcKt.EmulatorControllerCoroutineStub(localChannel)
                 } else {
-                    grpc = null
+                    when (mode) {
+                        Mode.SKIP -> return
+                        Mode.ASSUME -> Assume.assumeTrue("No access to emulator's gRPC port has been provided", false)
+                        Mode.ASSERT -> Assert.assertTrue("No access to emulator's gRPC port has been provided", false)
+                    }
                 }
 
                 try {

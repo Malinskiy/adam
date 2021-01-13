@@ -1,3 +1,4 @@
+import com.android.build.gradle.api.AndroidBasePlugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.JavaPluginConvention
 import org.gradle.api.publish.PublishingExtension
@@ -46,25 +47,38 @@ object Deployment {
 
         project.plugins.apply("maven-publish")
 
-        val javaPlugin = project.the(JavaPluginConvention::class)
+        val (component, additionalArtifacts) = when {
+            project.plugins.hasPlugin(AndroidBasePlugin::class) -> {
+                Pair(project.components["release"], emptyList())
+            }
+            project.the(JavaPluginConvention::class) != null -> {
+                val javaPlugin = project.the(JavaPluginConvention::class)
 
-        val sourcesJar by project.tasks.creating(Jar::class) {
-            classifier = "sources"
-            from(javaPlugin.sourceSets["main"].allSource)
-        }
-        val javadocJar by project.tasks.creating(Jar::class) {
-            classifier = "javadoc"
-            from(javaPlugin.docsDir)
-            dependsOn("javadoc")
+                val sourcesJar by project.tasks.creating(Jar::class) {
+                    classifier = "sources"
+                    from(javaPlugin.sourceSets["main"].allSource)
+                }
+                val javadocJar by project.tasks.creating(Jar::class) {
+                    classifier = "javadoc"
+                    from(javaPlugin.docsDir)
+                    dependsOn("javadoc")
+                }
+
+                Pair(project.components["java"], listOf(sourcesJar, javadocJar))
+            }
+            else -> {
+                throw RuntimeException("Unknown plugin")
+            }
         }
 
         project.configure<PublishingExtension> {
             publications {
                 create("default", MavenPublication::class.java) {
                     Deployment.customizePom(project, pom)
-                    from(project.components["java"])
-                    artifact(sourcesJar)
-                    artifact(javadocJar)
+                    additionalArtifacts.forEach { it ->
+                        artifact(it)
+                    }
+                    from(component)
                 }
             }
             repositories {

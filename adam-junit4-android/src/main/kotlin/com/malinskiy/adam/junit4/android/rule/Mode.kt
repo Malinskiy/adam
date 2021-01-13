@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 Anton Malinskiy
+ * Copyright (C) 2021 Anton Malinskiy
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,21 @@
  * limitations under the License.
  */
 
-rootProject.name = "adam-root"
-pluginManagement {
-    repositories {
-        gradlePluginPortal()
-        jcenter()
-        google()
-    }
+package com.malinskiy.adam.junit4.android.rule
+
+enum class Mode {
+    /**
+     * Do not execute test if the rule can't be satisfied
+     */
+    SKIP,
+
+    /**
+     * Create assumption failure if the rule can't be satisfied
+     */
+    ASSUME,
+
+    /**
+     * Assert failure if the rule can't be satisfied
+     */
+    ASSERT
 }
-include("adam")
-include("adam-junit4-android")
-include("adam-junit4-android-contract")

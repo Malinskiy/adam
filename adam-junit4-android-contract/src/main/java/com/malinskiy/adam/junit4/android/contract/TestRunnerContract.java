@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 Anton Malinskiy
+ * Copyright (C) 2021 Anton Malinskiy
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,11 @@
  * limitations under the License.
  */
 
-rootProject.name = "adam-root"
-pluginManagement {
-    repositories {
-        gradlePluginPortal()
-        jcenter()
-        google()
-    }
+package com.malinskiy.adam.junit4.android.contract;
+
+public class TestRunnerContract {
+    public static String grpcPortArgumentName = "com.malinskiy.adam.junit4.android.GRPC_PORT";
+    public static String adbPortArgumentName = "com.malinskiy.adam.junit4.android.ADB_PORT";
+    public static String consolePortArgumentName = "com.malinskiy.adam.junit4.android.CONSOLE_PORT";
+    public static String deviceSerialArgumentName = "com.malinskiy.adam.junit4.android.ADB_SERIAL";
 }
-include("adam")
-include("adam-junit4-android")
-include("adam-junit4-android-contract")
