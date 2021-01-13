@@ -43,7 +43,7 @@ class InstrumentationResponseTransformer : ProgressiveResponseTransformer<List<T
             return null
         }
 
-        val nextLineBreak = buffer.indexOf('\n', startIndex = tokenPosition)
+        val nextLineBreak = buffer.indexOfAny(charArrayOf('\n', '\r'), startIndex = tokenPosition)
         if (nextLineBreak == -1) {
             return null
         }

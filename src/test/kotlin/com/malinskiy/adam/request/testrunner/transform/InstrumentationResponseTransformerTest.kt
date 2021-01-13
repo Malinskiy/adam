@@ -188,4 +188,26 @@ class InstrumentationResponseTransformerTest {
         assertThat(events.map { it.toString() }.reduce { acc, s -> acc + "\n" + s })
             .isEqualTo(javaClass.getResourceAsStream("/instrumentation/log_6.expected").reader().readText())
     }
+
+    /**
+     * \r\n
+     */
+    @Test
+    fun testWindowsLineEnding() = runBlocking {
+        val transformer = InstrumentationResponseTransformer()
+
+        val lines = javaClass.getResourceAsStream("/instrumentation/log_3.input").reader().readLines()
+
+        val events = mutableListOf<TestEvent>()
+        for (line in lines) {
+            val bytes = (line + "\r\n").toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
+            transformer.process(bytes, 0, bytes.size)?.let {
+                events.addAll(it)
+            }
+        }
+        transformer.transform()?.let { events.addAll(it) }
+
+        assertThat(events.map { it.toString() }.reduce { acc, s -> acc + "\n" + s })
+            .isEqualTo(javaClass.getResourceAsStream("/instrumentation/log_3.expected").reader().readText())
+    }
 }
