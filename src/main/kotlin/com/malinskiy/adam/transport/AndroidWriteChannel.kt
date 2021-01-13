@@ -35,7 +35,7 @@ class AndroidWriteChannel(private val delegate: ByteWriteChannel) : ByteWriteCha
         delegate.writeFully(requestBuffer)
     }
 
-    suspend fun writeFile(file: File, coroutineContext: CoroutineContext) = withFileBuffer {
+    suspend fun writeFile(file: File, coroutineContext: CoroutineContext) = withDefaultBuffer {
         var fileChannel: ByteReadChannel? = null
         try {
             val fileChannel = file.readChannel(coroutineContext = coroutineContext)
