@@ -18,6 +18,7 @@ package com.malinskiy.adam.request.sync.base
 
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.exception.PushFailedException
+import com.malinskiy.adam.extension.copyTo
 import com.malinskiy.adam.extension.toByteArray
 import com.malinskiy.adam.request.AsyncChannelRequest
 import com.malinskiy.adam.request.ValidationResponse
@@ -44,7 +45,7 @@ abstract class BasePushFileRequest(
         get() = mode.toInt(8) and "0777".toInt(8)
 
     override suspend fun readElement(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel): Double? {
-        val available = fileReadChannel.readAvailable(buffer, 8, Const.MAX_FILE_PACKET_LENGTH)
+        val available = fileReadChannel.copyTo(buffer, 8, Const.MAX_FILE_PACKET_LENGTH)
         return when {
             available < 0 -> {
                 Const.Message.DONE.copyInto(buffer)
@@ -63,11 +64,14 @@ abstract class BasePushFileRequest(
             available > 0 -> {
                 Const.Message.DATA.copyInto(buffer)
                 available.toByteArray().reversedArray().copyInto(buffer, destinationOffset = 4)
+                /**
+                 * USB devices are very picky about the size of the DATA buffer. Using the adb's default
+                 */
                 writeChannel.writeFully(buffer, 0, available + 8)
                 currentPosition += available
                 currentPosition.toDouble() / totalBytes
             }
-            else -> currentPosition.toDouble() / totalBytes
+            else -> null
         }
     }
 

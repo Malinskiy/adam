@@ -29,7 +29,13 @@ import io.ktor.utils.io.ByteReadChannel
 class ExecInRequest(private val cmd: String, private val channel: ByteReadChannel) : ComplexRequest<Unit>() {
     override suspend fun readElement(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel) {
         val buffer = ByteArray(Const.MAX_FILE_PACKET_LENGTH)
-        channel.copyTo(writeChannel, buffer)
+        while (true) {
+            val available = channel.copyTo(buffer, 0, buffer.size)
+            when {
+                available > 0 -> writeChannel.writeFully(buffer, 0, available)
+                else -> break
+            }
+        }
         //Have to poll
         readChannel.readStatus()
     }

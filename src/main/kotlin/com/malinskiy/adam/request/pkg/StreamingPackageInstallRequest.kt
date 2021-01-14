@@ -115,7 +115,13 @@ class StreamingPackageInstallRequest(
         var fileChannel: ByteReadChannel? = null
         try {
             val fileChannel = pkg.readChannel(coroutineContext = coroutineContext)
-            fileChannel.copyTo(writeChannel, buffer)
+            while (true) {
+                val available = fileChannel.copyTo(buffer, 0, buffer.size)
+                when {
+                    available > 0 -> writeChannel.writeFully(buffer, 0, available)
+                    else -> break
+                }
+            }
         } finally {
             fileChannel?.cancel()
         }
