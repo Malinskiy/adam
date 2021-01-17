@@ -19,7 +19,6 @@ package com.malinskiy.adam
 import com.malinskiy.adam.exception.RequestRejectedException
 import com.malinskiy.adam.exception.RequestValidationException
 import com.malinskiy.adam.extension.toAndroidChannel
-import com.malinskiy.adam.interactor.DiscoverAdbSocketInteractor
 import com.malinskiy.adam.log.AdamLogging
 import com.malinskiy.adam.request.AsyncChannelRequest
 import com.malinskiy.adam.request.ComplexRequest
@@ -28,20 +27,16 @@ import com.malinskiy.adam.request.emu.EmulatorCommandRequest
 import com.malinskiy.adam.request.misc.SetDeviceRequest
 import com.malinskiy.adam.transport.AndroidReadChannel
 import com.malinskiy.adam.transport.AndroidWriteChannel
-import com.malinskiy.adam.transport.KtorSocketFactory
 import com.malinskiy.adam.transport.SocketFactory
 import io.ktor.network.sockets.*
 import io.ktor.utils.io.*
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.channels.produce
 import kotlinx.coroutines.withContext
 import java.net.InetAddress
 import java.net.InetSocketAddress
-import java.time.Duration
-import kotlin.coroutines.CoroutineContext
 
 class AndroidDebugBridgeClient(
     val port: Int,
@@ -172,21 +167,3 @@ class AndroidDebugBridgeClient(
     }
 }
 
-class AndroidDebugBridgeClientFactory {
-    var port: Int? = null
-    var host: InetAddress? = null
-    var coroutineContext: CoroutineContext? = null
-    var socketFactory: SocketFactory? = null
-    var socketTimeout: Duration? = null
-
-    fun build(): AndroidDebugBridgeClient {
-        return AndroidDebugBridgeClient(
-            port = port ?: DiscoverAdbSocketInteractor().execute(),
-            host = host ?: InetAddress.getByName(Const.DEFAULT_ADB_HOST),
-            socketFactory = socketFactory ?: KtorSocketFactory(
-                coroutineContext = coroutineContext ?: Dispatchers.IO,
-                socketTimeout = socketTimeout?.toMillis() ?: 30_000
-            )
-        )
-    }
-}

@@ -20,5 +20,6 @@ public class TestRunnerContract {
     public static String grpcPortArgumentName = "com.malinskiy.adam.junit4.android.GRPC_PORT";
     public static String adbPortArgumentName = "com.malinskiy.adam.junit4.android.ADB_PORT";
     public static String consolePortArgumentName = "com.malinskiy.adam.junit4.android.CONSOLE_PORT";
+    public static String emulatorAuthTokenArgumentName = "com.malinskiy.adam.junit4.android.AUTH_TOKEN";
     public static String deviceSerialArgumentName = "com.malinskiy.adam.junit4.android.ADB_SERIAL";
 }
