@@ -44,8 +44,9 @@ class KtorSocket(private val ktorSocket: RealKtorSocket) : Socket {
 
     override fun close() {
         try {
-            writeChannel?.close()
+            writeChannel.close()
             readChannel.cancel()
+            ktorSocket.close()
         } catch (e: Exception) {
             log.debug(e) { "Exception during cleanup. Ignoring" }
         }
