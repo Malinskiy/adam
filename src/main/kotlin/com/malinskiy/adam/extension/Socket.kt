@@ -130,8 +130,7 @@ suspend fun Socket.readStatus(): String {
 }
 
 suspend fun Socket.write(request: ByteArray, length: Int? = null) {
-    val requestBuffer = ByteBuffer.wrap(request, 0, length ?: request.size)
-    writeFully(requestBuffer)
+    writeFully(request, 0, length ?: request.size)
 }
 
 suspend fun Socket.writeFile(file: File, coroutineContext: CoroutineContext) = withFileBuffer {
@@ -160,7 +159,6 @@ suspend fun Socket.writeSyncV2Request(type: ByteArray, remotePath: String, flags
     val path = remotePath.toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
 
     withDefaultBuffer {
-        compatRewind()
         compatLimit(4 + 4)
         put(type)
         putInt(path.size.reverseByteOrder())

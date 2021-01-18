@@ -24,14 +24,18 @@ interface Socket : Closeable {
     val isClosedForWrite: Boolean
     val isClosedForRead: Boolean
 
-    suspend fun readFully(sizeBuffer: ByteBuffer): Int
-    suspend fun readFully(buffer: ByteArray, offset: Int, limit: Int)
-    suspend fun writeFully(toByteArray: ByteArray)
     suspend fun writeFully(byteBuffer: ByteBuffer)
     suspend fun writeFully(toByteArray: ByteArray, offset: Int, limit: Int)
+
     suspend fun readAvailable(buffer: ByteArray, offset: Int, limit: Int): Int
+    suspend fun readFully(buffer: ByteBuffer): Int
+    suspend fun readFully(buffer: ByteArray, offset: Int, limit: Int)
+
     suspend fun readByte(): Byte
+    suspend fun writeByte(value: Int)
+
     suspend fun readIntLittleEndian(): Int
-    suspend fun writeByte(toValue: Int)
-    suspend fun writeIntLittleEndian(size: Int)
+    suspend fun writeIntLittleEndian(value: Int)
+
+    suspend fun writeFully(byteArray: ByteArray) = writeFully(byteArray, 0, byteArray.size)
 }
