@@ -20,14 +20,12 @@ import assertk.assertThat
 import assertk.assertions.isEqualTo
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.exception.RequestRejectedException
-import com.malinskiy.adam.extension.toAndroidChannel
 import com.malinskiy.adam.extension.toRequestString
 import com.malinskiy.adam.request.Feature
-import io.ktor.utils.io.*
+import com.malinskiy.adam.server.StubSocket
 import io.ktor.utils.io.core.*
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
-
 import kotlin.text.toByteArray
 
 class AddSessionRequestTest {
@@ -66,12 +64,10 @@ class AddSessionRequestTest {
             )
 
         val response = "Success".toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
-        val byteBufferChannel: ByteWriteChannel = ByteChannelSequentialJVM(IoBuffer.Empty, false)
         runBlocking {
-            request.readElement(
-                ByteReadChannel(response).toAndroidChannel(),
-                byteBufferChannel.toAndroidChannel()
-            )
+            StubSocket(response).use { socket ->
+                request.readElement(socket)
+            }
         }
     }
 
@@ -85,12 +81,10 @@ class AddSessionRequestTest {
             )
 
         val response = "Failure".toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
-        val byteBufferChannel: ByteWriteChannel = ByteChannelSequentialJVM(IoBuffer.Empty, false)
         runBlocking {
-            request.readElement(
-                ByteReadChannel(response).toAndroidChannel(),
-                byteBufferChannel.toAndroidChannel()
-            )
+            StubSocket(response).use { socket ->
+                request.readElement(socket)
+            }
         }
     }
 }

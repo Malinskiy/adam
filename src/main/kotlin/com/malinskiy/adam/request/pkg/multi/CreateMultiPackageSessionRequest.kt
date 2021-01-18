@@ -19,12 +19,12 @@ package com.malinskiy.adam.request.pkg.multi
 import com.malinskiy.adam.annotation.Features
 import com.malinskiy.adam.exception.RequestRejectedException
 import com.malinskiy.adam.extension.bashEscape
+import com.malinskiy.adam.extension.readStatus
 import com.malinskiy.adam.request.ComplexRequest
 import com.malinskiy.adam.request.Feature
 import com.malinskiy.adam.request.ValidationResponse
 import com.malinskiy.adam.request.abb.AbbExecRequest
-import com.malinskiy.adam.transport.AndroidReadChannel
-import com.malinskiy.adam.transport.AndroidWriteChannel
+import com.malinskiy.adam.transport.Socket
 import java.io.File
 
 @Features(Feature.CMD, Feature.ABB_EXEC)
@@ -119,8 +119,8 @@ class CreateMultiPackageSessionRequest(
         }
     }
 
-    override suspend fun readElement(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel): String {
-        val createSessionResponse = readChannel.readStatus()
+    override suspend fun readElement(socket: Socket): String {
+        val createSessionResponse = socket.readStatus()
         if (!createSessionResponse.contains("Success")) {
             throw RequestRejectedException("Failed to create multi-package session")
         }

@@ -19,18 +19,16 @@ package com.malinskiy.adam.request.pkg
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.request.ComplexRequest
 import com.malinskiy.adam.request.ValidationResponse
-import com.malinskiy.adam.transport.AndroidReadChannel
-import com.malinskiy.adam.transport.AndroidWriteChannel
-import io.ktor.util.cio.readChannel
-import io.ktor.utils.io.ByteReadChannel
-import io.ktor.utils.io.cancel
+import com.malinskiy.adam.transport.Socket
+import io.ktor.util.cio.*
+import io.ktor.utils.io.*
 import java.io.File
 
 class SideloadRequest(
     private val pkg: File,
     private var blockSize: Int = Const.MAX_FILE_PACKET_LENGTH
 ) : ComplexRequest<Boolean>() {
-    override suspend fun readElement(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel): Boolean {
+    override suspend fun readElement(socket: Socket): Boolean {
         val buffer = ByteArray(blockSize)
         var pkgChannel: ByteReadChannel? = null
         try {
@@ -38,7 +36,7 @@ class SideloadRequest(
             var currentOffset = 0L
 
             while (true) {
-                readChannel.readFully(buffer, 0, 8)
+                socket.readFully(buffer, 0, 8)
                 val bytes = buffer.copyOfRange(0, 8)
                 when {
                     bytes.contentEquals(Const.Message.DONEDONE) -> return true
@@ -59,7 +57,7 @@ class SideloadRequest(
                             blockSize.toLong()
                         }
                         pkgChannel?.readFully(buffer, 0, expectedLength.toInt())
-                        writeChannel.writeFully(buffer, 0, expectedLength.toInt())
+                        socket.writeFully(buffer, 0, expectedLength.toInt())
                         currentOffset += expectedLength
                     }
                 }

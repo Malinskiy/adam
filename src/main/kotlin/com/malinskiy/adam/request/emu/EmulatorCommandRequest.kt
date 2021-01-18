@@ -17,6 +17,7 @@
 package com.malinskiy.adam.request.emu
 
 import com.malinskiy.adam.Const
+import com.malinskiy.adam.transport.Socket
 import io.ktor.util.cio.*
 import io.ktor.utils.io.*
 import java.io.File
@@ -50,7 +51,7 @@ class EmulatorCommandRequest(
         }
     }
 
-    suspend fun process(readChannel: ByteReadChannel, writeChannel: ByteWriteChannel): String {
+    suspend fun process(socket: Socket): String {
         val sessionBuilder = StringBuilder()
         val token = authToken ?: readAuthToken() ?: ""
         if (token.isNotEmpty()) {
@@ -59,14 +60,14 @@ class EmulatorCommandRequest(
         sessionBuilder.append("$cmd\n")
         sessionBuilder.append("quit\n")
 
-        writeChannel.writeFully(sessionBuilder.toString().toByteArray())
+        socket.writeFully(sessionBuilder.toString().toByteArray())
 
         val buffer = ByteArray(1024)
         val output = StringBuilder()
         loop@ do {
-            if (writeChannel.isClosedForWrite || readChannel.isClosedForRead) break@loop
+            if (socket.isClosedForWrite || socket.isClosedForRead) break@loop
 
-            val count = readChannel.readAvailable(buffer, 0, Const.MAX_PACKET_LENGTH)
+            val count = socket.readAvailable(buffer, 0, Const.MAX_PACKET_LENGTH)
             when {
                 count == 0 -> {
                     continue@loop

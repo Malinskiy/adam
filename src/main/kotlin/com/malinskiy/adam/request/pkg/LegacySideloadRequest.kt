@@ -18,13 +18,12 @@ package com.malinskiy.adam.request.pkg
 
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.extension.copyTo
+import com.malinskiy.adam.extension.readTransportResponse
 import com.malinskiy.adam.request.ComplexRequest
 import com.malinskiy.adam.request.ValidationResponse
-import com.malinskiy.adam.transport.AndroidReadChannel
-import com.malinskiy.adam.transport.AndroidWriteChannel
-import io.ktor.util.cio.readChannel
-import io.ktor.utils.io.ByteReadChannel
-import io.ktor.utils.io.cancel
+import com.malinskiy.adam.transport.Socket
+import io.ktor.util.cio.*
+import io.ktor.utils.io.*
 import kotlinx.coroutines.Dispatchers
 import java.io.File
 import kotlin.coroutines.CoroutineContext
@@ -51,16 +50,16 @@ class LegacySideloadRequest(
 
     override fun serialize() = createBaseRequest("sideload:${pkg.length()}")
 
-    override suspend fun readElement(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel): Boolean {
+    override suspend fun readElement(socket: Socket): Boolean {
         val buffer = ByteArray(Const.MAX_FILE_PACKET_LENGTH)
         var fileChannel: ByteReadChannel? = null
         try {
             val fileChannel = pkg.readChannel(coroutineContext = coroutineContext)
-            fileChannel.copyTo(writeChannel, buffer)
+            fileChannel.copyTo(socket, buffer)
         } finally {
             fileChannel?.cancel()
         }
 
-        return readChannel.read().okay
+        return socket.readTransportResponse().okay
     }
 }

@@ -19,7 +19,6 @@ package com.malinskiy.adam
 object Const {
     const val MAX_REMOTE_PATH_LENGTH = 1024
     const val DEFAULT_BUFFER_SIZE = 1024
-    const val READ_DELAY = 100L
     val DEFAULT_TRANSPORT_ENCODING = Charsets.UTF_8
     const val DEFAULT_ADB_HOST = "127.0.0.1"
     const val DEFAULT_ADB_PORT = 5037

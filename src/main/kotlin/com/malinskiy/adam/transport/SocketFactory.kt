@@ -16,7 +16,6 @@
 
 package com.malinskiy.adam.transport
 
-import io.ktor.network.sockets.Socket
 import java.net.InetSocketAddress
 
 interface SocketFactory {

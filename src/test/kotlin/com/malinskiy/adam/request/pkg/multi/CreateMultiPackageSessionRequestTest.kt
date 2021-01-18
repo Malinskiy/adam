@@ -23,10 +23,10 @@ import assertk.assertions.isTrue
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.exception.RequestRejectedException
 import com.malinskiy.adam.extension.newFileWithExtension
-import com.malinskiy.adam.extension.toAndroidChannel
 import com.malinskiy.adam.extension.toRequestString
 import com.malinskiy.adam.request.Feature
 import com.malinskiy.adam.request.ValidationResponse
+import com.malinskiy.adam.server.StubSocket
 import io.ktor.utils.io.*
 import io.ktor.utils.io.core.*
 import kotlinx.coroutines.runBlocking
@@ -106,11 +106,10 @@ class CreateMultiPackageSessionRequestTest {
         val response = "Success [my-session-id]".toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
         val byteBufferChannel: ByteWriteChannel = ByteChannelSequentialJVM(IoBuffer.Empty, false)
         runBlocking {
-            val sessionId = request.readElement(
-                ByteReadChannel(response).toAndroidChannel(),
-                byteBufferChannel.toAndroidChannel()
-            )
-            assertThat(sessionId).isEqualTo("my-session-id")
+            StubSocket(response).use { socket ->
+                val sessionId = request.readElement(socket)
+                assertThat(sessionId).isEqualTo("my-session-id")
+            }
         }
     }
 
@@ -120,10 +119,9 @@ class CreateMultiPackageSessionRequestTest {
         val response = "Failure".toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
         val byteBufferChannel: ByteWriteChannel = ByteChannelSequentialJVM(IoBuffer.Empty, false)
         runBlocking {
-            request.readElement(
-                ByteReadChannel(response).toAndroidChannel(),
-                byteBufferChannel.toAndroidChannel()
-            )
+            StubSocket(response).use { socket ->
+                request.readElement(socket)
+            }
         }
     }
 
@@ -131,12 +129,10 @@ class CreateMultiPackageSessionRequestTest {
     fun testReadNoSession() {
         val request = stub()
         val response = "Success no session returned".toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
-        val byteBufferChannel: ByteWriteChannel = ByteChannelSequentialJVM(IoBuffer.Empty, false)
         runBlocking {
-            request.readElement(
-                ByteReadChannel(response).toAndroidChannel(),
-                byteBufferChannel.toAndroidChannel()
-            )
+            StubSocket(response).use { socket ->
+                request.readElement(socket)
+            }
         }
     }
 

@@ -18,11 +18,11 @@ package com.malinskiy.adam.request.sync.v2
 
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.annotation.Features
+import com.malinskiy.adam.extension.writeSyncV2Request
 import com.malinskiy.adam.request.Feature
 import com.malinskiy.adam.request.ValidationResponse
 import com.malinskiy.adam.request.sync.base.BasePushFileRequest
-import com.malinskiy.adam.transport.AndroidReadChannel
-import com.malinskiy.adam.transport.AndroidWriteChannel
+import com.malinskiy.adam.transport.Socket
 import kotlinx.coroutines.Dispatchers
 import java.io.File
 import kotlin.coroutines.CoroutineContext
@@ -44,14 +44,14 @@ class PushFileRequest(
      */
     private val compressionType = CompressionType.NONE
 
-    override suspend fun handshake(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel) {
-        super.handshake(readChannel, writeChannel)
+    override suspend fun handshake(socket: Socket) {
+        super.handshake(socket)
         val additionalFlags = if (dryRun) {
             (DRY_RUN_FLAG or compressionType.toFlag().toLong()).toInt()
         } else {
             compressionType.toFlag()
         }
-        writeChannel.writeSyncV2Request(Const.Message.SEND_V2, remotePath, additionalFlags, modeValue)
+        socket.writeSyncV2Request(Const.Message.SEND_V2, remotePath, additionalFlags, modeValue)
     }
 
     override fun validate(): ValidationResponse {

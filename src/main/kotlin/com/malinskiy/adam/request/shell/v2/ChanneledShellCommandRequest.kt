@@ -20,12 +20,7 @@ import com.malinskiy.adam.Const
 import com.malinskiy.adam.request.AsyncChannelRequest
 import com.malinskiy.adam.request.NonSpecifiedTarget
 import com.malinskiy.adam.request.Target
-import com.malinskiy.adam.transport.AndroidReadChannel
-import com.malinskiy.adam.transport.AndroidWriteChannel
-import io.ktor.utils.io.readIntLittleEndian
-import io.ktor.utils.io.writeByte
-import io.ktor.utils.io.writeFully
-import io.ktor.utils.io.writeIntLittleEndian
+import com.malinskiy.adam.transport.Socket
 import kotlinx.coroutines.channels.ReceiveChannel
 
 open class ChanneledShellCommandRequest(
@@ -36,25 +31,25 @@ open class ChanneledShellCommandRequest(
 
     val data = ByteArray(Const.MAX_PACKET_LENGTH)
 
-    override suspend fun readElement(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel): ShellCommandResultChunk? {
+    override suspend fun readElement(socket: Socket): ShellCommandResultChunk? {
         //Skip if nothing is happening
-        if (readChannel.availableForRead == 0) {
+        if (socket.availableForRead == 0) {
             return null
         }
-        return when (MessageType.of(readChannel.readByte().toInt())) {
+        return when (MessageType.of(socket.readByte().toInt())) {
             MessageType.STDOUT -> {
-                val length = readChannel.readIntLittleEndian()
-                readChannel.readFully(data, 0, length)
+                val length = socket.readIntLittleEndian()
+                socket.readFully(data, 0, length)
                 ShellCommandResultChunk(stdout = String(data, 0, length, Const.DEFAULT_TRANSPORT_ENCODING))
             }
             MessageType.STDERR -> {
-                val length = readChannel.readIntLittleEndian()
-                readChannel.readFully(data, 0, length)
+                val length = socket.readIntLittleEndian()
+                socket.readFully(data, 0, length)
                 ShellCommandResultChunk(stderr = String(data, 0, length, Const.DEFAULT_TRANSPORT_ENCODING))
             }
             MessageType.EXIT -> {
-                val ignoredLength = readChannel.readIntLittleEndian()
-                val exitCode = readChannel.readByte().toInt()
+                val ignoredLength = socket.readIntLittleEndian()
+                val exitCode = socket.readByte().toInt()
                 ShellCommandResultChunk(exitCode = exitCode)
             }
             else -> {
@@ -66,17 +61,17 @@ open class ChanneledShellCommandRequest(
     /**
      * Handles stdin
      */
-    override suspend fun writeElement(element: ShellCommandInputChunk, readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel) {
+    override suspend fun writeElement(element: ShellCommandInputChunk, socket: Socket) {
         element.stdin?.let {
-            writeChannel.writeByte(MessageType.STDIN.toValue())
+            socket.writeByte(MessageType.STDIN.toValue())
             val bytes = it.toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
-            writeChannel.writeIntLittleEndian(bytes.size)
-            writeChannel.writeFully(bytes)
+            socket.writeIntLittleEndian(bytes.size)
+            socket.writeFully(bytes)
         }
 
         if (element.close) {
-            writeChannel.writeByte(MessageType.CLOSE_STDIN.toValue())
-            writeChannel.writeIntLittleEndian(0)
+            socket.writeByte(MessageType.CLOSE_STDIN.toValue())
+            socket.writeIntLittleEndian(0)
         }
     }
 

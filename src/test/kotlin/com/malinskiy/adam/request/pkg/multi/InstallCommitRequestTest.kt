@@ -20,13 +20,9 @@ import assertk.assertThat
 import assertk.assertions.isEqualTo
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.exception.RequestRejectedException
-import com.malinskiy.adam.extension.toAndroidChannel
 import com.malinskiy.adam.extension.toRequestString
 import com.malinskiy.adam.request.Feature
-import io.ktor.utils.io.ByteChannelSequentialJVM
-import io.ktor.utils.io.ByteReadChannel
-import io.ktor.utils.io.ByteWriteChannel
-import io.ktor.utils.io.core.IoBuffer
+import com.malinskiy.adam.server.StubSocket
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 
@@ -63,12 +59,10 @@ class InstallCommitRequestTest {
     fun testRead() {
         val request = stub()
         val response = "Success [my-session-id]".toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
-        val byteBufferChannel: ByteWriteChannel = ByteChannelSequentialJVM(IoBuffer.Empty, false)
         runBlocking {
-            request.readElement(
-                ByteReadChannel(response).toAndroidChannel(),
-                byteBufferChannel.toAndroidChannel()
-            )
+            StubSocket(response).use { socket ->
+                request.readElement(socket)
+            }
         }
     }
 
@@ -76,12 +70,10 @@ class InstallCommitRequestTest {
     fun testReadException() {
         val request = stub()
         val response = "Failure".toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
-        val byteBufferChannel: ByteWriteChannel = ByteChannelSequentialJVM(IoBuffer.Empty, false)
         runBlocking {
-            request.readElement(
-                ByteReadChannel(response).toAndroidChannel(),
-                byteBufferChannel.toAndroidChannel()
-            )
+            StubSocket(response).use { socket ->
+                request.readElement(socket)
+            }
         }
     }
 

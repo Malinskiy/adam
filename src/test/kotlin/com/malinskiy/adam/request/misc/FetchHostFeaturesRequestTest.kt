@@ -20,10 +20,9 @@ import assertk.assertThat
 import assertk.assertions.containsExactly
 import assertk.assertions.isEqualTo
 import com.malinskiy.adam.Const
-import com.malinskiy.adam.extension.toAndroidChannel
 import com.malinskiy.adam.extension.toRequestString
 import com.malinskiy.adam.request.Feature
-import io.ktor.utils.io.*
+import com.malinskiy.adam.server.StubSocket
 import io.ktor.utils.io.core.*
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
@@ -41,23 +40,20 @@ class FetchHostFeaturesRequestTest {
         runBlocking {
             val response = "0054fixed_push_symlink_timestamp,apex,fixed_push_mkdir,stat_v2,abb_exec,cmd,abb,shell_v2"
                 .toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
-            val byteBufferChannel: ByteWriteChannel = ByteChannelSequentialJVM(IoBuffer.Empty, false)
 
-            val features = request.readElement(
-                ByteReadChannel(response).toAndroidChannel(),
-                byteBufferChannel.toAndroidChannel()
-            )
-
-            assertThat(features).containsExactly(
-                Feature.FIXED_PUSH_SYMLINK_TIMESTAMP,
-                Feature.APEX,
-                Feature.FIXED_PUSH_MKDIR,
-                Feature.STAT_V2,
-                Feature.ABB_EXEC,
-                Feature.CMD,
-                Feature.ABB,
-                Feature.SHELL_V2
-            )
+            StubSocket(response).use { socket ->
+                val features = request.readElement(socket)
+                assertThat(features).containsExactly(
+                    Feature.FIXED_PUSH_SYMLINK_TIMESTAMP,
+                    Feature.APEX,
+                    Feature.FIXED_PUSH_MKDIR,
+                    Feature.STAT_V2,
+                    Feature.ABB_EXEC,
+                    Feature.CMD,
+                    Feature.ABB,
+                    Feature.SHELL_V2
+                )
+            }
         }
     }
 }

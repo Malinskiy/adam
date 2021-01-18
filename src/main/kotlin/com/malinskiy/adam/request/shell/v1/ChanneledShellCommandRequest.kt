@@ -20,9 +20,7 @@ import com.malinskiy.adam.Const
 import com.malinskiy.adam.request.AsyncChannelRequest
 import com.malinskiy.adam.request.NonSpecifiedTarget
 import com.malinskiy.adam.request.Target
-import com.malinskiy.adam.transport.AndroidReadChannel
-import com.malinskiy.adam.transport.AndroidWriteChannel
-import kotlinx.coroutines.delay
+import com.malinskiy.adam.transport.Socket
 
 open class ChanneledShellCommandRequest(
     val cmd: String,
@@ -31,13 +29,8 @@ open class ChanneledShellCommandRequest(
 
     val data = ByteArray(Const.MAX_PACKET_LENGTH)
 
-    override suspend fun readElement(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel): String? {
-        while (readChannel.availableForRead == 0) {
-            if (readChannel.isClosedForRead || writeChannel.isClosedForWrite) return null
-            delay(Const.READ_DELAY)
-        }
-
-        val count = readChannel.readAvailable(data, 0, Const.MAX_PACKET_LENGTH)
+    override suspend fun readElement(socket: Socket): String? {
+        val count = socket.readAvailable(data, 0, Const.MAX_PACKET_LENGTH)
         return when {
             count > 0 -> String(data, 0, count, Const.DEFAULT_TRANSPORT_ENCODING)
             else -> return null
@@ -45,5 +38,5 @@ open class ChanneledShellCommandRequest(
     }
 
     override fun serialize() = createBaseRequest("shell:$cmd")
-    override suspend fun writeElement(element: Unit, readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel) = Unit
+    override suspend fun writeElement(element: Unit, socket: Socket) = Unit
 }

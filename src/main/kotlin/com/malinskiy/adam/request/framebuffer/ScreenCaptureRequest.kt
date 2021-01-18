@@ -19,15 +19,14 @@ package com.malinskiy.adam.request.framebuffer
 import com.malinskiy.adam.exception.UnsupportedImageProtocolException
 import com.malinskiy.adam.extension.compatRewind
 import com.malinskiy.adam.request.ComplexRequest
-import com.malinskiy.adam.transport.AndroidReadChannel
-import com.malinskiy.adam.transport.AndroidWriteChannel
+import com.malinskiy.adam.transport.Socket
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
 class ScreenCaptureRequest<T>(private val adapter: ScreenCaptureAdapter<T>) : ComplexRequest<T>() {
-    override suspend fun readElement(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel): T {
+    override suspend fun readElement(socket: Socket): T {
         val protocolBuffer: ByteBuffer = ByteBuffer.allocate(4)
-        readChannel.readFully(protocolBuffer)
+        socket.readFully(protocolBuffer)
         protocolBuffer.compatRewind()
 
         val protocolVersion = protocolBuffer.order(ByteOrder.LITTLE_ENDIAN).int
@@ -42,9 +41,9 @@ class ScreenCaptureRequest<T>(private val adapter: ScreenCaptureAdapter<T>) : Co
             else -> throw UnsupportedImageProtocolException(protocolVersion)
         }
         val headerBuffer = ByteBuffer.allocate(headerSize * 4)
-        readChannel.readFully(headerBuffer)
+        socket.readFully(headerBuffer)
         headerBuffer.compatRewind()
-        writeChannel.writeFully(ByteArray(1) { 0.toByte() }, 0, 1)
+        socket.writeFully(ByteArray(1) { 0.toByte() }, 0, 1)
 
         headerBuffer.order(ByteOrder.LITTLE_ENDIAN)
         headerBuffer.compatRewind()
@@ -63,7 +62,7 @@ class ScreenCaptureRequest<T>(private val adapter: ScreenCaptureAdapter<T>) : Co
                 blueLength = 5,
                 alphaOffset = 0,
                 alphaLength = 0,
-                channel = readChannel
+                socket = socket
             )
             1 -> adapter.process(
                 version = protocolVersion,
@@ -79,7 +78,7 @@ class ScreenCaptureRequest<T>(private val adapter: ScreenCaptureAdapter<T>) : Co
                 greenLength = headerBuffer.int,
                 alphaOffset = headerBuffer.int,
                 alphaLength = headerBuffer.int,
-                channel = readChannel
+                socket = socket
             )
             2 -> adapter.process(
                 version = protocolVersion,
@@ -96,7 +95,7 @@ class ScreenCaptureRequest<T>(private val adapter: ScreenCaptureAdapter<T>) : Co
                 greenLength = headerBuffer.int,
                 alphaOffset = headerBuffer.int,
                 alphaLength = headerBuffer.int,
-                channel = readChannel
+                socket = socket
             )
             else -> throw UnsupportedImageProtocolException(protocolVersion)
         }

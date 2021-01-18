@@ -19,18 +19,17 @@ package com.malinskiy.adam.request.forwarding
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.request.ComplexRequest
 import com.malinskiy.adam.request.SerialTarget
-import com.malinskiy.adam.transport.AndroidReadChannel
-import com.malinskiy.adam.transport.AndroidWriteChannel
+import com.malinskiy.adam.transport.Socket
 import java.nio.ByteBuffer
 
 class ListPortForwardsRequest(serial: String) : ComplexRequest<List<PortForwardingRule>>(target = SerialTarget(serial)) {
-    override suspend fun readElement(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel): List<PortForwardingRule> {
+    override suspend fun readElement(socket: Socket): List<PortForwardingRule> {
         val sizeBuffer: ByteBuffer = ByteBuffer.allocate(4)
-        readChannel.readFully(sizeBuffer)
+        socket.readFully(sizeBuffer)
         val size = String(sizeBuffer.array(), Const.DEFAULT_TRANSPORT_ENCODING).toInt(radix = 16)
 
         val payloadBuffer = ByteBuffer.allocate(size)
-        readChannel.readFully(payloadBuffer)
+        socket.readFully(payloadBuffer)
         val payload = String(payloadBuffer.array(), Const.DEFAULT_TRANSPORT_ENCODING)
         return payload.lines().mapNotNull { line ->
             if (line.isNotEmpty()) {

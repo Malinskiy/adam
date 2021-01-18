@@ -17,9 +17,9 @@
 package com.malinskiy.adam.request.sync.v1
 
 import com.malinskiy.adam.Const
+import com.malinskiy.adam.extension.writeSyncRequest
 import com.malinskiy.adam.request.sync.base.BasePullFileRequest
-import com.malinskiy.adam.transport.AndroidReadChannel
-import com.malinskiy.adam.transport.AndroidWriteChannel
+import com.malinskiy.adam.transport.Socket
 import kotlinx.coroutines.Dispatchers
 import java.io.File
 import kotlin.coroutines.CoroutineContext
@@ -33,8 +33,8 @@ class PullFileRequest(
     size: Long? = null,
     coroutineContext: CoroutineContext = Dispatchers.IO
 ) : BasePullFileRequest(remotePath, local, size, coroutineContext) {
-    override suspend fun handshake(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel) {
-        super.handshake(readChannel, writeChannel)
-        writeChannel.writeSyncRequest(Const.Message.RECV_V1, remotePath)
+    override suspend fun handshake(socket: Socket) {
+        super.handshake(socket)
+        socket.writeSyncRequest(Const.Message.RECV_V1, remotePath)
     }
 }

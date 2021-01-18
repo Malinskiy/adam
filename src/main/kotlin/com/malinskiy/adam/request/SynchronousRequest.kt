@@ -18,16 +18,15 @@ package com.malinskiy.adam.request
 
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.request.transform.ResponseTransformer
-import com.malinskiy.adam.transport.AndroidReadChannel
-import com.malinskiy.adam.transport.AndroidWriteChannel
+import com.malinskiy.adam.transport.Socket
 
 abstract class SynchronousRequest<T : Any?>(target: Target = NonSpecifiedTarget) : ComplexRequest<T>(target), ResponseTransformer<T> {
-    override suspend fun readElement(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel): T {
+    override suspend fun readElement(socket: Socket): T {
         val data = ByteArray(Const.MAX_PACKET_LENGTH)
         loop@ do {
-            if (writeChannel.isClosedForWrite || readChannel.isClosedForRead) break@loop
+            if (socket.isClosedForWrite || socket.isClosedForRead) break@loop
 
-            val count = readChannel.readAvailable(data, 0, Const.MAX_PACKET_LENGTH)
+            val count = socket.readAvailable(data, 0, Const.MAX_PACKET_LENGTH)
             when {
                 count == 0 -> {
                     continue@loop

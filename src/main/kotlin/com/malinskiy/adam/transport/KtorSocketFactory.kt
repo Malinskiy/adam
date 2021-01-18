@@ -18,6 +18,7 @@ package com.malinskiy.adam.transport
 
 import io.ktor.network.selector.*
 import io.ktor.network.sockets.*
+import io.ktor.utils.io.nio.*
 import java.net.InetSocketAddress
 import kotlin.coroutines.CoroutineContext
 
@@ -28,10 +29,10 @@ class KtorSocketFactory(
     private val selectorManager: SelectorManager = ActorSelectorManager(coroutineContext)
 
     override suspend fun tcp(socketAddress: InetSocketAddress): Socket {
-        return aSocket(selectorManager)
-            .tcp()
-            .connect(socketAddress) {
-                socketTimeout = this@KtorSocketFactory.socketTimeout
-            }
+        return KtorSocket(aSocket(selectorManager)
+                              .tcp()
+                              .connect(socketAddress) {
+                                  socketTimeout = this@KtorSocketFactory.socketTimeout
+                              })
     }
 }

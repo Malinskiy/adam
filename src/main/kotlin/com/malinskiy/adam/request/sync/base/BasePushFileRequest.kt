@@ -18,11 +18,12 @@ package com.malinskiy.adam.request.sync.base
 
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.exception.PushFailedException
+import com.malinskiy.adam.extension.readTransportResponse
 import com.malinskiy.adam.extension.toByteArray
+import com.malinskiy.adam.extension.write
 import com.malinskiy.adam.request.AsyncChannelRequest
 import com.malinskiy.adam.request.ValidationResponse
-import com.malinskiy.adam.transport.AndroidReadChannel
-import com.malinskiy.adam.transport.AndroidWriteChannel
+import com.malinskiy.adam.transport.Socket
 import io.ktor.util.cio.*
 import io.ktor.utils.io.*
 import kotlinx.coroutines.Dispatchers
@@ -43,16 +44,15 @@ abstract class BasePushFileRequest(
     protected val modeValue: Int
         get() = mode.toInt(8) and "0777".toInt(8)
 
-    override suspend fun readElement(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel): Double? {
+    override suspend fun readElement(socket: Socket): Double? {
         val available = fileReadChannel.readAvailable(buffer, 8, Const.MAX_FILE_PACKET_LENGTH)
         return when {
             available < 0 -> {
                 Const.Message.DONE.copyInto(buffer)
                 (local.lastModified() / 1000).toInt().toByteArray().copyInto(buffer, destinationOffset = 4)
-                writeChannel.write(request = buffer, length = 8)
-                val transportResponse = readChannel.read()
-                readChannel.cancel(null)
-                writeChannel.close(null)
+                socket.write(request = buffer, length = 8)
+                val transportResponse = socket.readTransportResponse()
+                socket.close()
                 fileReadChannel.cancel()
                 return if (transportResponse.okay) {
                     1.0
@@ -63,7 +63,7 @@ abstract class BasePushFileRequest(
             available > 0 -> {
                 Const.Message.DATA.copyInto(buffer)
                 available.toByteArray().reversedArray().copyInto(buffer, destinationOffset = 4)
-                writeChannel.writeFully(buffer, 0, available + 8)
+                socket.writeFully(buffer, 0, available + 8)
                 currentPosition += available
                 currentPosition.toDouble() / totalBytes
             }
@@ -77,7 +77,7 @@ abstract class BasePushFileRequest(
         fileReadChannel.cancel()
     }
 
-    override suspend fun writeElement(element: Unit, readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel) = Unit
+    override suspend fun writeElement(element: Unit, socket: Socket) = Unit
 
     override fun validate(): ValidationResponse {
         val response = super.validate()

@@ -16,8 +16,7 @@
 
 package com.malinskiy.adam.request
 
-import com.malinskiy.adam.transport.AndroidReadChannel
-import com.malinskiy.adam.transport.AndroidWriteChannel
+import com.malinskiy.adam.transport.Socket
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.channels.SendChannel
 
@@ -33,12 +32,12 @@ abstract class AsyncChannelRequest<T : Any?, I : Any?>(
     /**
      * Called after the initial OKAY confirmation
      */
-    abstract suspend fun readElement(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel): T?
+    abstract suspend fun readElement(socket: Socket): T?
 
     /**
      * Called after each readElement
      */
-    abstract suspend fun writeElement(element: I, readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel)
+    abstract suspend fun writeElement(element: I, socket: Socket)
 
     /**
      * Optionally send a message

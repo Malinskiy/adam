@@ -17,11 +17,12 @@
 package com.malinskiy.adam.request.pkg.multi
 
 import com.malinskiy.adam.exception.RequestRejectedException
+import com.malinskiy.adam.extension.readStatus
+import com.malinskiy.adam.extension.writeFile
 import com.malinskiy.adam.request.ComplexRequest
 import com.malinskiy.adam.request.Feature
 import com.malinskiy.adam.request.abb.AbbExecRequest
-import com.malinskiy.adam.transport.AndroidReadChannel
-import com.malinskiy.adam.transport.AndroidWriteChannel
+import com.malinskiy.adam.transport.Socket
 import kotlinx.coroutines.Dispatchers
 import java.io.File
 import kotlin.coroutines.CoroutineContext
@@ -59,9 +60,9 @@ class WriteIndividualPackageRequest(
         }
     }
 
-    override suspend fun readElement(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel) {
-        writeChannel.writeFile(file, coroutineContext)
-        val response = readChannel.readStatus()
+    override suspend fun readElement(socket: Socket) {
+        socket.writeFile(file, coroutineContext)
+        val response = socket.readStatus()
         if (!response.contains("Success")) {
             throw RequestRejectedException("Failed to write package $file: $response")
         }

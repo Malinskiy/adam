@@ -21,8 +21,7 @@ import com.malinskiy.adam.extension.compatRewind
 import com.malinskiy.adam.request.ComplexRequest
 import com.malinskiy.adam.request.NonSpecifiedTarget
 import com.malinskiy.adam.request.Target
-import com.malinskiy.adam.transport.AndroidReadChannel
-import com.malinskiy.adam.transport.AndroidWriteChannel
+import com.malinskiy.adam.transport.Socket
 import java.nio.ByteBuffer
 
 /**
@@ -40,9 +39,9 @@ class ReconnectRequest(
 ) : ComplexRequest<String>(target = target) {
     private val buffer = ByteBuffer.allocate(4)
 
-    override suspend fun readElement(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel): String {
+    override suspend fun readElement(socket: Socket): String {
 
-        readChannel.readFully(buffer)
+        socket.readFully(buffer)
         val array = buffer.array()
         return if (array.contentEquals(done)) {
             "done"
@@ -50,7 +49,7 @@ class ReconnectRequest(
             //This is length of a response string
             val size = String(array, Const.DEFAULT_TRANSPORT_ENCODING).toInt(radix = 16)
             val payloadBuffer = ByteBuffer.allocate(size)
-            readChannel.readFully(payloadBuffer)
+            socket.readFully(payloadBuffer)
             payloadBuffer.compatRewind()
             String(payloadBuffer.array(), Const.DEFAULT_TRANSPORT_ENCODING)
         }

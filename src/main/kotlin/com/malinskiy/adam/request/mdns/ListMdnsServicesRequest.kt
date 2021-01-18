@@ -19,18 +19,17 @@ package com.malinskiy.adam.request.mdns
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.request.ComplexRequest
 import com.malinskiy.adam.request.HostTarget
-import com.malinskiy.adam.transport.AndroidReadChannel
-import com.malinskiy.adam.transport.AndroidWriteChannel
+import com.malinskiy.adam.transport.Socket
 import java.nio.ByteBuffer
 
 class ListMdnsServicesRequest : ComplexRequest<List<MdnsService>>(target = HostTarget) {
-    override suspend fun readElement(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel): List<MdnsService> {
+    override suspend fun readElement(socket: Socket): List<MdnsService> {
         val sizeBuffer: ByteBuffer = ByteBuffer.allocate(4)
-        readChannel.readFully(sizeBuffer)
+        socket.readFully(sizeBuffer)
         val size = String(sizeBuffer.array(), Const.DEFAULT_TRANSPORT_ENCODING).toInt(radix = 16)
 
         val payloadBuffer = ByteBuffer.allocate(size)
-        readChannel.readFully(payloadBuffer)
+        socket.readFully(payloadBuffer)
         return String(payloadBuffer.array(), Const.DEFAULT_TRANSPORT_ENCODING)
             .lines()
             .filterNot { it.isEmpty() }

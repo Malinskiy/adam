@@ -20,13 +20,8 @@ import assertk.assertThat
 import assertk.assertions.containsExactly
 import assertk.assertions.isEqualTo
 import com.malinskiy.adam.Const
-import com.malinskiy.adam.extension.toAndroidChannel
 import com.malinskiy.adam.extension.toRequestString
-import io.ktor.utils.io.ByteChannelSequentialJVM
-import io.ktor.utils.io.ByteReadChannel
-import io.ktor.utils.io.ByteWriteChannel
-import io.ktor.utils.io.close
-import io.ktor.utils.io.core.IoBuffer
+import com.malinskiy.adam.server.StubSocket
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 
@@ -40,26 +35,21 @@ class ListMdnsServicesRequestTest {
     fun testReturnsContent() {
         runBlocking {
             val response = "0027adb-serial\t_adb._tcp.\t192.168.1.2:9999\n".toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
-            val byteBufferChannel: ByteWriteChannel = ByteChannelSequentialJVM(IoBuffer.Empty, false)
 
-            val services = ListMdnsServicesRequest().readElement(
-                ByteReadChannel(response).toAndroidChannel(),
-                byteBufferChannel.toAndroidChannel()
-            )
-
-            assertThat(services).containsExactly(
-                MdnsService(
-                    name = "adb-serial",
-                    serviceType = "_adb._tcp.",
-                    url = "192.168.1.2:9999"
+            StubSocket(response).use { socket ->
+                val services = ListMdnsServicesRequest().readElement(socket)
+                assertThat(services).containsExactly(
+                    MdnsService(
+                        name = "adb-serial",
+                        serviceType = "_adb._tcp.",
+                        url = "192.168.1.2:9999"
+                    )
                 )
-            )
 
-            assertThat(services.first().name).isEqualTo("adb-serial")
-            assertThat(services.first().serviceType).isEqualTo("_adb._tcp.")
-            assertThat(services.first().url).isEqualTo("192.168.1.2:9999")
-
-            byteBufferChannel.close()
+                assertThat(services.first().name).isEqualTo("adb-serial")
+                assertThat(services.first().serviceType).isEqualTo("_adb._tcp.")
+                assertThat(services.first().url).isEqualTo("192.168.1.2:9999")
+            }
         }
     }
 }

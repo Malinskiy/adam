@@ -16,9 +16,8 @@
 
 package com.malinskiy.adam.request.framebuffer.screencapture
 
-import com.malinskiy.adam.extension.toAndroidChannel
 import com.malinskiy.adam.request.framebuffer.BufferedImageScreenCaptureAdapter
-import io.ktor.utils.io.*
+import com.malinskiy.adam.server.StubSocket
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 
@@ -27,26 +26,25 @@ class BufferedImageScreenCaptureAdapterTest {
     fun testThrowsExceptionIfUnsupportedImage() {
         val adapter = BufferedImageScreenCaptureAdapter()
         runBlocking {
-            val byteChannel = ByteChannel(autoFlush = true)
-            byteChannel.writeByte(0)
-            adapter.process(
-                1,
-                24,
-                1,
-                1,
-                1,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                null,
-                (byteChannel as ByteReadChannel).toAndroidChannel()
-            )
-            byteChannel.close()
+            StubSocket(ByteArray(1) { 0 }).use { socket ->
+                adapter.process(
+                    1,
+                    24,
+                    1,
+                    1,
+                    1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    null,
+                    socket
+                )
+            }
         }
     }
 }

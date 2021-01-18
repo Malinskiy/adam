@@ -21,13 +21,11 @@ import assertk.assertions.isEqualTo
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.exception.RequestRejectedException
 import com.malinskiy.adam.extension.newFileWithExtension
-import com.malinskiy.adam.extension.toAndroidChannel
 import com.malinskiy.adam.extension.toRequestString
 import com.malinskiy.adam.request.Feature
-import io.ktor.util.cio.writeChannel
-import io.ktor.utils.io.ByteReadChannel
-import io.ktor.utils.io.ByteWriteChannel
-import io.ktor.utils.io.close
+import com.malinskiy.adam.server.StubSocket
+import io.ktor.util.cio.*
+import io.ktor.utils.io.*
 import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
@@ -82,11 +80,9 @@ class WriteIndividualPackageRequestTest {
 
         runBlocking {
             val byteWriteChannel = actual.writeChannel(coroutineContext)
-            request.readElement(
-                ByteReadChannel(response).toAndroidChannel(),
-                byteWriteChannel.toAndroidChannel()
-            )
-            byteWriteChannel.close()
+            StubSocket(ByteReadChannel(response), byteWriteChannel).use { socket ->
+                request.readElement(socket)
+            }
         }
 
         assertThat(actual.readBytes()).isEqualTo(fixture.readBytes())
@@ -105,10 +101,9 @@ class WriteIndividualPackageRequestTest {
         val actual = temp.newFileWithExtension("apk")
         runBlocking {
             val byteBufferChannel: ByteWriteChannel = actual.writeChannel(coroutineContext)
-            request.readElement(
-                ByteReadChannel(response).toAndroidChannel(),
-                byteBufferChannel.toAndroidChannel()
-            )
+            StubSocket(ByteReadChannel(response), byteBufferChannel).use { socket ->
+                request.readElement(socket)
+            }
         }
 
         assertThat(actual.readBytes()).isEqualTo(fixture.readBytes())
