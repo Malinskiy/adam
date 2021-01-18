@@ -21,6 +21,7 @@ import com.malinskiy.adam.request.AsyncChannelRequest
 import com.malinskiy.adam.request.NonSpecifiedTarget
 import com.malinskiy.adam.request.Target
 import com.malinskiy.adam.transport.Socket
+import com.malinskiy.adam.transport.withDefaultBuffer
 import kotlinx.coroutines.channels.ReceiveChannel
 
 open class ChanneledShellCommandRequest(
@@ -32,28 +33,33 @@ open class ChanneledShellCommandRequest(
     val data = ByteArray(Const.MAX_PACKET_LENGTH)
 
     override suspend fun readElement(socket: Socket): ShellCommandResultChunk? {
-        //Skip if nothing is happening
-        if (socket.availableForRead == 0) {
-            return null
-        }
-        return when (MessageType.of(socket.readByte().toInt())) {
-            MessageType.STDOUT -> {
-                val length = socket.readIntLittleEndian()
-                socket.readFully(data, 0, length)
-                ShellCommandResultChunk(stdout = String(data, 0, length, Const.DEFAULT_TRANSPORT_ENCODING))
+        withDefaultBuffer {
+            val readAvailable = socket.readAvailable(this.array(), 0, 1)
+            when (readAvailable) {
+                //Skip as if nothing is happening
+                0, -1 -> return null
             }
-            MessageType.STDERR -> {
-                val length = socket.readIntLittleEndian()
-                socket.readFully(data, 0, length)
-                ShellCommandResultChunk(stderr = String(data, 0, length, Const.DEFAULT_TRANSPORT_ENCODING))
-            }
-            MessageType.EXIT -> {
-                val ignoredLength = socket.readIntLittleEndian()
-                val exitCode = socket.readByte().toInt()
-                ShellCommandResultChunk(exitCode = exitCode)
-            }
-            else -> {
-                null
+
+            val readByte = this.get(0)
+            return when (MessageType.of(readByte.toInt())) {
+                MessageType.STDOUT -> {
+                    val length = socket.readIntLittleEndian()
+                    socket.readFully(data, 0, length)
+                    ShellCommandResultChunk(stdout = String(data, 0, length, Const.DEFAULT_TRANSPORT_ENCODING))
+                }
+                MessageType.STDERR -> {
+                    val length = socket.readIntLittleEndian()
+                    socket.readFully(data, 0, length)
+                    ShellCommandResultChunk(stderr = String(data, 0, length, Const.DEFAULT_TRANSPORT_ENCODING))
+                }
+                MessageType.EXIT -> {
+                    val ignoredLength = socket.readIntLittleEndian()
+                    val exitCode = socket.readByte().toInt()
+                    ShellCommandResultChunk(exitCode = exitCode)
+                }
+                else -> {
+                    null
+                }
             }
         }
     }

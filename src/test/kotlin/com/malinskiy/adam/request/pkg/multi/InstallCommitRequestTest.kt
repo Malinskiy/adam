@@ -23,6 +23,7 @@ import com.malinskiy.adam.exception.RequestRejectedException
 import com.malinskiy.adam.extension.toRequestString
 import com.malinskiy.adam.request.Feature
 import com.malinskiy.adam.server.StubSocket
+import com.malinskiy.adam.transport.use
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 

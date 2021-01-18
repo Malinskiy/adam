@@ -22,6 +22,7 @@ import assertk.assertions.isEqualTo
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.server.AndroidDebugBridgeServer
 import com.malinskiy.adam.server.StubSocket
+import com.malinskiy.adam.transport.use
 import io.ktor.utils.io.*
 import kotlinx.coroutines.channels.receiveOrNull
 import kotlinx.coroutines.launch

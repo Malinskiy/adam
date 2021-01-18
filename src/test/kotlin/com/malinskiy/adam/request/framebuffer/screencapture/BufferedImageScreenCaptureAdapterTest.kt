@@ -18,6 +18,7 @@ package com.malinskiy.adam.request.framebuffer.screencapture
 
 import com.malinskiy.adam.request.framebuffer.BufferedImageScreenCaptureAdapter
 import com.malinskiy.adam.server.StubSocket
+import com.malinskiy.adam.transport.use
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 

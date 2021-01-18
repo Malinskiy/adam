@@ -24,12 +24,11 @@ import com.malinskiy.adam.extension.newFileWithExtension
 import com.malinskiy.adam.extension.toRequestString
 import com.malinskiy.adam.request.Feature
 import com.malinskiy.adam.server.StubSocket
-import io.ktor.utils.io.core.*
+import com.malinskiy.adam.transport.use
 import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
-import kotlin.text.toByteArray
 
 class CreateIndividualPackageSessionRequestTest {
 

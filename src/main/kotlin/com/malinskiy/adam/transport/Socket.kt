@@ -16,11 +16,9 @@
 
 package com.malinskiy.adam.transport
 
-import java.io.Closeable
 import java.nio.ByteBuffer
 
-interface Socket : Closeable {
-    val availableForRead: Int
+interface Socket : SuspendCloseable {
     val isClosedForWrite: Boolean
     val isClosedForRead: Boolean
 

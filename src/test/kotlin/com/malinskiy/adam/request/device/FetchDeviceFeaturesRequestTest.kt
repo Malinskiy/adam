@@ -22,7 +22,7 @@ import assertk.assertions.isEqualTo
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.request.Feature
 import com.malinskiy.adam.server.StubSocket
-import io.ktor.utils.io.core.*
+import com.malinskiy.adam.transport.use
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 

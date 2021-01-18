@@ -25,8 +25,6 @@ import io.ktor.network.sockets.Socket as RealKtorSocket
 class KtorSocket(private val ktorSocket: RealKtorSocket) : Socket {
     private val readChannel: ByteReadChannel = ktorSocket.openReadChannel()
     private val writeChannel: ByteWriteChannel = ktorSocket.openWriteChannel(autoFlush = true)
-    override val availableForRead: Int
-        get() = readChannel.availableForRead
     override val isClosedForWrite: Boolean
         get() = writeChannel.isClosedForWrite
     override val isClosedForRead: Boolean
@@ -36,13 +34,17 @@ class KtorSocket(private val ktorSocket: RealKtorSocket) : Socket {
     override suspend fun readFully(buffer: ByteArray, offset: Int, limit: Int) = readChannel.readFully(buffer, offset, limit)
     override suspend fun writeFully(byteBuffer: ByteBuffer) = writeChannel.writeFully(byteBuffer)
     override suspend fun writeFully(toByteArray: ByteArray, offset: Int, limit: Int) = writeChannel.writeFully(toByteArray, offset, limit)
-    override suspend fun readAvailable(buffer: ByteArray, offset: Int, limit: Int): Int = readChannel.readAvailable(buffer, offset, limit)
+    override suspend fun readAvailable(buffer: ByteArray, offset: Int, limit: Int): Int {
+        if (readChannel.availableForRead == 0) return 0
+        return readChannel.readAvailable(buffer, offset, limit)
+    }
+
     override suspend fun readByte(): Byte = readChannel.readByte()
     override suspend fun readIntLittleEndian(): Int = readChannel.readIntLittleEndian()
     override suspend fun writeByte(value: Int) = writeChannel.writeByte(value)
     override suspend fun writeIntLittleEndian(value: Int) = writeChannel.writeIntLittleEndian(value)
 
-    override fun close() {
+    override suspend fun close() {
         try {
             writeChannel.close()
             readChannel.cancel()

@@ -26,8 +26,6 @@ class StubSocket(
     val readChannel: ByteReadChannel = ByteChannelSequentialJVM(IoBuffer.Empty, false),
     val writeChannel: ByteWriteChannel = ByteChannelSequentialJVM(IoBuffer.Empty, false)
 ) : Socket {
-    override val availableForRead: Int
-        get() = readChannel.availableForRead
     override val isClosedForWrite: Boolean
         get() = writeChannel.isClosedForWrite
     override val isClosedForRead: Boolean
@@ -45,7 +43,7 @@ class StubSocket(
     override suspend fun writeByte(value: Int) = writeChannel.writeByte(value)
     override suspend fun writeIntLittleEndian(value: Int) = writeChannel.writeIntLittleEndian(value)
 
-    override fun close() {
+    override suspend fun close() {
         try {
             writeChannel.close()
             readChannel.cancel()
