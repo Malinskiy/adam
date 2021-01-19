@@ -38,14 +38,14 @@ abstract class BasePushFileRequest(
     coroutineContext: CoroutineContext = Dispatchers.IO
 ) : AsyncChannelRequest<Double, Unit>() {
     protected val fileReadChannel = local.readChannel(coroutineContext = coroutineContext)
-    protected val buffer = ByteArray(8 + Const.MAX_FILE_PACKET_LENGTH)
+    protected val buffer = ByteArray(Const.KTOR_INTERNAL_BUFFER_LENGTH)
     protected var totalBytes = local.length()
     protected var currentPosition = 0L
     protected val modeValue: Int
         get() = mode.toInt(8) and "0777".toInt(8)
 
     override suspend fun readElement(socket: Socket, sendChannel: SendChannel<Double>): Boolean {
-        val available = fileReadChannel.readAvailable(buffer, 8, Const.MAX_FILE_PACKET_LENGTH)
+        val available = fileReadChannel.readAvailable(buffer, 8, Const.KTOR_INTERNAL_BUFFER_LENGTH - 8)
         when {
             available < 0 -> {
                 Const.Message.DONE.copyInto(buffer)
@@ -72,7 +72,7 @@ abstract class BasePushFileRequest(
                 currentPosition += available
                 sendChannel.send(currentPosition.toDouble() / totalBytes)
             }
-            else -> currentPosition.toDouble() / totalBytes
+            else -> Unit
         }
         return false
     }

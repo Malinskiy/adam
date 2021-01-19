@@ -20,9 +20,8 @@ import com.malinskiy.adam.Const
 import io.ktor.utils.io.pool.*
 import java.nio.ByteBuffer
 
-internal const val DEFAULT_BUFFER_SIZE = 4096
+internal const val DEFAULT_BUFFER_SIZE = 4088
 
-val AdamFilePool: ObjectPool<ByteBuffer> = ByteBufferPool(DEFAULT_BUFFER_SIZE, Const.MAX_FILE_PACKET_LENGTH)
 val AdamDefaultPool: ObjectPool<ByteBuffer> = ByteBufferPool(Const.DEFAULT_BUFFER_SIZE, DEFAULT_BUFFER_SIZE)
 
 inline fun <R> withDefaultBuffer(block: ByteBuffer.() -> R): R {
@@ -31,14 +30,5 @@ inline fun <R> withDefaultBuffer(block: ByteBuffer.() -> R): R {
         block(instance)
     } finally {
         AdamDefaultPool.recycle(instance)
-    }
-}
-
-inline fun <R> withFileBuffer(block: ByteBuffer.() -> R): R {
-    val instance = AdamFilePool.borrow()
-    return try {
-        block(instance)
-    } finally {
-        AdamFilePool.recycle(instance)
     }
 }
