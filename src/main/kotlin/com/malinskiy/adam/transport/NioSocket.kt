@@ -164,7 +164,7 @@ class NioSocket(
                 while (true) {
                     buffer.clear()
                     if (readUnsafe(selector, buffer) == -1 || state.get() == State.CLOSED || isClosedForRead) {
-                        return
+                        break
                     } else {
                         yield()
                     }
@@ -291,6 +291,7 @@ class NioSocket(
                     while (iterator.hasNext()) {
                         val selectionKey = iterator.next()
                         if (selectionKey.isWritable) {
+                            iterator.remove()
                             val written = socketChannel.write(buffer)
                             remaining -= written
                             if (written != 0) {
