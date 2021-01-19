@@ -22,7 +22,6 @@ import com.malinskiy.adam.request.transform.StringResponseTransformer
 import com.malinskiy.adam.transport.Socket
 import com.malinskiy.adam.transport.TransportResponse
 import com.malinskiy.adam.transport.withDefaultBuffer
-import com.malinskiy.adam.transport.withFileBuffer
 import io.ktor.util.cio.*
 import io.ktor.utils.io.*
 import io.ktor.utils.io.bits.*
@@ -133,7 +132,7 @@ suspend fun Socket.write(request: ByteArray, length: Int? = null) {
     writeFully(request, 0, length ?: request.size)
 }
 
-suspend fun Socket.writeFile(file: File, coroutineContext: CoroutineContext) = withFileBuffer {
+suspend fun Socket.writeFile(file: File, coroutineContext: CoroutineContext) = withDefaultBuffer {
     var fileChannel: ByteReadChannel? = null
     try {
         val fileChannel = file.readChannel(coroutineContext = coroutineContext)

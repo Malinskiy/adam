@@ -127,5 +127,6 @@ dependencies {
 
     integrationTestImplementation(TestLibraries.assertk)
     integrationTestImplementation(TestLibraries.junit)
+    integrationTestImplementation(TestLibraries.coroutinesDebug)
     integrationTestImplementation(kotlin("reflect", version = Versions.kotlin))
 }
