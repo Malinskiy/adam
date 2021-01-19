@@ -16,8 +16,12 @@
 
 package com.malinskiy.adam.transport
 
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.coroutines.yield
+import java.io.IOException
 import java.net.InetSocketAddress
 import java.net.SocketTimeoutException
 import java.nio.ByteBuffer
@@ -25,96 +29,52 @@ import java.nio.ByteOrder
 import java.nio.channels.SelectionKey
 import java.nio.channels.Selector
 import java.nio.channels.SocketChannel
+import java.nio.channels.spi.SelectorProvider
 import java.util.concurrent.atomic.AtomicReference
 
 class NioSocket(
-    private val socketInetAddress: InetSocketAddress,
-    private val socketTimeout: Long,
-    private val selector: Selector
+    private val socketAddress: InetSocketAddress,
+    private val connectTimeout: Long,
+    private val idleTimeout: Long,
 ) : Socket {
     private val state = AtomicReference(State.CLOSED)
+    private val mutex = Mutex()
 
     override val isClosedForWrite: Boolean
         get() = socketChannel.socket().isOutputShutdown || state.get() == State.CLOSING
     override val isClosedForRead: Boolean
         get() = socketChannel.socket().isInputShutdown || state.get() == State.CLOSE_WAIT
 
+    private lateinit var selector: Selector
     private lateinit var socketChannel: SocketChannel
     private lateinit var selectionKey: SelectionKey
 
+    @Suppress("BlockingMethodInNonBlockingContext")
     suspend fun connect() {
-        if (state.get() != State.CLOSED) return
-        state.set(State.SYN_SENT)
+        if (!state.compareAndSet(State.CLOSED, State.SYN_SENT)) return
 
-        socketChannel = SocketChannel.open().apply {
+        socketChannel = SelectorProvider.provider().openSocketChannel().apply {
             configureBlocking(false)
             configure(socket())
         }
 
-        val success = socketChannel.connect(socketInetAddress)
-        if (!success) {
-            selectionKey = socketChannel.register(selector, SelectionKey.OP_CONNECT)
-            withTimeoutOrNull(socketTimeout) {
-                while (true) {
-                    if (selector.selectNow() == 0) yield()
-                    val iterator = selector.selectedKeys().iterator()
-                    while (iterator.hasNext()) {
-                        val selectionKey = iterator.next()
-                        if (selectionKey.isConnectable) {
-                            socketChannel.finishConnect()
-                            selectionKey.interestOps(0)
-
-                            state.compareAndSet(State.SYN_SENT, State.ESTABLISHED)
-                            iterator.remove()
-
-                            return@withTimeoutOrNull
-                        }
-                    }
-                }
-            } ?: throw SocketTimeoutException("Timeout connecting to socket")
+        val success = socketChannel.connect(socketAddress)
+        selector = SelectorProvider.provider().openSelector()
+        if (success) {
+            processAccept(selector)
+        } else {
+            processConnect(selector)
         }
     }
 
     private fun configure(socket: java.net.Socket) {
+        socket.tcpNoDelay = true
     }
 
     override suspend fun writeFully(byteBuffer: ByteBuffer) {
         if (state.get() != State.ESTABLISHED) return
 
-        selectionKey.interestOps(SelectionKey.OP_WRITE)
-
-        var remaining = byteBuffer.limit()
-        withTimeoutOrNull(socketTimeout) {
-            while (true) {
-                selector.selectNow()
-
-                val selectedKeys = when {
-                    selector.selectedKeys().isNotEmpty() -> selector.selectedKeys()
-                    else -> {
-                        yield()
-                        continue
-                    }
-                }
-
-                val iterator = selectedKeys.iterator()
-                var processed = false
-                while (iterator.hasNext()) {
-                    val selectionKey = iterator.next()
-                    if (selectionKey.isWritable) {
-                        val written = socketChannel.write(byteBuffer)
-                        remaining -= written
-                        if (written != 0) {
-                            processed = true
-                        }
-                        if (remaining == 0) {
-                            selectionKey.interestOps(0)
-                            return@withTimeoutOrNull
-                        }
-                    }
-                }
-                if (!processed) yield()
-            }
-        } ?: throw SocketTimeoutException("Timeout writing")
+        processWrite(selector, byteBuffer)
     }
 
     override suspend fun writeFully(toByteArray: ByteArray, offset: Int, limit: Int) =
@@ -123,42 +83,16 @@ class NioSocket(
     override suspend fun readAvailable(buffer: ByteArray, offset: Int, limit: Int): Int =
         readAvailable(ByteBuffer.wrap(buffer, offset, limit))
 
-    fun readAvailable(buffer: ByteBuffer): Int {
+    suspend fun readAvailable(buffer: ByteBuffer): Int {
         if (isClosedForRead) return -1
 
-        selectionKey.interestOps(SelectionKey.OP_READ)
-
-        selector.selectNow()
-        val selectedKeys = when {
-            selector.selectedKeys().isNotEmpty() -> selector.selectedKeys()
-            else -> return 0
-        }
-
-        val iterator = selectedKeys.iterator()
-        while (iterator.hasNext()) {
-            val selectionKey = iterator.next()
-            if (selectionKey.isReadable) {
-                val read = socketChannel.read(buffer)
-                if (read == -1) {
-                    when (state.get()) {
-                        State.ESTABLISHED -> {
-                            state.set(State.CLOSE_WAIT)
-                        }
-                        State.CLOSING -> state.set(State.CLOSED)
-                    }
-                }
-                selectionKey.interestOps(0)
-                return read
-            }
-        }
-
-        return 0
+        return processRead(selector, buffer)
     }
 
     override suspend fun readFully(buffer: ByteBuffer): Int {
         var remaining = buffer.limit()
 
-        return withTimeoutOrNull(socketTimeout) {
+        return withTimeoutOrNull(idleTimeout) {
             while (remaining != 0) {
                 when (val read = readAvailable(buffer)) {
                     -1 -> {
@@ -208,59 +142,173 @@ class NioSocket(
     }
 
     override suspend fun close() {
-        if (state.get() == State.CLOSE_WAIT || state.compareAndSet(State.ESTABLISHED, State.CLOSING)) {
-            socketChannel.shutdownOutput()
+        mutex.withLock {
+            val shouldDrain = when {
+                state.compareAndSet(State.ESTABLISHED, State.CLOSING) -> {
+                    true
+                }
+                state.compareAndSet(State.CLOSE_WAIT, State.CLOSING) -> {
+                    false
+                }
+                else -> {
+                    return
+                }
+            }
 
-            drainSelector()
+            if (!socketChannel.socket().isOutputShutdown) {
+                socketChannel.socket().shutdownOutput()
+            }
+
+            if (shouldDrain) {
+                val buffer = ByteBuffer.allocate(128)
+                while (true) {
+                    buffer.clear()
+                    if (readUnsafe(selector, buffer) == -1 || state.get() == State.CLOSED || isClosedForRead) {
+                        return
+                    } else {
+                        yield()
+                    }
+                }
+            }
 
             state.compareAndSet(State.CLOSING, State.CLOSED)
-            socketChannel.shutdownInput()
-            socketChannel.close()
+            if (!socketChannel.socket().isInputShutdown) {
+                socketChannel.socket().shutdownInput()
+            }
             selectionKey.cancel()
+            selector.close()
+            socketChannel.close()
+            socketChannel.socket().close()
         }
     }
 
-    private suspend fun drainSelector() {
-        val buffer = ByteBuffer.allocate(128)
-
-//        withTimeoutOrNull(socketTimeout) {
-        while (true) {
-            buffer.clear()
-            if (readAvailable(buffer) == -1 || state.get() == State.CLOSED) {
-                return
-            } else {
-                yield()
-            }
-
-            val readyOps = selectionKey.readyOps()
-            when {
-                readyOps and SelectionKey.OP_CONNECT != 0 -> {
-                    selectionKey.interestOps(selectionKey.interestOps() or SelectionKey.OP_CONNECT)
-                    selector.selectNow()
+    @Suppress("BlockingMethodInNonBlockingContext")
+    private suspend fun processConnect(selector: Selector) {
+        mutex.withLock {
+            selectionKey = socketChannel.register(selector, SelectionKey.OP_CONNECT)
+            withTimeoutOrNull(connectTimeout) {
+                while (isActive) {
+                    if (selector.selectNow() == 0) yield()
                     val iterator = selector.selectedKeys().iterator()
                     while (iterator.hasNext()) {
                         val selectionKey = iterator.next()
                         if (selectionKey.isConnectable) {
+                            socketChannel.finishConnect()
                             selectionKey.interestOps(0)
+
+                            val success = state.compareAndSet(State.SYN_SENT, State.ESTABLISHED)
+                            if (!success) throw IllegalStateException("Invalid state ${state.get()} after connect")
                             iterator.remove()
-                        }
-                    }
-                }
-                readyOps and SelectionKey.OP_WRITE != 0 -> {
-                    selectionKey.interestOps(selectionKey.interestOps() or SelectionKey.OP_WRITE)
-                    selector.selectNow()
-                    val iterator = selector.selectedKeys().iterator()
-                    while (iterator.hasNext()) {
-                        val selectionKey = iterator.next()
-                        if (selectionKey.isWritable) {
-                            selectionKey.interestOps(0)
-                            socketChannel.write(ByteBuffer.wrap(ByteArray(0)))
-                            iterator.remove()
+
+                            return@withTimeoutOrNull
                         }
                     }
                 }
             }
-//            }
+            selectionKey.interestOps(0)
+            if (socketChannel.isConnectionPending) {
+                try {
+                    socketChannel.close()
+                } catch (e: IOException) {
+                    //ignore
+                }
+                throw SocketTimeoutException("Channel $socketChannel timeout while connecting. Closing")
+            }
+        }
+    }
+
+    @Suppress("BlockingMethodInNonBlockingContext")
+    private suspend fun processAccept(selector: Selector) {
+        mutex.withLock {
+            selectionKey = socketChannel.register(selector, 0)
+        }
+    }
+
+    @Suppress("BlockingMethodInNonBlockingContext")
+    private suspend fun processRead(selector: Selector, buffer: ByteBuffer): Int {
+        mutex.withLock {
+            if (state.get() != State.ESTABLISHED) return 0
+            return readUnsafe(selector, buffer)
+        }
+    }
+
+    private fun readUnsafe(selector: Selector, buffer: ByteBuffer): Int {
+        selectionKey.interestOps(SelectionKey.OP_READ)
+
+        selector.selectNow()
+        val selectedKeys = when {
+            selector.selectedKeys().isNotEmpty() -> selector.selectedKeys()
+            else -> {
+                selectionKey.interestOps(0)
+                return 0
+            }
+        }
+
+        val iterator = selectedKeys.iterator()
+        while (iterator.hasNext()) {
+            val selectionKey = iterator.next()
+            if (selectionKey.isReadable) {
+                val read = socketChannel.read(buffer)
+                if (read == -1) {
+                    when (state.get()) {
+                        State.ESTABLISHED -> {
+                            state.set(State.CLOSE_WAIT)
+                        }
+                        State.CLOSING -> state.set(State.CLOSED)
+                    }
+                }
+                selectionKey.interestOps(0)
+                return read
+            }
+        }
+
+        selectionKey.interestOps(0)
+        return 0
+    }
+
+    @Suppress("BlockingMethodInNonBlockingContext")
+    private suspend fun processWrite(selector: Selector, buffer: ByteBuffer) {
+        mutex.withLock {
+            if (state.get() != State.ESTABLISHED) return
+
+            selectionKey.interestOps(SelectionKey.OP_WRITE)
+
+            var remaining = buffer.limit()
+            val timeout = withTimeoutOrNull(idleTimeout) {
+                while (true) {
+                    selector.selectNow()
+
+                    val selectedKeys = when {
+                        selector.selectedKeys().isNotEmpty() -> selector.selectedKeys()
+                        else -> {
+                            yield()
+                            continue
+                        }
+                    }
+
+                    val iterator = selectedKeys.iterator()
+                    var processed = false
+                    while (iterator.hasNext()) {
+                        val selectionKey = iterator.next()
+                        if (selectionKey.isWritable) {
+                            val written = socketChannel.write(buffer)
+                            remaining -= written
+                            if (written != 0) {
+                                processed = true
+                            }
+                            if (remaining == 0) {
+                                selectionKey.interestOps(0)
+                                return@withTimeoutOrNull
+                            }
+                        }
+                    }
+                    if (!processed) yield()
+                }
+            }
+            selectionKey.interestOps(0)
+            if (timeout == null) {
+                throw SocketTimeoutException("Timeout writing")
+            }
         }
     }
 

@@ -17,13 +17,14 @@
 package com.malinskiy.adam.transport
 
 import java.net.InetSocketAddress
-import java.nio.channels.Selector
 
-class NioSocketFactory(private val socketTimeout: Long) : SocketFactory {
-    private val selector = Selector.open()
-
+class NioSocketFactory : SocketFactory {
     override suspend fun tcp(socketAddress: InetSocketAddress): Socket {
-        val nioSocket = NioSocket(socketAddress, socketTimeout, selector)
+        val nioSocket = NioSocket(
+            socketAddress = socketAddress,
+            connectTimeout = 10_000,
+            idleTimeout = 10_000,
+        )
         nioSocket.connect()
         return nioSocket
     }
