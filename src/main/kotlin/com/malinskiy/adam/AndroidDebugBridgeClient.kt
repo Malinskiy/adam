@@ -84,9 +84,8 @@ class AndroidDebugBridgeClient(
                         ) {
                             break
                         }
-                        request.readElement(socket)?.let {
-                            send(it)
-                        }
+                        val finished = request.readElement(socket, this)
+                        if (finished) break
 
                         backChannel?.poll()?.let {
                             request.writeElement(it, socket)

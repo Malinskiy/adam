@@ -63,19 +63,20 @@ class TestRunnerRequest(
         }
     }
 
-    override suspend fun readElement(socket: Socket): List<TestEvent>? {
+    override suspend fun readElement(socket: Socket, sendChannel: SendChannel<List<TestEvent>>): Boolean {
         val available = socket.readAvailable(buffer, 0, Const.MAX_PACKET_LENGTH)
 
-        return when {
+        when {
             available > 0 -> {
-                transformer.process(buffer, 0, available)
+                transformer.process(buffer, 0, available)?.let { sendChannel.send(it) }
             }
             available < 0 -> {
-                socket.close()
-                return null
+                return true
             }
             else -> null
         }
+
+        return false
     }
 
     override fun serialize() = createBaseRequest(StringBuilder().apply {

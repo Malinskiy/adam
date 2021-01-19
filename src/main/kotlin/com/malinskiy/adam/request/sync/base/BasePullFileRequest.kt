@@ -61,16 +61,14 @@ abstract class BasePullFileRequest(
     private val headerBuffer = ByteArray(8)
     private val dataBuffer = ByteArray(Const.MAX_FILE_PACKET_LENGTH)
 
-    override suspend fun readElement(socket: Socket): Double? {
+    override suspend fun readElement(socket: Socket, sendChannel: SendChannel<Double>): Boolean {
         socket.readFully(headerBuffer, 0, 8)
 
         val header = headerBuffer.copyOfRange(0, 4)
         when {
             header.contentEquals(Const.Message.DONE) -> {
                 fileWriteChannel.close()
-                //TODO: change signature to return closed and send the item via channel instead
-                socket.close()
-                return 1.0
+                return true
             }
             header.contentEquals(Const.Message.DATA) -> {
                 val available = headerBuffer.copyOfRange(4, 8).toInt()
@@ -82,7 +80,7 @@ abstract class BasePullFileRequest(
 
                 currentPosition += available
 
-                return currentPosition.toDouble() / totalBytes
+                sendChannel.send(currentPosition.toDouble() / totalBytes)
             }
             header.contentEquals(Const.Message.FAIL) -> {
                 val size = headerBuffer.copyOfRange(4, 8).toInt()
@@ -94,6 +92,7 @@ abstract class BasePullFileRequest(
                 throw UnsupportedSyncProtocolException("Unexpected header message ${String(header, Const.DEFAULT_TRANSPORT_ENCODING)}")
             }
         }
+        return false
     }
 
     override suspend fun close(channel: SendChannel<Double>) {

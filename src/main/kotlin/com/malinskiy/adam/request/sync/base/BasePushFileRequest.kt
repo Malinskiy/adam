@@ -44,31 +44,37 @@ abstract class BasePushFileRequest(
     protected val modeValue: Int
         get() = mode.toInt(8) and "0777".toInt(8)
 
-    override suspend fun readElement(socket: Socket): Double? {
+    override suspend fun readElement(socket: Socket, sendChannel: SendChannel<Double>): Boolean {
         val available = fileReadChannel.readAvailable(buffer, 8, Const.MAX_FILE_PACKET_LENGTH)
-        return when {
+        when {
             available < 0 -> {
                 Const.Message.DONE.copyInto(buffer)
                 (local.lastModified() / 1000).toInt().toByteArray().copyInto(buffer, destinationOffset = 4)
                 socket.write(request = buffer, length = 8)
                 val transportResponse = socket.readTransportResponse()
-                socket.close()
                 fileReadChannel.cancel()
-                return if (transportResponse.okay) {
-                    1.0
+
+                if (transportResponse.okay) {
+                    sendChannel.send(1.0)
+                    return true
                 } else {
                     throw PushFailedException("adb didn't acknowledge the file transfer: ${transportResponse.message ?: ""}")
                 }
             }
             available > 0 -> {
+                if ((currentPosition.toDouble() / totalBytes) > 0.1) {
+                    throw RuntimeException("Ч")
+                }
+
                 Const.Message.DATA.copyInto(buffer)
                 available.toByteArray().reversedArray().copyInto(buffer, destinationOffset = 4)
                 socket.writeFully(buffer, 0, available + 8)
                 currentPosition += available
-                currentPosition.toDouble() / totalBytes
+                sendChannel.send(currentPosition.toDouble() / totalBytes)
             }
             else -> currentPosition.toDouble() / totalBytes
         }
+        return false
     }
 
     override fun serialize() = createBaseRequest("sync:")

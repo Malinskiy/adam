@@ -23,6 +23,7 @@ import com.malinskiy.adam.request.Target
 import com.malinskiy.adam.transport.Socket
 import com.malinskiy.adam.transport.withDefaultBuffer
 import kotlinx.coroutines.channels.ReceiveChannel
+import kotlinx.coroutines.channels.SendChannel
 
 open class ChanneledShellCommandRequest(
     private val cmd: String,
@@ -32,35 +33,35 @@ open class ChanneledShellCommandRequest(
 
     val data = ByteArray(Const.MAX_PACKET_LENGTH)
 
-    override suspend fun readElement(socket: Socket): ShellCommandResultChunk? {
+    override suspend fun readElement(socket: Socket, sendChannel: SendChannel<ShellCommandResultChunk>): Boolean {
         withDefaultBuffer {
             val readAvailable = socket.readAvailable(this.array(), 0, 1)
             when (readAvailable) {
                 //Skip as if nothing is happening
-                0, -1 -> return null
+                0, -1 -> return false
             }
 
             val readByte = this.get(0)
-            return when (MessageType.of(readByte.toInt())) {
+            when (MessageType.of(readByte.toInt())) {
                 MessageType.STDOUT -> {
                     val length = socket.readIntLittleEndian()
                     socket.readFully(data, 0, length)
-                    ShellCommandResultChunk(stdout = String(data, 0, length, Const.DEFAULT_TRANSPORT_ENCODING))
+                    sendChannel.send(ShellCommandResultChunk(stdout = String(data, 0, length, Const.DEFAULT_TRANSPORT_ENCODING)))
                 }
                 MessageType.STDERR -> {
                     val length = socket.readIntLittleEndian()
                     socket.readFully(data, 0, length)
-                    ShellCommandResultChunk(stderr = String(data, 0, length, Const.DEFAULT_TRANSPORT_ENCODING))
+                    sendChannel.send(ShellCommandResultChunk(stderr = String(data, 0, length, Const.DEFAULT_TRANSPORT_ENCODING)))
                 }
                 MessageType.EXIT -> {
                     val ignoredLength = socket.readIntLittleEndian()
                     val exitCode = socket.readByte().toInt()
-                    ShellCommandResultChunk(exitCode = exitCode)
+                    sendChannel.send(ShellCommandResultChunk(exitCode = exitCode))
                 }
-                else -> {
-                    null
-                }
+                else -> Unit
             }
+
+            return false
         }
     }
 

@@ -32,7 +32,7 @@ abstract class AsyncChannelRequest<T : Any?, I : Any?>(
     /**
      * Called after the initial OKAY confirmation
      */
-    abstract suspend fun readElement(socket: Socket): T?
+    abstract suspend fun readElement(socket: Socket, sendChannel: SendChannel<T>): Boolean
 
     /**
      * Called after each readElement

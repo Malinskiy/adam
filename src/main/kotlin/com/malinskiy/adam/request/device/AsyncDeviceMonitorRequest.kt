@@ -20,10 +20,11 @@ import com.malinskiy.adam.Const
 import com.malinskiy.adam.request.AsyncChannelRequest
 import com.malinskiy.adam.request.HostTarget
 import com.malinskiy.adam.transport.Socket
+import kotlinx.coroutines.channels.SendChannel
 import java.nio.ByteBuffer
 
 class AsyncDeviceMonitorRequest : AsyncChannelRequest<List<Device>, Unit>(target = HostTarget) {
-    override suspend fun readElement(socket: Socket): List<Device>? {
+    override suspend fun readElement(socket: Socket, sendChannel: SendChannel<List<Device>>): Boolean {
         val sizeBuffer: ByteBuffer = ByteBuffer.allocate(4)
         socket.readFully(sizeBuffer)
         val size = String(sizeBuffer.array(), Const.DEFAULT_TRANSPORT_ENCODING).toInt(radix = 16)
@@ -31,16 +32,18 @@ class AsyncDeviceMonitorRequest : AsyncChannelRequest<List<Device>, Unit>(target
         val payloadBuffer = ByteBuffer.allocate(size)
         socket.readFully(payloadBuffer)
         val payload = String(payloadBuffer.array(), Const.DEFAULT_TRANSPORT_ENCODING)
-        return payload.lines()
-            .filter { it.isNotEmpty() }
-            .map {
-                val line = it.trim()
-                val split = line.split("\t")
-                Device(
-                    serial = split[0],
-                    state = DeviceState.from(split[1])
-                )
-            }
+        sendChannel.send(payload.lines()
+                             .filter { it.isNotEmpty() }
+                             .map {
+                                 val line = it.trim()
+                                 val split = line.split("\t")
+                                 Device(
+                                     serial = split[0],
+                                     state = DeviceState.from(split[1])
+                                 )
+                             }
+        )
+        return false
     }
 
     override fun serialize() = createBaseRequest("track-devices")
