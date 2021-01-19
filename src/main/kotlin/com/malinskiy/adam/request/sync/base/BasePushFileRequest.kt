@@ -62,10 +62,6 @@ abstract class BasePushFileRequest(
                 }
             }
             available > 0 -> {
-                if ((currentPosition.toDouble() / totalBytes) > 0.1) {
-                    throw RuntimeException("Ч")
-                }
-
                 Const.Message.DATA.copyInto(buffer)
                 available.toByteArray().reversedArray().copyInto(buffer, destinationOffset = 4)
                 socket.writeFully(buffer, 0, available + 8)
