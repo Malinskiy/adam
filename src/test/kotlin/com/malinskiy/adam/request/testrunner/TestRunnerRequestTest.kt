@@ -24,6 +24,8 @@ import com.malinskiy.adam.server.AndroidDebugBridgeServer
 import com.malinskiy.adam.server.StubSocket
 import com.malinskiy.adam.transport.use
 import io.ktor.utils.io.*
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.Channel.Factory.BUFFERED
 import kotlinx.coroutines.channels.receiveOrNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -106,8 +108,9 @@ class TestRunnerRequestTest {
         val request = TestRunnerRequest("com.example.test", InstrumentOptions())
         runBlocking {
             StubSocket(ByteChannel(autoFlush = true).apply { close() }, ByteChannel(autoFlush = true)).use { socket ->
-                val readElement = request.readElement(socket)
-                assertThat(readElement).isEqualTo(null)
+                val channel = Channel<List<TestEvent>>(BUFFERED)
+                val readElement = request.readElement(socket, channel)
+                assertThat(channel.poll()).isEqualTo(null)
             }
         }
     }
