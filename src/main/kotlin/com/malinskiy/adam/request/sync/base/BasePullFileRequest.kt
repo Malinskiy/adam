@@ -19,6 +19,7 @@ package com.malinskiy.adam.request.sync.base
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.exception.PullFailedException
 import com.malinskiy.adam.exception.UnsupportedSyncProtocolException
+import com.malinskiy.adam.extension.compatClear
 import com.malinskiy.adam.extension.compatFlip
 import com.malinskiy.adam.extension.compatLimit
 import com.malinskiy.adam.extension.toInt
@@ -77,7 +78,7 @@ abstract class BasePullFileRequest(
                     if (available > Const.MAX_FILE_PACKET_LENGTH) {
                         throw UnsupportedSyncProtocolException()
                     }
-                    clear()
+                    compatClear()
                     compatLimit(available)
                     socket.readFully(this)
                     compatFlip()
@@ -89,7 +90,7 @@ abstract class BasePullFileRequest(
                 }
                 header.contentEquals(Const.Message.FAIL) -> {
                     val size = data.copyOfRange(4, 8).toInt()
-                    clear()
+                    compatClear()
                     compatLimit(size)
                     socket.readFully(this)
                     compatFlip()

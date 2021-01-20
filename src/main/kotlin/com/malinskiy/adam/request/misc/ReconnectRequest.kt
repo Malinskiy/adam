@@ -17,6 +17,7 @@
 package com.malinskiy.adam.request.misc
 
 import com.malinskiy.adam.Const
+import com.malinskiy.adam.extension.compatClear
 import com.malinskiy.adam.extension.compatFlip
 import com.malinskiy.adam.extension.compatLimit
 import com.malinskiy.adam.request.ComplexRequest
@@ -48,7 +49,7 @@ class ReconnectRequest(
             } else {
                 //This is length of a response string
                 val size = String(array(), 0, 4, Const.DEFAULT_TRANSPORT_ENCODING).toInt(radix = 16)
-                clear()
+                compatClear()
                 compatLimit(size)
                 socket.readFully(this)
                 compatFlip()

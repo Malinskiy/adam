@@ -16,6 +16,7 @@
 
 package com.malinskiy.adam.transport
 
+import com.malinskiy.adam.extension.compatClear
 import com.malinskiy.adam.extension.compatFlip
 import com.malinskiy.adam.extension.compatLimit
 import kotlinx.coroutines.isActive
@@ -182,7 +183,7 @@ class NioSocket(
             if (shouldDrain) {
                 val buffer = ByteBuffer.allocate(128)
                 while (true) {
-                    buffer.clear()
+                    buffer.compatClear()
                     if (readUnsafe(selector, buffer) == -1 || state.get() == State.CLOSED || isClosedForRead) {
                         break
                     } else {

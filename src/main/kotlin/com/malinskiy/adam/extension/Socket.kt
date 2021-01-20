@@ -127,7 +127,7 @@ suspend fun Socket.readProtocolString(): String {
         }
         val messageLength = length.toIntOrNull(16) ?: throw RequestRejectedException("Unexpected string length: $length")
 
-        clear()
+        compatClear()
         compatLimit(messageLength)
         val read = readFully(this)
         if (read != messageLength) throw RequestRejectedException("Incomplete string received")

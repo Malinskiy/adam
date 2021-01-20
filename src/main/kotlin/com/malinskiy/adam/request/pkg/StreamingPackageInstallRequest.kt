@@ -18,6 +18,7 @@ package com.malinskiy.adam.request.pkg
 
 import com.malinskiy.adam.annotation.Features
 import com.malinskiy.adam.extension.bashEscape
+import com.malinskiy.adam.extension.compatClear
 import com.malinskiy.adam.extension.copyTo
 import com.malinskiy.adam.request.ComplexRequest
 import com.malinskiy.adam.request.Feature
@@ -119,7 +120,7 @@ class StreamingPackageInstallRequest(
                 fileChannel?.cancel()
             }
 
-            clear()
+            compatClear()
             socket.copyTo(transformer, this)
             return transformer.transform().startsWith("Success")
         }
