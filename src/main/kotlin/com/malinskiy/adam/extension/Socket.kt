@@ -121,9 +121,8 @@ suspend fun Socket.readProtocolString(): String {
     withDefaultBuffer {
         val transformer = StringResponseTransformer()
         val copied = copyTo(transformer, this, limit = 4L)
-        println(copied)
         val length = transformer.transform()
-        if (length.length != 4) {
+        if (copied != 4L) {
             throw RequestRejectedException("Unexpected string length: $length")
         }
         val messageLength = length.toIntOrNull(16) ?: throw RequestRejectedException("Unexpected string length: $length")
