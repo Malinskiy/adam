@@ -20,15 +20,11 @@ import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
 import assertk.assertions.isTrue
-import com.malinskiy.adam.extension.toAndroidChannel
+import com.malinskiy.adam.Const
 import com.malinskiy.adam.extension.toRequestString
 import com.malinskiy.adam.request.Feature
-import com.malinskiy.adam.transport.AndroidReadChannel
-import com.malinskiy.adam.transport.AndroidWriteChannel
-import io.ktor.util.cio.readChannel
-import io.ktor.util.cio.writeChannel
-import io.ktor.utils.io.cancel
-import io.ktor.utils.io.close
+import com.malinskiy.adam.server.StubSocket
+import com.malinskiy.adam.transport.use
 import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
@@ -61,21 +57,10 @@ class AbbExecRequestTest {
     @Test
     fun testDummy() {
         runBlocking {
-            val newFile = temp.newFile().apply { writeText("cafebabe") }
-            var readChannel: AndroidReadChannel? = null
-            var writeChannel: AndroidWriteChannel? = null
-            try {
-                readChannel = newFile.readChannel(coroutineContext = coroutineContext).toAndroidChannel()
-                writeChannel = newFile.writeChannel(coroutineContext).toAndroidChannel()
+            StubSocket("cafebabe".toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)).use { socket ->
                 assertThat(
-                    AbbExecRequest(listOf(), supportedFeatures = emptyList()).readElement(
-                        readChannel,
-                        writeChannel
-                    )
+                    AbbExecRequest(listOf(), supportedFeatures = emptyList()).readElement(socket)
                 ).isEqualTo("cafebabe")
-            } finally {
-                readChannel?.cancel()
-                writeChannel?.close()
             }
         }
     }

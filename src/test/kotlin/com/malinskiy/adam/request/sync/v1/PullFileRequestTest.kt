@@ -22,7 +22,7 @@ import com.malinskiy.adam.Const
 import com.malinskiy.adam.exception.PullFailedException
 import com.malinskiy.adam.exception.UnsupportedSyncProtocolException
 import com.malinskiy.adam.server.AndroidDebugBridgeServer
-import io.ktor.utils.io.writeIntLittleEndian
+import io.ktor.utils.io.*
 import kotlinx.coroutines.channels.receiveOrNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -36,6 +36,10 @@ class PullFileRequestTest {
     @Rule
     @JvmField
     val temp = TemporaryFolder()
+
+//    @Rule
+//    @JvmField
+//    val coroutines = CoroutinesTimeout.seconds(5)
 
     @Test
     fun testSerialize() {
@@ -209,6 +213,11 @@ class PullFileRequestTest {
 
                     output.respond(Const.Message.DATA)
                     output.respondData(ByteArray(Const.MAX_FILE_PACKET_LENGTH + 1))
+
+                    input.discard()
+                    while (input.isClosedForRead == false) {
+                    }
+                    output.close()
                 }
 
                 val request = PullFileRequest("/sdcard/testfile", tempFile)

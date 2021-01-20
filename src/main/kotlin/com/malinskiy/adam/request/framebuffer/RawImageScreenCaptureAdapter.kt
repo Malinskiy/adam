@@ -16,7 +16,7 @@
 
 package com.malinskiy.adam.request.framebuffer
 
-import com.malinskiy.adam.transport.AndroidReadChannel
+import com.malinskiy.adam.transport.Socket
 import java.nio.ByteBuffer
 
 class RawImageScreenCaptureAdapter(buffer: ByteBuffer? = null) : ScreenCaptureAdapter<RawImage>(buffer = buffer) {
@@ -36,9 +36,9 @@ class RawImageScreenCaptureAdapter(buffer: ByteBuffer? = null) : ScreenCaptureAd
         alphaOffset: Int,
         alphaLength: Int,
         colorSpace: ColorSpace?,
-        channel: AndroidReadChannel
+        socket: Socket
     ): RawImage {
-        val imageBuffer = read(channel, size)
+        val imageBuffer = read(socket, size)
 
         return RawImage(
             version = version,

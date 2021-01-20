@@ -18,9 +18,9 @@ package com.malinskiy.adam.request.sync.v1
 
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.extension.toByteArray
+import com.malinskiy.adam.extension.write
 import com.malinskiy.adam.request.sync.base.BasePushFileRequest
-import com.malinskiy.adam.transport.AndroidReadChannel
-import com.malinskiy.adam.transport.AndroidWriteChannel
+import com.malinskiy.adam.transport.Socket
 import kotlinx.coroutines.Dispatchers
 import java.io.File
 import kotlin.coroutines.CoroutineContext
@@ -32,8 +32,8 @@ class PushFileRequest(
     coroutineContext: CoroutineContext = Dispatchers.IO
 ) : BasePushFileRequest(local, remotePath, mode, coroutineContext) {
 
-    override suspend fun handshake(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel) {
-        super.handshake(readChannel, writeChannel)
+    override suspend fun handshake(socket: Socket) {
+        super.handshake(socket)
 
         val type = Const.Message.SEND_V1
 
@@ -49,6 +49,6 @@ class PushFileRequest(
         path.copyInto(cmd, 8)
         mode.copyInto(cmd, 8 + path.size)
 
-        writeChannel.write(cmd)
+        socket.write(cmd)
     }
 }

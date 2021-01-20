@@ -20,21 +20,21 @@ import com.malinskiy.adam.Const
 import com.malinskiy.adam.exception.UnsupportedSyncProtocolException
 import com.malinskiy.adam.extension.toInt
 import com.malinskiy.adam.extension.toUInt
+import com.malinskiy.adam.extension.writeSyncRequest
 import com.malinskiy.adam.request.ComplexRequest
 import com.malinskiy.adam.request.ValidationResponse
 import com.malinskiy.adam.request.sync.model.FileEntryV1
-import com.malinskiy.adam.transport.AndroidReadChannel
-import com.malinskiy.adam.transport.AndroidWriteChannel
+import com.malinskiy.adam.transport.Socket
 import java.time.Instant
 
 class StatFileRequest(
     private val remotePath: String
 ) : ComplexRequest<FileEntryV1>() {
-    override suspend fun readElement(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel): FileEntryV1 {
-        writeChannel.writeSyncRequest(Const.Message.LSTAT_V1, remotePath)
+    override suspend fun readElement(socket: Socket): FileEntryV1 {
+        socket.writeSyncRequest(Const.Message.LSTAT_V1, remotePath)
 
         val bytes = ByteArray(16)
-        readChannel.readFully(bytes, 0, 16)
+        socket.readFully(bytes, 0, 16)
 
         if (!bytes.copyOfRange(0, 4).contentEquals(Const.Message.LSTAT_V1)) throw UnsupportedSyncProtocolException()
 

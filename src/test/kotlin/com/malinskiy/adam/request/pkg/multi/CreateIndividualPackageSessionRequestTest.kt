@@ -21,13 +21,10 @@ import assertk.assertions.isEqualTo
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.exception.RequestRejectedException
 import com.malinskiy.adam.extension.newFileWithExtension
-import com.malinskiy.adam.extension.toAndroidChannel
 import com.malinskiy.adam.extension.toRequestString
 import com.malinskiy.adam.request.Feature
-import io.ktor.utils.io.ByteChannelSequentialJVM
-import io.ktor.utils.io.ByteReadChannel
-import io.ktor.utils.io.ByteWriteChannel
-import io.ktor.utils.io.core.IoBuffer
+import com.malinskiy.adam.server.StubSocket
+import com.malinskiy.adam.transport.use
 import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
@@ -104,13 +101,11 @@ class CreateIndividualPackageSessionRequestTest {
     fun testRead() {
         val request = stub()
         val response = "Success [my-session-id]".toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
-        val byteBufferChannel: ByteWriteChannel = ByteChannelSequentialJVM(IoBuffer.Empty, false)
         runBlocking {
-            val sessionId = request.readElement(
-                ByteReadChannel(response).toAndroidChannel(),
-                byteBufferChannel.toAndroidChannel()
-            )
-            assertThat(sessionId).isEqualTo("my-session-id")
+            StubSocket(response).use { socket ->
+                val sessionId = request.readElement(socket)
+                assertThat(sessionId).isEqualTo("my-session-id")
+            }
         }
     }
 
@@ -118,12 +113,10 @@ class CreateIndividualPackageSessionRequestTest {
     fun testReadException() {
         val request = stub()
         val response = "Failure".toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
-        val byteBufferChannel: ByteWriteChannel = ByteChannelSequentialJVM(IoBuffer.Empty, false)
         runBlocking {
-            request.readElement(
-                ByteReadChannel(response).toAndroidChannel(),
-                byteBufferChannel.toAndroidChannel()
-            )
+            StubSocket(response).use { socket ->
+                request.readElement(socket)
+            }
         }
     }
 
@@ -131,12 +124,10 @@ class CreateIndividualPackageSessionRequestTest {
     fun testReadNoSession() {
         val request = stub()
         val response = "Success no session returned".toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
-        val byteBufferChannel: ByteWriteChannel = ByteChannelSequentialJVM(IoBuffer.Empty, false)
         runBlocking {
-            request.readElement(
-                ByteReadChannel(response).toAndroidChannel(),
-                byteBufferChannel.toAndroidChannel()
-            )
+            StubSocket(response).use { socket ->
+                request.readElement(socket)
+            }
         }
     }
 

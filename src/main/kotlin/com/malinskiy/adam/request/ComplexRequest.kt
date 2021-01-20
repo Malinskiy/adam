@@ -16,8 +16,7 @@
 
 package com.malinskiy.adam.request
 
-import com.malinskiy.adam.transport.AndroidReadChannel
-import com.malinskiy.adam.transport.AndroidWriteChannel
+import com.malinskiy.adam.transport.Socket
 
 /**
  * This type of request starts with single serialized request
@@ -28,10 +27,10 @@ abstract class ComplexRequest<T : Any?>(target: Target = NonSpecifiedTarget) : R
      * Some requests ignore the initial OKAY/FAIL response and instead stream the actual response
      * To implement these we allow overriding this method
      */
-    open suspend fun process(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel): T {
-        handshake(readChannel, writeChannel)
-        return readElement(readChannel, writeChannel)
+    open suspend fun process(socket: Socket): T {
+        handshake(socket)
+        return readElement(socket)
     }
 
-    abstract suspend fun readElement(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel): T
+    abstract suspend fun readElement(socket: Socket): T
 }

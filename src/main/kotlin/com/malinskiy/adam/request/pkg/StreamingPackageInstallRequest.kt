@@ -25,8 +25,7 @@ import com.malinskiy.adam.request.Feature
 import com.malinskiy.adam.request.ValidationResponse
 import com.malinskiy.adam.request.abb.AbbExecRequest
 import com.malinskiy.adam.request.transform.StringResponseTransformer
-import com.malinskiy.adam.transport.AndroidReadChannel
-import com.malinskiy.adam.transport.AndroidWriteChannel
+import com.malinskiy.adam.transport.Socket
 import io.ktor.util.cio.*
 import io.ktor.utils.io.*
 import kotlinx.coroutines.Dispatchers
@@ -110,17 +109,17 @@ class StreamingPackageInstallRequest(
         }
     }
 
-    override suspend fun readElement(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel): Boolean {
+    override suspend fun readElement(socket: Socket): Boolean {
         val buffer = ByteArray(Const.MAX_FILE_PACKET_LENGTH)
         var fileChannel: ByteReadChannel? = null
         try {
             val fileChannel = pkg.readChannel(coroutineContext = coroutineContext)
-            fileChannel.copyTo(writeChannel, buffer)
+            fileChannel.copyTo(socket, buffer)
         } finally {
             fileChannel?.cancel()
         }
 
-        readChannel.copyTo(transformer, buffer)
+        socket.copyTo(transformer, buffer)
         return transformer.transform().startsWith("Success")
     }
 

@@ -24,8 +24,7 @@ import com.malinskiy.adam.request.ComplexRequest
 import com.malinskiy.adam.request.ValidationResponse
 import com.malinskiy.adam.request.shell.v1.ShellCommandRequest
 import com.malinskiy.adam.server.AndroidDebugBridgeServer
-import com.malinskiy.adam.transport.AndroidReadChannel
-import com.malinskiy.adam.transport.AndroidWriteChannel
+import com.malinskiy.adam.transport.Socket
 import io.ktor.utils.io.*
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
@@ -134,7 +133,7 @@ class AndroidDebugBridgeClientTest {
 
             client.execute(object : ComplexRequest<String>() {
                 override fun validate() = ValidationResponse(false, "Fake")
-                override suspend fun readElement(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel): String {
+                override suspend fun readElement(socket: Socket): String {
                     TODO("Not yet implemented")
                 }
 

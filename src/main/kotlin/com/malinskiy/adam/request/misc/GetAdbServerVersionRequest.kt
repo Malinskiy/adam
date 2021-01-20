@@ -17,17 +17,17 @@
 package com.malinskiy.adam.request.misc
 
 import com.malinskiy.adam.exception.RequestRejectedException
+import com.malinskiy.adam.extension.readOptionalProtocolString
 import com.malinskiy.adam.request.ComplexRequest
 import com.malinskiy.adam.request.HostTarget
-import com.malinskiy.adam.transport.AndroidReadChannel
-import com.malinskiy.adam.transport.AndroidWriteChannel
+import com.malinskiy.adam.transport.Socket
 
 /**
  * @see https://android.googlesource.com/platform/system/core/+/refs/heads/master/adb/adb.h#62
  */
 class GetAdbServerVersionRequest : ComplexRequest<Int>(target = HostTarget) {
-    override suspend fun readElement(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel): Int {
-        val version = readChannel.readOptionalProtocolString()
+    override suspend fun readElement(socket: Socket): Int {
+        val version = socket.readOptionalProtocolString()
         return version?.toIntOrNull(radix = 16) ?: throw RequestRejectedException("Empty/corrupt response")
     }
 

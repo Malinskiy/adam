@@ -19,7 +19,6 @@ package com.malinskiy.adam
 object Const {
     const val MAX_REMOTE_PATH_LENGTH = 1024
     const val DEFAULT_BUFFER_SIZE = 1024
-    const val READ_DELAY = 100L
     val DEFAULT_TRANSPORT_ENCODING = Charsets.UTF_8
     const val DEFAULT_ADB_HOST = "127.0.0.1"
     const val DEFAULT_ADB_PORT = 5037
@@ -27,6 +26,7 @@ object Const {
     const val SERVER_PORT_ENV_VAR = "ANDROID_ADB_SERVER_PORT"
     const val MAX_PACKET_LENGTH = 16384
     const val MAX_FILE_PACKET_LENGTH = 64 * 1024
+    const val KTOR_INTERNAL_BUFFER_LENGTH = 4088
 
     const val MAX_PROTOBUF_LOGCAT_LENGTH = 10_000
     const val MAX_PROTOBUF_PACKET_LENGTH = 10 * 1024 * 1024L //10Mb

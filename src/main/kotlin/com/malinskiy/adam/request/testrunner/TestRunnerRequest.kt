@@ -21,8 +21,7 @@ import com.malinskiy.adam.request.AsyncChannelRequest
 import com.malinskiy.adam.request.transform.InstrumentationResponseTransformer
 import com.malinskiy.adam.request.transform.ProgressiveResponseTransformer
 import com.malinskiy.adam.request.transform.ProtoInstrumentationResponseTransformer
-import com.malinskiy.adam.transport.AndroidReadChannel
-import com.malinskiy.adam.transport.AndroidWriteChannel
+import com.malinskiy.adam.transport.Socket
 import kotlinx.coroutines.channels.SendChannel
 
 /**
@@ -64,20 +63,20 @@ class TestRunnerRequest(
         }
     }
 
-    override suspend fun readElement(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel): List<TestEvent>? {
-        val available = readChannel.readAvailable(buffer, 0, Const.MAX_PACKET_LENGTH)
+    override suspend fun readElement(socket: Socket, sendChannel: SendChannel<List<TestEvent>>): Boolean {
+        val available = socket.readAvailable(buffer, 0, Const.MAX_PACKET_LENGTH)
 
-        return when {
+        when {
             available > 0 -> {
-                transformer.process(buffer, 0, available)
+                transformer.process(buffer, 0, available)?.let { sendChannel.send(it) }
             }
             available < 0 -> {
-                readChannel.cancel(null)
-                writeChannel.close(null)
-                return null
+                return true
             }
             else -> null
         }
+
+        return false
     }
 
     override fun serialize() = createBaseRequest(StringBuilder().apply {
@@ -126,5 +125,5 @@ class TestRunnerRequest(
         transformer.transform()?.let { channel.send(it) }
     }
 
-    override suspend fun writeElement(element: Unit, readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel) = Unit
+    override suspend fun writeElement(element: Unit, socket: Socket) = Unit
 }

@@ -23,8 +23,7 @@ import com.malinskiy.adam.extension.toInt
 import com.malinskiy.adam.request.AsyncChannelRequest
 import com.malinskiy.adam.request.ValidationResponse
 import com.malinskiy.adam.request.sync.v1.StatFileRequest
-import com.malinskiy.adam.transport.AndroidReadChannel
-import com.malinskiy.adam.transport.AndroidWriteChannel
+import com.malinskiy.adam.transport.Socket
 import io.ktor.util.cio.*
 import io.ktor.utils.io.*
 import kotlinx.coroutines.Dispatchers
@@ -53,41 +52,39 @@ abstract class BasePullFileRequest(
     var totalBytes = -1L
     var currentPosition = 0L
 
-    override suspend fun handshake(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel) {
-        super.handshake(readChannel, writeChannel)
+    override suspend fun handshake(socket: Socket) {
+        super.handshake(socket)
         //If we don't have expected size, fetch it
-        totalBytes = size ?: StatFileRequest(remotePath).readElement(readChannel, writeChannel).size.toLong()
+        totalBytes = size ?: StatFileRequest(remotePath).readElement(socket).size.toLong()
     }
 
     private val headerBuffer = ByteArray(8)
     private val dataBuffer = ByteArray(Const.MAX_FILE_PACKET_LENGTH)
 
-    override suspend fun readElement(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel): Double? {
-        readChannel.readFully(headerBuffer, 0, 8)
+    override suspend fun readElement(socket: Socket, sendChannel: SendChannel<Double>): Boolean {
+        socket.readFully(headerBuffer, 0, 8)
 
         val header = headerBuffer.copyOfRange(0, 4)
         when {
             header.contentEquals(Const.Message.DONE) -> {
                 fileWriteChannel.close()
-                readChannel.cancel(null)
-                writeChannel.close(null)
-                return 1.0
+                return true
             }
             header.contentEquals(Const.Message.DATA) -> {
                 val available = headerBuffer.copyOfRange(4, 8).toInt()
                 if (available > Const.MAX_FILE_PACKET_LENGTH) {
                     throw UnsupportedSyncProtocolException()
                 }
-                readChannel.readFully(dataBuffer, 0, available)
+                socket.readFully(dataBuffer, 0, available)
                 fileWriteChannel.writeFully(dataBuffer, 0, available)
 
                 currentPosition += available
 
-                return currentPosition.toDouble() / totalBytes
+                sendChannel.send(currentPosition.toDouble() / totalBytes)
             }
             header.contentEquals(Const.Message.FAIL) -> {
                 val size = headerBuffer.copyOfRange(4, 8).toInt()
-                readChannel.readFully(dataBuffer, 0, size)
+                socket.readFully(dataBuffer, 0, size)
                 val errorMessage = String(dataBuffer, 0, size)
                 throw PullFailedException("Failed to pull file $remotePath: $errorMessage")
             }
@@ -95,6 +92,7 @@ abstract class BasePullFileRequest(
                 throw UnsupportedSyncProtocolException("Unexpected header message ${String(header, Const.DEFAULT_TRANSPORT_ENCODING)}")
             }
         }
+        return false
     }
 
     override suspend fun close(channel: SendChannel<Double>) {
@@ -111,6 +109,6 @@ abstract class BasePullFileRequest(
         }
     }
 
-    override suspend fun writeElement(element: Unit, readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel) = Unit
+    override suspend fun writeElement(element: Unit, socket: Socket) = Unit
 
 }

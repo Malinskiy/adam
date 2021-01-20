@@ -18,20 +18,20 @@ package com.malinskiy.adam.request.misc
 
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.extension.copyTo
+import com.malinskiy.adam.extension.readStatus
 import com.malinskiy.adam.request.ComplexRequest
-import com.malinskiy.adam.transport.AndroidReadChannel
-import com.malinskiy.adam.transport.AndroidWriteChannel
-import io.ktor.utils.io.ByteReadChannel
+import com.malinskiy.adam.transport.Socket
+import io.ktor.utils.io.*
 
 /**
  * Executes the command and provides the channel as the input to the command. Does not return anything
  */
 class ExecInRequest(private val cmd: String, private val channel: ByteReadChannel) : ComplexRequest<Unit>() {
-    override suspend fun readElement(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel) {
+    override suspend fun readElement(socket: Socket) {
         val buffer = ByteArray(Const.MAX_FILE_PACKET_LENGTH)
-        channel.copyTo(writeChannel, buffer)
+        channel.copyTo(socket, buffer)
         //Have to poll
-        readChannel.readStatus()
+        socket.readStatus()
     }
 
     override fun serialize() = createBaseRequest("exec:$cmd")

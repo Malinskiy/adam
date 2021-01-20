@@ -21,7 +21,7 @@ import assertk.assertions.isEqualTo
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.request.Feature
 import com.malinskiy.adam.server.AndroidDebugBridgeServer
-import io.ktor.utils.io.close
+import io.ktor.utils.io.*
 import kotlinx.coroutines.channels.receiveOrNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -58,6 +58,9 @@ class CompatPushFileRequestTest {
                     assertThat(receiveCmd).isEqualTo("/sdcard/testfile,511")
                     input.receiveFile(receiveFile)
                     output.respond(Const.Message.OKAY)
+
+                    input.discard()
+
                     output.close()
                 }
 

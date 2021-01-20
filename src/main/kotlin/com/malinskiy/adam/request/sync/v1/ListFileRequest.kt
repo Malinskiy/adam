@@ -18,11 +18,11 @@ package com.malinskiy.adam.request.sync.v1
 
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.extension.toInt
+import com.malinskiy.adam.extension.writeSyncRequest
 import com.malinskiy.adam.request.ComplexRequest
 import com.malinskiy.adam.request.ValidationResponse
 import com.malinskiy.adam.request.sync.model.FileEntryV1
-import com.malinskiy.adam.transport.AndroidReadChannel
-import com.malinskiy.adam.transport.AndroidWriteChannel
+import com.malinskiy.adam.transport.Socket
 import java.time.Instant
 
 class ListFileRequest(
@@ -37,19 +37,19 @@ class ListFileRequest(
         }
     }
 
-    override suspend fun readElement(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel): List<FileEntryV1> {
-        writeChannel.writeSyncRequest(Const.Message.LIST_V1, remotePath)
+    override suspend fun readElement(socket: Socket): List<FileEntryV1> {
+        socket.writeSyncRequest(Const.Message.LIST_V1, remotePath)
 
         val bytes = ByteArray(16)
         val stringBytes = ByteArray(Const.MAX_REMOTE_PATH_LENGTH)
         val result = mutableListOf<FileEntryV1>()
         loop@ while (true) {
-            readChannel.readFully(bytes, 0, 4)
+            socket.readFully(bytes, 0, 4)
             when {
                 bytes.copyOfRange(0, 4).contentEquals(Const.Message.DENT_V1) -> {
-                    readChannel.readFully(bytes, 0, 16)
+                    socket.readFully(bytes, 0, 16)
                     val nameLength = bytes.copyOfRange(12, 16).toInt()
-                    readChannel.readFully(stringBytes, 0, nameLength)
+                    socket.readFully(stringBytes, 0, nameLength)
 
                     result.add(
                         FileEntryV1(

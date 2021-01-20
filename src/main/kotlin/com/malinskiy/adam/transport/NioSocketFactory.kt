@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 Anton Malinskiy
+ * Copyright (C) 2021 Anton Malinskiy
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,18 @@
  * limitations under the License.
  */
 
-package com.malinskiy.adam.extension
+package com.malinskiy.adam.transport
 
-import com.malinskiy.adam.transport.AndroidReadChannel
-import com.malinskiy.adam.transport.AndroidWriteChannel
-import io.ktor.utils.io.ByteReadChannel
-import io.ktor.utils.io.ByteWriteChannel
+import java.net.InetSocketAddress
 
-
-fun ByteReadChannel.toAndroidChannel() = AndroidReadChannel(this)
-fun ByteWriteChannel.toAndroidChannel() = AndroidWriteChannel(this)
+class NioSocketFactory : SocketFactory {
+    override suspend fun tcp(socketAddress: InetSocketAddress): Socket {
+        val nioSocket = NioSocket(
+            socketAddress = socketAddress,
+            connectTimeout = 10_000,
+            idleTimeout = 10_000,
+        )
+        nioSocket.connect()
+        return nioSocket
+    }
+}

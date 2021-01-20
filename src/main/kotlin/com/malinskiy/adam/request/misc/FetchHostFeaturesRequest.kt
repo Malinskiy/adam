@@ -20,21 +20,20 @@ import com.malinskiy.adam.Const
 import com.malinskiy.adam.request.ComplexRequest
 import com.malinskiy.adam.request.Feature
 import com.malinskiy.adam.request.HostTarget
-import com.malinskiy.adam.transport.AndroidReadChannel
-import com.malinskiy.adam.transport.AndroidWriteChannel
+import com.malinskiy.adam.transport.Socket
 import java.nio.ByteBuffer
 
 class FetchHostFeaturesRequest : ComplexRequest<List<Feature>>(target = HostTarget) {
 
     override fun serialize() = createBaseRequest("host-features")
 
-    override suspend fun readElement(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel): List<Feature> {
+    override suspend fun readElement(socket: Socket): List<Feature> {
         val sizeBuffer: ByteBuffer = ByteBuffer.allocate(4)
-        readChannel.readFully(sizeBuffer)
+        socket.readFully(sizeBuffer)
         val size = String(sizeBuffer.array(), Const.DEFAULT_TRANSPORT_ENCODING).toInt(radix = 16)
 
         val payloadBuffer = ByteBuffer.allocate(size)
-        readChannel.readFully(payloadBuffer)
+        socket.readFully(payloadBuffer)
         return String(payloadBuffer.array(), Const.DEFAULT_TRANSPORT_ENCODING).split(',').mapNotNull { Feature.of(it) }
     }
 }

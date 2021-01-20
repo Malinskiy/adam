@@ -13,6 +13,7 @@ object Versions {
     val imageComparison = "4.3.0"
     val dokka = kotlin
     val pdbank = "0.9.1"
+    val coroutinesDebug = "1.4.0"
 }
 
 object BuildPlugins {
@@ -32,4 +33,5 @@ object TestLibraries {
     val assertk = "com.willowtreeapps.assertk:assertk:${Versions.assertk}"
     val junit = "junit:junit:${Versions.junit}"
     val imageComparison = "com.github.romankh3:image-comparison:${Versions.imageComparison}"
+    val coroutinesDebug = "org.jetbrains.kotlinx:kotlinx-coroutines-debug:${Versions.coroutinesDebug}"
 }

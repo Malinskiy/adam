@@ -16,7 +16,8 @@
 
 package com.malinskiy.adam.request.emu
 
-import com.malinskiy.adam.Const
+import com.malinskiy.adam.transport.Socket
+import com.malinskiy.adam.transport.withDefaultBuffer
 import io.ktor.util.cio.*
 import io.ktor.utils.io.*
 import java.io.File
@@ -50,7 +51,7 @@ class EmulatorCommandRequest(
         }
     }
 
-    suspend fun process(readChannel: ByteReadChannel, writeChannel: ByteWriteChannel): String {
+    suspend fun process(socket: Socket): String {
         val sessionBuilder = StringBuilder()
         val token = authToken ?: readAuthToken() ?: ""
         if (token.isNotEmpty()) {
@@ -59,27 +60,29 @@ class EmulatorCommandRequest(
         sessionBuilder.append("$cmd\n")
         sessionBuilder.append("quit\n")
 
-        writeChannel.writeFully(sessionBuilder.toString().toByteArray())
+        socket.writeFully(sessionBuilder.toString().toByteArray())
 
-        val buffer = ByteArray(1024)
-        val output = StringBuilder()
-        loop@ do {
-            if (writeChannel.isClosedForWrite || readChannel.isClosedForRead) break@loop
+        withDefaultBuffer {
+            val buffer = array()
+            val output = StringBuilder()
+            loop@ do {
+                if (socket.isClosedForWrite || socket.isClosedForRead) break@loop
 
-            val count = readChannel.readAvailable(buffer, 0, Const.MAX_PACKET_LENGTH)
-            when {
-                count == 0 -> {
-                    continue@loop
+                val count = socket.readAvailable(buffer, 0, buffer.size)
+                when {
+                    count == 0 -> {
+                        continue@loop
+                    }
+                    count > 0 -> {
+                        output.append(String(buffer, 0, count, Charsets.UTF_8))
+                    }
                 }
-                count > 0 -> {
-                    output.append(String(buffer, 0, count, Charsets.UTF_8))
-                }
-            }
-        } while (count >= 0)
+            } while (count >= 0)
 
-        val firstOkPosition = output.indexOf(OUTPUT_DELIMITER)
-        val secondOkPosition = output.indexOf(OUTPUT_DELIMITER, firstOkPosition + 1)
-        return output.substring(secondOkPosition + OUTPUT_DELIMITER.length)
+            val firstOkPosition = output.indexOf(OUTPUT_DELIMITER)
+            val secondOkPosition = output.indexOf(OUTPUT_DELIMITER, firstOkPosition + 1)
+            return output.substring(secondOkPosition + OUTPUT_DELIMITER.length)
+        }
     }
 
     companion object {

@@ -105,7 +105,7 @@ java {
     targetCompatibility = JavaVersion.VERSION_1_8
 }
 
-tasks.compileKotlin {
+tasks.withType(KotlinCompile::class) {
     kotlinOptions.jvmTarget = "1.8"
     kotlinOptions.apiVersion = "1.4"
 }
@@ -122,9 +122,11 @@ dependencies {
     testImplementation(TestLibraries.assertk)
     testImplementation(TestLibraries.junit)
     testImplementation(TestLibraries.imageComparison)
+    testImplementation(TestLibraries.coroutinesDebug)
     testImplementation(kotlin("reflect", version = Versions.kotlin))
 
     integrationTestImplementation(TestLibraries.assertk)
     integrationTestImplementation(TestLibraries.junit)
+    integrationTestImplementation(TestLibraries.coroutinesDebug)
     integrationTestImplementation(kotlin("reflect", version = Versions.kotlin))
 }

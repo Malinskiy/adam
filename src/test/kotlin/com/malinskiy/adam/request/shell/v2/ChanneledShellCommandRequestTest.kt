@@ -20,7 +20,7 @@ import assertk.assertThat
 import assertk.assertions.isEqualTo
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.server.AndroidDebugBridgeServer
-import io.ktor.utils.io.close
+import io.ktor.utils.io.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.runBlocking
@@ -56,6 +56,7 @@ class ChanneledShellCommandRequestTest {
                 output.respondShellV2Exit(17)
 
                 output.close()
+                input.discard()
             }
 
             val stdio = Channel<ShellCommandInputChunk>()

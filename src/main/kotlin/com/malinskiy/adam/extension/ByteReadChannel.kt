@@ -16,11 +16,12 @@
 
 package com.malinskiy.adam.extension
 
-import com.malinskiy.adam.request.transform.ResponseTransformer
+import com.malinskiy.adam.transport.Socket
 import io.ktor.utils.io.*
 import java.nio.ByteBuffer
 
-suspend fun ByteReadChannel.copyTo(channel: ByteWriteChannel, buffer: ByteArray): Long {
+suspend fun ByteReadChannel.copyTo(socket: Socket, buffer: ByteBuffer) = copyTo(socket, buffer.array())
+suspend fun ByteReadChannel.copyTo(socket: Socket, buffer: ByteArray): Long {
     var processed = 0L
     loop@ while (true) {
         val available = readAvailable(buffer, 0, buffer.size)
@@ -29,7 +30,7 @@ suspend fun ByteReadChannel.copyTo(channel: ByteWriteChannel, buffer: ByteArray)
                 break@loop
             }
             available > 0 -> {
-                channel.writeFully(buffer, 0, available)
+                socket.writeFully(buffer, 0, available)
                 processed += available
             }
             else -> continue@loop
@@ -37,42 +38,3 @@ suspend fun ByteReadChannel.copyTo(channel: ByteWriteChannel, buffer: ByteArray)
     }
     return processed
 }
-
-/**
- * Copies up to limit bytes into transformer using buffer. If limit is null - copy until EOF
- */
-suspend fun <T> ByteReadChannel.copyTo(transformer: ResponseTransformer<T>, buffer: ByteArray, limit: Long? = null): Long {
-    var processed = 0L
-    loop@ while (true) {
-        val toRead = when {
-            limit == null || (limit - processed) > buffer.size -> {
-                buffer.size
-            }
-            else -> {
-                (limit - processed).toInt()
-            }
-        }
-        val available = readAvailable(buffer, 0, toRead)
-        when {
-            processed == limit -> break@loop
-            available < 0 -> {
-                break@loop
-            }
-            available > 0 -> {
-                transformer.process(buffer, 0, available)
-                processed += available
-            }
-            else -> continue@loop
-        }
-    }
-    return processed
-}
-
-/**
- * TODO: rewrite
- * Assumes buffer hasArray == true
- */
-suspend fun ByteReadChannel.copyTo(channel: ByteWriteChannel, buffer: ByteBuffer) = copyTo(channel, buffer.array())
-suspend fun <T> ByteReadChannel.copyTo(transformer: ResponseTransformer<T>, buffer: ByteBuffer) = copyTo(transformer, buffer.array())
-suspend fun <T> ByteReadChannel.copyTo(transformer: ResponseTransformer<T>, buffer: ByteBuffer, limit: Long? = null) =
-    copyTo(transformer, buffer.array(), limit)

@@ -18,11 +18,11 @@ package com.malinskiy.adam.request.pkg.multi
 
 import com.malinskiy.adam.exception.RequestRejectedException
 import com.malinskiy.adam.extension.bashEscape
+import com.malinskiy.adam.extension.readStatus
 import com.malinskiy.adam.request.ComplexRequest
 import com.malinskiy.adam.request.Feature
 import com.malinskiy.adam.request.abb.AbbExecRequest
-import com.malinskiy.adam.transport.AndroidReadChannel
-import com.malinskiy.adam.transport.AndroidWriteChannel
+import com.malinskiy.adam.transport.Socket
 
 class CreateIndividualPackageSessionRequest(
     private val pkg: InstallationPackage,
@@ -84,8 +84,8 @@ class CreateIndividualPackageSessionRequest(
         }
     }
 
-    override suspend fun readElement(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel): String {
-        val response = readChannel.readStatus()
+    override suspend fun readElement(socket: Socket): String {
+        val response = socket.readStatus()
         if (!response.contains("Success")) {
             throw RequestRejectedException("Failed to create multi-package session: $response")
         }
