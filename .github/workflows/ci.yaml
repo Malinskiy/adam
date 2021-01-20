@@ -49,7 +49,7 @@ jobs:
         with:
           cmd: ./gradlew integrationTest
           api: ${{ matrix.api }}
-          tag: default
+          tag: google_apis
           abi: x86
       - name: Generate integration code coverage report
         run: ./gradlew jacocoIntegrationTestReport
@@ -62,7 +62,7 @@ jobs:
           name: integration-test-result
           path: integration-test-result.zip
       - name: archive test coverage
-        run: (cd build/reports/jacoco/jacocoIntegrationTestReport/html; zip -r -X ../../../../integration-test-coverage.zip .)
+        run: (cd build/reports/jacoco/jacocoIntegrationTestReport/html; zip -r -X ../../../../../integration-test-coverage.zip .)
       - name: Save coverage output
         uses: actions/upload-artifact@master
         with:
