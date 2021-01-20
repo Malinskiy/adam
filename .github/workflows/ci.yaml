@@ -48,6 +48,7 @@ jobs:
         timeout-minutes: 20
         with:
           cmd: ./gradlew integrationTest
+          cmdOptions: -no-snapshot-save -noaudio -no-boot-anim -cores 2 -memory 3072
           api: ${{ matrix.api }}
           tag: google_apis
           abi: x86
