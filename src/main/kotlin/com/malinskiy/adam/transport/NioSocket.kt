@@ -16,11 +16,13 @@
 
 package com.malinskiy.adam.transport
 
+import com.malinskiy.adam.extension.compatLimit
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.coroutines.yield
+import java.io.EOFException
 import java.io.IOException
 import java.net.InetSocketAddress
 import java.net.SocketTimeoutException
@@ -53,13 +55,15 @@ class NioSocket(
     suspend fun connect() {
         if (!state.compareAndSet(State.CLOSED, State.SYN_SENT)) return
 
-        socketChannel = SelectorProvider.provider().openSocketChannel().apply {
+        val selectorProvider = SelectorProvider.provider()
+
+        socketChannel = selectorProvider.openSocketChannel().apply {
             configureBlocking(false)
             configure(socket())
         }
 
         val success = socketChannel.connect(socketAddress)
-        selector = SelectorProvider.provider().openSelector()
+        selector = selectorProvider.openSelector()
         if (success) {
             processAccept(selector)
         } else {
@@ -106,7 +110,7 @@ class NioSocket(
                 yield()
             }
 
-            return@withTimeoutOrNull remaining
+            return@withTimeoutOrNull buffer.limit() - remaining
         } ?: throw SocketTimeoutException("Timeout reading")
     }
 
@@ -117,20 +121,30 @@ class NioSocket(
     override suspend fun readByte(): Byte {
         val buffer = ByteBuffer.allocate(1)
         val read = readFully(buffer)
-        //TODO: handle EOF
+        if (read == -1) throw EOFException("Input channel was closed by remote host")
         return buffer.array()[0]
     }
 
     override suspend fun writeByte(value: Int) {
-        writeFully(ByteArray(1) { value.toByte() })
+        withDefaultBuffer {
+            put(value.toByte())
+            flip()
+            writeFully(this)
+        }
     }
 
     override suspend fun readIntLittleEndian(): Int {
-        val allocate = ByteBuffer.allocate(4)
-        allocate.order(ByteOrder.LITTLE_ENDIAN)
-        val read = readFully(allocate)
-        allocate.flip()
-        return allocate.int
+        withDefaultBuffer {
+            val order = order()
+            order(ByteOrder.LITTLE_ENDIAN)
+            compatLimit(4)
+            val read = readFully(this)
+            if (read == -1) throw EOFException("Input channel was closed by remote host")
+            flip()
+            val result = int
+            order(order)
+            return result
+        }
     }
 
     override suspend fun writeIntLittleEndian(value: Int) {
@@ -141,6 +155,7 @@ class NioSocket(
         writeFully(allocate)
     }
 
+    @Suppress("BlockingMethodInNonBlockingContext")
     override suspend fun close() {
         mutex.withLock {
             val shouldDrain = when {
@@ -193,7 +208,12 @@ class NioSocket(
                     while (iterator.hasNext()) {
                         val selectionKey = iterator.next()
                         if (selectionKey.isConnectable) {
-                            socketChannel.finishConnect()
+                            try {
+                                (selectionKey.channel() as SocketChannel).finishConnect()
+                            } catch (e: IOException) {
+                                selectionKey.cancel()
+                                throw e
+                            }
                             selectionKey.interestOps(0)
 
                             val success = state.compareAndSet(State.SYN_SENT, State.ESTABLISHED)
@@ -209,6 +229,7 @@ class NioSocket(
             if (socketChannel.isConnectionPending) {
                 try {
                     socketChannel.close()
+                    socketChannel.keyFor(selector).cancel()
                 } catch (e: IOException) {
                     //ignore
                 }
@@ -255,6 +276,7 @@ class NioSocket(
                             state.set(State.CLOSE_WAIT)
                         }
                         State.CLOSING -> state.set(State.CLOSED)
+                        else -> Unit
                     }
                 }
                 selectionKey.interestOps(0)

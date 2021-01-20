@@ -17,12 +17,12 @@
 package com.malinskiy.adam.request.misc
 
 import com.malinskiy.adam.Const
-import com.malinskiy.adam.extension.compatRewind
+import com.malinskiy.adam.extension.compatLimit
 import com.malinskiy.adam.request.ComplexRequest
 import com.malinskiy.adam.request.NonSpecifiedTarget
 import com.malinskiy.adam.request.Target
 import com.malinskiy.adam.transport.Socket
-import java.nio.ByteBuffer
+import com.malinskiy.adam.transport.withDefaultBuffer
 
 /**
  * This request is quite tricky to use since the target of the request varies with the reconnection target
@@ -37,21 +37,22 @@ class ReconnectRequest(
     private val reconnectTarget: ReconnectTarget? = null,
     target: Target = NonSpecifiedTarget
 ) : ComplexRequest<String>(target = target) {
-    private val buffer = ByteBuffer.allocate(4)
-
     override suspend fun readElement(socket: Socket): String {
-
-        socket.readFully(buffer)
-        val array = buffer.array()
-        return if (array.contentEquals(done)) {
-            "done"
-        } else {
-            //This is length of a response string
-            val size = String(array, Const.DEFAULT_TRANSPORT_ENCODING).toInt(radix = 16)
-            val payloadBuffer = ByteBuffer.allocate(size)
-            socket.readFully(payloadBuffer)
-            payloadBuffer.compatRewind()
-            String(payloadBuffer.array(), Const.DEFAULT_TRANSPORT_ENCODING)
+        withDefaultBuffer {
+            compatLimit(4)
+            socket.readFully(this)
+            flip()
+            return if (array().contentEquals(done)) {
+                "done"
+            } else {
+                //This is length of a response string
+                val size = String(array(), Const.DEFAULT_TRANSPORT_ENCODING).toInt(radix = 16)
+                clear()
+                compatLimit(size)
+                socket.readFully(this)
+                flip()
+                String(array(), Const.DEFAULT_TRANSPORT_ENCODING)
+            }
         }
     }
 

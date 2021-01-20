@@ -16,12 +16,12 @@
 
 package com.malinskiy.adam.request.pkg
 
-import com.malinskiy.adam.Const
 import com.malinskiy.adam.extension.copyTo
 import com.malinskiy.adam.extension.readTransportResponse
 import com.malinskiy.adam.request.ComplexRequest
 import com.malinskiy.adam.request.ValidationResponse
 import com.malinskiy.adam.transport.Socket
+import com.malinskiy.adam.transport.withMaxFilePacketBuffer
 import io.ktor.util.cio.*
 import io.ktor.utils.io.*
 import kotlinx.coroutines.Dispatchers
@@ -51,15 +51,17 @@ class LegacySideloadRequest(
     override fun serialize() = createBaseRequest("sideload:${pkg.length()}")
 
     override suspend fun readElement(socket: Socket): Boolean {
-        val buffer = ByteArray(Const.MAX_FILE_PACKET_LENGTH)
-        var fileChannel: ByteReadChannel? = null
-        try {
-            val fileChannel = pkg.readChannel(coroutineContext = coroutineContext)
-            fileChannel.copyTo(socket, buffer)
-        } finally {
-            fileChannel?.cancel()
-        }
+        withMaxFilePacketBuffer {
+            var fileChannel: ByteReadChannel? = null
+            try {
+                val fileChannel = pkg.readChannel(coroutineContext = coroutineContext)
+                fileChannel.copyTo(socket, this)
+            } finally {
+                fileChannel?.cancel()
+            }
 
-        return socket.readTransportResponse().okay
+            return socket.readTransportResponse().okay
+
+        }
     }
 }

@@ -17,6 +17,7 @@
 package com.malinskiy.adam.extension
 
 import com.malinskiy.adam.Const
+import com.malinskiy.adam.exception.RequestRejectedException
 import com.malinskiy.adam.request.transform.ResponseTransformer
 import com.malinskiy.adam.request.transform.StringResponseTransformer
 import com.malinskiy.adam.transport.Socket
@@ -26,6 +27,7 @@ import io.ktor.util.cio.*
 import io.ktor.utils.io.*
 import io.ktor.utils.io.bits.*
 import io.ktor.utils.io.core.*
+import kotlinx.coroutines.yield
 import java.io.File
 import java.nio.ByteBuffer
 import kotlin.coroutines.CoroutineContext
@@ -43,7 +45,10 @@ suspend fun Socket.copyTo(channel: ByteWriteChannel, buffer: ByteArray): Long {
                 channel.writeFully(buffer, 0, available)
                 processed += available
             }
-            else -> continue@loop
+            else -> {
+                yield()
+                continue@loop
+            }
         }
     }
     return processed
@@ -73,7 +78,10 @@ suspend fun <T> Socket.copyTo(transformer: ResponseTransformer<T>, buffer: ByteA
                 transformer.process(buffer, 0, available)
                 processed += available
             }
-            else -> continue@loop
+            else -> {
+                yield()
+                continue@loop
+            }
         }
     }
     return processed
@@ -98,23 +106,47 @@ suspend fun Socket.readOptionalProtocolString(): String? {
     return if (errorMessageLength == null) {
         readStatus()
     } else {
-        val errorBytes = ByteArray(errorMessageLength)
-        readFully(errorBytes, 0, errorMessageLength)
-        String(errorBytes, Const.DEFAULT_TRANSPORT_ENCODING)
+        withDefaultBuffer {
+            val transformer = StringResponseTransformer()
+            this@readOptionalProtocolString.copyTo(transformer, this, limit = errorMessageLength.toLong())
+            transformer.transform()
+        }
+    }
+}
+
+/**
+ * @throws RequestRejectedException
+ */
+suspend fun Socket.readProtocolString(): String {
+    withDefaultBuffer {
+        val transformer = StringResponseTransformer()
+        val copied = copyTo(transformer, this, limit = 4L)
+        println(copied)
+        val length = transformer.transform()
+        if (length.length != 4) {
+            throw RequestRejectedException("Unexpected string length: $length")
+        }
+        val messageLength = length.toIntOrNull(16) ?: throw RequestRejectedException("Unexpected string length: $length")
+
+        clear()
+        compatLimit(messageLength)
+        val read = readFully(this)
+        if (read != messageLength) throw RequestRejectedException("Incomplete string received")
+        return String(array(), 0, read, Const.DEFAULT_TRANSPORT_ENCODING)
     }
 }
 
 suspend fun Socket.read(): TransportResponse {
-    val bytes = ByteArray(4)
-    readFully(bytes, 0, 4)
-
-    val ok = bytes.isOkay()
+    val ok = withDefaultBuffer {
+        compatLimit(4)
+        readFully(this)
+        array().isOkay()
+    }
     val message = if (!ok) {
         readOptionalProtocolString()
     } else {
         null
     }
-
     return TransportResponse(ok, message)
 }
 
@@ -146,12 +178,13 @@ suspend fun Socket.writeSyncRequest(type: ByteArray, remotePath: String) {
     val path = remotePath.toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
     val size = path.size.toByteArray().reversedArray()
 
-    val cmd = ByteArray(8 + path.size)
-
-    type.copyInto(cmd)
-    size.copyInto(cmd, 4)
-    path.copyInto(cmd, 8)
-    write(cmd)
+    withDefaultBuffer {
+        put(type)
+        put(size)
+        put(path)
+        flip()
+        writeFully(this)
+    }
 }
 
 suspend fun Socket.writeSyncV2Request(type: ByteArray, remotePath: String, flags: Int, mode: Int? = null) {
@@ -177,10 +210,11 @@ suspend fun Socket.writeSyncV2Request(type: ByteArray, remotePath: String, flags
 }
 
 suspend fun Socket.readTransportResponse(): TransportResponse {
-    val bytes = ByteArray(4)
-    readFully(bytes, 0, 4)
-
-    val ok = bytes.isOkay()
+    val ok = withDefaultBuffer {
+        compatLimit(4)
+        readFully(this)
+        array().isOkay()
+    }
     val message = if (!ok) {
         readOptionalProtocolString()
     } else {

@@ -16,27 +16,31 @@
 
 package com.malinskiy.adam.request
 
-import com.malinskiy.adam.Const
 import com.malinskiy.adam.request.transform.ResponseTransformer
 import com.malinskiy.adam.transport.Socket
+import com.malinskiy.adam.transport.withMaxPacketBuffer
+import kotlinx.coroutines.yield
 
 abstract class SynchronousRequest<T : Any?>(target: Target = NonSpecifiedTarget) : ComplexRequest<T>(target), ResponseTransformer<T> {
     override suspend fun readElement(socket: Socket): T {
-        val data = ByteArray(Const.MAX_PACKET_LENGTH)
-        loop@ do {
-            if (socket.isClosedForWrite || socket.isClosedForRead) break@loop
+        withMaxPacketBuffer {
+            loop@ do {
+                if (socket.isClosedForWrite || socket.isClosedForRead) break@loop
 
-            val count = socket.readAvailable(data, 0, Const.MAX_PACKET_LENGTH)
-            when {
-                count == 0 -> {
-                    continue@loop
+                val data = array()
+                val count = socket.readAvailable(data, 0, data.size)
+                when {
+                    count == 0 -> {
+                        yield()
+                        continue@loop
+                    }
+                    count > 0 -> {
+                        process(data, 0, count)
+                    }
                 }
-                count > 0 -> {
-                    process(data, 0, count)
-                }
-            }
-        } while (count >= 0)
+            } while (count >= 0)
 
-        return transform()
+            return transform()
+        }
     }
 }

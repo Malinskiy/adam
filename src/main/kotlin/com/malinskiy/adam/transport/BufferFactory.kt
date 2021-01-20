@@ -22,7 +22,9 @@ import java.nio.ByteBuffer
 
 internal const val DEFAULT_BUFFER_SIZE = 4088
 
-val AdamDefaultPool: ObjectPool<ByteBuffer> = ByteBufferPool(Const.DEFAULT_BUFFER_SIZE, DEFAULT_BUFFER_SIZE)
+val AdamDefaultPool: ObjectPool<ByteBuffer> = ByteBufferPool(Const.DEFAULT_BUFFER_SIZE, bufferSize = DEFAULT_BUFFER_SIZE)
+val AdamMaxPacketPool: ObjectPool<ByteBuffer> = ByteBufferPool(Const.DEFAULT_BUFFER_SIZE, bufferSize = Const.MAX_PACKET_LENGTH)
+val AdamMaxFilePacketPool: ObjectPool<ByteBuffer> = ByteBufferPool(Const.DEFAULT_BUFFER_SIZE, bufferSize = Const.MAX_FILE_PACKET_LENGTH)
 
 inline fun <R> withDefaultBuffer(block: ByteBuffer.() -> R): R {
     val instance = AdamDefaultPool.borrow()
@@ -32,3 +34,22 @@ inline fun <R> withDefaultBuffer(block: ByteBuffer.() -> R): R {
         AdamDefaultPool.recycle(instance)
     }
 }
+
+inline fun <R> withMaxPacketBuffer(block: ByteBuffer.() -> R): R {
+    val instance = AdamMaxPacketPool.borrow()
+    return try {
+        block(instance)
+    } finally {
+        AdamMaxPacketPool.recycle(instance)
+    }
+}
+
+inline fun <R> withMaxFilePacketBuffer(block: ByteBuffer.() -> R): R {
+    val instance = AdamMaxFilePacketPool.borrow()
+    return try {
+        block(instance)
+    } finally {
+        AdamMaxFilePacketPool.recycle(instance)
+    }
+}
+

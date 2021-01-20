@@ -16,24 +16,17 @@
 
 package com.malinskiy.adam.request.misc
 
-import com.malinskiy.adam.Const
+import com.malinskiy.adam.extension.readProtocolString
 import com.malinskiy.adam.request.ComplexRequest
 import com.malinskiy.adam.request.Feature
 import com.malinskiy.adam.request.HostTarget
 import com.malinskiy.adam.transport.Socket
-import java.nio.ByteBuffer
 
 class FetchHostFeaturesRequest : ComplexRequest<List<Feature>>(target = HostTarget) {
 
     override fun serialize() = createBaseRequest("host-features")
 
     override suspend fun readElement(socket: Socket): List<Feature> {
-        val sizeBuffer: ByteBuffer = ByteBuffer.allocate(4)
-        socket.readFully(sizeBuffer)
-        val size = String(sizeBuffer.array(), Const.DEFAULT_TRANSPORT_ENCODING).toInt(radix = 16)
-
-        val payloadBuffer = ByteBuffer.allocate(size)
-        socket.readFully(payloadBuffer)
-        return String(payloadBuffer.array(), Const.DEFAULT_TRANSPORT_ENCODING).split(',').mapNotNull { Feature.of(it) }
+        return socket.readProtocolString().split(',').mapNotNull { Feature.of(it) }
     }
 }

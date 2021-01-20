@@ -16,22 +16,14 @@
 
 package com.malinskiy.adam.request.forwarding
 
-import com.malinskiy.adam.Const
+import com.malinskiy.adam.extension.readProtocolString
 import com.malinskiy.adam.request.ComplexRequest
 import com.malinskiy.adam.request.SerialTarget
 import com.malinskiy.adam.transport.Socket
-import java.nio.ByteBuffer
 
 class ListPortForwardsRequest(serial: String) : ComplexRequest<List<PortForwardingRule>>(target = SerialTarget(serial)) {
     override suspend fun readElement(socket: Socket): List<PortForwardingRule> {
-        val sizeBuffer: ByteBuffer = ByteBuffer.allocate(4)
-        socket.readFully(sizeBuffer)
-        val size = String(sizeBuffer.array(), Const.DEFAULT_TRANSPORT_ENCODING).toInt(radix = 16)
-
-        val payloadBuffer = ByteBuffer.allocate(size)
-        socket.readFully(payloadBuffer)
-        val payload = String(payloadBuffer.array(), Const.DEFAULT_TRANSPORT_ENCODING)
-        return payload.lines().mapNotNull { line ->
+        return socket.readProtocolString().lines().mapNotNull { line ->
             if (line.isNotEmpty()) {
                 val split = line.split(" ")
                 PortForwardingRule(

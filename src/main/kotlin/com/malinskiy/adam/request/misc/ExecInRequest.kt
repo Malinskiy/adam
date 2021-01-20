@@ -16,11 +16,11 @@
 
 package com.malinskiy.adam.request.misc
 
-import com.malinskiy.adam.Const
 import com.malinskiy.adam.extension.copyTo
 import com.malinskiy.adam.extension.readStatus
 import com.malinskiy.adam.request.ComplexRequest
 import com.malinskiy.adam.transport.Socket
+import com.malinskiy.adam.transport.withMaxFilePacketBuffer
 import io.ktor.utils.io.*
 
 /**
@@ -28,10 +28,11 @@ import io.ktor.utils.io.*
  */
 class ExecInRequest(private val cmd: String, private val channel: ByteReadChannel) : ComplexRequest<Unit>() {
     override suspend fun readElement(socket: Socket) {
-        val buffer = ByteArray(Const.MAX_FILE_PACKET_LENGTH)
-        channel.copyTo(socket, buffer)
-        //Have to poll
-        socket.readStatus()
+        withMaxFilePacketBuffer {
+            channel.copyTo(socket, this)
+            //Have to poll
+            socket.readStatus()
+        }
     }
 
     override fun serialize() = createBaseRequest("exec:$cmd")

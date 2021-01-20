@@ -21,6 +21,7 @@ import com.malinskiy.adam.request.AsyncChannelRequest
 import com.malinskiy.adam.request.NonSpecifiedTarget
 import com.malinskiy.adam.request.Target
 import com.malinskiy.adam.transport.Socket
+import com.malinskiy.adam.transport.withMaxFilePacketBuffer
 import kotlinx.coroutines.channels.SendChannel
 
 open class ChanneledShellCommandRequest(
@@ -28,15 +29,16 @@ open class ChanneledShellCommandRequest(
     target: Target = NonSpecifiedTarget
 ) : AsyncChannelRequest<String, Unit>(target = target) {
 
-    val data = ByteArray(Const.MAX_PACKET_LENGTH)
-
     override suspend fun readElement(socket: Socket, sendChannel: SendChannel<String>): Boolean {
-        val count = socket.readAvailable(data, 0, Const.MAX_PACKET_LENGTH)
-        when {
-            count > 0 -> sendChannel.send(String(data, 0, count, Const.DEFAULT_TRANSPORT_ENCODING))
-            else -> Unit
+        withMaxFilePacketBuffer {
+            val data = array()
+            val count = socket.readAvailable(data, 0, data.size)
+            when {
+                count > 0 -> sendChannel.send(String(data, 0, count, Const.DEFAULT_TRANSPORT_ENCODING))
+                else -> Unit
+            }
+            return false
         }
-        return false
     }
 
     override fun serialize() = createBaseRequest("shell:$cmd")

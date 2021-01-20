@@ -21,7 +21,7 @@ import com.malinskiy.adam.request.AsyncChannelRequest
 import com.malinskiy.adam.request.NonSpecifiedTarget
 import com.malinskiy.adam.request.Target
 import com.malinskiy.adam.transport.Socket
-import com.malinskiy.adam.transport.withDefaultBuffer
+import com.malinskiy.adam.transport.withMaxPacketBuffer
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.channels.SendChannel
 
@@ -31,17 +31,16 @@ open class ChanneledShellCommandRequest(
     target: Target = NonSpecifiedTarget
 ) : AsyncChannelRequest<ShellCommandResultChunk, ShellCommandInputChunk>(target = target, channel = channel) {
 
-    val data = ByteArray(Const.MAX_PACKET_LENGTH)
-
     override suspend fun readElement(socket: Socket, sendChannel: SendChannel<ShellCommandResultChunk>): Boolean {
-        withDefaultBuffer {
-            val readAvailable = socket.readAvailable(this.array(), 0, 1)
+        withMaxPacketBuffer {
+            val data = array()
+            val readAvailable = socket.readAvailable(data, 0, 1)
             when (readAvailable) {
                 //Skip as if nothing is happening
                 0, -1 -> return false
             }
 
-            val readByte = this.get(0)
+            val readByte = data[0]
             when (MessageType.of(readByte.toInt())) {
                 MessageType.STDOUT -> {
                     val length = socket.readIntLittleEndian()

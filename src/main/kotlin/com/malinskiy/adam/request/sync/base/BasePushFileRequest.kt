@@ -24,6 +24,7 @@ import com.malinskiy.adam.extension.write
 import com.malinskiy.adam.request.AsyncChannelRequest
 import com.malinskiy.adam.request.ValidationResponse
 import com.malinskiy.adam.transport.Socket
+import com.malinskiy.adam.transport.withMaxPacketBuffer
 import io.ktor.util.cio.*
 import io.ktor.utils.io.*
 import kotlinx.coroutines.Dispatchers
@@ -38,39 +39,41 @@ abstract class BasePushFileRequest(
     coroutineContext: CoroutineContext = Dispatchers.IO
 ) : AsyncChannelRequest<Double, Unit>() {
     protected val fileReadChannel = local.readChannel(coroutineContext = coroutineContext)
-    protected val buffer = ByteArray(Const.KTOR_INTERNAL_BUFFER_LENGTH)
     protected var totalBytes = local.length()
     protected var currentPosition = 0L
     protected val modeValue: Int
         get() = mode.toInt(8) and "0777".toInt(8)
 
     override suspend fun readElement(socket: Socket, sendChannel: SendChannel<Double>): Boolean {
-        val available = fileReadChannel.readAvailable(buffer, 8, Const.KTOR_INTERNAL_BUFFER_LENGTH - 8)
-        when {
-            available < 0 -> {
-                Const.Message.DONE.copyInto(buffer)
-                (local.lastModified() / 1000).toInt().toByteArray().copyInto(buffer, destinationOffset = 4)
-                socket.write(request = buffer, length = 8)
-                val transportResponse = socket.readTransportResponse()
-                fileReadChannel.cancel()
+        withMaxPacketBuffer {
+            val data = array()
+            val available = fileReadChannel.readAvailable(data, 8, data.size - 8)
+            when {
+                available < 0 -> {
+                    Const.Message.DONE.copyInto(data)
+                    (local.lastModified() / 1000).toInt().toByteArray().copyInto(data, destinationOffset = 4)
+                    socket.write(request = data, length = 8)
+                    val transportResponse = socket.readTransportResponse()
+                    fileReadChannel.cancel()
 
-                if (transportResponse.okay) {
-                    sendChannel.send(1.0)
-                    return true
-                } else {
-                    throw PushFailedException("adb didn't acknowledge the file transfer: ${transportResponse.message ?: ""}")
+                    if (transportResponse.okay) {
+                        sendChannel.send(1.0)
+                        return true
+                    } else {
+                        throw PushFailedException("adb didn't acknowledge the file transfer: ${transportResponse.message ?: ""}")
+                    }
                 }
+                available > 0 -> {
+                    Const.Message.DATA.copyInto(data)
+                    available.toByteArray().reversedArray().copyInto(data, destinationOffset = 4)
+                    socket.writeFully(data, 0, available + 8)
+                    currentPosition += available
+                    sendChannel.send(currentPosition.toDouble() / totalBytes)
+                }
+                else -> Unit
             }
-            available > 0 -> {
-                Const.Message.DATA.copyInto(buffer)
-                available.toByteArray().reversedArray().copyInto(buffer, destinationOffset = 4)
-                socket.writeFully(buffer, 0, available + 8)
-                currentPosition += available
-                sendChannel.send(currentPosition.toDouble() / totalBytes)
-            }
-            else -> Unit
+            return false
         }
-        return false
     }
 
     override fun serialize() = createBaseRequest("sync:")

@@ -16,22 +16,15 @@
 
 package com.malinskiy.adam.request.mdns
 
-import com.malinskiy.adam.Const
+import com.malinskiy.adam.extension.readProtocolString
 import com.malinskiy.adam.request.ComplexRequest
 import com.malinskiy.adam.request.HostTarget
 import com.malinskiy.adam.transport.Socket
-import java.nio.ByteBuffer
 
 class ListMdnsServicesRequest : ComplexRequest<List<MdnsService>>(target = HostTarget) {
     override suspend fun readElement(socket: Socket): List<MdnsService> {
-        val sizeBuffer: ByteBuffer = ByteBuffer.allocate(4)
-        socket.readFully(sizeBuffer)
-        val size = String(sizeBuffer.array(), Const.DEFAULT_TRANSPORT_ENCODING).toInt(radix = 16)
 
-        val payloadBuffer = ByteBuffer.allocate(size)
-        socket.readFully(payloadBuffer)
-        return String(payloadBuffer.array(), Const.DEFAULT_TRANSPORT_ENCODING)
-            .lines()
+        return socket.readProtocolString().lines()
             .filterNot { it.isEmpty() }
             .map {
                 val split = it.split(' ', '\t')

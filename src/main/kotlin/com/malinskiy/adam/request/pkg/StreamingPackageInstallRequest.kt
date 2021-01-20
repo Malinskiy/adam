@@ -16,7 +16,6 @@
 
 package com.malinskiy.adam.request.pkg
 
-import com.malinskiy.adam.Const
 import com.malinskiy.adam.annotation.Features
 import com.malinskiy.adam.extension.bashEscape
 import com.malinskiy.adam.extension.copyTo
@@ -26,6 +25,7 @@ import com.malinskiy.adam.request.ValidationResponse
 import com.malinskiy.adam.request.abb.AbbExecRequest
 import com.malinskiy.adam.request.transform.StringResponseTransformer
 import com.malinskiy.adam.transport.Socket
+import com.malinskiy.adam.transport.withMaxFilePacketBuffer
 import io.ktor.util.cio.*
 import io.ktor.utils.io.*
 import kotlinx.coroutines.Dispatchers
@@ -110,17 +110,19 @@ class StreamingPackageInstallRequest(
     }
 
     override suspend fun readElement(socket: Socket): Boolean {
-        val buffer = ByteArray(Const.MAX_FILE_PACKET_LENGTH)
-        var fileChannel: ByteReadChannel? = null
-        try {
-            val fileChannel = pkg.readChannel(coroutineContext = coroutineContext)
-            fileChannel.copyTo(socket, buffer)
-        } finally {
-            fileChannel?.cancel()
-        }
+        withMaxFilePacketBuffer {
+            var fileChannel: ByteReadChannel? = null
+            try {
+                val fileChannel = pkg.readChannel(coroutineContext = coroutineContext)
+                fileChannel.copyTo(socket, this)
+            } finally {
+                fileChannel?.cancel()
+            }
 
-        socket.copyTo(transformer, buffer)
-        return transformer.transform().startsWith("Success")
+            clear()
+            socket.copyTo(transformer, this)
+            return transformer.transform().startsWith("Success")
+        }
     }
 
     companion object {

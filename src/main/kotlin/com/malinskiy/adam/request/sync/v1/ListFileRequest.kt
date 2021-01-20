@@ -23,6 +23,7 @@ import com.malinskiy.adam.request.ComplexRequest
 import com.malinskiy.adam.request.ValidationResponse
 import com.malinskiy.adam.request.sync.model.FileEntryV1
 import com.malinskiy.adam.transport.Socket
+import com.malinskiy.adam.transport.withDefaultBuffer
 import java.time.Instant
 
 class ListFileRequest(
@@ -40,32 +41,37 @@ class ListFileRequest(
     override suspend fun readElement(socket: Socket): List<FileEntryV1> {
         socket.writeSyncRequest(Const.Message.LIST_V1, remotePath)
 
-        val bytes = ByteArray(16)
-        val stringBytes = ByteArray(Const.MAX_REMOTE_PATH_LENGTH)
-        val result = mutableListOf<FileEntryV1>()
-        loop@ while (true) {
-            socket.readFully(bytes, 0, 4)
-            when {
-                bytes.copyOfRange(0, 4).contentEquals(Const.Message.DENT_V1) -> {
-                    socket.readFully(bytes, 0, 16)
-                    val nameLength = bytes.copyOfRange(12, 16).toInt()
-                    socket.readFully(stringBytes, 0, nameLength)
+        withDefaultBuffer {
+            val data = array()
+            val result = mutableListOf<FileEntryV1>()
+            loop@ while (true) {
 
-                    result.add(
-                        FileEntryV1(
-                            mode = bytes.copyOfRange(0, 4).toInt().toUInt(),
-                            size = bytes.copyOfRange(4, 8).toInt().toUInt(),
-                            mtime = Instant.ofEpochSecond(bytes.copyOfRange(8, 12).toInt().toLong()),
-                            name = String(stringBytes, 0, nameLength, Const.DEFAULT_TRANSPORT_ENCODING)
+                socket.readFully(data, 0, 4)
+                when {
+                    data.copyOfRange(0, 4).contentEquals(Const.Message.DENT_V1) -> {
+                        socket.readFully(data, 0, 16)
+                        val mode = data.copyOfRange(0, 4).toInt().toUInt()
+                        val size = data.copyOfRange(4, 8).toInt().toUInt()
+                        val mtime = Instant.ofEpochSecond(data.copyOfRange(8, 12).toInt().toLong())
+                        val nameLength = data.copyOfRange(12, 16).toInt()
+                        socket.readFully(data, 0, nameLength)
+
+                        result.add(
+                            FileEntryV1(
+                                mode = mode,
+                                size = size,
+                                mtime = mtime,
+                                name = String(data, 0, nameLength, Const.DEFAULT_TRANSPORT_ENCODING)
+                            )
                         )
-                    )
+                    }
+                    data.copyOfRange(0, 4).contentEquals(Const.Message.DONE) -> break@loop
+                    else -> break@loop
                 }
-                bytes.copyOfRange(0, 4).contentEquals(Const.Message.DONE) -> break@loop
-                else -> break@loop
             }
-        }
 
-        return result
+            return result
+        }
     }
 
     override fun serialize() = createBaseRequest("sync:")
