@@ -139,7 +139,7 @@ suspend fun Socket.read(): TransportResponse {
     val ok = withDefaultBuffer {
         compatLimit(4)
         readFully(this)
-        array().isOkay()
+        isOkay()
     }
     val message = if (!ok) {
         readOptionalProtocolString()
@@ -149,7 +149,13 @@ suspend fun Socket.read(): TransportResponse {
     return TransportResponse(ok, message)
 }
 
-private fun ByteArray.isOkay() = contentEquals(Const.Message.OKAY)
+private fun ByteBuffer.isOkay(): Boolean {
+    if (limit() != 4) return false
+    for (i in 0..3) {
+        if (get(i) != Const.Message.OKAY[i]) return false
+    }
+    return true
+}
 
 suspend fun Socket.readStatus(): String {
     withDefaultBuffer {
@@ -181,7 +187,7 @@ suspend fun Socket.writeSyncRequest(type: ByteArray, remotePath: String) {
         put(type)
         put(size)
         put(path)
-        flip()
+        compatFlip()
         writeFully(this)
     }
 }
@@ -212,7 +218,8 @@ suspend fun Socket.readTransportResponse(): TransportResponse {
     val ok = withDefaultBuffer {
         compatLimit(4)
         readFully(this)
-        array().isOkay()
+        compatFlip()
+        isOkay()
     }
     val message = if (!ok) {
         readOptionalProtocolString()

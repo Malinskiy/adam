@@ -17,6 +17,7 @@
 package com.malinskiy.adam.request.sync.v1
 
 import com.malinskiy.adam.Const
+import com.malinskiy.adam.extension.compatFlip
 import com.malinskiy.adam.extension.toByteArray
 import com.malinskiy.adam.request.sync.base.BasePushFileRequest
 import com.malinskiy.adam.transport.Socket
@@ -47,7 +48,7 @@ class PushFileRequest(
             put(size)
             put(path)
             put(mode)
-            flip()
+            compatFlip()
             socket.writeFully(this)
         }
     }

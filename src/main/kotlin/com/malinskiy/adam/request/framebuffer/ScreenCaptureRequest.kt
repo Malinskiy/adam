@@ -17,6 +17,7 @@
 package com.malinskiy.adam.request.framebuffer
 
 import com.malinskiy.adam.exception.UnsupportedImageProtocolException
+import com.malinskiy.adam.extension.compatFlip
 import com.malinskiy.adam.extension.compatLimit
 import com.malinskiy.adam.extension.compatRewind
 import com.malinskiy.adam.request.ComplexRequest
@@ -48,7 +49,7 @@ class ScreenCaptureRequest<T>(private val adapter: ScreenCaptureAdapter<T>) : Co
             socket.writeFully(ByteArray(1) { 0.toByte() }, 0, 1)
 
             order(ByteOrder.LITTLE_ENDIAN)
-            flip()
+            compatFlip()
             return when (protocolVersion) {
                 16 -> adapter.process(
                     version = protocolVersion,

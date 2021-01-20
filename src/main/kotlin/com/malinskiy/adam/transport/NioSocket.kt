@@ -16,6 +16,7 @@
 
 package com.malinskiy.adam.transport
 
+import com.malinskiy.adam.extension.compatFlip
 import com.malinskiy.adam.extension.compatLimit
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.sync.Mutex
@@ -119,16 +120,19 @@ class NioSocket(
     }
 
     override suspend fun readByte(): Byte {
-        val buffer = ByteBuffer.allocate(1)
-        val read = readFully(buffer)
-        if (read == -1) throw EOFException("Input channel was closed by remote host")
-        return buffer.array()[0]
+        withDefaultBuffer {
+            compatLimit(1)
+            val read = readFully(this)
+            compatFlip()
+            if (read == -1) throw EOFException("Input channel was closed by remote host")
+            return this.get()
+        }
     }
 
     override suspend fun writeByte(value: Int) {
         withDefaultBuffer {
             put(value.toByte())
-            flip()
+            compatFlip()
             writeFully(this)
         }
     }
@@ -140,7 +144,7 @@ class NioSocket(
             compatLimit(4)
             val read = readFully(this)
             if (read == -1) throw EOFException("Input channel was closed by remote host")
-            flip()
+            compatFlip()
             val result = int
             order(order)
             return result
@@ -148,11 +152,12 @@ class NioSocket(
     }
 
     override suspend fun writeIntLittleEndian(value: Int) {
-        val allocate = ByteBuffer.allocate(4)
-        allocate.order(ByteOrder.LITTLE_ENDIAN)
-        allocate.putInt(value)
-        allocate.flip()
-        writeFully(allocate)
+        withDefaultBuffer {
+            order(ByteOrder.LITTLE_ENDIAN)
+            putInt(value)
+            compatFlip()
+            writeFully(this)
+        }
     }
 
     @Suppress("BlockingMethodInNonBlockingContext")

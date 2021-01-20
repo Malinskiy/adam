@@ -19,6 +19,7 @@ package com.malinskiy.adam.request.sync.base
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.exception.PullFailedException
 import com.malinskiy.adam.exception.UnsupportedSyncProtocolException
+import com.malinskiy.adam.extension.compatFlip
 import com.malinskiy.adam.extension.compatLimit
 import com.malinskiy.adam.extension.toInt
 import com.malinskiy.adam.request.AsyncChannelRequest
@@ -79,7 +80,7 @@ abstract class BasePullFileRequest(
                     clear()
                     compatLimit(available)
                     socket.readFully(this)
-                    flip()
+                    compatFlip()
                     fileWriteChannel.writeFully(this)
 
                     currentPosition += available
@@ -91,7 +92,7 @@ abstract class BasePullFileRequest(
                     clear()
                     compatLimit(size)
                     socket.readFully(this)
-                    flip()
+                    compatFlip()
                     array()
                     val errorMessage = String(array(), 0, size)
                     throw PullFailedException("Failed to pull file $remotePath: $errorMessage")

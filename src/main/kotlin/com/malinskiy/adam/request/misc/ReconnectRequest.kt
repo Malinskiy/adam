@@ -17,6 +17,7 @@
 package com.malinskiy.adam.request.misc
 
 import com.malinskiy.adam.Const
+import com.malinskiy.adam.extension.compatFlip
 import com.malinskiy.adam.extension.compatLimit
 import com.malinskiy.adam.request.ComplexRequest
 import com.malinskiy.adam.request.NonSpecifiedTarget
@@ -41,17 +42,17 @@ class ReconnectRequest(
         withDefaultBuffer {
             compatLimit(4)
             socket.readFully(this)
-            flip()
-            return if (array().contentEquals(done)) {
+            compatFlip()
+            return if (array().copyOfRange(0, 4).contentEquals(done)) {
                 "done"
             } else {
                 //This is length of a response string
-                val size = String(array(), Const.DEFAULT_TRANSPORT_ENCODING).toInt(radix = 16)
+                val size = String(array(), 0, 4, Const.DEFAULT_TRANSPORT_ENCODING).toInt(radix = 16)
                 clear()
                 compatLimit(size)
                 socket.readFully(this)
-                flip()
-                String(array(), Const.DEFAULT_TRANSPORT_ENCODING)
+                compatFlip()
+                String(array(), 0, size, Const.DEFAULT_TRANSPORT_ENCODING)
             }
         }
     }
