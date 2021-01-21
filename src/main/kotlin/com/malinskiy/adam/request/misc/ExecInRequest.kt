@@ -16,6 +16,7 @@
 
 package com.malinskiy.adam.request.misc
 
+import com.malinskiy.adam.Const
 import com.malinskiy.adam.extension.copyTo
 import com.malinskiy.adam.extension.readStatus
 import com.malinskiy.adam.request.ComplexRequest
@@ -29,7 +30,14 @@ import io.ktor.utils.io.*
 class ExecInRequest(private val cmd: String, private val channel: ByteReadChannel) : ComplexRequest<Unit>() {
     override suspend fun readElement(socket: Socket) {
         withMaxFilePacketBuffer {
-            channel.copyTo(socket, this)
+            val buffer = array()
+            while (true) {
+                val available = channel.copyTo(buffer, 0, buffer.size)
+                when {
+                    available > 0 -> socket.writeFully(buffer, 0, available)
+                    else -> break
+                }
+            }
             //Have to poll
             socket.readStatus()
         }

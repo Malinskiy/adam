@@ -113,9 +113,16 @@ class StreamingPackageInstallRequest(
     override suspend fun readElement(socket: Socket): Boolean {
         withMaxFilePacketBuffer {
             var fileChannel: ByteReadChannel? = null
+            val buffer = array()
             try {
                 val fileChannel = pkg.readChannel(coroutineContext = coroutineContext)
-                fileChannel.copyTo(socket, this)
+                while (true) {
+                    val available = fileChannel.copyTo(buffer, 0, buffer.size)
+                    when {
+                        available > 0 -> socket.writeFully(buffer, 0, available)
+                        else -> break
+                    }
+                }
             } finally {
                 fileChannel?.cancel()
             }
