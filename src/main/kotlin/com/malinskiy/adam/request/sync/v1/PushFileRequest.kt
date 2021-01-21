@@ -17,10 +17,11 @@
 package com.malinskiy.adam.request.sync.v1
 
 import com.malinskiy.adam.Const
+import com.malinskiy.adam.extension.compatFlip
 import com.malinskiy.adam.extension.toByteArray
-import com.malinskiy.adam.extension.write
 import com.malinskiy.adam.request.sync.base.BasePushFileRequest
 import com.malinskiy.adam.transport.Socket
+import com.malinskiy.adam.transport.withDefaultBuffer
 import kotlinx.coroutines.Dispatchers
 import java.io.File
 import kotlin.coroutines.CoroutineContext
@@ -42,13 +43,13 @@ class PushFileRequest(
         val packetLength = (path.size + mode.size)
         val size = packetLength.toByteArray().reversedArray()
 
-        val cmd = ByteArray(8 + path.size + 4)
-
-        type.copyInto(cmd)
-        size.copyInto(cmd, 4)
-        path.copyInto(cmd, 8)
-        mode.copyInto(cmd, 8 + path.size)
-
-        socket.write(cmd)
+        withDefaultBuffer {
+            put(type)
+            put(size)
+            put(path)
+            put(mode)
+            compatFlip()
+            socket.writeFully(this)
+        }
     }
 }

@@ -46,6 +46,7 @@ class ListPortForwardsRequestTest {
                         
                     """.trimIndent()
                 )
+                input.discard()
                 output.close()
             }
 

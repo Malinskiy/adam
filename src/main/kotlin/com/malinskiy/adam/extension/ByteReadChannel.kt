@@ -38,3 +38,26 @@ suspend fun ByteReadChannel.copyTo(socket: Socket, buffer: ByteArray): Long {
     }
     return processed
 }
+
+/**
+ * Copies up to limit bytes into transformer using buffer. If limit is null - copy until EOF
+ */
+suspend fun ByteReadChannel.copyTo(buffer: ByteArray, offset: Int, limit: Int): Int {
+    var processed = 0
+    loop@ while (true) {
+        val toRead = (buffer.size - offset) - processed
+        val available = readAvailable(buffer, offset + processed, toRead)
+        when {
+            processed == limit -> break@loop
+            available < 0 && processed != 0 -> {
+                break@loop
+            }
+            available < 0 -> return available
+            available > 0 -> {
+                processed += available
+            }
+            else -> continue@loop
+        }
+    }
+    return processed
+}

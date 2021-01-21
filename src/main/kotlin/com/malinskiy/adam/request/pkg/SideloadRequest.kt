@@ -28,8 +28,9 @@ class SideloadRequest(
     private val pkg: File,
     private var blockSize: Int = Const.MAX_FILE_PACKET_LENGTH
 ) : ComplexRequest<Boolean>() {
+    val buffer = ByteArray(blockSize)
+
     override suspend fun readElement(socket: Socket): Boolean {
-        val buffer = ByteArray(blockSize)
         var pkgChannel: ByteReadChannel? = null
         try {
             pkgChannel = pkg.readChannel()

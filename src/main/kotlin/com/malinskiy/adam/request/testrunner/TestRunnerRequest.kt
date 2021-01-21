@@ -16,12 +16,12 @@
 
 package com.malinskiy.adam.request.testrunner
 
-import com.malinskiy.adam.Const
 import com.malinskiy.adam.request.AsyncChannelRequest
 import com.malinskiy.adam.request.transform.InstrumentationResponseTransformer
 import com.malinskiy.adam.request.transform.ProgressiveResponseTransformer
 import com.malinskiy.adam.request.transform.ProtoInstrumentationResponseTransformer
 import com.malinskiy.adam.transport.Socket
+import com.malinskiy.adam.transport.withMaxPacketBuffer
 import kotlinx.coroutines.channels.SendChannel
 
 /**
@@ -53,7 +53,6 @@ class TestRunnerRequest(
     private val outputLogPath: String? = null,
     private val protobuf: Boolean = false,
 ) : AsyncChannelRequest<List<TestEvent>, Unit>() {
-    private val buffer = ByteArray(Const.MAX_PACKET_LENGTH)
 
     private val transformer: ProgressiveResponseTransformer<List<TestEvent>?> by lazy {
         if (protobuf) {
@@ -64,19 +63,22 @@ class TestRunnerRequest(
     }
 
     override suspend fun readElement(socket: Socket, sendChannel: SendChannel<List<TestEvent>>): Boolean {
-        val available = socket.readAvailable(buffer, 0, Const.MAX_PACKET_LENGTH)
+        withMaxPacketBuffer {
+            val buffer = array()
+            val available = socket.readAvailable(buffer, 0, buffer.size)
 
-        when {
-            available > 0 -> {
-                transformer.process(buffer, 0, available)?.let { sendChannel.send(it) }
+            when {
+                available > 0 -> {
+                    transformer.process(buffer, 0, available)?.let { sendChannel.send(it) }
+                }
+                available < 0 -> {
+                    return true
+                }
+                else -> null
             }
-            available < 0 -> {
-                return true
-            }
-            else -> null
+
+            return false
         }
-
-        return false
     }
 
     override fun serialize() = createBaseRequest(StringBuilder().apply {

@@ -14,22 +14,19 @@
  * limitations under the License.
  */
 
-package com.malinskiy.adam.request.misc
+package com.malinskiy.adam.transport
 
-import com.malinskiy.adam.extension.readProtocolString
-import com.malinskiy.adam.request.ComplexRequest
-import com.malinskiy.adam.request.HostTarget
-import com.malinskiy.adam.transport.Socket
+import kotlinx.coroutines.runBlocking
+import org.junit.Test
+import java.net.ConnectException
+import java.net.InetSocketAddress
 
-/**
- * Connects a remote device
- */
-class ConnectDeviceRequest(
-    private val host: String,
-    private val port: Int = 5555
-) : ComplexRequest<String>(target = HostTarget) {
-
-    override fun serialize() = createBaseRequest("connect:$host:$port")
-
-    override suspend fun readElement(socket: Socket) = socket.readProtocolString()
+class NioSocketTest {
+    @Test(expected = ConnectException::class)
+    fun testClosedPort() {
+        runBlocking {
+            //This will fail obviously in a scenario where 65535 is actually open
+            NioSocket(InetSocketAddress("localhost", 65535), 1_000, 1_000).connect()
+        }
+    }
 }

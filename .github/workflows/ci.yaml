@@ -13,6 +13,7 @@ jobs:
       - name: gradle test jacocoTestReport
         run: ./gradlew test jacocoTestReport
       - name: archive test results
+        if: failure()
         run: (cd build/reports/tests/test; zip -r -X ../../../../test-result.zip .)
       - name: Save test output
         uses: actions/upload-artifact@master
@@ -55,6 +56,7 @@ jobs:
       - name: Generate integration code coverage report
         run: ./gradlew jacocoIntegrationTestReport
       - name: archive integration test results
+        if: failure()
         run: (cd build/reports/tests/integrationTest; zip -r -X ../../../../integration-test-result.zip .)
       - name: Save integration test output
         uses: actions/upload-artifact@master

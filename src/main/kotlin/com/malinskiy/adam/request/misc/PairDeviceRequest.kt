@@ -16,11 +16,10 @@
 
 package com.malinskiy.adam.request.misc
 
-import com.malinskiy.adam.Const
+import com.malinskiy.adam.extension.readProtocolString
 import com.malinskiy.adam.request.ComplexRequest
 import com.malinskiy.adam.request.HostTarget
 import com.malinskiy.adam.transport.Socket
-import java.nio.ByteBuffer
 
 /**
  * Pairs adb server with device over WiFi connection
@@ -33,15 +32,7 @@ class PairDeviceRequest(
     private val pairingCode: String
 ) : ComplexRequest<String>(target = HostTarget) {
 
-    override suspend fun readElement(socket: Socket): String {
-        val sizeBuffer: ByteBuffer = ByteBuffer.allocate(4)
-        socket.readFully(sizeBuffer)
-        val size = String(sizeBuffer.array(), Const.DEFAULT_TRANSPORT_ENCODING).toInt(radix = 16)
-
-        val payloadBuffer = ByteBuffer.allocate(size)
-        socket.readFully(payloadBuffer)
-        return String(payloadBuffer.array(), Const.DEFAULT_TRANSPORT_ENCODING)
-    }
+    override suspend fun readElement(socket: Socket) = socket.readProtocolString()
 
     override fun serialize() = createBaseRequest("pair:$pairingCode:$url")
 }

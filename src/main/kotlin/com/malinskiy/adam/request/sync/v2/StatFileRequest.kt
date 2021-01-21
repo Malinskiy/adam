@@ -28,6 +28,7 @@ import com.malinskiy.adam.request.Feature
 import com.malinskiy.adam.request.ValidationResponse
 import com.malinskiy.adam.request.sync.model.FileEntryV2
 import com.malinskiy.adam.transport.Socket
+import com.malinskiy.adam.transport.withDefaultBuffer
 import java.time.Instant
 
 @Features(Feature.STAT_V2)
@@ -38,24 +39,26 @@ class StatFileRequest(
     override suspend fun readElement(socket: Socket): FileEntryV2 {
         socket.writeSyncRequest(Const.Message.LSTAT_V2, remotePath)
 
-        val bytes = ByteArray(72)
-        socket.readFully(bytes, 0, 72)
+        withDefaultBuffer {
+            val bytes = array()
+            socket.readFully(bytes, 0, 72)
 
-        if (!bytes.copyOfRange(0, 4).contentEquals(Const.Message.LSTAT_V2)) throw UnsupportedSyncProtocolException()
+            if (!bytes.copyOfRange(0, 4).contentEquals(Const.Message.LSTAT_V2)) throw UnsupportedSyncProtocolException()
 
-        return FileEntryV2(
-            error = bytes.copyOfRange(4, 8).toUInt(),
-            dev = bytes.copyOfRange(8, 16).toULong(),
-            ino = bytes.copyOfRange(16, 24).toULong(),
-            mode = bytes.copyOfRange(24, 28).toUInt(),
-            nlink = bytes.copyOfRange(28, 32).toUInt(),
-            uid = bytes.copyOfRange(32, 36).toUInt(),
-            gid = bytes.copyOfRange(36, 40).toUInt(),
-            size = bytes.copyOfRange(40, 48).toULong(),
-            atime = Instant.ofEpochSecond(bytes.copyOfRange(48, 56).toLong()),
-            mtime = Instant.ofEpochSecond(bytes.copyOfRange(56, 64).toLong()),
-            ctime = Instant.ofEpochSecond(bytes.copyOfRange(64, 72).toLong())
-        )
+            return FileEntryV2(
+                error = bytes.copyOfRange(4, 8).toUInt(),
+                dev = bytes.copyOfRange(8, 16).toULong(),
+                ino = bytes.copyOfRange(16, 24).toULong(),
+                mode = bytes.copyOfRange(24, 28).toUInt(),
+                nlink = bytes.copyOfRange(28, 32).toUInt(),
+                uid = bytes.copyOfRange(32, 36).toUInt(),
+                gid = bytes.copyOfRange(36, 40).toUInt(),
+                size = bytes.copyOfRange(40, 48).toULong(),
+                atime = Instant.ofEpochSecond(bytes.copyOfRange(48, 56).toLong()),
+                mtime = Instant.ofEpochSecond(bytes.copyOfRange(56, 64).toLong()),
+                ctime = Instant.ofEpochSecond(bytes.copyOfRange(64, 72).toLong())
+            )
+        }
     }
 
     override fun validate(): ValidationResponse {

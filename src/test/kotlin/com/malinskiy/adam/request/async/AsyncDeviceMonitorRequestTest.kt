@@ -28,7 +28,6 @@ import io.ktor.utils.io.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.receiveOrNull
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import kotlin.coroutines.CoroutineContext
@@ -48,8 +47,7 @@ class AsyncDeviceMonitorRequestTest : CoroutineScope {
                 output.writeFully(response, 0, response.size)
                 response = ("0015emulator-5554\tdevice\n").toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
                 output.writeFully(response, 0, response.size)
-                //Need to delay the server otherwise the client doesn't have time to check the response
-                delay(10000)
+                input.discard()
                 output.close()
             }
 
