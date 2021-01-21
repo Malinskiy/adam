@@ -25,7 +25,7 @@ import com.malinskiy.adam.extension.write
 import com.malinskiy.adam.request.AsyncChannelRequest
 import com.malinskiy.adam.request.ValidationResponse
 import com.malinskiy.adam.transport.Socket
-import com.malinskiy.adam.transport.withMaxPacketBuffer
+import com.malinskiy.adam.transport.withMaxFilePacketBuffer
 import io.ktor.util.cio.*
 import io.ktor.utils.io.*
 import kotlinx.coroutines.Dispatchers
@@ -46,10 +46,10 @@ abstract class BasePushFileRequest(
         get() = mode.toInt(8) and "0777".toInt(8)
 
     override suspend fun readElement(socket: Socket, sendChannel: SendChannel<Double>): Boolean {
-        withMaxPacketBuffer {
+        withMaxFilePacketBuffer {
             val data = array()
-            val available = fileReadChannel.copyTo(data, 8, Const.MAX_FILE_PACKET_LENGTH)
-            when {
+            val available = fileReadChannel.copyTo(data, 0, data.size)
+            return when {
                 available < 0 -> {
                     Const.Message.DONE.copyInto(data)
                     (local.lastModified() / 1000).toInt().toByteArray().copyInto(data, destinationOffset = 4)
@@ -59,22 +59,27 @@ abstract class BasePushFileRequest(
 
                     if (transportResponse.okay) {
                         sendChannel.send(1.0)
-                        return true
+                        true
                     } else {
                         throw PushFailedException("adb didn't acknowledge the file transfer: ${transportResponse.message ?: ""}")
                     }
                 }
                 available > 0 -> {
-                    Const.Message.DATA.copyInto(data)
-                    available.toByteArray().reversedArray().copyInto(data, destinationOffset = 4)
+                    socket.writeFully(Const.Message.DATA)
+                    socket.writeFully(available.toByteArray().reversedArray())
                     /**
                      * USB devices are very picky about the size of the DATA buffer. Using the adb's default
                      */
-                    socket.writeFully(data, 0, available + 8)
+                    /**
+                     * USB devices are very picky about the size of the DATA buffer. Using the adb's default
+                     */
+                    socket.writeFully(data, 0, available)
                     currentPosition += available
                     sendChannel.send(currentPosition.toDouble() / totalBytes)
+                    false
                 }
-            else -> null
+                else -> false
+            }
         }
     }
 

@@ -35,7 +35,7 @@ class KtorSocket(private val ktorSocket: RealKtorSocket) : Socket {
     override suspend fun writeFully(byteBuffer: ByteBuffer) = writeChannel.writeFully(byteBuffer)
     override suspend fun writeFully(toByteArray: ByteArray, offset: Int, limit: Int) = writeChannel.writeFully(toByteArray, offset, limit)
     override suspend fun readAvailable(buffer: ByteArray, offset: Int, limit: Int): Int {
-        if (readChannel.availableForRead == 0) return 0
+        if (!readChannel.isClosedForRead && readChannel.availableForRead == 0) return 0
         return readChannel.readAvailable(buffer, offset, limit)
     }
 
