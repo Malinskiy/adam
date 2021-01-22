@@ -18,6 +18,7 @@ package com.malinskiy.adam.extension
 
 import com.malinskiy.adam.transport.Socket
 import io.ktor.utils.io.*
+import kotlinx.coroutines.yield
 import java.nio.ByteBuffer
 
 suspend fun ByteReadChannel.copyTo(socket: Socket, buffer: ByteBuffer) = copyTo(socket, buffer.array())
@@ -32,8 +33,12 @@ suspend fun ByteReadChannel.copyTo(socket: Socket, buffer: ByteArray): Long {
             available > 0 -> {
                 socket.writeFully(buffer, 0, available)
                 processed += available
+                yield()
             }
-            else -> continue@loop
+            else -> {
+                yield()
+                continue@loop
+            }
         }
     }
     return processed
@@ -55,6 +60,7 @@ suspend fun ByteReadChannel.copyTo(buffer: ByteArray, offset: Int, limit: Int): 
             available < 0 -> return available
             available > 0 -> {
                 processed += available
+                yield()
             }
             else -> continue@loop
         }
