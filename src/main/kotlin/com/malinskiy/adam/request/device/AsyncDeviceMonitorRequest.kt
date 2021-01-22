@@ -21,19 +21,28 @@ import com.malinskiy.adam.request.AsyncChannelRequest
 import com.malinskiy.adam.request.HostTarget
 import com.malinskiy.adam.transport.Socket
 import kotlinx.coroutines.channels.SendChannel
+import java.net.SocketTimeoutException
 
 class AsyncDeviceMonitorRequest : AsyncChannelRequest<List<Device>, Unit>(target = HostTarget) {
     override suspend fun readElement(socket: Socket, sendChannel: SendChannel<List<Device>>): Boolean {
-        sendChannel.send(socket.readProtocolString().lines()
-                             .filter { it.isNotEmpty() }
-                             .map {
-                                 val line = it.trim()
-                                 val split = line.split("\t")
-                                 Device(
-                                     serial = split[0],
-                                     state = DeviceState.from(split[1])
-                                 )
-                             }
+        val data = try {
+            socket.readProtocolString()
+        } catch (e: SocketTimeoutException) {
+            //Unfortunately there is no way to check if the socket timeout was cause by no device changes or real network timeout
+            return false
+        }
+
+        sendChannel.send(
+            data.lines()
+                .filter { it.isNotEmpty() }
+                .map {
+                    val line = it.trim()
+                    val split = line.split("\t")
+                    Device(
+                        serial = split[0],
+                        state = DeviceState.from(split[1])
+                    )
+                }
         )
         return false
     }
