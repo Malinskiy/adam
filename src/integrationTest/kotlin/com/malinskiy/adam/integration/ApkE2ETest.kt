@@ -79,7 +79,9 @@ class ApkE2ETest {
                     channel.receiveOrNull()
                 }
 
-                client.execute(InstallRemotePackageRequest("/data/local/tmp/$fileName", true), serial = adb.deviceSerial)
+                client.execute(InstallRemotePackageRequest("/data/local/tmp/$fileName", true), serial = adb.deviceSerial).let {
+                    println(it)
+                }
             }.let { println(it) }
 
             var packages = client.execute(PmListRequest(), serial = adb.deviceSerial)

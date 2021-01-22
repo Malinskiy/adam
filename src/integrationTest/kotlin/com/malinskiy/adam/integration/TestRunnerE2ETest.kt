@@ -139,21 +139,14 @@ class TestRunnerE2ETest {
                 serial = rule.deviceSerial
             )
 
-        var percentage = 0
-        while (!channel.isClosedForReceive) {
-            val percentageDouble = channel.receiveOrNull() ?: break
-
-            val newPercentage = (percentageDouble * 100).roundToInt()
-            if (newPercentage != percentage) {
-                print('.')
-                percentage = newPercentage
-            }
+        for (i in channel) {
+            println(i)
         }
-        println()
 
         val result = rule.adb.execute(
             InstallRemotePackageRequest("/data/local/tmp/$apkFileName", true),
             serial = rule.deviceSerial
         )
+        println(result)
     }
 }
