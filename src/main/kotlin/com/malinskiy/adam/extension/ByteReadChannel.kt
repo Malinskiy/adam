@@ -20,6 +20,7 @@ import com.malinskiy.adam.transport.Socket
 import io.ktor.utils.io.*
 import kotlinx.coroutines.yield
 import java.nio.ByteBuffer
+import kotlin.math.min
 
 suspend fun ByteReadChannel.copyTo(socket: Socket, buffer: ByteBuffer) = copyTo(socket, buffer.array())
 suspend fun ByteReadChannel.copyTo(socket: Socket, buffer: ByteArray): Long {
@@ -50,7 +51,10 @@ suspend fun ByteReadChannel.copyTo(socket: Socket, buffer: ByteArray): Long {
 suspend fun ByteReadChannel.copyTo(buffer: ByteArray, offset: Int, limit: Int): Int {
     var processed = 0
     loop@ while (true) {
-        val toRead = (buffer.size - offset) - processed
+        val toRead = min(
+            (buffer.size - offset) - processed,
+            limit - processed
+        )
         val available = readAvailable(buffer, offset + processed, toRead)
         when {
             processed == limit -> break@loop

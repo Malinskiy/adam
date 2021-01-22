@@ -48,7 +48,7 @@ abstract class BasePushFileRequest(
     override suspend fun readElement(socket: Socket, sendChannel: SendChannel<Double>): Boolean {
         withMaxFilePacketBuffer {
             val data = array()
-            val available = fileReadChannel.copyTo(data, 0, data.size)
+            val available = fileReadChannel.copyTo(data, 8, data.size - 8)
             return when {
                 available < 0 -> {
                     Const.Message.DONE.copyInto(data)
@@ -65,12 +65,12 @@ abstract class BasePushFileRequest(
                     }
                 }
                 available > 0 -> {
-                    socket.writeFully(Const.Message.DATA)
-                    socket.writeFully(available.toByteArray().reversedArray())
+                    Const.Message.DATA.copyInto(data)
+                    available.toByteArray().reversedArray().copyInto(data, destinationOffset = 4)
                     /**
                      * USB devices are very picky about the size of the DATA buffer. Using the adb's default
                      */
-                    socket.writeFully(data, 0, available)
+                    socket.writeFully(data, 0, available + 8)
                     currentPosition += available
                     sendChannel.send(currentPosition.toDouble() / totalBytes)
                     false
