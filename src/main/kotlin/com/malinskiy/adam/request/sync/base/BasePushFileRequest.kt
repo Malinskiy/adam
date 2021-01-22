@@ -70,9 +70,6 @@ abstract class BasePushFileRequest(
                     /**
                      * USB devices are very picky about the size of the DATA buffer. Using the adb's default
                      */
-                    /**
-                     * USB devices are very picky about the size of the DATA buffer. Using the adb's default
-                     */
                     socket.writeFully(data, 0, available)
                     currentPosition += available
                     sendChannel.send(currentPosition.toDouble() / totalBytes)
