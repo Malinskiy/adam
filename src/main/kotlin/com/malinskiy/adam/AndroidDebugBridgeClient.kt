@@ -27,12 +27,9 @@ import com.malinskiy.adam.request.misc.SetDeviceRequest
 import com.malinskiy.adam.transport.KtorSocketFactory
 import com.malinskiy.adam.transport.SocketFactory
 import com.malinskiy.adam.transport.use
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.channels.produce
-import kotlinx.coroutines.withContext
 import java.net.InetAddress
 import java.net.InetSocketAddress
 import java.time.Duration
@@ -86,6 +83,7 @@ class AndroidDebugBridgeClient(
                         }
                         val finished = request.readElement(socket, this)
                         if (finished) break
+                        yield()
 
                         backChannel?.poll()?.let {
                             request.writeElement(it, socket)

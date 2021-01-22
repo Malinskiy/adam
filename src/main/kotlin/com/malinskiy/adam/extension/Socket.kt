@@ -44,6 +44,7 @@ suspend fun Socket.copyTo(channel: ByteWriteChannel, buffer: ByteArray): Long {
             available > 0 -> {
                 channel.writeFully(buffer, 0, available)
                 processed += available
+                yield()
             }
             else -> {
                 yield()
@@ -77,6 +78,7 @@ suspend fun <T> Socket.copyTo(transformer: ResponseTransformer<T>, buffer: ByteA
             available > 0 -> {
                 transformer.process(buffer, 0, available)
                 processed += available
+                yield()
             }
             else -> {
                 yield()

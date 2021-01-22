@@ -68,10 +68,10 @@ abstract class BasePullFileRequest(
             socket.readFully(data, 0, 8)
 
             val header = data.copyOfRange(0, 4)
-            when {
+            return when {
                 header.contentEquals(Const.Message.DONE) -> {
                     fileWriteChannel.close()
-                    return true
+                    true
                 }
                 header.contentEquals(Const.Message.DATA) -> {
                     val available = data.copyOfRange(4, 8).toInt()
@@ -87,6 +87,7 @@ abstract class BasePullFileRequest(
                     currentPosition += available
 
                     sendChannel.send(currentPosition.toDouble() / totalBytes)
+                    false
                 }
                 header.contentEquals(Const.Message.FAIL) -> {
                     val size = data.copyOfRange(4, 8).toInt()
@@ -102,7 +103,6 @@ abstract class BasePullFileRequest(
                     throw UnsupportedSyncProtocolException("Unexpected header message ${String(header, Const.DEFAULT_TRANSPORT_ENCODING)}")
                 }
             }
-            return false
         }
     }
 
