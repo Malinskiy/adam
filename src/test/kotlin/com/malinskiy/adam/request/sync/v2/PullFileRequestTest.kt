@@ -23,7 +23,7 @@ import com.malinskiy.adam.exception.PullFailedException
 import com.malinskiy.adam.exception.UnsupportedSyncProtocolException
 import com.malinskiy.adam.request.Feature
 import com.malinskiy.adam.server.AndroidDebugBridgeServer
-import io.ktor.utils.io.writeIntLittleEndian
+import io.ktor.utils.io.*
 import kotlinx.coroutines.channels.receiveOrNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -77,6 +77,9 @@ class PullFileRequestTest {
                     output.respondData(fixture.readBytes())
                     output.respondDone()
                     output.respondDone()
+
+                    output.close()
+                    input.discard()
                 }
 
                 val request =

@@ -75,6 +75,9 @@ class PullFileRequestTest {
                     output.respondData(fixture.readBytes())
                     output.respondDone()
                     output.respondDone()
+
+                    output.close()
+                    input.discard()
                 }
 
                 val request = PullFileRequest("/sdcard/testfile", tempFile)
