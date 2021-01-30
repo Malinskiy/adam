@@ -18,12 +18,15 @@ package com.malinskiy.adam.transport
 
 import java.net.InetSocketAddress
 
-class NioSocketFactory : SocketFactory {
-    override suspend fun tcp(socketAddress: InetSocketAddress): Socket {
+class NioSocketFactory(
+    private val connectTimeout: Long = 10_000,
+    private val idleTimeout: Long = 30_000
+) : SocketFactory {
+    override suspend fun tcp(socketAddress: InetSocketAddress, connectTimeout: Long?, idleTimeout: Long?): Socket {
         val nioSocket = NioSocket(
             socketAddress = socketAddress,
-            connectTimeout = 10_000,
-            idleTimeout = 10_000,
+            connectTimeout = connectTimeout ?: this.connectTimeout,
+            idleTimeout = idleTimeout ?: this.idleTimeout,
         )
         nioSocket.connect()
         return nioSocket

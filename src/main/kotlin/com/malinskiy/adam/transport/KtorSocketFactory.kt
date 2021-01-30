@@ -24,15 +24,16 @@ import kotlin.coroutines.CoroutineContext
 
 class KtorSocketFactory(
     coroutineContext: CoroutineContext,
-    private val socketTimeout: Long
+    private val connectTimeout: Long = 10_000,
+    private val idleTimeout: Long = 30_000
 ) : SocketFactory {
     private val selectorManager: SelectorManager = ActorSelectorManager(coroutineContext)
 
-    override suspend fun tcp(socketAddress: InetSocketAddress): Socket {
+    override suspend fun tcp(socketAddress: InetSocketAddress, connectTimeout: Long?, idleTimeout: Long?): Socket {
         return KtorSocket(aSocket(selectorManager)
                               .tcp()
                               .connect(socketAddress) {
-                                  socketTimeout = this@KtorSocketFactory.socketTimeout
+                                  socketTimeout = idleTimeout ?: this@KtorSocketFactory.idleTimeout
                               })
     }
 }

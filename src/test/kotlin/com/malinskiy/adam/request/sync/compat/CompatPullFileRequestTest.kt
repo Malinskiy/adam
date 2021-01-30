@@ -21,6 +21,7 @@ import assertk.assertions.isEqualTo
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.request.Feature
 import com.malinskiy.adam.server.AndroidDebugBridgeServer
+import io.ktor.utils.io.*
 import kotlinx.coroutines.channels.receiveOrNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -62,6 +63,9 @@ class CompatPullFileRequestTest {
                     output.respondData(fixture.readBytes())
                     output.respondDone()
                     output.respondDone()
+
+                    output.close()
+                    input.discard()
                 }
 
                 val request = CompatPullFileRequest("/sdcard/testfile", tempFile, emptyList(), this)
@@ -109,6 +113,9 @@ class CompatPullFileRequestTest {
                     output.respondData(fixture.readBytes())
                     output.respondDone()
                     output.respondDone()
+
+                    output.close()
+                    input.discard()
                 }
 
                 val request = CompatPullFileRequest("/sdcard/testfile", tempFile, listOf(Feature.SENDRECV_V2), this)

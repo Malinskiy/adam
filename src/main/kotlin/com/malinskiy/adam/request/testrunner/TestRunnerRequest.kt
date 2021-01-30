@@ -37,6 +37,7 @@ import kotlinx.coroutines.channels.SendChannel
  * @param userId Specify user instrumentation runs in; current user if not specified
  * @param abi Launch the instrumented process with the selected ABI. This assumes that the process supports the selected ABI.
  * @param profilingOutputPath write profiling data to <FILE>
+ * @param socketIdleTimeout override for socket idle timeout. This should be longer than the longest test
  *
  * @see https://android.googlesource.com/platform/frameworks/base/+/master/cmds/am/src/com/android/commands/am/Am.java#155
  */
@@ -52,7 +53,8 @@ class TestRunnerRequest(
     private val profilingOutputPath: String? = null,
     private val outputLogPath: String? = null,
     private val protobuf: Boolean = false,
-) : AsyncChannelRequest<List<TestEvent>, Unit>() {
+    socketIdleTimeout: Long? = Long.MAX_VALUE
+) : AsyncChannelRequest<List<TestEvent>, Unit>(socketIdleTimeout = socketIdleTimeout) {
 
     private val transformer: ProgressiveResponseTransformer<List<TestEvent>?> by lazy {
         if (protobuf) {

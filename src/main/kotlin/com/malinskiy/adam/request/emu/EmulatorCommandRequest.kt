@@ -40,7 +40,8 @@ class EmulatorCommandRequest(
     private val cmd: String,
     val address: InetSocketAddress,
     private val authToken: String? = null,
-    private val cleanResponse: Boolean = true
+    private val cleanResponse: Boolean = true,
+    val idleTimeoutOverride: Long? = null
 ) {
     private suspend fun readAuthToken(): String? {
         val authTokenFile = File(System.getProperty("user.home"), ".emulator_console_auth_token")
