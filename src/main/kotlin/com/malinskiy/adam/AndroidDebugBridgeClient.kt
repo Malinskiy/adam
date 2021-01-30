@@ -48,7 +48,11 @@ class AndroidDebugBridgeClient(
             val requestSimpleClassName = request.javaClass.simpleName
             throw RequestValidationException("Request $requestSimpleClassName did not pass validation: ${validationResponse.message}")
         }
-        socketFactory.tcp(socketAddress).use { socket ->
+
+        socketFactory.tcp(
+            socketAddress = socketAddress,
+            idleTimeout = request.socketIdleTimeout
+        ).use { socket ->
             serial?.let {
                 SetDeviceRequest(it).handshake(socket)
             }
@@ -63,7 +67,10 @@ class AndroidDebugBridgeClient(
             throw RequestValidationException("Request $requestSimpleClassName did not pass validation: ${validationResponse.message}")
         }
         return scope.produce {
-            socketFactory.tcp(socketAddress).use { socket ->
+            socketFactory.tcp(
+                socketAddress = socketAddress,
+                idleTimeout = request.socketIdleTimeout
+            ).use { socket ->
                 var backChannel = request.channel
 
                 try {
@@ -103,7 +110,10 @@ class AndroidDebugBridgeClient(
     }
 
     suspend fun execute(request: EmulatorCommandRequest): String {
-        socketFactory.tcp(request.address).use { socket ->
+        socketFactory.tcp(
+            socketAddress = request.address,
+            idleTimeout = request.idleTimeoutOverride
+        ).use { socket ->
             return request.process(socket)
         }
     }
@@ -128,7 +138,7 @@ class AndroidDebugBridgeClientFactory {
     var host: InetAddress? = null
     var coroutineContext: CoroutineContext? = null
     var socketFactory: SocketFactory? = null
-    var socketTimeout: Duration? = null
+    var idleTimeout: Duration? = null
 
     fun build(): AndroidDebugBridgeClient {
         return AndroidDebugBridgeClient(
@@ -136,7 +146,7 @@ class AndroidDebugBridgeClientFactory {
             host = host ?: InetAddress.getByName(Const.DEFAULT_ADB_HOST),
             socketFactory = socketFactory ?: KtorSocketFactory(
                 coroutineContext = coroutineContext ?: Dispatchers.IO,
-                socketTimeout = socketTimeout?.toMillis() ?: 30_000
+                idleTimeout = idleTimeout?.toMillis() ?: 30_000
             )
         )
     }

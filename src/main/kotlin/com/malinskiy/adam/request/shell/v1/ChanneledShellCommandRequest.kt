@@ -26,8 +26,9 @@ import kotlinx.coroutines.channels.SendChannel
 
 open class ChanneledShellCommandRequest(
     val cmd: String,
-    target: Target = NonSpecifiedTarget
-) : AsyncChannelRequest<String, Unit>(target = target) {
+    target: Target = NonSpecifiedTarget,
+    socketIdleTimeout: Long? = null
+) : AsyncChannelRequest<String, Unit>(target = target, socketIdleTimeout = socketIdleTimeout) {
 
     override suspend fun readElement(socket: Socket, sendChannel: SendChannel<String>): Boolean {
         withMaxFilePacketBuffer {

@@ -26,8 +26,9 @@ import kotlinx.coroutines.channels.SendChannel
  */
 abstract class AsyncChannelRequest<T : Any?, I : Any?>(
     val channel: ReceiveChannel<I>? = null,
-    target: Target = NonSpecifiedTarget
-) : Request(target) {
+    target: Target = NonSpecifiedTarget,
+    socketIdleTimeout: Long? = null
+) : Request(target, socketIdleTimeout) {
 
     /**
      * Called after the initial OKAY confirmation

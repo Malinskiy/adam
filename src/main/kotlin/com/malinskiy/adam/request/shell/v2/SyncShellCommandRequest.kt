@@ -28,8 +28,8 @@ import io.ktor.utils.io.*
 /**
  * shell v2 service required for this request
  */
-abstract class SyncShellCommandRequest<T : Any?>(val cmd: String, target: Target = NonSpecifiedTarget) :
-    ComplexRequest<T>(target) {
+abstract class SyncShellCommandRequest<T : Any?>(val cmd: String, target: Target = NonSpecifiedTarget, socketIdleTimeout: Long? = null) :
+    ComplexRequest<T>(target, socketIdleTimeout) {
 
     private val stdoutBuilder = StringBuilder()
     private val stderrBuilder = StringBuilder()

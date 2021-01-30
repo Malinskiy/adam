@@ -26,7 +26,8 @@ import io.ktor.utils.io.*
 /**
  * Executes the command and provides the channel as the input to the command. Does not return anything
  */
-class ExecInRequest(private val cmd: String, private val channel: ByteReadChannel) : ComplexRequest<Unit>() {
+class ExecInRequest(private val cmd: String, private val channel: ByteReadChannel, socketIdleTimeout: Long? = null) :
+    ComplexRequest<Unit>(socketIdleTimeout = socketIdleTimeout) {
     override suspend fun readElement(socket: Socket) {
         withMaxFilePacketBuffer {
             val buffer = array()

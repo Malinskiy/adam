@@ -27,8 +27,13 @@ import java.io.UnsupportedEncodingException
 /**
  * By default all requests are targeted at adb daemon itself
  * @see [Target]
+ *
+ * @param socketIdleTimeout override for socket idle timeout
  */
-open abstract class Request(val target: Target = HostTarget) {
+open abstract class Request(
+    val target: Target = HostTarget,
+    val socketIdleTimeout: Long? = null
+) {
 
     /**
      * Some requests require a device serial to be passed to the request itself by means of <host-prefix>

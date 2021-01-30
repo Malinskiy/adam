@@ -19,5 +19,5 @@ package com.malinskiy.adam.transport
 import java.net.InetSocketAddress
 
 interface SocketFactory {
-    suspend fun tcp(socketAddress: InetSocketAddress): Socket
+    suspend fun tcp(socketAddress: InetSocketAddress, connectTimeout: Long? = null, idleTimeout: Long? = null): Socket
 }
