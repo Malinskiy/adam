@@ -17,6 +17,7 @@
 package com.malinskiy.adam.request.shell.v1
 
 import com.malinskiy.adam.Const
+import com.malinskiy.adam.exception.RequestRejectedException
 import com.malinskiy.adam.request.transform.ResponseTransformer
 
 class ShellResultResponseTransformer : ResponseTransformer<ShellCommandResult> {
@@ -30,8 +31,12 @@ class ShellResultResponseTransformer : ResponseTransformer<ShellCommandResult> {
     override fun transform(): ShellCommandResult {
         val output = builder.toString()
         val indexOfDelimiter = output.lastIndexOf(SyncShellCommandRequest.EXIT_CODE_DELIMITER)
+        if (indexOfDelimiter == -1) {
+            throw RequestRejectedException("No exit code delimiter found in $output")
+        }
         val stdout = output.substring(0 until indexOfDelimiter)
-        val exitCode = output.substring(indexOfDelimiter + 1).trim().toInt()
+        val exitCodeString = output.substring(indexOfDelimiter + 1).trim()
+        val exitCode = exitCodeString.toIntOrNull() ?: throw RequestRejectedException("Unexpected exit code value $exitCodeString")
         return ShellCommandResult(
             output = stdout,
             exitCode = exitCode
