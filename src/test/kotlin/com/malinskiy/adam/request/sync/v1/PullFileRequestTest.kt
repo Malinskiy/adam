@@ -37,10 +37,6 @@ class PullFileRequestTest {
     @JvmField
     val temp = TemporaryFolder()
 
-//    @Rule
-//    @JvmField
-//    val coroutines = CoroutinesTimeout.seconds(5)
-
     @Test
     fun testSerialize() {
         assertThat(String(PullFileRequest("/sdcard/testfile", File("/tmp/testfile")).serialize(), Const.DEFAULT_TRANSPORT_ENCODING))
@@ -129,6 +125,9 @@ class PullFileRequestTest {
                     }
                     output.respondDone()
                     output.respondDone()
+
+                    output.close()
+                    input.discard()
                 }
 
                 val request = PullFileRequest("/sdcard/testfile", tempFile)
