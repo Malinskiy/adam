@@ -27,3 +27,5 @@ import java.nio.ByteBuffer
 fun ByteBuffer.compatRewind() = ((this as Buffer).rewind() as ByteBuffer)
 fun ByteBuffer.compatLimit(newLimit: Int) = ((this as Buffer).limit(newLimit) as ByteBuffer)
 fun ByteBuffer.compatPosition(newLimit: Int) = ((this as Buffer).position(newLimit) as ByteBuffer)
+fun ByteBuffer.compatFlip() = ((this as Buffer).flip() as ByteBuffer)
+fun ByteBuffer.compatClear() = ((this as Buffer).clear() as ByteBuffer)

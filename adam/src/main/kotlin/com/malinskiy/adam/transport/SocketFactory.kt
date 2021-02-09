@@ -16,10 +16,9 @@
 
 package com.malinskiy.adam.transport
 
-import io.ktor.network.sockets.*
 import java.net.InetSocketAddress
 
 interface SocketFactory {
-    suspend fun tcp(socketAddress: InetSocketAddress): Socket
+    suspend fun tcp(socketAddress: InetSocketAddress, connectTimeout: Long? = null, idleTimeout: Long? = null): Socket
     fun close()
 }

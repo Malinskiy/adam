@@ -17,10 +17,10 @@
 package com.malinskiy.adam.request.sync.v1
 
 import com.malinskiy.adam.Const
-import com.malinskiy.adam.extension.toByteArray
+import com.malinskiy.adam.extension.compatFlip
 import com.malinskiy.adam.request.sync.base.BasePushFileRequest
-import com.malinskiy.adam.transport.AndroidReadChannel
-import com.malinskiy.adam.transport.AndroidWriteChannel
+import com.malinskiy.adam.transport.Socket
+import com.malinskiy.adam.transport.withDefaultBuffer
 import kotlinx.coroutines.Dispatchers
 import java.io.File
 import kotlin.coroutines.CoroutineContext
@@ -32,8 +32,8 @@ class PushFileRequest(
     coroutineContext: CoroutineContext = Dispatchers.IO
 ) : BasePushFileRequest(local, remotePath, mode, coroutineContext) {
 
-    override suspend fun handshake(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel) {
-        super.handshake(readChannel, writeChannel)
+    override suspend fun handshake(socket: Socket) {
+        super.handshake(socket)
 
         val type = Const.Message.SEND_V1
 
@@ -42,13 +42,13 @@ class PushFileRequest(
         val packetLength = (path.size + mode.size)
         val size = packetLength.toByteArray().reversedArray()
 
-        val cmd = ByteArray(8 + path.size + 4)
-
-        type.copyInto(cmd)
-        size.copyInto(cmd, 4)
-        path.copyInto(cmd, 8)
-        mode.copyInto(cmd, 8 + path.size)
-
-        writeChannel.write(cmd)
+        withDefaultBuffer {
+            put(type)
+            put(size)
+            put(path)
+            put(mode)
+            compatFlip()
+            socket.writeFully(this)
+        }
     }
 }

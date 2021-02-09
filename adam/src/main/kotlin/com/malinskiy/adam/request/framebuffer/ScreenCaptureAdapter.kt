@@ -16,9 +16,7 @@
 
 package com.malinskiy.adam.request.framebuffer
 
-import com.malinskiy.adam.extension.compatRewind
-import com.malinskiy.adam.transport.AndroidReadChannel
-import io.ktor.utils.io.*
+import com.malinskiy.adam.transport.Socket
 import java.nio.ByteBuffer
 
 /**
@@ -32,7 +30,7 @@ abstract class ScreenCaptureAdapter<T>(
     private var buffer: ByteBuffer? = null,
     protected val colorModelFactory: ColorModelFactory = ColorModelFactory()
 ) {
-    suspend fun read(channel: ByteReadChannel, size: Int): ByteBuffer {
+    suspend fun read(socket: Socket, size: Int): ByteBuffer {
         val localBuffer = buffer
 
         val imageBuffer = if (localBuffer != null && localBuffer.capacity() == size) {
@@ -43,7 +41,7 @@ abstract class ScreenCaptureAdapter<T>(
             ByteBuffer.allocate(size).also { buffer = it }
         }
 
-        channel.readFully(imageBuffer)
+        socket.readFully(imageBuffer)
         return imageBuffer
     }
 
@@ -62,6 +60,6 @@ abstract class ScreenCaptureAdapter<T>(
         alphaOffset: Int,
         alphaLength: Int,
         colorSpace: ColorSpace? = null,
-        channel: AndroidReadChannel
+        socket: Socket
     ): T
 }

@@ -16,12 +16,10 @@
 
 package com.malinskiy.adam.request.misc
 
-import com.malinskiy.adam.Const
+import com.malinskiy.adam.extension.readProtocolString
 import com.malinskiy.adam.request.ComplexRequest
 import com.malinskiy.adam.request.HostTarget
-import com.malinskiy.adam.transport.AndroidReadChannel
-import com.malinskiy.adam.transport.AndroidWriteChannel
-import java.nio.ByteBuffer
+import com.malinskiy.adam.transport.Socket
 
 /**
  * Connects a remote device
@@ -33,13 +31,5 @@ class ConnectDeviceRequest(
 
     override fun serialize() = createBaseRequest("connect:$host:$port")
 
-    override suspend fun readElement(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel): String {
-        val sizeBuffer: ByteBuffer = ByteBuffer.allocate(4)
-        readChannel.readFully(sizeBuffer)
-        val size = String(sizeBuffer.array(), Const.DEFAULT_TRANSPORT_ENCODING).toInt(radix = 16)
-
-        val payloadBuffer = ByteBuffer.allocate(size)
-        readChannel.readFully(payloadBuffer)
-        return String(payloadBuffer.array(), Const.DEFAULT_TRANSPORT_ENCODING)
-    }
+    override suspend fun readElement(socket: Socket) = socket.readProtocolString()
 }

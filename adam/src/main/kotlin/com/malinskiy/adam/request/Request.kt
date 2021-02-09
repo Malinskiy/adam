@@ -18,16 +18,22 @@ package com.malinskiy.adam.request
 
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.exception.RequestRejectedException
+import com.malinskiy.adam.extension.readTransportResponse
+import com.malinskiy.adam.extension.write
 import com.malinskiy.adam.log.AdamLogging
-import com.malinskiy.adam.transport.AndroidReadChannel
-import com.malinskiy.adam.transport.AndroidWriteChannel
+import com.malinskiy.adam.transport.Socket
 import java.io.UnsupportedEncodingException
 
 /**
  * By default all requests are targeted at adb daemon itself
  * @see [Target]
+ *
+ * @param socketIdleTimeout override for socket idle timeout
  */
-open abstract class Request(val target: Target = HostTarget) {
+open abstract class Request(
+    val target: Target = HostTarget,
+    val socketIdleTimeout: Long? = null
+) {
 
     /**
      * Some requests require a device serial to be passed to the request itself by means of <host-prefix>
@@ -35,10 +41,10 @@ open abstract class Request(val target: Target = HostTarget) {
      */
     abstract fun serialize(): ByteArray
 
-    open suspend fun handshake(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel) {
+    open suspend fun handshake(socket: Socket) {
         val request = serialize()
-        writeChannel.write(request)
-        val response = readChannel.read()
+        socket.write(request)
+        val response = socket.readTransportResponse()
         if (!response.okay) {
             log.warn { "adb server rejected command ${String(request, Const.DEFAULT_TRANSPORT_ENCODING)}" }
             throw RequestRejectedException(response.message ?: "no message received")

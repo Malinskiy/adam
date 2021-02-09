@@ -20,6 +20,7 @@ import com.malinskiy.adam.Const
 import com.malinskiy.adam.request.testrunner.*
 import com.malinskiy.adam.request.testrunner.model.Status
 import com.malinskiy.adam.request.testrunner.model.TokenType
+import com.sun.xml.internal.bind.v2.TODO
 
 class InstrumentationResponseTransformer : ProgressiveResponseTransformer<List<TestEvent>?> {
     var buffer = StringBuffer()
@@ -43,8 +44,10 @@ class InstrumentationResponseTransformer : ProgressiveResponseTransformer<List<T
             return null
         }
 
-        val nextLineBreak = buffer.indexOf('\n', startIndex = tokenPosition)
-
+        val nextLineBreak = buffer.indexOfAny(charArrayOf('\n', '\r'), startIndex = tokenPosition)
+        if (nextLineBreak == -1) {
+            return null
+        }
 
         val atom = buffer.substring(0, nextLineBreak).lines()
         buffer = buffer.delete(0, nextLineBreak + 1)

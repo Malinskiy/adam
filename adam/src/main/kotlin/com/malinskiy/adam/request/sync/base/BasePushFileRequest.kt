@@ -18,11 +18,13 @@ package com.malinskiy.adam.request.sync.base
 
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.exception.PushFailedException
+import com.malinskiy.adam.extension.readTransportResponse
 import com.malinskiy.adam.extension.toByteArray
+import com.malinskiy.adam.extension.write
 import com.malinskiy.adam.request.AsyncChannelRequest
 import com.malinskiy.adam.request.ValidationResponse
-import com.malinskiy.adam.transport.AndroidReadChannel
-import com.malinskiy.adam.transport.AndroidWriteChannel
+import com.malinskiy.adam.transport.Socket
+import com.malinskiy.adam.transport.withMaxFilePacketBuffer
 import io.ktor.util.cio.*
 import io.ktor.utils.io.*
 import kotlinx.coroutines.Dispatchers
@@ -37,37 +39,43 @@ abstract class BasePushFileRequest(
     coroutineContext: CoroutineContext = Dispatchers.IO
 ) : AsyncChannelRequest<Double, Unit>() {
     protected val fileReadChannel = local.readChannel(coroutineContext = coroutineContext)
-    protected val buffer = ByteArray(8 + Const.MAX_FILE_PACKET_LENGTH)
     protected var totalBytes = local.length()
     protected var currentPosition = 0L
     protected val modeValue: Int
         get() = mode.toInt(8) and "0777".toInt(8)
 
-    override suspend fun readElement(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel): Double? {
-        val available = fileReadChannel.readAvailable(buffer, 8, Const.MAX_FILE_PACKET_LENGTH)
-        return when {
-            available < 0 -> {
-                Const.Message.DONE.copyInto(buffer)
-                (local.lastModified() / 1000).toInt().toByteArray().copyInto(buffer, destinationOffset = 4)
-                writeChannel.write(request = buffer, length = 8)
-                val transportResponse = readChannel.read()
-                readChannel.cancel(null)
-                writeChannel.close(null)
-                fileReadChannel.cancel()
-                return if (transportResponse.okay) {
-                    1.0
-                } else {
-                    throw PushFailedException("adb didn't acknowledge the file transfer: ${transportResponse.message ?: ""}")
+    override suspend fun readElement(socket: Socket, sendChannel: SendChannel<Double>): Boolean {
+        withMaxFilePacketBuffer {
+            val data = array()
+            val available = fileReadChannel.copyTo(data, 8, data.size - 8)
+            return when {
+                available < 0 -> {
+                    Const.Message.DONE.copyInto(data)
+                    (local.lastModified() / 1000).toInt().toByteArray().copyInto(data, destinationOffset = 4)
+                    socket.write(request = data, length = 8)
+                    val transportResponse = socket.readTransportResponse()
+                    fileReadChannel.cancel()
+
+                    if (transportResponse.okay) {
+                        sendChannel.send(1.0)
+                        true
+                    } else {
+                        throw PushFailedException("adb didn't acknowledge the file transfer: ${transportResponse.message ?: ""}")
+                    }
                 }
+                available > 0 -> {
+                    Const.Message.DATA.copyInto(data)
+                    available.toByteArray().reversedArray().copyInto(data, destinationOffset = 4)
+                    /**
+                     * USB devices are very picky about the size of the DATA buffer. Using the adb's default
+                     */
+                    socket.writeFully(data, 0, available + 8)
+                    currentPosition += available
+                    sendChannel.send(currentPosition.toDouble() / totalBytes)
+                    false
+                }
+                else -> false
             }
-            available > 0 -> {
-                Const.Message.DATA.copyInto(buffer)
-                available.toByteArray().reversedArray().copyInto(buffer, destinationOffset = 4)
-                writeChannel.writeFully(buffer, 0, available + 8)
-                currentPosition += available
-                currentPosition.toDouble() / totalBytes
-            }
-            else -> currentPosition.toDouble() / totalBytes
         }
     }
 
@@ -77,7 +85,7 @@ abstract class BasePushFileRequest(
         fileReadChannel.cancel()
     }
 
-    override suspend fun writeElement(element: Unit, readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel) = Unit
+    override suspend fun writeElement(element: Unit, socket: Socket) = Unit
 
     override fun validate(): ValidationResponse {
         val response = super.validate()

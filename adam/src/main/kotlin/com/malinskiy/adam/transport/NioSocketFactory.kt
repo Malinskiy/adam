@@ -16,28 +16,21 @@
 
 package com.malinskiy.adam.transport
 
-import io.ktor.network.selector.*
-import io.ktor.network.sockets.*
-import io.ktor.utils.io.nio.*
 import java.net.InetSocketAddress
-import kotlin.coroutines.CoroutineContext
 
-class KtorSocketFactory(
-    coroutineContext: CoroutineContext,
+class NioSocketFactory(
     private val connectTimeout: Long = 10_000,
     private val idleTimeout: Long = 30_000
 ) : SocketFactory {
-    private val selectorManager: SelectorManager = ActorSelectorManager(coroutineContext)
-
     override suspend fun tcp(socketAddress: InetSocketAddress, connectTimeout: Long?, idleTimeout: Long?): Socket {
-        return KtorSocket(aSocket(selectorManager)
-                              .tcp()
-                              .connect(socketAddress) {
-                                  socketTimeout = idleTimeout ?: this@KtorSocketFactory.idleTimeout
-                              })
+        val nioSocket = NioSocket(
+            socketAddress = socketAddress,
+            connectTimeout = connectTimeout ?: this.connectTimeout,
+            idleTimeout = idleTimeout ?: this.idleTimeout,
+        )
+        nioSocket.connect()
+        return nioSocket
     }
 
-    override fun close() {
-        selectorManager.close()
-    }
+    override fun close() {}
 }

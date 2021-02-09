@@ -25,6 +25,7 @@ import com.malinskiy.adam.request.shell.v1.ShellCommandRequest
 import com.malinskiy.adam.request.sync.v1.PushFileRequest
 import com.malinskiy.adam.rule.AdbDeviceRule
 import kotlinx.coroutines.channels.receiveOrNull
+import kotlinx.coroutines.debug.junit4.CoroutinesTimeout
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -40,6 +41,10 @@ class ApkE2ETest {
     @JvmField
     val adb = AdbDeviceRule()
     val client = adb.adb
+
+    @Rule
+    @JvmField
+    val timeout = CoroutinesTimeout.seconds(60)
 
     @Before
     fun setup() {
@@ -74,7 +79,9 @@ class ApkE2ETest {
                     channel.receiveOrNull()
                 }
 
-                client.execute(InstallRemotePackageRequest("/data/local/tmp/$fileName", true), serial = adb.deviceSerial)
+                client.execute(InstallRemotePackageRequest("/data/local/tmp/$fileName", true), serial = adb.deviceSerial).let {
+                    println(it)
+                }
             }.let { println(it) }
 
             var packages = client.execute(PmListRequest(), serial = adb.deviceSerial)

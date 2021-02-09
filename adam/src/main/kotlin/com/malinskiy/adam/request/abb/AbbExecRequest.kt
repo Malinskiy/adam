@@ -22,17 +22,16 @@ import com.malinskiy.adam.request.ComplexRequest
 import com.malinskiy.adam.request.Feature
 import com.malinskiy.adam.request.ValidationResponse
 import com.malinskiy.adam.request.transform.StringResponseTransformer
-import com.malinskiy.adam.transport.AndroidReadChannel
-import com.malinskiy.adam.transport.AndroidWriteChannel
+import com.malinskiy.adam.transport.Socket
 import com.malinskiy.adam.transport.withDefaultBuffer
 
 @Features(Feature.ABB_EXEC)
 open class AbbExecRequest(private val args: List<String>, private val supportedFeatures: List<Feature>) : ComplexRequest<String>() {
     private val transformer = StringResponseTransformer()
 
-    override suspend fun readElement(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel): String {
+    override suspend fun readElement(socket: Socket): String {
         withDefaultBuffer {
-            readChannel.copyTo(transformer, this)
+            socket.copyTo(transformer, this)
         }
         return transformer.transform()
     }

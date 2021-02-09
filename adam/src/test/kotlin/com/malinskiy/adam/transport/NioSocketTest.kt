@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 Anton Malinskiy
+ * Copyright (C) 2021 Anton Malinskiy
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,19 @@
  * limitations under the License.
  */
 
-package com.malinskiy.adam.extension
+package com.malinskiy.adam.transport
 
-import com.malinskiy.adam.transport.AndroidReadChannel
-import com.malinskiy.adam.transport.AndroidWriteChannel
-import io.ktor.utils.io.ByteReadChannel
-import io.ktor.utils.io.ByteWriteChannel
+import kotlinx.coroutines.runBlocking
+import org.junit.Test
+import java.net.ConnectException
+import java.net.InetSocketAddress
 
-
-fun ByteReadChannel.toAndroidChannel() = AndroidReadChannel(this)
-fun ByteWriteChannel.toAndroidChannel() = AndroidWriteChannel(this)
+class NioSocketTest {
+    @Test(expected = ConnectException::class)
+    fun testClosedPort() {
+        runBlocking {
+            //This will fail obviously in a scenario where 65535 is actually open
+            NioSocket(InetSocketAddress("localhost", 65535), 1_000, 1_000).connect()
+        }
+    }
+}

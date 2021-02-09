@@ -163,4 +163,51 @@ class InstrumentationResponseTransformerTest {
         assertThat(events.map { it.toString() }.reduce { acc, s -> acc + "\n" + s })
             .isEqualTo(javaClass.getResourceAsStream("/instrumentation/log_6.expected").reader().readText())
     }
+
+    @Test
+    fun testBufferFraming() = runBlocking {
+        val transformer = InstrumentationResponseTransformer()
+
+        val lines = javaClass.getResourceAsStream("/instrumentation/log_6.input").reader().readLines()
+
+        val events = mutableListOf<TestEvent>()
+        for (line in lines) {
+            val part1 = line.substring(0, 7 * line.length / 8)
+            val part2 = line.substring(7 * line.length / 8, line.length)
+            val bytes1 = (part1).toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
+            val bytes2 = (part2 + '\n').toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
+            transformer.process(bytes1, 0, bytes1.size)?.let {
+                events.addAll(it)
+            }
+            transformer.process(bytes2, 0, bytes2.size)?.let {
+                events.addAll(it)
+            }
+        }
+        transformer.transform()?.let { events.addAll(it) }
+
+        assertThat(events.map { it.toString() }.reduce { acc, s -> acc + "\n" + s })
+            .isEqualTo(javaClass.getResourceAsStream("/instrumentation/log_6.expected").reader().readText())
+    }
+
+    /**
+     * \r\n
+     */
+    @Test
+    fun testWindowsLineEnding() = runBlocking {
+        val transformer = InstrumentationResponseTransformer()
+
+        val lines = javaClass.getResourceAsStream("/instrumentation/log_3.input").reader().readLines()
+
+        val events = mutableListOf<TestEvent>()
+        for (line in lines) {
+            val bytes = (line + "\r\n").toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
+            transformer.process(bytes, 0, bytes.size)?.let {
+                events.addAll(it)
+            }
+        }
+        transformer.transform()?.let { events.addAll(it) }
+
+        assertThat(events.map { it.toString() }.reduce { acc, s -> acc + "\n" + s })
+            .isEqualTo(javaClass.getResourceAsStream("/instrumentation/log_3.expected").reader().readText())
+    }
 }

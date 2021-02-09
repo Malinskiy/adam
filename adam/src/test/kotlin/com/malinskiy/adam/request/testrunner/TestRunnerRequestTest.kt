@@ -20,13 +20,17 @@ import assertk.assertThat
 import assertk.assertions.containsOnly
 import assertk.assertions.isEqualTo
 import com.malinskiy.adam.Const
-import com.malinskiy.adam.extension.toAndroidChannel
 import com.malinskiy.adam.server.AndroidDebugBridgeServer
+import com.malinskiy.adam.server.StubSocket
+import com.malinskiy.adam.transport.use
 import io.ktor.utils.io.*
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.Channel.Factory.BUFFERED
 import kotlinx.coroutines.channels.receiveOrNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
+import java.nio.channels.ByteChannel
 
 class TestRunnerRequestTest {
     @Test
@@ -103,15 +107,12 @@ class TestRunnerRequestTest {
     @Test
     fun testChannelIsEmpty() {
         val request = TestRunnerRequest("com.example.test", InstrumentOptions())
-        val readChannel = ByteChannel(autoFlush = true)
-        val writeChannel = ByteChannel(autoFlush = true)
         runBlocking {
-            readChannel.close()
-            val readElement = request.readElement(
-                (readChannel as ByteReadChannel).toAndroidChannel(),
-                (writeChannel as ByteWriteChannel).toAndroidChannel()
-            )
-            assertThat(readElement).isEqualTo(null)
+            StubSocket(ByteChannel(autoFlush = true).apply { close() }, ByteChannel(autoFlush = true)).use { socket ->
+                val channel = Channel<List<TestEvent>>(BUFFERED)
+                val readElement = request.readElement(socket, channel)
+                assertThat(channel.poll()).isEqualTo(null)
+            }
         }
     }
 }

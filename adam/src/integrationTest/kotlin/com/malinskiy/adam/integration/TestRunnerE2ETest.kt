@@ -19,18 +19,15 @@ package com.malinskiy.adam.integration
 import assertk.assertThat
 import assertk.assertions.contains
 import assertk.assertions.isTrue
-import com.malinskiy.adam.Const
 import com.malinskiy.adam.request.pkg.InstallRemotePackageRequest
 import com.malinskiy.adam.request.shell.v1.ShellCommandRequest
 import com.malinskiy.adam.request.sync.v1.PushFileRequest
 import com.malinskiy.adam.request.testrunner.*
 import com.malinskiy.adam.rule.AdbDeviceRule
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.channels.receiveOrNull
 import kotlinx.coroutines.runBlocking
 import org.junit.*
 import java.io.File
-import kotlin.math.roundToInt
 
 class TestRunnerE2ETest {
     @Rule
@@ -139,21 +136,14 @@ class TestRunnerE2ETest {
                 serial = rule.deviceSerial
             )
 
-        var percentage = 0
-        while (!channel.isClosedForReceive) {
-            val percentageDouble = channel.receiveOrNull() ?: break
-
-            val newPercentage = (percentageDouble * 100).roundToInt()
-            if (newPercentage != percentage) {
-                print('.')
-                percentage = newPercentage
-            }
+        for (i in channel) {
+            println(i)
         }
-        println()
 
         val result = rule.adb.execute(
             InstallRemotePackageRequest("/data/local/tmp/$apkFileName", true),
             serial = rule.deviceSerial
         )
+        println(result)
     }
 }

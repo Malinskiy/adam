@@ -16,25 +16,17 @@
 
 package com.malinskiy.adam.request.mdns
 
-import com.malinskiy.adam.Const
+import com.malinskiy.adam.extension.readProtocolString
 import com.malinskiy.adam.request.ComplexRequest
 import com.malinskiy.adam.request.HostTarget
-import com.malinskiy.adam.transport.AndroidReadChannel
-import com.malinskiy.adam.transport.AndroidWriteChannel
-import java.nio.ByteBuffer
+import com.malinskiy.adam.transport.Socket
 
 /**
  * check if mdns discovery is available
  */
 class MdnsCheckRequest : ComplexRequest<MdnsStatus>(target = HostTarget) {
-    override suspend fun readElement(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel): MdnsStatus {
-        val sizeBuffer: ByteBuffer = ByteBuffer.allocate(4)
-        readChannel.readFully(sizeBuffer)
-        val size = String(sizeBuffer.array(), Const.DEFAULT_TRANSPORT_ENCODING).toInt(radix = 16)
-
-        val payloadBuffer = ByteBuffer.allocate(size)
-        readChannel.readFully(payloadBuffer)
-        val string = String(payloadBuffer.array(), Const.DEFAULT_TRANSPORT_ENCODING)
+    override suspend fun readElement(socket: Socket): MdnsStatus {
+        val string = socket.readProtocolString()
         return if (string.contains("mdns daemon unavailable")) {
             MdnsStatus(false)
         } else {

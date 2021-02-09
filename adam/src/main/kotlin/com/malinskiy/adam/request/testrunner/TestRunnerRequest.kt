@@ -16,13 +16,12 @@
 
 package com.malinskiy.adam.request.testrunner
 
-import com.malinskiy.adam.Const
 import com.malinskiy.adam.request.AsyncChannelRequest
 import com.malinskiy.adam.request.transform.InstrumentationResponseTransformer
 import com.malinskiy.adam.request.transform.ProgressiveResponseTransformer
 import com.malinskiy.adam.request.transform.ProtoInstrumentationResponseTransformer
-import com.malinskiy.adam.transport.AndroidReadChannel
-import com.malinskiy.adam.transport.AndroidWriteChannel
+import com.malinskiy.adam.transport.Socket
+import com.malinskiy.adam.transport.withMaxPacketBuffer
 import kotlinx.coroutines.channels.SendChannel
 
 /**
@@ -38,6 +37,7 @@ import kotlinx.coroutines.channels.SendChannel
  * @param userId Specify user instrumentation runs in; current user if not specified
  * @param abi Launch the instrumented process with the selected ABI. This assumes that the process supports the selected ABI.
  * @param profilingOutputPath write profiling data to <FILE>
+ * @param socketIdleTimeout override for socket idle timeout. This should be longer than the longest test
  *
  * @see https://android.googlesource.com/platform/frameworks/base/+/master/cmds/am/src/com/android/commands/am/Am.java#155
  */
@@ -53,8 +53,8 @@ class TestRunnerRequest(
     private val profilingOutputPath: String? = null,
     private val outputLogPath: String? = null,
     private val protobuf: Boolean = false,
-) : AsyncChannelRequest<List<TestEvent>, Unit>() {
-    private val buffer = ByteArray(Const.MAX_PACKET_LENGTH)
+    socketIdleTimeout: Long? = Long.MAX_VALUE
+) : AsyncChannelRequest<List<TestEvent>, Unit>(socketIdleTimeout = socketIdleTimeout) {
 
     private val transformer: ProgressiveResponseTransformer<List<TestEvent>?> by lazy {
         if (protobuf) {
@@ -64,19 +64,22 @@ class TestRunnerRequest(
         }
     }
 
-    override suspend fun readElement(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel): List<TestEvent>? {
-        val available = readChannel.readAvailable(buffer, 0, Const.MAX_PACKET_LENGTH)
+    override suspend fun readElement(socket: Socket, sendChannel: SendChannel<List<TestEvent>>): Boolean {
+        withMaxPacketBuffer {
+            val buffer = array()
+            val available = socket.readAvailable(buffer, 0, buffer.size)
 
-        return when {
-            available > 0 -> {
-                transformer.process(buffer, 0, available)
+            when {
+                available > 0 -> {
+                    transformer.process(buffer, 0, available)?.let { sendChannel.send(it) }
+                }
+                available < 0 -> {
+                    return true
+                }
+                else -> null
             }
-            available < 0 -> {
-                readChannel.cancel(null)
-                writeChannel.close(null)
-                return null
-            }
-            else -> null
+
+            return false
         }
     }
 
@@ -126,5 +129,5 @@ class TestRunnerRequest(
         transformer.transform()?.let { channel.send(it) }
     }
 
-    override suspend fun writeElement(element: Unit, readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel) = Unit
+    override suspend fun writeElement(element: Unit, socket: Socket) = Unit
 }

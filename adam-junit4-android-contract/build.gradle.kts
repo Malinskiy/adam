@@ -23,4 +23,9 @@ java {
     targetCompatibility = JavaVersion.VERSION_1_8
 }
 
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile::class) {
+    kotlinOptions.jvmTarget = "1.8"
+    kotlinOptions.apiVersion = "1.4"
+}
+
 Deployment.initialize(project)

@@ -18,11 +18,9 @@ package com.malinskiy.adam.request.shell.v1
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
-import assertk.fail
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.server.AndroidDebugBridgeServer
-import io.ktor.utils.io.close
-import kotlinx.coroutines.channels.receiveOrNull
+import io.ktor.utils.io.*
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 
@@ -51,8 +49,8 @@ class ChanneledShellCommandRequestTest {
             val updates = client.execute(ChanneledShellCommandRequest("logcat -v"), scope = this, serial = "emulator-5554")
             val stringBuffer = StringBuffer()
 
-            while (!updates.isClosedForReceive) {
-                stringBuffer.append(updates.receiveOrNull() ?: fail("should receive content"))
+            for (update in updates) {
+                stringBuffer.append(update)
             }
 
             assertThat(stringBuffer.toString()).isEqualTo("something-somethingsomething2-something2")

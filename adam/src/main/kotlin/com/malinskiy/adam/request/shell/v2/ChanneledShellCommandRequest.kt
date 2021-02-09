@@ -20,13 +20,10 @@ import com.malinskiy.adam.Const
 import com.malinskiy.adam.request.AsyncChannelRequest
 import com.malinskiy.adam.request.NonSpecifiedTarget
 import com.malinskiy.adam.request.Target
-import com.malinskiy.adam.transport.AndroidReadChannel
-import com.malinskiy.adam.transport.AndroidWriteChannel
-import io.ktor.utils.io.readIntLittleEndian
-import io.ktor.utils.io.writeByte
-import io.ktor.utils.io.writeFully
-import io.ktor.utils.io.writeIntLittleEndian
+import com.malinskiy.adam.transport.Socket
+import com.malinskiy.adam.transport.withMaxPacketBuffer
 import kotlinx.coroutines.channels.ReceiveChannel
+import kotlinx.coroutines.channels.SendChannel
 
 open class ChanneledShellCommandRequest(
     private val cmd: String,
@@ -34,49 +31,53 @@ open class ChanneledShellCommandRequest(
     target: Target = NonSpecifiedTarget
 ) : AsyncChannelRequest<ShellCommandResultChunk, ShellCommandInputChunk>(target = target, channel = channel) {
 
-    val data = ByteArray(Const.MAX_PACKET_LENGTH)
+    override suspend fun readElement(socket: Socket, sendChannel: SendChannel<ShellCommandResultChunk>): Boolean {
+        withMaxPacketBuffer {
+            val data = array()
+            val readAvailable = socket.readAvailable(data, 0, 1)
+            when (readAvailable) {
+                //Skip as if nothing is happening
+                0, -1 -> return false
+            }
 
-    override suspend fun readElement(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel): ShellCommandResultChunk? {
-        //Skip if nothing is happening
-        if (readChannel.availableForRead == 0) {
-            return null
-        }
-        return when (MessageType.of(readChannel.readByte().toInt())) {
-            MessageType.STDOUT -> {
-                val length = readChannel.readIntLittleEndian()
-                readChannel.readFully(data, 0, length)
-                ShellCommandResultChunk(stdout = String(data, 0, length, Const.DEFAULT_TRANSPORT_ENCODING))
+            val readByte = data[0]
+            when (MessageType.of(readByte.toInt())) {
+                MessageType.STDOUT -> {
+                    val length = socket.readIntLittleEndian()
+                    socket.readFully(data, 0, length)
+                    sendChannel.send(ShellCommandResultChunk(stdout = String(data, 0, length, Const.DEFAULT_TRANSPORT_ENCODING)))
+                }
+                MessageType.STDERR -> {
+                    val length = socket.readIntLittleEndian()
+                    socket.readFully(data, 0, length)
+                    sendChannel.send(ShellCommandResultChunk(stderr = String(data, 0, length, Const.DEFAULT_TRANSPORT_ENCODING)))
+                }
+                MessageType.EXIT -> {
+                    val ignoredLength = socket.readIntLittleEndian()
+                    val exitCode = socket.readByte().toInt()
+                    sendChannel.send(ShellCommandResultChunk(exitCode = exitCode))
+                }
+                else -> Unit
             }
-            MessageType.STDERR -> {
-                val length = readChannel.readIntLittleEndian()
-                readChannel.readFully(data, 0, length)
-                ShellCommandResultChunk(stderr = String(data, 0, length, Const.DEFAULT_TRANSPORT_ENCODING))
-            }
-            MessageType.EXIT -> {
-                val ignoredLength = readChannel.readIntLittleEndian()
-                val exitCode = readChannel.readByte().toInt()
-                ShellCommandResultChunk(exitCode = exitCode)
-            }
-            else -> {
-                null
-            }
+
+            return false
         }
     }
 
     /**
      * Handles stdin
      */
-    override suspend fun writeElement(element: ShellCommandInputChunk, readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel) {
+    override suspend fun writeElement(element: ShellCommandInputChunk, socket: Socket) {
         element.stdin?.let {
-            writeChannel.writeByte(MessageType.STDIN.toValue())
+            socket.writeByte(MessageType.STDIN.toValue())
             val bytes = it.toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
-            writeChannel.writeIntLittleEndian(bytes.size)
-            writeChannel.writeFully(bytes)
+            socket.writeIntLittleEndian(bytes.size)
+            socket.writeFully(bytes)
         }
 
         if (element.close) {
-            writeChannel.writeByte(MessageType.CLOSE_STDIN.toValue())
-            writeChannel.writeIntLittleEndian(0)
+            socket.writeByte(MessageType.CLOSE_STDIN.toValue())
+            socket.writeIntLittleEndian(0)
         }
     }
 

@@ -16,28 +16,19 @@
 
 package com.malinskiy.adam.request.reverse
 
-import com.malinskiy.adam.Const
+import com.malinskiy.adam.extension.readProtocolString
 import com.malinskiy.adam.request.ComplexRequest
 import com.malinskiy.adam.request.NonSpecifiedTarget
 import com.malinskiy.adam.request.forwarding.LocalPortSpec
 import com.malinskiy.adam.request.forwarding.RemotePortSpec
-import com.malinskiy.adam.transport.AndroidReadChannel
-import com.malinskiy.adam.transport.AndroidWriteChannel
-import java.nio.ByteBuffer
+import com.malinskiy.adam.transport.Socket
 
 /**
  * Doesn't work with SerialTarget, have to use the serial as a parameter for the execute method
  */
 class ListReversePortForwardsRequest : ComplexRequest<List<ReversePortForwardingRule>>(target = NonSpecifiedTarget) {
-    override suspend fun readElement(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel): List<ReversePortForwardingRule> {
-        val sizeBuffer: ByteBuffer = ByteBuffer.allocate(4)
-        readChannel.readFully(sizeBuffer)
-        val size = String(sizeBuffer.array(), Const.DEFAULT_TRANSPORT_ENCODING).toInt(radix = 16)
-
-        val payloadBuffer = ByteBuffer.allocate(size)
-        readChannel.readFully(payloadBuffer)
-        val payload = String(payloadBuffer.array(), Const.DEFAULT_TRANSPORT_ENCODING)
-        return payload.lines().mapNotNull { line ->
+    override suspend fun readElement(socket: Socket): List<ReversePortForwardingRule> {
+        return socket.readProtocolString().lines().mapNotNull { line ->
             if (line.isNotEmpty()) {
                 val split = line.split(" ")
                 ReversePortForwardingRule(

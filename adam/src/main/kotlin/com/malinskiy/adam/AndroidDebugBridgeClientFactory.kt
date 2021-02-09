@@ -29,7 +29,7 @@ class AndroidDebugBridgeClientFactory {
     var host: InetAddress? = null
     var coroutineContext: CoroutineContext? = null
     var socketFactory: SocketFactory? = null
-    var socketTimeout: Duration? = null
+    var idleTimeout: Duration? = null
 
     fun build(): AndroidDebugBridgeClient {
         return AndroidDebugBridgeClient(
@@ -37,7 +37,7 @@ class AndroidDebugBridgeClientFactory {
             host = host ?: InetAddress.getByName(Const.DEFAULT_ADB_HOST),
             socketFactory = socketFactory ?: KtorSocketFactory(
                 coroutineContext = coroutineContext ?: Dispatchers.IO,
-                socketTimeout = socketTimeout?.toMillis() ?: 30_000
+                idleTimeout = idleTimeout?.toMillis() ?: 30_000
             )
         )
     }

@@ -17,13 +17,15 @@
 package com.malinskiy.adam.transport
 
 import com.malinskiy.adam.Const
+import com.sun.org.apache.xml.internal.utils.ObjectPool
 import io.ktor.utils.io.pool.*
 import java.nio.ByteBuffer
 
-internal const val DEFAULT_BUFFER_SIZE = 4096
+internal const val DEFAULT_BUFFER_SIZE = 4088
 
-val AdamFilePool: ObjectPool<ByteBuffer> = ByteBufferPool(DEFAULT_BUFFER_SIZE, Const.MAX_FILE_PACKET_LENGTH)
-val AdamDefaultPool: ObjectPool<ByteBuffer> = ByteBufferPool(Const.DEFAULT_BUFFER_SIZE, DEFAULT_BUFFER_SIZE)
+val AdamDefaultPool: ObjectPool<ByteBuffer> = ByteBufferPool(Const.DEFAULT_BUFFER_SIZE, bufferSize = DEFAULT_BUFFER_SIZE)
+val AdamMaxPacketPool: ObjectPool<ByteBuffer> = ByteBufferPool(Const.DEFAULT_BUFFER_SIZE, bufferSize = Const.MAX_PACKET_LENGTH)
+val AdamMaxFilePacketPool: ObjectPool<ByteBuffer> = ByteBufferPool(Const.DEFAULT_BUFFER_SIZE, bufferSize = Const.MAX_FILE_PACKET_LENGTH)
 
 inline fun <R> withDefaultBuffer(block: ByteBuffer.() -> R): R {
     val instance = AdamDefaultPool.borrow()
@@ -34,11 +36,21 @@ inline fun <R> withDefaultBuffer(block: ByteBuffer.() -> R): R {
     }
 }
 
-inline fun <R> withFileBuffer(block: ByteBuffer.() -> R): R {
-    val instance = AdamFilePool.borrow()
+inline fun <R> withMaxPacketBuffer(block: ByteBuffer.() -> R): R {
+    val instance = AdamMaxPacketPool.borrow()
     return try {
         block(instance)
     } finally {
-        AdamFilePool.recycle(instance)
+        AdamMaxPacketPool.recycle(instance)
     }
 }
+
+inline fun <R> withMaxFilePacketBuffer(block: ByteBuffer.() -> R): R {
+    val instance = AdamMaxFilePacketPool.borrow()
+    return try {
+        block(instance)
+    } finally {
+        AdamMaxFilePacketPool.recycle(instance)
+    }
+}
+

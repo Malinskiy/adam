@@ -16,17 +16,17 @@
 
 package com.malinskiy.adam.request.pkg
 
-import com.malinskiy.adam.Const
 import com.malinskiy.adam.annotation.Features
 import com.malinskiy.adam.extension.bashEscape
+import com.malinskiy.adam.extension.compatClear
 import com.malinskiy.adam.extension.copyTo
 import com.malinskiy.adam.request.ComplexRequest
 import com.malinskiy.adam.request.Feature
 import com.malinskiy.adam.request.ValidationResponse
 import com.malinskiy.adam.request.abb.AbbExecRequest
 import com.malinskiy.adam.request.transform.StringResponseTransformer
-import com.malinskiy.adam.transport.AndroidReadChannel
-import com.malinskiy.adam.transport.AndroidWriteChannel
+import com.malinskiy.adam.transport.Socket
+import com.malinskiy.adam.transport.withMaxFilePacketBuffer
 import io.ktor.util.cio.*
 import io.ktor.utils.io.*
 import kotlinx.coroutines.Dispatchers
@@ -110,18 +110,27 @@ class StreamingPackageInstallRequest(
         }
     }
 
-    override suspend fun readElement(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel): Boolean {
-        val buffer = ByteArray(Const.MAX_FILE_PACKET_LENGTH)
-        var fileChannel: ByteReadChannel? = null
-        try {
-            val fileChannel = pkg.readChannel(coroutineContext = coroutineContext)
-            fileChannel.copyTo(writeChannel, buffer)
-        } finally {
-            fileChannel?.cancel()
-        }
+    override suspend fun readElement(socket: Socket): Boolean {
+        withMaxFilePacketBuffer {
+            var fileChannel: ByteReadChannel? = null
+            val buffer = array()
+            try {
+                val fileChannel = pkg.readChannel(coroutineContext = coroutineContext)
+                while (true) {
+                    val available = fileChannel.copyTo(buffer, 0, buffer.size)
+                    when {
+                        available > 0 -> socket.writeFully(buffer, 0, available)
+                        else -> break
+                    }
+                }
+            } finally {
+                fileChannel?.cancel()
+            }
 
-        readChannel.copyTo(transformer, buffer)
-        return transformer.transform().startsWith("Success")
+            compatClear()
+            socket.copyTo(transformer, this)
+            return transformer.transform().startsWith("Success")
+        }
     }
 
     companion object {

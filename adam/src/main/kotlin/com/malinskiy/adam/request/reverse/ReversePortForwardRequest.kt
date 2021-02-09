@@ -17,13 +17,14 @@
 package com.malinskiy.adam.request.reverse
 
 import com.malinskiy.adam.exception.RequestRejectedException
+import com.malinskiy.adam.extension.readOptionalProtocolString
+import com.malinskiy.adam.extension.readTransportResponse
 import com.malinskiy.adam.request.ComplexRequest
 import com.malinskiy.adam.request.NonSpecifiedTarget
 import com.malinskiy.adam.request.forwarding.LocalPortSpec
 import com.malinskiy.adam.request.forwarding.PortForwardingMode
 import com.malinskiy.adam.request.forwarding.RemotePortSpec
-import com.malinskiy.adam.transport.AndroidReadChannel
-import com.malinskiy.adam.transport.AndroidWriteChannel
+import com.malinskiy.adam.transport.Socket
 
 /**
  * On some devices, this might not return the actual port if you're passing tcp:0
@@ -40,12 +41,12 @@ class ReversePortForwardRequest(
     override fun serialize() =
         createBaseRequest("reverse:forward${mode.value}:${local.toSpec()};${remote.toSpec()}")
 
-    override suspend fun readElement(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel): Int? {
-        val transportResponse = readChannel.read()
+    override suspend fun readElement(socket: Socket): Int? {
+        val transportResponse = socket.readTransportResponse()
         if (!transportResponse.okay) {
             throw RequestRejectedException("Can't establish port forwarding: ${transportResponse.message ?: ""}")
         }
 
-        return readChannel.readOptionalProtocolString()?.toIntOrNull()
+        return socket.readOptionalProtocolString()?.toIntOrNull()
     }
 }

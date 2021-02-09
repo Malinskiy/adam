@@ -18,31 +18,34 @@ package com.malinskiy.adam.request.sync.v1
 
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.exception.UnsupportedSyncProtocolException
-import com.malinskiy.adam.extension.toInt
-import com.malinskiy.adam.extension.toUInt
+import com.malinskiy.adam.extension.*
 import com.malinskiy.adam.request.ComplexRequest
 import com.malinskiy.adam.request.ValidationResponse
 import com.malinskiy.adam.request.sync.model.FileEntryV1
-import com.malinskiy.adam.transport.AndroidReadChannel
-import com.malinskiy.adam.transport.AndroidWriteChannel
+import com.malinskiy.adam.transport.Socket
+import com.malinskiy.adam.transport.withDefaultBuffer
 import java.time.Instant
 
 class StatFileRequest(
     private val remotePath: String
 ) : ComplexRequest<FileEntryV1>() {
-    override suspend fun readElement(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel): FileEntryV1 {
-        writeChannel.writeSyncRequest(Const.Message.LSTAT_V1, remotePath)
+    override suspend fun readElement(socket: Socket): FileEntryV1 {
+        socket.writeSyncRequest(Const.Message.LSTAT_V1, remotePath)
 
-        val bytes = ByteArray(16)
-        readChannel.readFully(bytes, 0, 16)
+        withDefaultBuffer {
+            compatLimit(16)
+            socket.readFully(this)
+            compatFlip()
 
-        if (!bytes.copyOfRange(0, 4).contentEquals(Const.Message.LSTAT_V1)) throw UnsupportedSyncProtocolException()
+            val bytes = array()
+            if (!bytes.copyOfRange(0, 4).contentEquals(Const.Message.LSTAT_V1)) throw UnsupportedSyncProtocolException()
 
-        return FileEntryV1(
-            mode = bytes.copyOfRange(4, 8).toUInt(),
-            size = bytes.copyOfRange(8, 12).toUInt(),
-            mtime = Instant.ofEpochSecond(bytes.copyOfRange(12, 16).toInt().toLong())
-        )
+            return FileEntryV1(
+                mode = bytes.copyOfRange(4, 8).toUInt(),
+                size = bytes.copyOfRange(8, 12).toUInt(),
+                mtime = Instant.ofEpochSecond(bytes.copyOfRange(12, 16).toInt().toLong())
+            )
+        }
     }
 
     override fun validate(): ValidationResponse {

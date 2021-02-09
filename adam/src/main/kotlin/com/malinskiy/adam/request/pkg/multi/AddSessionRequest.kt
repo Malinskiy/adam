@@ -17,11 +17,11 @@
 package com.malinskiy.adam.request.pkg.multi
 
 import com.malinskiy.adam.exception.RequestRejectedException
+import com.malinskiy.adam.extension.readStatus
 import com.malinskiy.adam.request.ComplexRequest
 import com.malinskiy.adam.request.Feature
 import com.malinskiy.adam.request.abb.AbbExecRequest
-import com.malinskiy.adam.transport.AndroidReadChannel
-import com.malinskiy.adam.transport.AndroidWriteChannel
+import com.malinskiy.adam.transport.Socket
 
 class AddSessionRequest(
     private val childSessions: List<String>,
@@ -50,8 +50,8 @@ class AddSessionRequest(
         }
     }
 
-    override suspend fun readElement(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel) {
-        val response = readChannel.readStatus()
+    override suspend fun readElement(socket: Socket) {
+        val response = socket.readStatus()
         if (!response.contains("Success")) {
             throw RequestRejectedException(
                 "Failed to add child sessions ${childSessions.joinToString()} to a parent session " +

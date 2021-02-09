@@ -16,25 +16,16 @@
 
 package com.malinskiy.adam.request.device
 
-import com.malinskiy.adam.Const
+import com.malinskiy.adam.extension.readProtocolString
 import com.malinskiy.adam.request.ComplexRequest
 import com.malinskiy.adam.request.HostTarget
-import com.malinskiy.adam.transport.AndroidReadChannel
-import com.malinskiy.adam.transport.AndroidWriteChannel
-import java.nio.ByteBuffer
+import com.malinskiy.adam.transport.Socket
 
 class ListDevicesRequest : ComplexRequest<List<Device>>(target = HostTarget) {
     override fun serialize() = createBaseRequest("devices")
 
-    override suspend fun readElement(readChannel: AndroidReadChannel, writeChannel: AndroidWriteChannel): List<Device> {
-        val sizeBuffer: ByteBuffer = ByteBuffer.allocate(4)
-        readChannel.readFully(sizeBuffer)
-        val size = String(sizeBuffer.array(), Const.DEFAULT_TRANSPORT_ENCODING).toInt(radix = 16)
-
-        val payloadBuffer = ByteBuffer.allocate(size)
-        readChannel.readFully(payloadBuffer)
-        val payload = String(payloadBuffer.array(), Const.DEFAULT_TRANSPORT_ENCODING)
-        return payload.lines()
+    override suspend fun readElement(socket: Socket): List<Device> {
+        return socket.readProtocolString().lines()
             .filter { it.isNotEmpty() }
             .map {
                 val line = it.trim()
