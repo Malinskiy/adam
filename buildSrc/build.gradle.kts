@@ -8,6 +8,7 @@ kotlinDslPluginOptions {
 
 repositories {
     jcenter()
+    google()
 }
 
 dependencies {
