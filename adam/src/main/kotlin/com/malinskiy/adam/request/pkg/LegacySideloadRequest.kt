@@ -16,6 +16,7 @@
 
 package com.malinskiy.adam.request.pkg
 
+import com.malinskiy.adam.extension.copyTo
 import com.malinskiy.adam.extension.readTransportResponse
 import com.malinskiy.adam.request.ComplexRequest
 import com.malinskiy.adam.request.ValidationResponse

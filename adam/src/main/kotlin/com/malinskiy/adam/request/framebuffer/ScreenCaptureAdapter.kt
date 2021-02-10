@@ -16,6 +16,7 @@
 
 package com.malinskiy.adam.request.framebuffer
 
+import com.malinskiy.adam.extension.compatRewind
 import com.malinskiy.adam.transport.Socket
 import java.nio.ByteBuffer
 

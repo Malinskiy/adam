@@ -11,7 +11,7 @@ object Versions {
     val assertk = "0.19"
     val junit4 = "4.12"
     val imageComparison = "4.3.0"
-    val dokka = kotlin
+    val dokka = "1.4.20"
     val coroutinesDebug = "1.4.0"
 
     val grpc = "1.32.1"

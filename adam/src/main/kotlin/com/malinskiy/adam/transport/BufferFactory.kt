@@ -17,7 +17,6 @@
 package com.malinskiy.adam.transport
 
 import com.malinskiy.adam.Const
-import com.sun.org.apache.xml.internal.utils.ObjectPool
 import io.ktor.utils.io.pool.*
 import java.nio.ByteBuffer
 

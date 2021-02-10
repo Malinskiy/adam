@@ -16,6 +16,7 @@
 
 package com.malinskiy.adam.request.misc
 
+import com.malinskiy.adam.extension.copyTo
 import com.malinskiy.adam.extension.readStatus
 import com.malinskiy.adam.request.ComplexRequest
 import com.malinskiy.adam.transport.Socket

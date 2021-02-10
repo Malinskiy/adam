@@ -19,50 +19,56 @@ package com.malinskiy.adam.junit4.rule
 import androidx.test.platform.app.InstrumentationRegistry
 import com.malinskiy.adam.AndroidDebugBridgeClient
 import com.malinskiy.adam.AndroidDebugBridgeClientFactory
+import com.malinskiy.adam.junit4.android.UnsafeAdbAccess
 import com.malinskiy.adam.junit4.android.contract.TestRunnerContract
 import com.malinskiy.adam.junit4.android.rule.Mode
 import com.malinskiy.adam.junit4.android.rule.sandbox.SingleTargetAndroidDebugBridgeClient
 import kotlinx.coroutines.Dispatchers
-import org.junit.Assert
-import org.junit.Assume
+import org.junit.AssumptionViolatedException
 import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
+import java.net.InetAddress
 import kotlin.coroutines.CoroutineContext
 
 /**
  * @param coroutineContext it's your responsibility to cancel this context when needed
  */
-class AdbRule(private val mode: Mode = Mode.ASSERT, private val coroutineContext: CoroutineContext = Dispatchers.IO) : TestRule {
+class AdbRule(private val mode: Mode = Mode.ASSERT, private val coroutineContext: CoroutineContext = Dispatchers.IO) :
+    TestRule {
     lateinit var adb: SingleTargetAndroidDebugBridgeClient
-    private lateinit var adbInternal: AndroidDebugBridgeClient
+
+    @UnsafeAdbAccess
+    lateinit var adbUnsafe: AndroidDebugBridgeClient
 
     override fun apply(base: Statement, description: Description): Statement {
         return object : Statement() {
             override fun evaluate() {
                 val arguments = InstrumentationRegistry.getArguments()
                 val adbPort = arguments.getString(TestRunnerContract.adbPortArgumentName)?.toIntOrNull()
+                val adbHost = arguments.getString(TestRunnerContract.adbHostArgumentName)
                 val serial = arguments.getString(TestRunnerContract.deviceSerialArgumentName)
 
-                if (adbPort != null && serial != null) {
-                    adbInternal = AndroidDebugBridgeClientFactory().apply {
+                if (adbPort != null && adbHost != null && serial != null) {
+                    adbUnsafe = AndroidDebugBridgeClientFactory().apply {
                         port = adbPort
+                        host = InetAddress.getByName(adbHost)
                         coroutineContext = coroutineContext
                     }.build()
 
-                    adb = SingleTargetAndroidDebugBridgeClient(adbInternal, serial)
+                    adb = SingleTargetAndroidDebugBridgeClient(adbUnsafe, serial)
                 } else {
                     when (mode) {
                         Mode.SKIP -> return
-                        Mode.ASSUME -> Assume.assumeTrue("No access to adb port or device serial has been provided", false)
-                        Mode.ASSERT -> Assert.assertTrue("No access to adb port or device serial has been provided", false)
+                        Mode.ASSUME -> throw AssumptionViolatedException("No access to adb port or device serial has been provided")
+                        Mode.ASSERT -> throw AssertionError("No access to adb port or device serial has been provided")
                     }
                 }
 
                 try {
                     base.evaluate()
                 } finally {
-                    adbInternal.socketFactory.close()
+                    adbUnsafe.socketFactory.close()
                 }
             }
         }

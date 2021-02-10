@@ -20,7 +20,6 @@ import com.malinskiy.adam.Const
 import com.malinskiy.adam.request.testrunner.*
 import com.malinskiy.adam.request.testrunner.model.Status
 import com.malinskiy.adam.request.testrunner.model.TokenType
-import com.sun.xml.internal.bind.v2.TODO
 
 class InstrumentationResponseTransformer : ProgressiveResponseTransformer<List<TestEvent>?> {
     var buffer = StringBuffer()

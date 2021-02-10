@@ -28,7 +28,6 @@ import com.malinskiy.adam.transport.Socket
 import io.ktor.utils.io.*
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
-import java.net.Socket
 
 class AndroidDebugBridgeClientTest {
     @Test(expected = RequestRejectedException::class)

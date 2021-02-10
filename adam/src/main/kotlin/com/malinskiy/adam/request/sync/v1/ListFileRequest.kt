@@ -17,6 +17,7 @@
 package com.malinskiy.adam.request.sync.v1
 
 import com.malinskiy.adam.Const
+import com.malinskiy.adam.extension.toInt
 import com.malinskiy.adam.extension.writeSyncRequest
 import com.malinskiy.adam.request.ComplexRequest
 import com.malinskiy.adam.request.ValidationResponse

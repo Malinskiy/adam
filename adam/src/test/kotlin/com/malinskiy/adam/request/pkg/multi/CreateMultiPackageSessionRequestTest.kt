@@ -22,6 +22,8 @@ import assertk.assertions.isFalse
 import assertk.assertions.isTrue
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.exception.RequestRejectedException
+import com.malinskiy.adam.extension.newFileWithExtension
+import com.malinskiy.adam.extension.toRequestString
 import com.malinskiy.adam.request.Feature
 import com.malinskiy.adam.request.ValidationResponse
 import com.malinskiy.adam.server.StubSocket

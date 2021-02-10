@@ -76,6 +76,6 @@ data class InstrumentOptions(
         if (emma != null) append(" -e emma $emma")
         if (coverageFile != null) append(" -e coverageFile $coverageFile")
 
-        append(overrides.map { " -e ${it.key} ${it.value}" }.joinToString())
+        append(overrides.map { " -e ${it.key} ${it.value}" }.joinToString(separator = ""))
     }.toString()
 }

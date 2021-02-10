@@ -18,8 +18,11 @@ package com.malinskiy.adam.junit4.android.contract;
 
 public class TestRunnerContract {
     public static String grpcPortArgumentName = "com.malinskiy.adam.junit4.android.GRPC_PORT";
+    public static String grpcHostArgumentName = "com.malinskiy.adam.junit4.android.GRPC_HOST";
     public static String adbPortArgumentName = "com.malinskiy.adam.junit4.android.ADB_PORT";
+    public static String adbHostArgumentName = "com.malinskiy.adam.junit4.android.ADB_HOST";
     public static String consolePortArgumentName = "com.malinskiy.adam.junit4.android.CONSOLE_PORT";
+    public static String consoleHostArgumentName = "com.malinskiy.adam.junit4.android.CONSOLE_HOST";
     public static String emulatorAuthTokenArgumentName = "com.malinskiy.adam.junit4.android.AUTH_TOKEN";
     public static String deviceSerialArgumentName = "com.malinskiy.adam.junit4.android.ADB_SERIAL";
 }

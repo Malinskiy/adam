@@ -18,6 +18,7 @@ package com.malinskiy.adam.request.sync.base
 
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.exception.PushFailedException
+import com.malinskiy.adam.extension.copyTo
 import com.malinskiy.adam.extension.readTransportResponse
 import com.malinskiy.adam.extension.toByteArray
 import com.malinskiy.adam.extension.write

@@ -18,7 +18,8 @@ package com.malinskiy.adam.integration
 
 import com.android.emulator.control.EmulatorControllerGrpcKt
 import com.google.protobuf.Empty
-import com.malinskiy.adam.junit4.rule.EmulatorRule
+import com.malinskiy.adam.rule.AdbDeviceRule
+import com.malinskiy.adam.rule.DeviceType
 import io.grpc.ManagedChannelBuilder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asExecutor
@@ -29,12 +30,13 @@ import org.junit.Test
 class EmulatorGrpcE2ETest {
     @Rule
     @JvmField
-    val emulator = EmulatorRule()
+    val emulator = AdbDeviceRule(deviceType = DeviceType.EMULATOR)
 
     @Test
     fun testProto() {
         runBlocking {
-            val channel = ManagedChannelBuilder.forAddress("localhost", 8554).apply {
+            val adbPort = emulator.deviceSerial.substringAfter('-').toInt()
+            val channel = ManagedChannelBuilder.forAddress("localhost", adbPort + 3000).apply {
                 usePlaintext()
                 executor(Dispatchers.IO.asExecutor())
             }.build()

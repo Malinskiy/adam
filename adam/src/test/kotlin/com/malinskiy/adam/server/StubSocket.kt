@@ -20,7 +20,6 @@ import com.malinskiy.adam.log.AdamLogging
 import com.malinskiy.adam.transport.Socket
 import io.ktor.utils.io.*
 import io.ktor.utils.io.core.*
-import java.net.Socket
 import java.nio.ByteBuffer
 
 class StubSocket(

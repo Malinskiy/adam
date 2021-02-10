@@ -19,6 +19,7 @@ package com.malinskiy.adam.request.mdns
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import com.malinskiy.adam.Const
+import com.malinskiy.adam.extension.toRequestString
 import com.malinskiy.adam.server.StubSocket
 import com.malinskiy.adam.transport.use
 import kotlinx.coroutines.runBlocking
