@@ -46,7 +46,12 @@ class EmulatorCommandRequest(
     private suspend fun readAuthToken(): String? {
         val authTokenFile = File(System.getProperty("user.home"), ".emulator_console_auth_token")
         return if (authTokenFile.exists() && authTokenFile.isFile) {
-            authTokenFile.readChannel().readUTF8Line()
+            val readChannel = authTokenFile.readChannel()
+            try {
+                readChannel.readUTF8Line()
+            } finally {
+                readChannel.cancel()
+            }
         } else {
             null
         }
