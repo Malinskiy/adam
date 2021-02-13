@@ -22,10 +22,9 @@ import com.malinskiy.adam.Const
 import com.malinskiy.adam.exception.UnsupportedSyncProtocolException
 import com.malinskiy.adam.extension.toInt
 import com.malinskiy.adam.request.shell.v2.MessageType
-import io.ktor.util.cio.writeChannel
-import io.ktor.utils.io.ByteReadChannel
-import io.ktor.utils.io.close
-import io.ktor.utils.io.readIntLittleEndian
+import io.ktor.util.cio.*
+import io.ktor.utils.io.*
+import kotlinx.coroutines.Job
 import java.io.File
 import kotlin.coroutines.coroutineContext
 
@@ -157,29 +156,35 @@ class ServerReadChannel(private val delegate: ByteReadChannel) : ByteReadChannel
     }
 
     suspend fun receiveFile(file: File): File {
-        val channel = file.writeChannel(coroutineContext)
+        val job = Job()
+        val channel = file.writeChannel(coroutineContext + job)
         val headerBuffer = ByteArray(8)
         val dataBuffer = ByteArray(Const.MAX_FILE_PACKET_LENGTH)
-        while (true) {
-            readFully(headerBuffer, 0, 8)
-            val header = headerBuffer.copyOfRange(0, 4)
+        try {
+            while (true) {
+                readFully(headerBuffer, 0, 8)
+                val header = headerBuffer.copyOfRange(0, 4)
 
-            when {
-                header.contentEquals(Const.Message.DONE) -> {
-                    return file
-                }
-                header.contentEquals(Const.Message.DATA) -> {
-                    val available = headerBuffer.copyOfRange(4, 8).toInt()
-                    if (available > Const.MAX_FILE_PACKET_LENGTH) {
-                        throw UnsupportedSyncProtocolException()
+                when {
+                    header.contentEquals(Const.Message.DONE) -> {
+                        return file
                     }
-                    readFully(dataBuffer, 0, available)
-                    channel.writeFully(dataBuffer, 0, available)
-                    channel.flush()
-                    channel.close()
+                    header.contentEquals(Const.Message.DATA) -> {
+                        val available = headerBuffer.copyOfRange(4, 8).toInt()
+                        if (available > Const.MAX_FILE_PACKET_LENGTH) {
+                            throw UnsupportedSyncProtocolException()
+                        }
+                        readFully(dataBuffer, 0, available)
+                        channel.writeFully(dataBuffer, 0, available)
+                        channel.flush()
+                        channel.close()
+                    }
+                    else -> throw RuntimeException("Something bad happened")
                 }
-                else -> throw RuntimeException("Something bad happened")
             }
+        } finally {
+            job.complete()
+            job.join()
         }
     }
 

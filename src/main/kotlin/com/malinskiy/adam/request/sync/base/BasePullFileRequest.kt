@@ -31,6 +31,7 @@ import com.malinskiy.adam.transport.withMaxFilePacketBuffer
 import io.ktor.util.cio.*
 import io.ktor.utils.io.*
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.SendChannel
 import java.io.File
 import kotlin.coroutines.CoroutineContext
@@ -45,6 +46,7 @@ abstract class BasePullFileRequest(
     coroutineContext: CoroutineContext = Dispatchers.IO
 ) : AsyncChannelRequest<Double, Unit>() {
 
+    private val job = Job()
     private val fileWriteChannel = local.also {
         if (!local.exists()) {
             if (!local.parentFile.exists()) {
@@ -52,7 +54,7 @@ abstract class BasePullFileRequest(
             }
             local.createNewFile()
         }
-    }.writeChannel(coroutineContext = coroutineContext)
+    }.writeChannel(coroutineContext = coroutineContext + job)
     var totalBytes = -1L
     var currentPosition = 0L
 
@@ -108,6 +110,8 @@ abstract class BasePullFileRequest(
 
     override suspend fun close(channel: SendChannel<Double>) {
         fileWriteChannel.close()
+        job.complete()
+        job.join()
     }
 
     override fun serialize() = createBaseRequest("sync:")
