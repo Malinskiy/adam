@@ -14,7 +14,7 @@ jobs:
         run: ./gradlew :adam:test :adam:jacocoTestReport
       - name: archive test results
         if: failure()
-        run: (cd build/reports/tests/test; zip -r -X ../../../../test-result.zip .)
+        run: (cd adam/build/reports/tests/test; zip -r -X ../../../../../test-result.zip .)
       - name: Save test output
         uses: actions/upload-artifact@master
         if: failure()
@@ -22,14 +22,14 @@ jobs:
           name: test-result
           path: test-result.zip
       - name: archive test coverage
-        run: (cd build/reports/jacoco/test/html; zip -r -X ../../../../test-coverage.zip .)
+        run: (cd adam/build/reports/jacoco/test/html; zip -r -X ../../../../../test-coverage.zip .)
       - name: Save coverage output
         uses: actions/upload-artifact@master
         with:
           name: test-coverage
           path: test-coverage.zip
       - name: codecov unit tests
-        run: bash <(curl -s https://codecov.io/bash) -f ./build/reports/jacoco/test/jacocoTestReport.xml -F unit
+        run: bash <(curl -s https://codecov.io/bash) -f ./adam/build/reports/jacoco/test/jacocoTestReport.xml -F unit
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
   integration-test:
@@ -57,7 +57,7 @@ jobs:
         run: ./gradlew :adam:jacocoIntegrationTestReport
       - name: archive integration test results
         if: failure()
-        run: (cd build/reports/tests/integrationTest; zip -r -X ../../../../integration-test-result.zip .)
+        run: (cd adam/build/reports/tests/integrationTest; zip -r -X ../../../../../integration-test-result.zip .)
       - name: Save integration test output
         uses: actions/upload-artifact@master
         if: failure()
@@ -65,7 +65,7 @@ jobs:
           name: integration-test-result
           path: integration-test-result.zip
       - name: archive test coverage
-        run: (cd build/reports/jacoco/jacocoIntegrationTestReport/html; zip -r -X ../../../../../integration-test-coverage.zip .)
+        run: (cd adam/build/reports/jacoco/jacocoIntegrationTestReport/html; zip -r -X ../../../../../../integration-test-coverage.zip .)
       - name: Save coverage output
         uses: actions/upload-artifact@master
         with:
@@ -78,6 +78,6 @@ jobs:
           name: logcat
           path: artifacts/logcat.log
       - name: codecov integartion tests
-        run: bash <(curl -s https://codecov.io/bash) -f ./build/reports/jacoco/jacocoIntegrationTestReport/jacocoIntegrationTestReport.xml -F integration
+        run: bash <(curl -s https://codecov.io/bash) -f ./adam/build/reports/jacoco/jacocoIntegrationTestReport/jacocoIntegrationTestReport.xml -F integration
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
