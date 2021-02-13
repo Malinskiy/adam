@@ -84,7 +84,7 @@ To add a dependency on Adam using Maven, use the following:
 ```xml
 
 <dependency>
-  <groupId>com.malinskiy.marathon</groupId>
+  <groupId>com.malinskiy</groupId>
   <artifactId>adam</artifactId>
   <version>X.X.X</version>
 </dependency>
@@ -94,7 +94,7 @@ To add a dependency using Gradle:
 
 ```
 dependencies {
-  implementation 'com.malinskiy.marathon:adam:X.X.X'
+  implementation 'com.malinskiy:adam:X.X.X'
 }
 ```
 
@@ -134,4 +134,3 @@ Adam is &copy; 2019-{{ "now" | date: "%Y" }} by [Anton Malinskiy](http://github.
 
 When contributing to this repository, please first discuss the change you wish to make via issue,
 email, or [Slack #adam](https://bit.ly/2LLghaW) with the owners of this repository before making a change.
- 

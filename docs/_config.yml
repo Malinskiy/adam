@@ -6,6 +6,7 @@ baseurl: "/adam"
 url: "https://malinskiy.github.io"
 twitter_username: anton_malinskiy
 github_username: Malinskiy
+logo: "/assets/images/adam.png"
 
 permalink: pretty
 
@@ -58,3 +59,4 @@ compress_html:
 
 ga_tracking: "UA-185620090-1"
 ga_tracking_anonymize_ip: true
+color_scheme: adam
