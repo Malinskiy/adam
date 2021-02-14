@@ -14,63 +14,60 @@
  * limitations under the License.
  */
 
-package com.malinskiy.adam.junit4.rule
+package com.malinskiy.adam.junit4.android.rule
 
 import androidx.test.platform.app.InstrumentationRegistry
 import com.malinskiy.adam.AndroidDebugBridgeClient
 import com.malinskiy.adam.AndroidDebugBridgeClientFactory
-import com.malinskiy.adam.junit4.android.UnsafeAdbAccess
 import com.malinskiy.adam.junit4.android.contract.TestRunnerContract
-import com.malinskiy.adam.junit4.android.rule.Mode
-import com.malinskiy.adam.junit4.android.rule.sandbox.SingleTargetAndroidDebugBridgeClient
+import com.malinskiy.adam.request.emu.EmulatorCommandRequest
 import kotlinx.coroutines.Dispatchers
 import org.junit.AssumptionViolatedException
 import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
-import java.net.InetAddress
+import java.net.InetSocketAddress
 import kotlin.coroutines.CoroutineContext
 
 /**
  * @param coroutineContext it's your responsibility to cancel this context when needed
  */
-class AdbRule(private val mode: Mode = Mode.ASSERT, private val coroutineContext: CoroutineContext = Dispatchers.IO) :
+class EmulatorConsoleRule(private val mode: Mode = Mode.ASSERT, private val coroutineContext: CoroutineContext = Dispatchers.IO) :
     TestRule {
-    lateinit var adb: SingleTargetAndroidDebugBridgeClient
-
-    @UnsafeAdbAccess
-    lateinit var adbUnsafe: AndroidDebugBridgeClient
+    private lateinit var client: AndroidDebugBridgeClient
+    private lateinit var inetSocketAddress: InetSocketAddress
+    private lateinit var authToken: String
 
     override fun apply(base: Statement, description: Description): Statement {
         return object : Statement() {
             override fun evaluate() {
                 val arguments = InstrumentationRegistry.getArguments()
-                val adbPort = arguments.getString(TestRunnerContract.adbPortArgumentName)?.toIntOrNull()
-                val adbHost = arguments.getString(TestRunnerContract.adbHostArgumentName)
-                val serial = arguments.getString(TestRunnerContract.deviceSerialArgumentName)
+                val port = arguments.getString(TestRunnerContract.consolePortArgumentName)?.toIntOrNull()
+                val host = arguments.getString(TestRunnerContract.consoleHostArgumentName)
+                val token = arguments.getString(TestRunnerContract.emulatorAuthTokenArgumentName)
 
-                if (adbPort != null && adbHost != null && serial != null) {
-                    adbUnsafe = AndroidDebugBridgeClientFactory().apply {
-                        port = adbPort
-                        host = InetAddress.getByName(adbHost)
-                        coroutineContext = this@AdbRule.coroutineContext
+                if (port != null && host != null && token != null) {
+                    client = AndroidDebugBridgeClientFactory().apply {
+                        coroutineContext = this@EmulatorConsoleRule.coroutineContext
                     }.build()
-
-                    adb = SingleTargetAndroidDebugBridgeClient(adbUnsafe, serial)
+                    inetSocketAddress = InetSocketAddress(host, port)
+                    authToken = token
                 } else {
                     when (mode) {
                         Mode.SKIP -> return
-                        Mode.ASSUME -> throw AssumptionViolatedException("No access to adb port or device serial has been provided")
-                        Mode.ASSERT -> throw AssertionError("No access to adb port or device serial has been provided")
+                        Mode.ASSUME -> throw AssumptionViolatedException("No access to console port: host = $host, port = $port, token = $token")
+                        Mode.ASSERT -> throw AssertionError("No access to console port: host = $host, port = $port, token = $token")
                     }
                 }
 
                 try {
                     base.evaluate()
                 } finally {
-                    adbUnsafe.socketFactory.close()
+                    client.socketFactory.close()
                 }
             }
         }
     }
+
+    suspend fun execute(cmd: String) = client.execute(EmulatorCommandRequest(cmd, inetSocketAddress, authToken))
 }
