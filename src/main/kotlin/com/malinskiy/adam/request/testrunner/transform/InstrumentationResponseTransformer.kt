@@ -22,7 +22,7 @@ import com.malinskiy.adam.request.testrunner.model.Status
 import com.malinskiy.adam.request.testrunner.model.TokenType
 
 class InstrumentationResponseTransformer : ProgressiveResponseTransformer<List<TestEvent>?> {
-    var buffer = StringBuffer()
+    var buffer = StringBuffer(4096)
 
     private var startReported = false
     private var finishReported = false
