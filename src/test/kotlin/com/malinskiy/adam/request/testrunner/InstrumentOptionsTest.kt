@@ -87,4 +87,19 @@ class InstrumentOptionsTest {
         assertThat(options.performance).isEqualTo(true)
         assertThat(options.unit).isEqualTo(true)
     }
+
+    @Test
+    fun testMultipleOverrides() {
+        val options = InstrumentOptions(
+            overrides = mapOf(
+                "param1" to "value1",
+                "param2" to "value2"
+            )
+        )
+
+        assertThat(options.toString()).isEqualTo(
+            " -e param1 value1" +
+                    " -e param2 value2"
+        )
+    }
 }
