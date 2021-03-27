@@ -18,7 +18,7 @@ package com.malinskiy.adam.server
 
 import com.malinskiy.adam.AndroidDebugBridgeClient
 import com.malinskiy.adam.AndroidDebugBridgeClientFactory
-import com.malinskiy.adam.transport.NioSocketFactory
+import com.malinskiy.adam.transport.roket.RoketFactory
 import io.ktor.network.selector.*
 import io.ktor.network.sockets.*
 import io.ktor.util.network.*
@@ -62,7 +62,7 @@ class AndroidDebugBridgeServer : CoroutineScope {
 
         val client = AndroidDebugBridgeClientFactory().apply {
             port = this@AndroidDebugBridgeServer.port
-            socketFactory = NioSocketFactory()
+            socketFactory = RoketFactory()
         }.build()
 
         return client

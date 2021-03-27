@@ -18,6 +18,7 @@ package com.malinskiy.adam.extension
 
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.exception.RequestRejectedException
+import com.malinskiy.adam.io.AsyncFileReader
 import com.malinskiy.adam.request.transform.ResponseTransformer
 import com.malinskiy.adam.request.transform.StringResponseTransformer
 import com.malinskiy.adam.transport.Socket
@@ -171,13 +172,19 @@ suspend fun Socket.write(request: ByteArray, length: Int? = null) {
     writeFully(request, 0, length ?: request.size)
 }
 
-suspend fun Socket.writeFile(file: File, coroutineContext: CoroutineContext) = withDefaultBuffer {
-    var fileChannel: ByteReadChannel? = null
-    try {
-        val fileChannel = file.readChannel(coroutineContext = coroutineContext)
-        fileChannel.copyTo(this@writeFile, this)
-    } finally {
-        fileChannel?.cancel()
+suspend fun Socket.writeFile(file: File, coroutineContext: CoroutineContext) {
+    AsyncFileReader(file, coroutineContext = coroutineContext).use { reader ->
+        reader.start()
+        while (true) {
+            val shouldContinue = reader.read {
+                if (it == null) {
+                    return@read false
+                }
+                this@writeFile.writeFully(it)
+                true
+            }
+            if (!shouldContinue) break
+        }
     }
 }
 

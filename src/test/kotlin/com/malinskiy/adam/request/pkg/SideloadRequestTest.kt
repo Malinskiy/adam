@@ -44,7 +44,10 @@ class SideloadRequestTest {
     @Test
     fun testTransfer() {
         runBlocking {
-            val fixture = File(SideloadRequestTest::class.java.getResource("/fixture/sample.yaml").file)
+            val fixture = File.createTempFile("transfer-test", "test-transfer").apply { deleteOnExit() }
+            fixture.writeBytes(ByteArray(65536) { 0.toByte() })
+            fixture.appendBytes(ByteArray(65536) { 1.toByte() })
+            fixture.appendBytes(ByteArray(14) { 2.toByte() })
 
             val server = AndroidDebugBridgeServer()
 
@@ -54,21 +57,21 @@ class SideloadRequestTest {
                 output.respond(Const.Message.OKAY)
 
                 val actualCommand = input.receiveCommand()
-                assertThat(actualCommand).isEqualTo("sideload-host:614:300")
+                assertThat(actualCommand).isEqualTo("sideload-host:131086:65536")
                 output.respond(Const.Message.OKAY)
 
                 output.respondStringRaw("00000000")
-                val chunk1 = input.receiveBytes(300)
+                val chunk1 = input.receiveBytes(Const.MAX_FILE_PACKET_LENGTH)
                 output.respondStringRaw("00000001")
-                val chunk2 = input.receiveBytes(300)
+                val chunk2 = input.receiveBytes(Const.MAX_FILE_PACKET_LENGTH)
                 output.respondStringRaw("00000000")
-                val chunk1Replay = input.receiveBytes(300)
+                val chunk1Replay = input.receiveBytes(Const.MAX_FILE_PACKET_LENGTH)
                 output.respondStringRaw("00000002")
                 val chunk3 = input.receiveBytes(14)
 
                 assertThat(chunk1).isEqualTo(chunk1Replay)
 
-                val buffer = ByteBuffer.allocate(614)
+                val buffer = ByteBuffer.allocate(Const.MAX_FILE_PACKET_LENGTH * 2 + 14)
                 buffer.put(chunk1)
                 buffer.put(chunk2)
                 buffer.put(chunk3)
@@ -81,7 +84,7 @@ class SideloadRequestTest {
                 output.respondDoneDone()
             }
 
-            val request = SideloadRequest(fixture, blockSize = 300)
+            val request = SideloadRequest(fixture)
             val result = client.execute(request, "serial")
             assertThat(result).isTrue()
 
@@ -101,13 +104,13 @@ class SideloadRequestTest {
                 output.respond(Const.Message.OKAY)
 
                 val actualCommand = input.receiveCommand()
-                assertThat(actualCommand).isEqualTo("sideload-host:614:300")
+                assertThat(actualCommand).isEqualTo("sideload-host:614:65536")
                 output.respond(Const.Message.OKAY)
 
                 output.respondFailFail()
             }
 
-            val request = SideloadRequest(fixture, blockSize = 300)
+            val request = SideloadRequest(fixture)
             val result = client.execute(request, "serial")
             assertThat(result).isFalse()
 

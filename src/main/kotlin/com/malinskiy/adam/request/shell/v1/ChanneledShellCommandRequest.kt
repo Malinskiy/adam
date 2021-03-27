@@ -36,6 +36,7 @@ open class ChanneledShellCommandRequest(
             val count = socket.readAvailable(data, 0, data.size)
             when {
                 count > 0 -> sendChannel.send(String(data, 0, count, Const.DEFAULT_TRANSPORT_ENCODING))
+                count == -1 -> return true
                 else -> Unit
             }
             return false

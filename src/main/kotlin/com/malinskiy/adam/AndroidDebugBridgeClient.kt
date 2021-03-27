@@ -72,6 +72,7 @@ class AndroidDebugBridgeClient(
                 idleTimeout = request.socketIdleTimeout
             ).use { socket ->
                 var backChannel = request.channel
+                var backChannelJob: Job? = null
 
                 try {
                     serial?.let {
@@ -79,6 +80,13 @@ class AndroidDebugBridgeClient(
                     }
 
                     request.handshake(socket)
+
+                    backChannelJob = launch {
+                        if (backChannel == null) return@launch
+                        for (it in backChannel) {
+                            request.writeElement(it, socket)
+                        }
+                    }
 
                     while (true) {
                         if (isClosedForSend ||
@@ -90,16 +98,12 @@ class AndroidDebugBridgeClient(
                         }
                         val finished = request.readElement(socket, this)
                         if (finished) break
-                        yield()
-
-                        backChannel?.poll()?.let {
-                            request.writeElement(it, socket)
-                        }
                     }
                 } finally {
                     try {
                         withContext(NonCancellable) {
                             request.close(channel)
+                            backChannelJob?.cancel()
                         }
                     } catch (e: Exception) {
                         log.debug(e) { "Exception during cleanup. Ignoring" }

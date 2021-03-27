@@ -16,6 +16,9 @@
 
 package com.malinskiy.adam.request.emu
 
+import com.malinskiy.adam.io.AsyncFileReader
+import com.malinskiy.adam.io.copyTo
+import com.malinskiy.adam.request.transform.StringResponseTransformer
 import com.malinskiy.adam.transport.Socket
 import com.malinskiy.adam.transport.withDefaultBuffer
 import io.ktor.util.cio.*
@@ -46,11 +49,11 @@ class EmulatorCommandRequest(
     private suspend fun readAuthToken(): String? {
         val authTokenFile = File(System.getProperty("user.home"), ".emulator_console_auth_token")
         return if (authTokenFile.exists() && authTokenFile.isFile) {
-            val readChannel = authTokenFile.readChannel()
-            try {
-                readChannel.readUTF8Line()
-            } finally {
-                readChannel.cancel()
+            val transformer = StringResponseTransformer()
+            AsyncFileReader(authTokenFile).use { reader ->
+                reader.start()
+                reader.copyTo(transformer)
+                transformer.transform()
             }
         } else {
             null

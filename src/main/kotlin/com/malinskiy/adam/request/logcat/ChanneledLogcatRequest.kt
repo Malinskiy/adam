@@ -42,7 +42,8 @@ class ChanneledLogcatRequest(
             "${pid?.let { " --pid=$it" } ?: ""}" +
             "${lastReboot?.let { " -L" } ?: ""}" +
             " ${filters.joinToString(separator = " ") { "${it.tag}:${it.level.name}" }}"
-                .trimEnd()
+                .trimEnd(),
+    socketIdleTimeout = Long.MAX_VALUE,
 )
 
 enum class LogcatReadMode {
