@@ -62,7 +62,7 @@ class SelectorManager : CoroutineScope {
                 }
                 is DisconnectMessage -> {
                     val socketChannel = request.socketChannel
-                    socketChannel.keyFor(selector).cancel()
+                    socketChannel.keyFor(selector)?.cancel()
                     socketChannel.close()
                     request.continuation.resume(Unit)
                 }

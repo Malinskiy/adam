@@ -16,14 +16,17 @@
 
 package com.malinskiy.roket
 
+import com.malinskiy.adam.extension.compatClear
 import io.ktor.utils.io.*
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withTimeoutOrNull
 import java.net.InetSocketAddress
 import java.net.Socket
 import java.net.SocketTimeoutException
+import java.nio.ByteBuffer
 import java.nio.channels.*
 import java.nio.channels.spi.SelectorProvider
+import java.util.concurrent.atomic.AtomicReference
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.intrinsics.COROUTINE_SUSPENDED
 import kotlin.coroutines.intrinsics.suspendCoroutineUninterceptedOrReturn
@@ -36,15 +39,23 @@ class TCPSocket(
     private val selectorProvider: SelectorProvider,
     private val configurationBlock: Socket.() -> Unit
 ) {
-
+    private val state = AtomicReference(State.CLOSED)
     private lateinit var socketChannel: SocketChannel
 
     val isClosedForWrite: Boolean
-        get() = socketChannel.socket().isOutputShutdown
+        get() = socketChannel.socket().isOutputShutdown || state.get() == State.CLOSING
     val isClosedForRead: Boolean
-        get() = socketChannel.socket().isInputShutdown
+        get() = socketChannel.socket().isInputShutdown || when (state.get()) {
+            State.CLOSED -> true
+            State.SYN_SENT -> true
+            State.ESTABLISHED -> false
+            State.CLOSING -> false
+            State.CLOSE_WAIT -> false
+        }
 
     suspend fun connect() {
+        if (!state.compareAndSet(State.CLOSED, State.SYN_SENT)) return
+
         socketChannel = selectorProvider.openSocketChannel().apply {
             configureBlocking(false)
             configurationBlock(socket())
@@ -52,6 +63,7 @@ class TCPSocket(
 
         doOrCloseByTimeout(connectTimeout) {
             connectOrSuspend()
+            state.compareAndSet(State.SYN_SENT, State.ESTABLISHED)
         }
 
         socketChannel.finishConnect()
@@ -107,9 +119,52 @@ class TCPSocket(
     }
 
     suspend fun close() {
+        val shouldDrain = when {
+            state.compareAndSet(State.ESTABLISHED, State.CLOSING) -> {
+                true
+            }
+            state.compareAndSet(State.CLOSE_WAIT, State.CLOSING) -> {
+                false
+            }
+            else -> {
+                false
+            }
+        }
+
+        if (!socketChannel.socket().isOutputShutdown) {
+            socketChannel.socket().shutdownOutput()
+        }
+
+        if (shouldDrain) {
+            val buffer = ByteBuffer.allocate(128)
+            while (true) {
+                buffer.compatClear()
+                if (readOrSuspend().read(buffer) == -1 || isClosedForRead) {
+                    break
+                }
+            }
+        }
+
+        state.compareAndSet(State.CLOSING, State.CLOSED)
+        if (!socketChannel.socket().isInputShutdown) {
+            socketChannel.socket().shutdownInput()
+        }
+
+        closeSuspend()
+    }
+
+    private suspend fun closeSuspend() {
         return suspendCancellableCoroutine { cancellableContinuation ->
             selectorManager.send(DisconnectMessage(socketChannel, cancellableContinuation))
         }
+    }
+
+    private enum class State {
+        CLOSED,
+        SYN_SENT,
+        ESTABLISHED,
+        CLOSING,
+        CLOSE_WAIT
     }
 }
 
