@@ -84,14 +84,15 @@ class AndroidDebugBridgeClient(
                     backChannelJob = launch {
                         if (backChannel == null) return@launch
                         for (it in backChannel) {
-                            request.writeElement(it, socket)
+                            if (!socket.isClosedForWrite) {
+                                request.writeElement(it, socket)
+                            }
                         }
                     }
 
                     while (true) {
                         if (isClosedForSend ||
                             socket.isClosedForRead ||
-                            socket.isClosedForWrite ||
                             request.channel?.isClosedForReceive == true
                         ) {
                             break

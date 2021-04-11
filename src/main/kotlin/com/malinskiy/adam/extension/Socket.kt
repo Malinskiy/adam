@@ -24,7 +24,6 @@ import com.malinskiy.adam.request.transform.StringResponseTransformer
 import com.malinskiy.adam.transport.Socket
 import com.malinskiy.adam.transport.TransportResponse
 import com.malinskiy.adam.transport.withDefaultBuffer
-import io.ktor.util.cio.*
 import io.ktor.utils.io.*
 import io.ktor.utils.io.bits.*
 import io.ktor.utils.io.core.*
@@ -69,6 +68,9 @@ suspend fun <T> Socket.copyTo(transformer: ResponseTransformer<T>, buffer: ByteA
             else -> {
                 (limit - processed).toInt()
             }
+        }
+        if (toRead == 0) {
+            break@loop
         }
         val available = readAvailable(buffer, 0, toRead)
         when {
