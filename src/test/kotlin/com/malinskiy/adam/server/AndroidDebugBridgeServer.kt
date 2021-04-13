@@ -18,7 +18,6 @@ package com.malinskiy.adam.server
 
 import com.malinskiy.adam.AndroidDebugBridgeClient
 import com.malinskiy.adam.AndroidDebugBridgeClientFactory
-import com.malinskiy.adam.transport.vertx.VertxSocketFactory
 import io.ktor.network.selector.*
 import io.ktor.network.sockets.*
 import io.ktor.util.network.*
@@ -38,13 +37,27 @@ class AndroidDebugBridgeServer : CoroutineScope {
     private val job = SupervisorJob()
     var port: Int = 0
 
-    suspend fun startAndListen(block: suspend (ServerReadChannel, ServerWriteChannel) -> Unit): AndroidDebugBridgeClient {
+    lateinit var server: ServerSocket
+
+    fun start(): AndroidDebugBridgeClient {
         val address = InetSocketAddress("127.0.0.1", port)
-        val server = aSocket(ActorSelectorManager(Dispatchers.IO)).tcp().bind(address)
+        server = aSocket(ActorSelectorManager(Dispatchers.IO)).tcp().bind(address)
         port = server.localAddress.port
 
+        return AndroidDebugBridgeClientFactory().apply {
+            port = this@AndroidDebugBridgeServer.port
+        }.build()
+    }
+
+    suspend fun startAndListen(block: suspend (ServerReadChannel, ServerWriteChannel) -> Unit): AndroidDebugBridgeClient {
+        val client = start()
+        listen(block)
+        return client
+    }
+
+    fun listen(block: suspend (ServerReadChannel, ServerWriteChannel) -> Unit) {
         async(context = job) {
-            while (isActive) {
+            try {
                 val socket = server.accept()
                 val input = socket.openReadChannel().toServerReadChannel()
                 val output = socket.openWriteChannel(autoFlush = true).toServerWriteChannel()
@@ -57,19 +70,17 @@ class AndroidDebugBridgeServer : CoroutineScope {
                     output.close()
                     socket.close()
                 }
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
         }
-
-        val client = AndroidDebugBridgeClientFactory().apply {
-            port = this@AndroidDebugBridgeServer.port
-            socketFactory = VertxSocketFactory()
-        }.build()
-
-        return client
     }
 
     suspend fun dispose() {
-        job.cancelAndJoin()
+        if (job.isActive) {
+            job.complete()
+            job.join()
+        }
     }
 }
 

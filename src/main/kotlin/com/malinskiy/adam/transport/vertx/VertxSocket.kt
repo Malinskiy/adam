@@ -35,11 +35,10 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.channels.receiveOrNull
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.channels.sendBlocking
+import kotlinx.coroutines.isActive
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
-import java.nio.charset.Charset
 import kotlin.coroutines.CoroutineContext
 
 class VertxSocket(private val socketAddress: SocketAddress, private val options: NetClientOptions) : CoroutineVerticle(), Socket {
@@ -77,7 +76,7 @@ class VertxSocket(private val socketAddress: SocketAddress, private val options:
         val appendBytes = Buffer.buffer().appendBytes(byteBuffer.array(), byteBuffer.position(), byteBuffer.remaining())
         socket.write(appendBytes).await()
     }
-    
+
     suspend fun writeFully(buffer: Buffer) {
         socket.write(buffer).await()
     }
@@ -159,6 +158,12 @@ class VertxSocket(private val socketAddress: SocketAddress, private val options:
 
     override suspend fun close() {
         socket.close().await()
+        withDefaultBuffer {
+            while (isActive) {
+                val read = readAvailable(array(), 0, limit())
+                if (read == -1) break
+            }
+        }
         id?.let { vertx.undeploy(it) }
     }
 }
@@ -199,13 +204,12 @@ private class ChannelReadStream<T>(
             close(err)
         }
         stream.handler { event ->
-            runBlocking {
-                launch {
-                    send(event)
-                }.join()
+            if (!isClosedForSend) {
+                sendBlocking(event)
+                stream.fetch(1)
+            } else {
+                println("can't send ${(event as Buffer).length()} bytes")
             }
-            stream.fetch(1)
-
         }
     }
 }

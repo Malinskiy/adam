@@ -50,7 +50,6 @@ class ListReversePortForwardsRequestTest {
                     
                 """.trimIndent()
                 )
-                delay(1000)
                 output.close()
             }
 

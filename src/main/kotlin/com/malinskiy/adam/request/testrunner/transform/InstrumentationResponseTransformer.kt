@@ -32,6 +32,21 @@ class InstrumentationResponseTransformer : ProgressiveResponseTransformer<List<T
 
     override suspend fun process(bytes: ByteArray, offset: Int, limit: Int): List<TestEvent>? {
         buffer.append(String(bytes, offset, limit, Const.DEFAULT_TRANSPORT_ENCODING))
+
+        var result: MutableList<TestEvent>? = null
+        while (true) {
+            val atom = findAtom() ?: break
+            parse(atom)?.let { events ->
+                val localResult = result ?: mutableListOf()
+                localResult.addAll(events)
+                result = localResult
+            }
+        }
+
+        return result
+    }
+
+    private fun findAtom(): List<String>? {
         val tokenPosition = buffer.indexOfAny(
             listOf(
                 TokenType.INSTRUMENTATION_STATUS_CODE.name,
@@ -50,8 +65,7 @@ class InstrumentationResponseTransformer : ProgressiveResponseTransformer<List<T
 
         val atom = buffer.substring(0, nextLineBreak).lines()
         buffer = buffer.delete(0, nextLineBreak + 1)
-
-        return parse(atom)
+        return atom
     }
 
     override fun transform(): List<TestEvent>? {

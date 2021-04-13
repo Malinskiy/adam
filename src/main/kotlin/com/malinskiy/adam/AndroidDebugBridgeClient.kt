@@ -24,9 +24,9 @@ import com.malinskiy.adam.request.ComplexRequest
 import com.malinskiy.adam.request.MultiRequest
 import com.malinskiy.adam.request.emu.EmulatorCommandRequest
 import com.malinskiy.adam.request.misc.SetDeviceRequest
-import com.malinskiy.adam.transport.KtorSocketFactory
 import com.malinskiy.adam.transport.SocketFactory
 import com.malinskiy.adam.transport.use
+import com.malinskiy.adam.transport.vertx.VertxSocketFactory
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.channels.produce
@@ -149,9 +149,8 @@ class AndroidDebugBridgeClientFactory {
         return AndroidDebugBridgeClient(
             port = port ?: DiscoverAdbSocketInteractor().execute(),
             host = host ?: InetAddress.getByName(Const.DEFAULT_ADB_HOST),
-            socketFactory = socketFactory ?: KtorSocketFactory(
-                coroutineContext = coroutineContext ?: Dispatchers.IO,
-                idleTimeout = idleTimeout?.toMillis() ?: 30_000
+            socketFactory = socketFactory ?: VertxSocketFactory(
+                idleTimeout = idleTimeout?.toMillis() ?: 30_000,
             )
         )
     }
