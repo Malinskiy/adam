@@ -24,6 +24,7 @@ import com.malinskiy.adam.extension.toByteArray
 import com.malinskiy.adam.io.AsyncFileReader
 import com.malinskiy.adam.request.AsyncChannelRequest
 import com.malinskiy.adam.request.ValidationResponse
+import com.malinskiy.adam.transport.AdamMaxFilePacketPool
 import com.malinskiy.adam.transport.Socket
 import com.malinskiy.adam.transport.withDefaultBuffer
 import kotlinx.coroutines.Dispatchers
@@ -56,37 +57,41 @@ abstract class BasePushFileRequest(
 
     override suspend fun readElement(socket: Socket, sendChannel: SendChannel<Double>): Boolean {
         return fileReader.read { buffer ->
-            when {
-                buffer == null -> {
-                    fileReader.close()
-                    withDefaultBuffer {
-                        Const.Message.DONE.copyInto(array())
-                        (local.lastModified() / 1000).toInt().toByteArray().copyInto(array(), destinationOffset = 4)
-                        compatLimit(8)
-                        socket.writeFully(this)
-                    }
+            try {
+                when {
+                    buffer == null -> {
+                        fileReader.close()
+                        withDefaultBuffer {
+                            Const.Message.DONE.copyInto(array())
+                            (local.lastModified() / 1000).toInt().toByteArray().copyInto(array(), destinationOffset = 4)
+                            compatLimit(8)
+                            socket.writeFully(this)
+                        }
 
-                    val transportResponse = socket.readTransportResponse()
-                    if (transportResponse.okay) {
-                        sendChannel.send(1.0)
-                        true
-                    } else {
-                        throw PushFailedException("adb didn't acknowledge the file transfer: ${transportResponse.message ?: ""}")
+                        val transportResponse = socket.readTransportResponse()
+                        if (transportResponse.okay) {
+                            sendChannel.send(1.0)
+                            true
+                        } else {
+                            throw PushFailedException("adb didn't acknowledge the file transfer: ${transportResponse.message ?: ""}")
+                        }
                     }
+                    buffer.limit() > 0 -> {
+                        Const.Message.DATA.copyInto(buffer.array())
+                        val available = buffer.limit() - 8
+                        available.toByteArray().reversedArray().copyInto(buffer.array(), destinationOffset = 4)
+                        /**
+                         * USB devices are very picky about the size of the DATA buffer. Using the adb's default
+                         */
+                        socket.writeFully(buffer.array(), 0, available + 8)
+                        currentPosition += available
+                        sendChannel.send(currentPosition.toDouble() / totalBytes)
+                        false
+                    }
+                    else -> false
                 }
-                buffer.limit() > 0 -> {
-                    Const.Message.DATA.copyInto(buffer.array())
-                    val available = buffer.limit() - 8
-                    available.toByteArray().reversedArray().copyInto(buffer.array(), destinationOffset = 4)
-                    /**
-                     * USB devices are very picky about the size of the DATA buffer. Using the adb's default
-                     */
-                    socket.writeFully(buffer.array(), 0, available + 8)
-                    currentPosition += available
-                    sendChannel.send(currentPosition.toDouble() / totalBytes)
-                    false
-                }
-                else -> false
+            } finally {
+                buffer?.let { AdamMaxFilePacketPool.recycle(it) }
             }
         }
     }

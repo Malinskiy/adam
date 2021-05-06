@@ -20,9 +20,8 @@ import com.malinskiy.adam.Const
 import com.malinskiy.adam.io.AsyncFileReader
 import com.malinskiy.adam.request.ComplexRequest
 import com.malinskiy.adam.request.ValidationResponse
+import com.malinskiy.adam.transport.AdamMaxFilePacketPool
 import com.malinskiy.adam.transport.Socket
-import io.ktor.util.cio.*
-import io.ktor.utils.io.*
 import java.io.File
 
 class SideloadRequest(
@@ -61,10 +60,14 @@ class SideloadRequest(
                             blockSize.toLong()
                         }
                         reader?.read {
-                            if (it == null) return@read
-                            assert(it.remaining().toLong() == expectedLength)
-                            socket.writeFully(it)
-                            currentOffset += expectedLength
+                            try {
+                                if (it == null) return@read
+                                assert(it.remaining().toLong() == expectedLength)
+                                socket.writeFully(it)
+                                currentOffset += expectedLength
+                            } finally {
+                                it?.let { buffer -> AdamMaxFilePacketPool.recycle(buffer) }
+                            }
                         }
                     }
                 }

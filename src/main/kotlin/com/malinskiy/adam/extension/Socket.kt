@@ -21,6 +21,7 @@ import com.malinskiy.adam.exception.RequestRejectedException
 import com.malinskiy.adam.io.AsyncFileReader
 import com.malinskiy.adam.request.transform.ResponseTransformer
 import com.malinskiy.adam.request.transform.StringResponseTransformer
+import com.malinskiy.adam.transport.AdamMaxFilePacketPool
 import com.malinskiy.adam.transport.Socket
 import com.malinskiy.adam.transport.TransportResponse
 import com.malinskiy.adam.transport.withDefaultBuffer
@@ -179,11 +180,15 @@ suspend fun Socket.writeFile(file: File, coroutineContext: CoroutineContext) {
         reader.start()
         while (true) {
             val shouldContinue = reader.read {
-                if (it == null) {
-                    return@read false
+                try {
+                    if (it == null) {
+                        return@read false
+                    }
+                    this@writeFile.writeFully(it)
+                    true
+                } finally {
+                    it?.let { buffer -> AdamMaxFilePacketPool.recycle(buffer) }
                 }
-                this@writeFile.writeFully(it)
-                true
             }
             if (!shouldContinue) break
         }

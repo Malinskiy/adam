@@ -51,6 +51,7 @@ class AsyncFileReader(
                 val byteBuffer = AdamMaxFilePacketPool.borrow()
                 when (val read = fileChannel.read(byteBuffer.array(), offset, length)) {
                     -1 -> {
+                        AdamMaxFilePacketPool.recycle(byteBuffer)
                         close()
                     }
                     else -> {
@@ -77,9 +78,13 @@ class AsyncFileReader(
 suspend fun AsyncFileReader.copyTo(socket: Socket) {
     while (true) {
         val closed = read {
-            if (it == null) return@read true
-            socket.writeFully(it)
-            return@read false
+            try {
+                if (it == null) return@read true
+                socket.writeFully(it)
+                return@read false
+            } finally {
+                it?.let { buffer -> AdamMaxFilePacketPool.recycle(buffer) }
+            }
         }
         if (closed) break
     }
@@ -88,9 +93,13 @@ suspend fun AsyncFileReader.copyTo(socket: Socket) {
 suspend fun <T> AsyncFileReader.copyTo(transformer: ResponseTransformer<T>) {
     while (true) {
         val closed = read {
-            if (it == null) return@read true
-            transformer.process(it.array(), it.position(), it.remaining())
-            return@read false
+            try {
+                if (it == null) return@read true
+                transformer.process(it.array(), it.position(), it.remaining())
+                return@read false
+            } finally {
+                it?.let { buffer -> AdamMaxFilePacketPool.recycle(buffer) }
+            }
         }
         if (closed) break
     }

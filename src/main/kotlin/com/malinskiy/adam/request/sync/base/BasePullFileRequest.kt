@@ -60,50 +60,57 @@ abstract class BasePullFileRequest(
     override suspend fun readElement(socket: Socket, sendChannel: SendChannel<Double>): Boolean {
         AdamMaxFilePacketPool.borrow().apply {
             val data = array()
-            socket.readFully(data, 0, 8)
+            var shouldDispose = true
 
-            val header = data.copyOfRange(0, 4)
-            return when {
-                header.contentEquals(Const.Message.DONE) -> {
-                    if (totalBytes > 0) {
-                        fileWriter.close()
+            try {
+                socket.readFully(data, 0, 8)
+
+                val header = data.copyOfRange(0, 4)
+                return when {
+                    header.contentEquals(Const.Message.DONE) -> {
+                        if (totalBytes > 0) {
+                            fileWriter.close()
+                        }
+                        true
                     }
-                    true
-                }
-                header.contentEquals(Const.Message.DATA) -> {
-                    val available = data.copyOfRange(4, 8).toInt()
-                    if (available > Const.MAX_FILE_PACKET_LENGTH) {
-                        throw UnsupportedSyncProtocolException()
+                    header.contentEquals(Const.Message.DATA) -> {
+                        val available = data.copyOfRange(4, 8).toInt()
+                        if (available > Const.MAX_FILE_PACKET_LENGTH) {
+                            throw UnsupportedSyncProtocolException()
+                        }
+                        compatClear()
+                        compatLimit(available)
+                        socket.readFully(this)
+                        compatFlip()
+                        fileWriter.write(this)
+                        shouldDispose = false
+                        currentPosition += available
+                        sendChannel.send(currentPosition.toDouble() / totalBytes)
+                        false
                     }
-                    compatClear()
-                    compatLimit(available)
-                    socket.readFully(this)
-                    compatFlip()
-                    fileWriter.write(this)
-                    currentPosition += available
-                    sendChannel.send(currentPosition.toDouble() / totalBytes)
-                    false
+                    header.contentEquals(Const.Message.FAIL) -> {
+                        val size = data.copyOfRange(4, 8).toInt()
+                        compatClear()
+                        compatLimit(size)
+                        socket.readFully(this)
+                        compatFlip()
+                        array()
+                        val errorMessage = String(array(), 0, size)
+                        throw PullFailedException("Failed to pull file $remotePath: $errorMessage")
+                    }
+                    else -> {
+                        throw UnsupportedSyncProtocolException(
+                            "Unexpected header message ${
+                                String(
+                                    header,
+                                    Const.DEFAULT_TRANSPORT_ENCODING
+                                )
+                            }"
+                        )
+                    }
                 }
-                header.contentEquals(Const.Message.FAIL) -> {
-                    val size = data.copyOfRange(4, 8).toInt()
-                    compatClear()
-                    compatLimit(size)
-                    socket.readFully(this)
-                    compatFlip()
-                    array()
-                    val errorMessage = String(array(), 0, size)
-                    throw PullFailedException("Failed to pull file $remotePath: $errorMessage")
-                }
-                else -> {
-                    throw UnsupportedSyncProtocolException(
-                        "Unexpected header message ${
-                            String(
-                                header,
-                                Const.DEFAULT_TRANSPORT_ENCODING
-                            )
-                        }"
-                    )
-                }
+            } finally {
+                if (shouldDispose) AdamMaxFilePacketPool.recycle(this)
             }
         }
     }
