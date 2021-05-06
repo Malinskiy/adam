@@ -20,6 +20,7 @@ import assertk.assertThat
 import assertk.assertions.isEqualTo
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.extension.compatFlip
+import com.malinskiy.adam.extension.compatLimit
 import com.malinskiy.adam.server.AndroidDebugBridgeServer
 import com.malinskiy.adam.transport.roket.Roket
 import io.ktor.utils.io.*
@@ -73,7 +74,7 @@ class TCPSocketTest {
 
             val result = ByteBuffer.allocate(1024)
             val response = tcpSocket.read { readableChannel ->
-                result.limit(4)
+                result.compatLimit(4)
                 readableChannel.read(result)
                 result.compatFlip()
             }

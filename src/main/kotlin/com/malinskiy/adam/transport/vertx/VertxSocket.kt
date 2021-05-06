@@ -208,7 +208,8 @@ private class ChannelReadStream<T>(
                 sendBlocking(event)
                 stream.fetch(1)
             } else {
-                println("can't send ${(event as Buffer).length()} bytes")
+                val length = (event as Buffer).length()
+                if (length > 0) println("can't send $length bytes")
             }
         }
     }

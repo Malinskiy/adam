@@ -214,12 +214,7 @@ class PullFileRequestTest {
                     assertThat(recvPath).isEqualTo("/sdcard/testfile")
 
                     output.respond(Const.Message.DATA)
-                    output.respondData(ByteArray(Const.MAX_FILE_PACKET_LENGTH + 1))
-
-                    input.discard()
-                    while (input.isClosedForRead == false) {
-                    }
-                    output.close()
+                    output.writeIntLittleEndian(Const.MAX_FILE_PACKET_LENGTH + 1)
                 }
 
                 val request = PullFileRequest("/sdcard/testfile", tempFile)

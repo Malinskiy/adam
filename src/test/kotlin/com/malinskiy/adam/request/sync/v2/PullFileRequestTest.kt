@@ -219,7 +219,7 @@ class PullFileRequestTest {
                     assertThat(recvPath).isEqualTo("/sdcard/testfile")
 
                     output.respond(Const.Message.DATA)
-                    output.respondData(ByteArray(Const.MAX_FILE_PACKET_LENGTH + 1))
+                    output.writeIntLittleEndian(Const.MAX_FILE_PACKET_LENGTH + 1)
                 }
 
                 val request = PullFileRequest("/sdcard/testfile", tempFile, listOf(Feature.SENDRECV_V2))
