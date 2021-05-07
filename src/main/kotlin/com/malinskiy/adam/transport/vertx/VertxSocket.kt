@@ -93,18 +93,18 @@ class VertxSocket(private val socketAddress: SocketAddress, private val options:
         }
 
     override suspend fun writeFully(byteBuffer: ByteBuffer) {
-        if (isClosedForWrite) throw IllegalStateException("Socket write error: socket is not connected")
+        if (isClosedForWrite) throw IllegalStateException("Socket write error: socket is not connected ${state.get()}")
         val appendBytes = Buffer.buffer().appendBytes(byteBuffer.array(), byteBuffer.position(), byteBuffer.remaining())
         socket.write(appendBytes).await()
     }
 
     suspend fun writeFully(buffer: Buffer) {
-        if (isClosedForWrite) throw IllegalStateException("Socket write error: socket is not connected")
+        if (isClosedForWrite) throw IllegalStateException("Socket write error: socket is not connected ${state.get()}")
         socket.write(buffer).await()
     }
 
     override suspend fun writeFully(byteBuffer: ByteArray, offset: Int, limit: Int) {
-        if (isClosedForWrite) throw IllegalStateException("Socket write error: socket is not connected")
+        if (isClosedForWrite) throw IllegalStateException("Socket write error: socket is not connected ${state.get()}")
         val appendBytes = Buffer.buffer().appendBytes(byteBuffer, offset, limit)
         socket.write(appendBytes).await()
     }
