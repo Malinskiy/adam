@@ -32,6 +32,8 @@ suspend inline fun <C : SuspendCloseable, R> C.use(block: suspend (C) -> R): R {
         try {
             closed = true
             withContext(NonCancellable) {
+                println("Closing suspend closeable due to exception")
+                first.printStackTrace()
                 close()
             }
         } catch (second: Throwable) {
