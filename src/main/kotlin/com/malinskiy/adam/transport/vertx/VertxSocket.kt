@@ -259,4 +259,6 @@ private fun AtomicReference<State>.change(expected: State, new: State, error: ()
     if (!compareAndSet(expected, new)) {
         throw IllegalStateException("${error.invoke()}: ${get()}, expected $expected")
     }
+    Thread.dumpStack()
+    println("Changed state from $expected -> $new")
 }
