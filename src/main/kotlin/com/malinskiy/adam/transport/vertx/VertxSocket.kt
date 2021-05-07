@@ -183,8 +183,6 @@ class VertxSocket(private val socketAddress: SocketAddress, private val options:
 
     override suspend fun close() {
         socket.close().await()
-        println("Explicitly closing client socket")
-        Thread.dumpStack()
         withDefaultBuffer {
             while (isActive) {
                 val read = readAvailable(array(), 0, limit())
@@ -192,6 +190,8 @@ class VertxSocket(private val socketAddress: SocketAddress, private val options:
             }
         }
         id?.let { vertx.undeploy(it) }
+        println("Explicitly closing client socket")
+        Thread.dumpStack()
     }
 }
 
