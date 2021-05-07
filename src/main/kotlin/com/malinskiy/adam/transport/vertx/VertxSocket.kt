@@ -25,6 +25,7 @@ import com.malinskiy.adam.transport.withDefaultBuffer
 import io.vertx.core.Context
 import io.vertx.core.Vertx
 import io.vertx.core.buffer.Buffer
+import io.vertx.core.net.NetClient
 import io.vertx.core.net.NetClientOptions
 import io.vertx.core.net.SocketAddress
 import io.vertx.core.net.impl.NetSocketImpl
@@ -40,18 +41,38 @@ import kotlinx.coroutines.channels.sendBlocking
 import kotlinx.coroutines.isActive
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
+import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicReference
 import kotlin.coroutines.CoroutineContext
 
 class VertxSocket(private val socketAddress: SocketAddress, private val options: NetClientOptions) : CoroutineVerticle(), Socket {
     var id: String? = null
+    var netClient: NetClient? = null
     private lateinit var socket: NetSocketImpl
     private lateinit var recordParser: VariableSizeRecordParser
     private lateinit var readChannel: ReceiveChannel<Buffer>
+    private val state = AtomicReference(State.CLOSED)
+    private val canRead = AtomicBoolean(false)
 
     override suspend fun start() {
         super.start()
         val client = vertx.createNetClient(options)
-        socket = client.connect(socketAddress).await() as NetSocketImpl
+        netClient = client
+        val connect = client.connect(socketAddress)
+        state.change(State.CLOSED, State.SYN_SENT) { "Socket connection error" }
+        socket = connect.await() as NetSocketImpl
+
+        state.change(State.SYN_SENT, State.ESTABLISHED) { "Socket connection error" }
+        canRead.flip(false) { "Socket connection error: canRead was true, expected false" }
+
+        socket
+            .endHandler {
+                canRead.flip(true) { "Socket close error: canRead was false, expected true" }
+            }
+            .closeHandler {
+                state.change(State.ESTABLISHED, State.CLOSED) { "Socket close error" }
+            }
+
         recordParser = VariableSizeRecordParser(stream = socket as ReadStream<Buffer>)
         recordParser.pause()
         readChannel = (recordParser).toChannel(vertx)
@@ -59,28 +80,31 @@ class VertxSocket(private val socketAddress: SocketAddress, private val options:
 
     override suspend fun stop() {
         super.stop()
-        socket.close().await()
+        netClient?.close()
     }
 
     override val isClosedForWrite: Boolean
         get() {
-            return !socket.channel().isWritable
+            return state.get() != State.ESTABLISHED
         }
     override val isClosedForRead: Boolean
         get() {
-            return !socket.channel().isActive && readChannel.isClosedForReceive
+            return !canRead.get() || readChannel.isClosedForReceive
         }
 
     override suspend fun writeFully(byteBuffer: ByteBuffer) {
+        if (isClosedForWrite) throw IllegalStateException("Socket write error: socket is not connected")
         val appendBytes = Buffer.buffer().appendBytes(byteBuffer.array(), byteBuffer.position(), byteBuffer.remaining())
         socket.write(appendBytes).await()
     }
 
     suspend fun writeFully(buffer: Buffer) {
+        if (isClosedForWrite) throw IllegalStateException("Socket write error: socket is not connected")
         socket.write(buffer).await()
     }
 
     override suspend fun writeFully(byteBuffer: ByteArray, offset: Int, limit: Int) {
+        if (isClosedForWrite) throw IllegalStateException("Socket write error: socket is not connected")
         val appendBytes = Buffer.buffer().appendBytes(byteBuffer, offset, limit)
         socket.write(appendBytes).await()
     }
@@ -198,20 +222,41 @@ private class ChannelReadStream<T>(
 
     override val coroutineContext: CoroutineContext = context.dispatcher()
     fun subscribe() {
-        stream.endHandler {
-            close()
-        }
-        stream.exceptionHandler { err ->
-            close(err)
-        }
-        stream.handler { event ->
-            if (!isClosedForSend) {
-                sendBlocking(event)
-                stream.fetch(1)
-            } else {
-                val length = (event as Buffer).length()
-                if (length > 0) logger.debug { "can't send $length bytes" }
+        stream
+            .endHandler {
+                close()
             }
-        }
+            .exceptionHandler { err ->
+                close(err)
+            }
+            .handler { event ->
+                if (!isClosedForSend) {
+                    sendBlocking(event)
+                    stream.fetch(1)
+                } else {
+                    val length = (event as Buffer).length()
+                    if (length > 0) logger.debug { "can't send $length bytes" }
+                }
+            }
+    }
+}
+
+private enum class State {
+    CLOSED,
+    SYN_SENT,
+    ESTABLISHED,
+    CLOSING,
+    CLOSE_WAIT
+}
+
+private fun AtomicBoolean.flip(expected: Boolean, error: () -> String) {
+    if (!compareAndSet(expected, !expected)) {
+        throw IllegalStateException(error.invoke())
+    }
+}
+
+private fun AtomicReference<State>.change(expected: State, new: State, error: () -> String) {
+    if (!compareAndSet(expected, new)) {
+        throw IllegalStateException("${error.invoke()}: ${get()}, expected $expected")
     }
 }
