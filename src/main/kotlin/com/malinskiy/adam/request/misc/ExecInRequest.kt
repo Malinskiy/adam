@@ -21,7 +21,7 @@ import com.malinskiy.adam.extension.readStatus
 import com.malinskiy.adam.request.ComplexRequest
 import com.malinskiy.adam.transport.Socket
 import com.malinskiy.adam.transport.withMaxFilePacketBuffer
-import io.ktor.utils.io.*
+import io.ktor.utils.io.ByteReadChannel
 
 /**
  * Executes the command and provides the channel as the input to the command. Does not return anything

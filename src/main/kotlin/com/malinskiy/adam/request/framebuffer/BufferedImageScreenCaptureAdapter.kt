@@ -18,7 +18,7 @@ package com.malinskiy.adam.request.framebuffer
 
 import com.malinskiy.adam.extension.compatRewind
 import com.malinskiy.adam.transport.Socket
-import io.ktor.utils.io.bits.*
+import io.ktor.utils.io.bits.reverseByteOrder
 import java.awt.image.BufferedImage
 import java.nio.ByteBuffer
 

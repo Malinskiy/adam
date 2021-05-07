@@ -17,7 +17,11 @@
 package com.malinskiy.adam.integration
 
 import assertk.assertThat
-import assertk.assertions.*
+import assertk.assertions.contains
+import assertk.assertions.hasClass
+import assertk.assertions.isEqualTo
+import assertk.assertions.isFailure
+import assertk.assertions.isFalse
 import com.malinskiy.adam.exception.PullFailedException
 import com.malinskiy.adam.extension.md5
 import com.malinskiy.adam.request.shell.v1.ShellCommandRequest
@@ -26,8 +30,12 @@ import com.malinskiy.adam.request.sync.v1.PullFileRequest
 import com.malinskiy.adam.request.sync.v1.PushFileRequest
 import com.malinskiy.adam.request.sync.v1.StatFileRequest
 import com.malinskiy.adam.rule.AdbDeviceRule
-import kotlinx.coroutines.*
+import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.receiveOrNull
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.supervisorScope
+import kotlinx.coroutines.withTimeout
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule

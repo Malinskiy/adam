@@ -25,7 +25,8 @@ import com.malinskiy.adam.Const
 import com.malinskiy.adam.exception.UnsupportedImageProtocolException
 import com.malinskiy.adam.extension.newFileWithExtension
 import com.malinskiy.adam.server.AndroidDebugBridgeServer
-import io.ktor.utils.io.*
+import io.ktor.utils.io.close
+import io.ktor.utils.io.writeIntLittleEndian
 import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
@@ -320,7 +321,7 @@ class ScreenCaptureRequestTest {
 
         var comparisonResult = compare(expected, actual!!)
         assertThat(comparisonResult.differencePercent).isEqualTo(0.0f)
-        
+
         server.listen { input, output ->
             val transportCmd = input.receiveCommand()
             assertThat(transportCmd).isEqualTo("host:transport:serial")

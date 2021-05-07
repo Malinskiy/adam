@@ -17,8 +17,18 @@
 package com.malinskiy.adam.integration
 
 import assertk.assertThat
-import assertk.assertions.*
-import com.malinskiy.adam.request.forwarding.*
+import assertk.assertions.hasSize
+import assertk.assertions.isEmpty
+import assertk.assertions.isEqualTo
+import assertk.assertions.isInstanceOf
+import assertk.assertions.isNotNull
+import assertk.assertions.isTrue
+import com.malinskiy.adam.request.forwarding.ListPortForwardsRequest
+import com.malinskiy.adam.request.forwarding.LocalTcpPortSpec
+import com.malinskiy.adam.request.forwarding.PortForwardRequest
+import com.malinskiy.adam.request.forwarding.RemoteTcpPortSpec
+import com.malinskiy.adam.request.forwarding.RemoveAllPortForwardsRequest
+import com.malinskiy.adam.request.forwarding.RemovePortForwardRequest
 import com.malinskiy.adam.request.reverse.ListReversePortForwardsRequest
 import com.malinskiy.adam.request.reverse.RemoveAllReversePortForwardsRequest
 import com.malinskiy.adam.request.reverse.RemoveReversePortForwardRequest

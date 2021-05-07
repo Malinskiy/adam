@@ -19,6 +19,7 @@ package com.malinskiy.adam.transport.vertx
 import com.malinskiy.adam.extension.compatFlip
 import com.malinskiy.adam.extension.compatLimit
 import com.malinskiy.adam.extension.compatPosition
+import com.malinskiy.adam.log.AdamLogging
 import com.malinskiy.adam.transport.Socket
 import com.malinskiy.adam.transport.withDefaultBuffer
 import io.vertx.core.Context
@@ -63,13 +64,11 @@ class VertxSocket(private val socketAddress: SocketAddress, private val options:
 
     override val isClosedForWrite: Boolean
         get() {
-            val b = !socket.channel().isWritable
-            return b
+            return !socket.channel().isWritable
         }
     override val isClosedForRead: Boolean
         get() {
-            val b = !socket.channel().isActive && readChannel.isClosedForReceive
-            return b
+            return !socket.channel().isActive && readChannel.isClosedForReceive
         }
 
     override suspend fun writeFully(byteBuffer: ByteBuffer) {
@@ -195,6 +194,8 @@ private class ChannelReadStream<T>(
     context: Context
 ) : Channel<T> by channel, CoroutineScope {
 
+    private val logger = AdamLogging.logger { }
+
     override val coroutineContext: CoroutineContext = context.dispatcher()
     fun subscribe() {
         stream.endHandler {
@@ -209,7 +210,7 @@ private class ChannelReadStream<T>(
                 stream.fetch(1)
             } else {
                 val length = (event as Buffer).length()
-                if (length > 0) println("can't send $length bytes")
+                if (length > 0) logger.debug { "can't send $length bytes" }
             }
         }
     }

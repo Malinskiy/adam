@@ -17,14 +17,15 @@
 package com.malinskiy.roket
 
 import com.malinskiy.adam.extension.compatClear
-import io.ktor.utils.io.*
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withTimeoutOrNull
 import java.net.InetSocketAddress
 import java.net.Socket
 import java.net.SocketTimeoutException
 import java.nio.ByteBuffer
-import java.nio.channels.*
+import java.nio.channels.ReadableByteChannel
+import java.nio.channels.SocketChannel
+import java.nio.channels.WritableByteChannel
 import java.nio.channels.spi.SelectorProvider
 import java.util.concurrent.atomic.AtomicReference
 import kotlin.coroutines.Continuation

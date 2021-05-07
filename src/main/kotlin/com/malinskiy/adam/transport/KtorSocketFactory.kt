@@ -16,9 +16,9 @@
 
 package com.malinskiy.adam.transport
 
-import io.ktor.network.selector.*
-import io.ktor.network.sockets.*
-import io.ktor.utils.io.nio.*
+import io.ktor.network.selector.ActorSelectorManager
+import io.ktor.network.selector.SelectorManager
+import io.ktor.network.sockets.aSocket
 import java.net.InetSocketAddress
 import kotlin.coroutines.CoroutineContext
 

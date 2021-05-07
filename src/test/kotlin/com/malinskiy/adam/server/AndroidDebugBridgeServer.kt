@@ -18,11 +18,20 @@ package com.malinskiy.adam.server
 
 import com.malinskiy.adam.AndroidDebugBridgeClient
 import com.malinskiy.adam.AndroidDebugBridgeClientFactory
-import io.ktor.network.selector.*
-import io.ktor.network.sockets.*
-import io.ktor.util.network.*
-import io.ktor.utils.io.*
-import kotlinx.coroutines.*
+import io.ktor.network.selector.ActorSelectorManager
+import io.ktor.network.sockets.ServerSocket
+import io.ktor.network.sockets.aSocket
+import io.ktor.network.sockets.openReadChannel
+import io.ktor.network.sockets.openWriteChannel
+import io.ktor.util.network.port
+import io.ktor.utils.io.ByteReadChannel
+import io.ktor.utils.io.ByteWriteChannel
+import io.ktor.utils.io.close
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.async
+import kotlinx.coroutines.newFixedThreadPoolContext
 import java.net.InetSocketAddress
 import kotlin.coroutines.CoroutineContext
 

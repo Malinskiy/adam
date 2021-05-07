@@ -22,7 +22,7 @@ import com.malinskiy.adam.Const
 import com.malinskiy.adam.request.Feature
 import com.malinskiy.adam.request.sync.model.FileEntryV2
 import com.malinskiy.adam.server.AndroidDebugBridgeServer
-import io.ktor.utils.io.*
+import io.ktor.utils.io.close
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import java.time.Instant

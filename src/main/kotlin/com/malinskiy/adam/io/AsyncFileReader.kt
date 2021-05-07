@@ -21,9 +21,14 @@ import com.malinskiy.adam.extension.compatLimit
 import com.malinskiy.adam.request.transform.ResponseTransformer
 import com.malinskiy.adam.transport.AdamMaxFilePacketPool
 import com.malinskiy.adam.transport.Socket
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.receiveOrNull
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import java.io.Closeable
 import java.io.File
 import java.nio.ByteBuffer

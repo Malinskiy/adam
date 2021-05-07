@@ -17,7 +17,8 @@
 package com.malinskiy.adam.transport
 
 import com.malinskiy.adam.Const
-import io.ktor.utils.io.pool.*
+import io.ktor.utils.io.pool.ByteBufferPool
+import io.ktor.utils.io.pool.ObjectPool
 import java.nio.ByteBuffer
 
 internal const val DEFAULT_BUFFER_SIZE = 4088

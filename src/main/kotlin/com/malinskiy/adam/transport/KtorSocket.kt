@@ -17,8 +17,15 @@
 package com.malinskiy.adam.transport
 
 import com.malinskiy.adam.log.AdamLogging
-import io.ktor.network.sockets.*
-import io.ktor.utils.io.*
+import io.ktor.network.sockets.openReadChannel
+import io.ktor.network.sockets.openWriteChannel
+import io.ktor.utils.io.ByteReadChannel
+import io.ktor.utils.io.ByteWriteChannel
+import io.ktor.utils.io.cancel
+import io.ktor.utils.io.close
+import io.ktor.utils.io.readIntLittleEndian
+import io.ktor.utils.io.writeByte
+import io.ktor.utils.io.writeIntLittleEndian
 import java.nio.ByteBuffer
 import io.ktor.network.sockets.Socket as RealKtorSocket
 

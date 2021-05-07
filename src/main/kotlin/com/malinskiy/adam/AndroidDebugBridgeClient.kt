@@ -27,9 +27,13 @@ import com.malinskiy.adam.request.misc.SetDeviceRequest
 import com.malinskiy.adam.transport.SocketFactory
 import com.malinskiy.adam.transport.use
 import com.malinskiy.adam.transport.vertx.VertxSocketFactory
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.channels.produce
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.net.InetAddress
 import java.net.InetSocketAddress
 import java.time.Duration
@@ -144,6 +148,7 @@ class AndroidDebugBridgeClientFactory {
     var coroutineContext: CoroutineContext? = null
     var socketFactory: SocketFactory? = null
     var idleTimeout: Duration? = null
+    var connectTimeout: Duration? = null
 
     fun build(): AndroidDebugBridgeClient {
         return AndroidDebugBridgeClient(
@@ -151,6 +156,7 @@ class AndroidDebugBridgeClientFactory {
             host = host ?: InetAddress.getByName(Const.DEFAULT_ADB_HOST),
             socketFactory = socketFactory ?: VertxSocketFactory(
                 idleTimeout = idleTimeout?.toMillis() ?: 30_000,
+                connectTimeout = connectTimeout?.toMillis() ?: 10_000
             )
         )
     }

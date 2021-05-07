@@ -19,18 +19,27 @@ package com.malinskiy.adam.integration
 import assertk.assertThat
 import assertk.assertions.contains
 import assertk.assertions.isTrue
-import com.malinskiy.adam.Const
 import com.malinskiy.adam.request.pkg.InstallRemotePackageRequest
 import com.malinskiy.adam.request.shell.v1.ShellCommandRequest
 import com.malinskiy.adam.request.sync.v1.PushFileRequest
-import com.malinskiy.adam.request.testrunner.*
+import com.malinskiy.adam.request.testrunner.InstrumentOptions
+import com.malinskiy.adam.request.testrunner.TestEnded
+import com.malinskiy.adam.request.testrunner.TestEvent
+import com.malinskiy.adam.request.testrunner.TestFailed
+import com.malinskiy.adam.request.testrunner.TestIdentifier
+import com.malinskiy.adam.request.testrunner.TestRunEnded
+import com.malinskiy.adam.request.testrunner.TestRunStartedEvent
+import com.malinskiy.adam.request.testrunner.TestRunnerRequest
+import com.malinskiy.adam.request.testrunner.TestStarted
 import com.malinskiy.adam.rule.AdbDeviceRule
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.channels.receiveOrNull
 import kotlinx.coroutines.runBlocking
-import org.junit.*
+import org.junit.After
+import org.junit.Assume
+import org.junit.Before
+import org.junit.Rule
+import org.junit.Test
 import java.io.File
-import kotlin.math.roundToInt
 
 class TestRunnerE2ETest {
     @Rule

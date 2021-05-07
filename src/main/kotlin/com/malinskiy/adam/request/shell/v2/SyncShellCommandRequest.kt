@@ -23,7 +23,6 @@ import com.malinskiy.adam.request.NonSpecifiedTarget
 import com.malinskiy.adam.request.Target
 import com.malinskiy.adam.transport.Socket
 import com.malinskiy.adam.transport.withMaxPacketBuffer
-import io.ktor.utils.io.*
 
 /**
  * shell v2 service required for this request

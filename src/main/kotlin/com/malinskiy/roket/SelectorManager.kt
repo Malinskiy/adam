@@ -16,8 +16,16 @@
 
 package com.malinskiy.roket
 
-import kotlinx.coroutines.*
-import java.nio.channels.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.newSingleThreadContext
+import java.nio.channels.ReadableByteChannel
+import java.nio.channels.SelectionKey
+import java.nio.channels.Selector
+import java.nio.channels.SocketChannel
+import java.nio.channels.WritableByteChannel
 import java.nio.channels.spi.SelectorProvider
 import java.util.*
 import java.util.concurrent.ConcurrentLinkedQueue

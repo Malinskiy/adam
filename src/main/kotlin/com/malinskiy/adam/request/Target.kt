@@ -54,6 +54,6 @@ object LocalTarget : Target() {
     override fun serialize() = "host-local:"
 }
 
-object NonSpecifiedTarget: Target() {
+object NonSpecifiedTarget : Target() {
     override fun serialize() = ""
 }

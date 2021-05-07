@@ -22,8 +22,10 @@ import com.malinskiy.adam.Const
 import com.malinskiy.adam.exception.UnsupportedSyncProtocolException
 import com.malinskiy.adam.extension.toInt
 import com.malinskiy.adam.request.shell.v2.MessageType
-import io.ktor.util.cio.*
-import io.ktor.utils.io.*
+import io.ktor.util.cio.writeChannel
+import io.ktor.utils.io.ByteReadChannel
+import io.ktor.utils.io.close
+import io.ktor.utils.io.readIntLittleEndian
 import kotlinx.coroutines.Job
 import java.io.File
 import kotlin.coroutines.coroutineContext

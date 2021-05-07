@@ -25,14 +25,14 @@ import com.malinskiy.adam.transport.AdamMaxFilePacketPool
 import com.malinskiy.adam.transport.Socket
 import com.malinskiy.adam.transport.TransportResponse
 import com.malinskiy.adam.transport.withDefaultBuffer
-import io.ktor.utils.io.*
-import io.ktor.utils.io.bits.*
-import io.ktor.utils.io.core.*
+import io.ktor.utils.io.ByteWriteChannel
+import io.ktor.utils.io.bits.reverseByteOrder
+import io.ktor.utils.io.core.String
+import io.ktor.utils.io.core.use
 import kotlinx.coroutines.yield
 import java.io.File
 import java.nio.ByteBuffer
 import kotlin.coroutines.CoroutineContext
-import kotlin.text.toByteArray
 
 suspend fun Socket.copyTo(channel: ByteWriteChannel, buffer: ByteArray): Long {
     var processed = 0L

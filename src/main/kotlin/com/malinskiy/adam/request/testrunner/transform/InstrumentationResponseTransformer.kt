@@ -17,7 +17,16 @@
 package com.malinskiy.adam.request.transform
 
 import com.malinskiy.adam.Const
-import com.malinskiy.adam.request.testrunner.*
+import com.malinskiy.adam.request.testrunner.TestAssumptionFailed
+import com.malinskiy.adam.request.testrunner.TestEnded
+import com.malinskiy.adam.request.testrunner.TestEvent
+import com.malinskiy.adam.request.testrunner.TestFailed
+import com.malinskiy.adam.request.testrunner.TestIdentifier
+import com.malinskiy.adam.request.testrunner.TestIgnored
+import com.malinskiy.adam.request.testrunner.TestRunEnded
+import com.malinskiy.adam.request.testrunner.TestRunFailed
+import com.malinskiy.adam.request.testrunner.TestRunStartedEvent
+import com.malinskiy.adam.request.testrunner.TestStarted
 import com.malinskiy.adam.request.testrunner.model.Status
 import com.malinskiy.adam.request.testrunner.model.TokenType
 

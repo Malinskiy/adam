@@ -17,7 +17,7 @@
 package com.malinskiy.adam.extension
 
 import com.malinskiy.adam.transport.Socket
-import io.ktor.utils.io.*
+import io.ktor.utils.io.ByteReadChannel
 import kotlinx.coroutines.yield
 import java.nio.ByteBuffer
 import kotlin.math.min

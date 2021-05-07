@@ -23,7 +23,7 @@ import com.malinskiy.adam.extension.compatFlip
 import com.malinskiy.adam.extension.compatLimit
 import com.malinskiy.adam.server.AndroidDebugBridgeServer
 import com.malinskiy.adam.transport.roket.Roket
-import io.ktor.utils.io.*
+import io.ktor.utils.io.close
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.junit.After

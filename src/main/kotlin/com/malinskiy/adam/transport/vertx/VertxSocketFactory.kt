@@ -39,7 +39,7 @@ class VertxSocketFactory(
         vertxSocket.id = id
         return vertxSocket
     }
-    
+
     private fun Long.toTimeoutInt(): Int {
         val toInt = toInt()
         return if (toInt < 0) Int.MAX_VALUE

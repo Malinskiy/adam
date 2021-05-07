@@ -25,8 +25,9 @@ import com.malinskiy.adam.extension.toRequestString
 import com.malinskiy.adam.request.Feature
 import com.malinskiy.adam.server.StubSocket
 import com.malinskiy.adam.transport.use
-import io.ktor.util.cio.*
-import io.ktor.utils.io.*
+import io.ktor.util.cio.writeChannel
+import io.ktor.utils.io.ByteReadChannel
+import io.ktor.utils.io.ByteWriteChannel
 import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
