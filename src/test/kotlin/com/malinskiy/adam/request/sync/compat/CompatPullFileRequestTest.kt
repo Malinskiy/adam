@@ -88,52 +88,54 @@ class CompatPullFileRequestTest {
 
     @Test
     fun testV2() {
-        runBlocking {
-            val fixture = File(CompatPullFileRequestTest::class.java.getResource("/fixture/sample.yaml").file)
-            val tempFile = temp.newFile()
+        repeat(100) {
+            runBlocking {
+                val fixture = File(CompatPullFileRequestTest::class.java.getResource("/fixture/sample.yaml").file)
+                val tempFile = temp.newFile()
 
-            launch {
-                val server = AndroidDebugBridgeServer()
+                launch {
+                    val server = AndroidDebugBridgeServer()
 
-                val client = server.startAndListen { input, output ->
-                    val transportCmd = input.receiveCommand()
-                    assertThat(transportCmd).isEqualTo("host:transport:serial")
-                    output.respond(Const.Message.OKAY)
+                    val client = server.startAndListen { input, output ->
+                        val transportCmd = input.receiveCommand()
+                        assertThat(transportCmd).isEqualTo("host:transport:serial")
+                        output.respond(Const.Message.OKAY)
 
-                    val actualCommand = input.receiveCommand()
-                    assertThat(actualCommand).isEqualTo("sync:")
-                    output.respond(Const.Message.OKAY)
+                        val actualCommand = input.receiveCommand()
+                        assertThat(actualCommand).isEqualTo("sync:")
+                        output.respond(Const.Message.OKAY)
 
-                    val statPath = input.receiveStat()
-                    assertThat(statPath).isEqualTo("/sdcard/testfile")
-                    output.respondStat(fixture.length().toInt())
+                        val statPath = input.receiveStat()
+                        assertThat(statPath).isEqualTo("/sdcard/testfile")
+                        output.respondStat(fixture.length().toInt())
 
-                    val recvPath = input.receiveRecv2()
-                    assertThat(recvPath).isEqualTo("/sdcard/testfile")
+                        val recvPath = input.receiveRecv2()
+                        assertThat(recvPath).isEqualTo("/sdcard/testfile")
 
-                    output.respondData(fixture.readBytes())
-                    output.respondDone()
-                    output.respondDone()
+                        output.respondData(fixture.readBytes())
+                        output.respondDone()
+                        output.respondDone()
 
-                    println("Closing server socket")
-                    output.close()
-                    input.discard()
-                }
+                        println("Closing server socket")
+                        output.close()
+                        input.discard()
+                    }
 
-                val request = CompatPullFileRequest("/sdcard/testfile", tempFile, listOf(Feature.SENDRECV_V2), this)
-                val execute = client.execute(request, "serial")
+                    val request = CompatPullFileRequest("/sdcard/testfile", tempFile, listOf(Feature.SENDRECV_V2), this)
+                    val execute = client.execute(request, "serial")
 
-                var progress = 0.0
-                while (!execute.isClosedForReceive) {
-                    progress = execute.receiveOrNull() ?: break
-                }
+                    var progress = 0.0
+                    while (!execute.isClosedForReceive) {
+                        progress = execute.receiveOrNull() ?: break
+                    }
 
-                assertThat(progress).isEqualTo(1.0)
+                    assertThat(progress).isEqualTo(1.0)
 
-                server.dispose()
-            }.join()
+                    server.dispose()
+                }.join()
 
-            assertThat(tempFile.readBytes()).isEqualTo(fixture.readBytes())
+                assertThat(tempFile.readBytes()).isEqualTo(fixture.readBytes())
+            }
         }
     }
 }
