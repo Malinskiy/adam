@@ -90,6 +90,11 @@ class EmulatorCommandRequest(
 
             val firstOkPosition = output.indexOf(OUTPUT_DELIMITER)
             val secondOkPosition = output.indexOf(OUTPUT_DELIMITER, firstOkPosition + 1)
+
+            assert(secondOkPosition + OUTPUT_DELIMITER.length <= output.length) {
+                "Unable to parse response from:\n$output"
+            }
+
             return output.substring(secondOkPosition + OUTPUT_DELIMITER.length)
         }
     }
