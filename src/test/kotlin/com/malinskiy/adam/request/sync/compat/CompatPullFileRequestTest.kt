@@ -115,6 +115,7 @@ class CompatPullFileRequestTest {
                     output.respondDone()
                     output.respondDone()
 
+                    println("Closing server socket")
                     output.close()
                     input.discard()
                 }
