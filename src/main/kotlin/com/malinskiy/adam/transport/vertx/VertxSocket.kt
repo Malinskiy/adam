@@ -80,9 +80,9 @@ class VertxSocket(private val socketAddress: SocketAddress, private val options:
 
     override suspend fun stop() {
         super.stop()
+        netClient?.close()
         println("Explicitly closing NetClient")
         Thread.dumpStack()
-        netClient?.close()
     }
 
     override val isClosedForWrite: Boolean
@@ -182,9 +182,9 @@ class VertxSocket(private val socketAddress: SocketAddress, private val options:
     }
 
     override suspend fun close() {
+        socket.close().await()
         println("Explicitly closing client socket")
         Thread.dumpStack()
-        socket.close().await()
         withDefaultBuffer {
             while (isActive) {
                 val read = readAvailable(array(), 0, limit())
