@@ -79,10 +79,10 @@ class VertxSocket(private val socketAddress: SocketAddress, private val options:
     }
 
     override suspend fun stop() {
+        println("Explicitly closing NetClient")
         super.stop()
         netClient?.close()
-        println("Explicitly closing NetClient")
-        Thread.dumpStack()
+//        Thread.dumpStack()
     }
 
     override val isClosedForWrite: Boolean
@@ -182,6 +182,7 @@ class VertxSocket(private val socketAddress: SocketAddress, private val options:
     }
 
     override suspend fun close() {
+        println("Explicitly closing client socket")
         socket.close().await()
         withDefaultBuffer {
             while (isActive) {
@@ -190,8 +191,7 @@ class VertxSocket(private val socketAddress: SocketAddress, private val options:
             }
         }
         id?.let { vertx.undeploy(it) }
-        println("Explicitly closing client socket")
-        Thread.dumpStack()
+//        Thread.dumpStack()
     }
 }
 
