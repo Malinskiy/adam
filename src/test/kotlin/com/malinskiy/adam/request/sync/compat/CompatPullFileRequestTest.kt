@@ -127,11 +127,11 @@ class CompatPullFileRequestTest {
                     val execute = client.execute(request, "serial")
 
                     var progress = 0.0
-                    while (!execute.isClosedForReceive) {
-                        progress = execute.receiveOrNull() ?: break
+                    for (update in execute) {
+                        progress = update
                     }
-
                     assertThat(progress).isEqualTo(1.0)
+                    println("Test v2 succeeded")
 
                     server.dispose()
                 }.join()
