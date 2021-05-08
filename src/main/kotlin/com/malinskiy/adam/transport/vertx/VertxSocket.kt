@@ -79,10 +79,8 @@ class VertxSocket(private val socketAddress: SocketAddress, private val options:
     }
 
     override suspend fun stop() {
-        println("Explicitly closing NetClient")
         super.stop()
         netClient?.close()
-//        Thread.dumpStack()
     }
 
     override val isClosedForWrite: Boolean
@@ -182,7 +180,6 @@ class VertxSocket(private val socketAddress: SocketAddress, private val options:
     }
 
     override suspend fun close() {
-        println("Explicitly closing client socket")
         socket.close().await()
         withDefaultBuffer {
             while (isActive) {
@@ -191,7 +188,6 @@ class VertxSocket(private val socketAddress: SocketAddress, private val options:
             }
         }
         id?.let { vertx.undeploy(it) }
-//        Thread.dumpStack()
     }
 }
 
@@ -264,5 +260,4 @@ private fun AtomicReference<State>.change(expected: State, new: State, error: ()
     if (!compareAndSet(expected, new)) {
         throw IllegalStateException("${error.invoke()}: ${get()}, expected $expected")
     }
-    println("Changed state from $expected -> $new")
 }

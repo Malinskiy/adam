@@ -116,11 +116,8 @@ class CompatPullFileRequestTest {
                         output.respondDone()
                         output.respondDone()
 
-                        println("Closing server socket")
                         output.close()
-                        println("Server output closed")
                         input.discard()
-                        println("Server input closed")
                     }
 
                     val request = CompatPullFileRequest("/sdcard/testfile", tempFile, listOf(Feature.SENDRECV_V2), this)
@@ -131,7 +128,6 @@ class CompatPullFileRequestTest {
                         progress = update
                     }
                     assertThat(progress).isEqualTo(1.0)
-                    println("Test v2 succeeded")
 
                     server.dispose()
                 }.join()
