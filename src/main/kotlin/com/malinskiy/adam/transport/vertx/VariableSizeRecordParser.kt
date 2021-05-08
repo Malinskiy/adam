@@ -28,6 +28,7 @@ class VariableSizeRecordParser(
     // Empty and unmodifiable
     private val EMPTY_BUFFER = Buffer.buffer(Unpooled.EMPTY_BUFFER)
     private var buff = EMPTY_BUFFER
+    private val bufferLock = Object()
     private var pos = 0 // Current position in buffer
     private var start = 0 // Position of beginning of current record
     private var requested = 0
@@ -36,7 +37,6 @@ class VariableSizeRecordParser(
     private var eventHandler: Handler<Buffer>? = null
     private var endHandler: Handler<Void?>? = null
     private var exceptionHandler: Handler<Throwable>? = null
-    private var parsing = false
     private var streamEnded = false
     private val drained
         get() = streamEnded && (buff.byteBuf.writerIndex() == 0)
@@ -47,7 +47,7 @@ class VariableSizeRecordParser(
      * @param buffer  a chunk of data
      */
     override fun handle(buffer: Buffer) {
-        synchronized(this) {
+        synchronized(bufferLock) {
             if (buff.length() == 0) {
                 buff = buffer
             } else {
@@ -68,56 +68,48 @@ class VariableSizeRecordParser(
     }
 
     private fun handleParsing() {
-        synchronized(this) {
-            if (parsing) {
-                return
-            }
-            parsing = true
-            try {
-                do {
-                    if (demand > 0L) {
-                        var next: Int = parseFixed()
-                        if (next == -1) {
-                            next = if (streamEnded) {
-                                break
-                            } else {
-                                stream?.resume()
-                                if (streamEnded) {
-                                    continue
-                                }
-                                break
+        synchronized(bufferLock) {
+            do {
+                if (demand > 0L) {
+                    var next: Int = parseFixed()
+                    if (next == -1) {
+                        next = if (streamEnded) {
+                            break
+                        } else {
+                            stream?.resume()
+                            if (streamEnded) {
+                                continue
                             }
-                        }
-                        requested = 0
-                        if (demand != Long.MAX_VALUE) {
-                            demand--
-                        }
-                        val event = buff.getBuffer(start, next)
-                        start = pos
-                        val handler = eventHandler
-                        handler?.handle(event)
-                        if (streamEnded) {
                             break
                         }
-                    } else {
-                        // Should use a threshold ?
-                        stream?.pause()
+                    }
+                    requested = 0
+                    if (demand != Long.MAX_VALUE) {
+                        demand--
+                    }
+                    val event = buff.getBuffer(start, next)
+                    start = pos
+                    val handler = eventHandler
+                    handler?.handle(event)
+                    if (streamEnded) {
                         break
                     }
-                } while (true)
-                val length = buff.length()
-                if (start == length) {
-                    buff = EMPTY_BUFFER
-                } else if (start > 0) {
-                    buff = buff.getBuffer(start, length)
+                } else {
+                    // Should use a threshold ?
+                    stream?.pause()
+                    break
                 }
-                pos -= start
-                start = 0
-                if (drained) {
-                    end()
-                }
-            } finally {
-                parsing = false
+            } while (true)
+            val length = buff.length()
+            if (start == length) {
+                buff = EMPTY_BUFFER
+            } else if (start > 0) {
+                buff = buff.getBuffer(start, length)
+            }
+            pos -= start
+            start = 0
+            if (drained) {
+                end()
             }
         }
     }

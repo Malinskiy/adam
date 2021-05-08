@@ -51,7 +51,7 @@ class VertxSocket(private val socketAddress: SocketAddress, private val options:
     private lateinit var socket: NetSocketImpl
     private lateinit var recordParser: VariableSizeRecordParser
     private lateinit var readChannel: ReceiveChannel<Buffer>
-    private val state = AtomicReference(State.CLOSED)
+    private val state = AtomicReference(State.CREATED)
     private val canRead = AtomicBoolean(false)
 
     override suspend fun start() {
@@ -59,7 +59,7 @@ class VertxSocket(private val socketAddress: SocketAddress, private val options:
         val client = vertx.createNetClient(options)
         netClient = client
         val connect = client.connect(socketAddress)
-        state.change(State.CLOSED, State.SYN_SENT) { "Socket connection error" }
+        state.change(State.CREATED, State.SYN_SENT) { "Socket connection error" }
         socket = connect.await() as NetSocketImpl
 
         state.change(State.SYN_SENT, State.ESTABLISHED) { "Socket connection error" }
@@ -246,6 +246,7 @@ private class ChannelReadStream<T>(
 }
 
 private enum class State {
+    CREATED,
     CLOSED,
     SYN_SENT,
     ESTABLISHED,

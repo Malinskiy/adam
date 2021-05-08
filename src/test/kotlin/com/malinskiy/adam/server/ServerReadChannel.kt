@@ -22,6 +22,7 @@ import com.malinskiy.adam.Const
 import com.malinskiy.adam.exception.UnsupportedSyncProtocolException
 import com.malinskiy.adam.extension.toInt
 import com.malinskiy.adam.request.shell.v2.MessageType
+import com.malinskiy.adam.request.sync.v2.CompressionType
 import io.ktor.util.cio.writeChannel
 import io.ktor.utils.io.ByteReadChannel
 import io.ktor.utils.io.close
@@ -154,6 +155,15 @@ class ServerReadChannel(private val delegate: ByteReadChannel) : ByteReadChannel
         val size = readIntLittleEndian()
         val request = ByteArray(size)
         readFully(request, 0, size)
+
+        val message2 = String(receiveProtocolMessage(), Const.DEFAULT_TRANSPORT_ENCODING)
+        if (message != "RCV2") throw RuntimeException(
+            "Unexpected protocol message $message"
+        )
+
+        val flags = readIntLittleEndian()
+        val compression = CompressionType.values().find { it.toFlag() == flags }
+
         return String(request, Const.DEFAULT_TRANSPORT_ENCODING)
     }
 
