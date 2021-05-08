@@ -118,7 +118,9 @@ class CompatPullFileRequestTest {
 
                         println("Closing server socket")
                         output.close()
+                        println("Server output closed")
                         input.discard()
+                        println("Server input closed")
                     }
 
                     val request = CompatPullFileRequest("/sdcard/testfile", tempFile, listOf(Feature.SENDRECV_V2), this)
