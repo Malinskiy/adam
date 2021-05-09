@@ -22,6 +22,7 @@ import com.malinskiy.adam.extension.compatPosition
 import com.malinskiy.adam.log.AdamLogging
 import com.malinskiy.adam.transport.Socket
 import com.malinskiy.adam.transport.withDefaultBuffer
+import com.malinskiy.adam.transport.withMaxFilePacketBuffer
 import io.vertx.core.Context
 import io.vertx.core.Vertx
 import io.vertx.core.buffer.Buffer
@@ -181,7 +182,13 @@ class VertxSocket(private val socketAddress: SocketAddress, private val options:
 
     override suspend fun close() {
         socket.close().await()
-        withDefaultBuffer {
+        /**
+         * This should be maximum buffer that could've been requested in case:
+         * 1. Read request for up to max initiated
+         * 2. Actual read doesn't happen due to exception of cancellation
+         * 3. Close tries to read and channel already contains result of read from 1
+         */
+        withMaxFilePacketBuffer {
             while (isActive) {
                 val read = readAvailable(array(), 0, limit())
                 if (read == -1) break
