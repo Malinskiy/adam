@@ -24,11 +24,11 @@ import com.malinskiy.adam.request.transform.StringResponseTransformer
 import com.malinskiy.adam.transport.AdamMaxFilePacketPool
 import com.malinskiy.adam.transport.Socket
 import com.malinskiy.adam.transport.TransportResponse
+import com.malinskiy.adam.transport.use
 import com.malinskiy.adam.transport.withDefaultBuffer
 import io.ktor.utils.io.ByteWriteChannel
 import io.ktor.utils.io.bits.reverseByteOrder
 import io.ktor.utils.io.core.String
-import io.ktor.utils.io.core.use
 import kotlinx.coroutines.yield
 import java.io.File
 import java.nio.ByteBuffer

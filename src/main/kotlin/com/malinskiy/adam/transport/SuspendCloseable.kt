@@ -23,7 +23,7 @@ interface SuspendCloseable {
     suspend fun close()
 }
 
-suspend inline fun <C : SuspendCloseable, R> C.use(block: suspend (C) -> R): R {
+suspend inline fun <C : SuspendCloseable, R> C.use(crossinline block: suspend (C) -> R): R {
     var closed = false
 
     return try {

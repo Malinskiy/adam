@@ -27,6 +27,7 @@ import com.malinskiy.adam.request.ValidationResponse
 import com.malinskiy.adam.request.abb.AbbExecRequest
 import com.malinskiy.adam.request.transform.StringResponseTransformer
 import com.malinskiy.adam.transport.Socket
+import com.malinskiy.adam.transport.use
 import com.malinskiy.adam.transport.withDefaultBuffer
 import kotlinx.coroutines.Dispatchers
 import java.io.File

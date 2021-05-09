@@ -20,6 +20,7 @@ import com.malinskiy.adam.io.AsyncFileReader
 import com.malinskiy.adam.io.copyTo
 import com.malinskiy.adam.request.transform.StringResponseTransformer
 import com.malinskiy.adam.transport.Socket
+import com.malinskiy.adam.transport.use
 import com.malinskiy.adam.transport.withDefaultBuffer
 import io.ktor.util.cio.*
 import io.ktor.utils.io.*
@@ -75,7 +76,7 @@ class EmulatorCommandRequest(
             val buffer = array()
             val output = StringBuilder()
             loop@ do {
-                if (socket.isClosedForWrite || socket.isClosedForRead) break@loop
+                if (socket.isClosedForRead) break@loop
 
                 val count = socket.readAvailable(buffer, 0, buffer.size)
                 when {

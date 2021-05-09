@@ -22,6 +22,7 @@ import com.malinskiy.adam.io.copyTo
 import com.malinskiy.adam.request.ComplexRequest
 import com.malinskiy.adam.request.ValidationResponse
 import com.malinskiy.adam.transport.Socket
+import com.malinskiy.adam.transport.use
 import kotlinx.coroutines.Dispatchers
 import java.io.File
 import kotlin.coroutines.CoroutineContext

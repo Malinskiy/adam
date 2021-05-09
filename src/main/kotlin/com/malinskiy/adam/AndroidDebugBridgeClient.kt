@@ -53,14 +53,14 @@ class AndroidDebugBridgeClient(
             throw RequestValidationException("Request $requestSimpleClassName did not pass validation: ${validationResponse.message}")
         }
 
-        socketFactory.tcp(
+        return socketFactory.tcp(
             socketAddress = socketAddress,
             idleTimeout = request.socketIdleTimeout
         ).use { socket ->
             serial?.let {
                 SetDeviceRequest(it).handshake(socket)
             }
-            return request.process(socket)
+            request.process(socket)
         }
     }
 
@@ -119,11 +119,11 @@ class AndroidDebugBridgeClient(
     }
 
     suspend fun execute(request: EmulatorCommandRequest): String {
-        socketFactory.tcp(
+        return socketFactory.tcp(
             socketAddress = request.address,
             idleTimeout = request.idleTimeoutOverride
         ).use { socket ->
-            return request.process(socket)
+            request.process(socket)
         }
     }
 

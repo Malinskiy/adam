@@ -21,6 +21,7 @@ import com.malinskiy.adam.extension.compatLimit
 import com.malinskiy.adam.request.transform.ResponseTransformer
 import com.malinskiy.adam.transport.AdamMaxFilePacketPool
 import com.malinskiy.adam.transport.Socket
+import com.malinskiy.adam.transport.SuspendCloseable
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -29,7 +30,6 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.receiveOrNull
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import java.io.Closeable
 import java.io.File
 import java.nio.ByteBuffer
 import kotlin.coroutines.CoroutineContext
@@ -43,7 +43,7 @@ class AsyncFileReader(
     private val offset: Int = 0,
     private val length: Int = Const.MAX_FILE_PACKET_LENGTH,
     override val coroutineContext: CoroutineContext = Dispatchers.IO
-) : CoroutineScope, Closeable {
+) : CoroutineScope, SuspendCloseable {
     private val fileChannel = file.inputStream().buffered()
     private val bufferChannel: Channel<ByteBuffer> = Channel(capacity = 2)
     private var job: Job? = null
@@ -51,18 +51,22 @@ class AsyncFileReader(
     @Suppress("BlockingMethodInNonBlockingContext")
     fun start() {
         job = launch {
-            fileChannel.skip(start)
-            while (isActive) {
-                val byteBuffer = AdamMaxFilePacketPool.borrow()
-                when (val read = fileChannel.read(byteBuffer.array(), offset, length)) {
-                    -1 -> {
-                        AdamMaxFilePacketPool.recycle(byteBuffer)
-                        close()
+            fileChannel.use { readChannel ->
+                readChannel.skip(start)
+                while (isActive) {
+                    var shouldClose = false
+                    val byteBuffer = AdamMaxFilePacketPool.borrow()
+                    when (val read = readChannel.read(byteBuffer.array(), offset, length)) {
+                        -1 -> {
+                            AdamMaxFilePacketPool.recycle(byteBuffer)
+                            shouldClose = true
+                        }
+                        else -> {
+                            byteBuffer.compatLimit(read + offset)
+                            bufferChannel.send(byteBuffer)
+                        }
                     }
-                    else -> {
-                        byteBuffer.compatLimit(read + offset)
-                        bufferChannel.send(byteBuffer)
-                    }
+                    if (shouldClose) close()
                 }
             }
         }
@@ -73,9 +77,8 @@ class AsyncFileReader(
         return block(bufferChannel.receiveOrNull())
     }
 
-    override fun close() {
+    override suspend fun close() {
         job?.cancel()
-        fileChannel.close()
         bufferChannel.close()
     }
 }
