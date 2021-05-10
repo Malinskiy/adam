@@ -24,6 +24,7 @@ import io.ktor.network.sockets.aSocket
 import java.net.InetSocketAddress
 import kotlin.coroutines.CoroutineContext
 
+@Deprecated(message = "Deprecated due to stability and performance issues")
 class KtorSocketFactory(
     coroutineContext: CoroutineContext,
     private val connectTimeout: Long = 10_000,
