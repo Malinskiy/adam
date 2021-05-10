@@ -26,35 +26,12 @@ import com.malinskiy.adam.transport.Socket
 import com.malinskiy.adam.transport.TransportResponse
 import com.malinskiy.adam.transport.use
 import com.malinskiy.adam.transport.withDefaultBuffer
-import io.ktor.utils.io.ByteWriteChannel
 import io.ktor.utils.io.bits.reverseByteOrder
 import io.ktor.utils.io.core.String
 import kotlinx.coroutines.yield
 import java.io.File
 import java.nio.ByteBuffer
 import kotlin.coroutines.CoroutineContext
-
-suspend fun Socket.copyTo(channel: ByteWriteChannel, buffer: ByteArray): Long {
-    var processed = 0L
-    loop@ while (true) {
-        val available = readAvailable(buffer, 0, buffer.size)
-        when {
-            available < 0 -> {
-                break@loop
-            }
-            available > 0 -> {
-                channel.writeFully(buffer, 0, available)
-                processed += available
-                yield()
-            }
-            else -> {
-                yield()
-                continue@loop
-            }
-        }
-    }
-    return processed
-}
 
 /**
  * Copies up to limit bytes into transformer using buffer. If limit is null - copy until EOF
@@ -97,7 +74,6 @@ suspend fun <T> Socket.copyTo(transformer: ResponseTransformer<T>, buffer: ByteA
  * TODO: rewrite
  * Assumes buffer hasArray == true
  */
-suspend fun Socket.copyTo(channel: ByteWriteChannel, buffer: ByteBuffer) = copyTo(channel, buffer.array())
 suspend fun <T> Socket.copyTo(transformer: ResponseTransformer<T>, buffer: ByteBuffer) = copyTo(transformer, buffer.array())
 suspend fun <T> Socket.copyTo(transformer: ResponseTransformer<T>, buffer: ByteBuffer, limit: Long? = null) =
     copyTo(transformer, buffer.array(), limit)
@@ -139,20 +115,6 @@ suspend fun Socket.readProtocolString(): String {
         if (read != messageLength) throw RequestRejectedException("Incomplete string received")
         return String(array(), 0, read, Const.DEFAULT_TRANSPORT_ENCODING)
     }
-}
-
-suspend fun Socket.read(): TransportResponse {
-    val ok = withDefaultBuffer {
-        compatLimit(4)
-        readFully(this)
-        isOkay()
-    }
-    val message = if (!ok) {
-        readOptionalProtocolString()
-    } else {
-        null
-    }
-    return TransportResponse(ok, message)
 }
 
 private fun ByteBuffer.isOkay(): Boolean {

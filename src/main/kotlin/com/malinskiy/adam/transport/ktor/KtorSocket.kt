@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package com.malinskiy.adam.transport
+package com.malinskiy.adam.transport.ktor
 
 import com.malinskiy.adam.log.AdamLogging
+import com.malinskiy.adam.transport.Socket
 import io.ktor.network.sockets.openReadChannel
 import io.ktor.network.sockets.openWriteChannel
 import io.ktor.utils.io.ByteReadChannel

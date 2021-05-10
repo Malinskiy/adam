@@ -87,12 +87,7 @@ class VariableSizeRecordParser(
                     if (demand != Long.MAX_VALUE) {
                         demand--
                     }
-                    val event = try {
-                        buff.getBuffer(start, next)
-                    } catch (e: IndexOutOfBoundsException) {
-                        println("Oh crap")
-                        throw e
-                    }
+                    val event = buff.getBuffer(start, next)
                     start = pos
                     val handler = eventHandler
                     handler?.handle(event)
