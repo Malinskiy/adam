@@ -26,8 +26,6 @@ import com.malinskiy.adam.transport.Socket
 import com.malinskiy.adam.transport.TransportResponse
 import com.malinskiy.adam.transport.use
 import com.malinskiy.adam.transport.withDefaultBuffer
-import io.ktor.utils.io.bits.reverseByteOrder
-import io.ktor.utils.io.core.String
 import kotlinx.coroutines.yield
 import java.io.File
 import java.nio.ByteBuffer
@@ -176,7 +174,7 @@ suspend fun Socket.writeSyncV2Request(type: ByteArray, remotePath: String, flags
     withDefaultBuffer {
         compatLimit(4 + 4)
         put(type)
-        putInt(path.size.reverseByteOrder())
+        putInt(Integer.reverseBytes(path.size))
         compatRewind()
         writeFully(this)
 
@@ -185,8 +183,8 @@ suspend fun Socket.writeSyncV2Request(type: ByteArray, remotePath: String, flags
         compatRewind()
         mode?.let { compatLimit(4 + 4 + 4) } ?: compatLimit(4 + 4)
         put(type)
-        mode?.let { putInt(it.reverseByteOrder()) }
-        putInt(flags.reverseByteOrder())
+        mode?.let { putInt(Integer.reverseBytes(it)) }
+        putInt(Integer.reverseBytes(flags))
         compatRewind()
         writeFully(this)
     }
