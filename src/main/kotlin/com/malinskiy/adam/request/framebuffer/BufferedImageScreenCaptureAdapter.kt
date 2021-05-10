@@ -18,7 +18,6 @@ package com.malinskiy.adam.request.framebuffer
 
 import com.malinskiy.adam.extension.compatRewind
 import com.malinskiy.adam.transport.Socket
-import io.ktor.utils.io.bits.reverseByteOrder
 import java.awt.image.BufferedImage
 import java.nio.ByteBuffer
 
@@ -79,7 +78,7 @@ class BufferedImageScreenCaptureAdapter(
                             for (y in 0 until height) {
                                 for (x in 0 until width) {
                                     val bytes: ByteArray = Color.ARGB_INT.toBGR_3BYTE(
-                                        imageBuffer.int.reverseByteOrder(),
+                                        Integer.reverseBytes(imageBuffer.int),
                                         redOffset,
                                         redLength,
                                         greenOffset,

@@ -22,8 +22,6 @@ import com.malinskiy.adam.request.transform.StringResponseTransformer
 import com.malinskiy.adam.transport.Socket
 import com.malinskiy.adam.transport.use
 import com.malinskiy.adam.transport.withDefaultBuffer
-import io.ktor.util.cio.*
-import io.ktor.utils.io.*
 import java.io.File
 import java.net.InetSocketAddress
 
