@@ -18,7 +18,11 @@ package com.malinskiy.adam.request.sync.v2
 
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.annotation.Features
-import com.malinskiy.adam.extension.*
+import com.malinskiy.adam.extension.toInt
+import com.malinskiy.adam.extension.toLong
+import com.malinskiy.adam.extension.toUInt
+import com.malinskiy.adam.extension.toULong
+import com.malinskiy.adam.extension.writeSyncRequest
 import com.malinskiy.adam.request.ComplexRequest
 import com.malinskiy.adam.request.Feature
 import com.malinskiy.adam.request.ValidationResponse

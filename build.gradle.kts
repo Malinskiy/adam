@@ -118,6 +118,9 @@ dependencies {
     implementation(Libraries.ktorNetwork)
     implementation(Libraries.logging)
     implementation(Libraries.pdbank)
+    implementation(Libraries.vertxCore)
+    implementation(Libraries.vertxKotlin)
+    implementation(Libraries.vertxCoroutines)
 
     testImplementation(TestLibraries.assertk)
     testImplementation(TestLibraries.junit)

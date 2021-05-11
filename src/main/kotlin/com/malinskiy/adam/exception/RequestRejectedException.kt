@@ -16,6 +16,4 @@
 
 package com.malinskiy.adam.exception
 
-import java.lang.RuntimeException
-
 class RequestRejectedException(message: String) : RuntimeException(message)

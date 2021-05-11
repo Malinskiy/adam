@@ -1,12 +1,13 @@
 object Versions {
-    val adam = System.getenv("GIT_TAG_NAME") ?: "0.2.2"
+    val adam = System.getenv("GIT_TAG_NAME") ?: "0.2.4"
     val kotlin = "1.4.20"
     val coroutines = "1.3.9"
 
     val annotations = "16.0.2"
     val kxml = "2.3.0"
-    val ktor = "1.4.1"
+    val ktor = "1.5.2"
     val logging = "1.7.6"
+    val vertx = "4.0.3"
 
     val assertk = "0.19"
     val junit = "4.12"
@@ -27,6 +28,10 @@ object Libraries {
     val ktorNetwork = "io.ktor:ktor-network-jvm:${Versions.ktor}"
     val logging = "io.github.microutils:kotlin-logging:${Versions.logging}"
     val pdbank = "pro.streem.pbandk:pbandk-runtime-jvm:${Versions.pdbank}"
+    val vertxCore = "io.vertx:vertx-core:${Versions.vertx}"
+    val vertxKotlin = "io.vertx:vertx-lang-kotlin:${Versions.vertx}"
+    val vertxCoroutines = "io.vertx:vertx-lang-kotlin-coroutines:${Versions.vertx}"
+    
 }
 
 object TestLibraries {

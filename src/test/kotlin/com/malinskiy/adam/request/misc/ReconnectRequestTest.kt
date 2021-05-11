@@ -22,7 +22,7 @@ import com.malinskiy.adam.extension.toRequestString
 import com.malinskiy.adam.request.HostTarget
 import com.malinskiy.adam.request.SerialTarget
 import com.malinskiy.adam.server.AndroidDebugBridgeServer
-import io.ktor.utils.io.*
+import io.ktor.utils.io.close
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 

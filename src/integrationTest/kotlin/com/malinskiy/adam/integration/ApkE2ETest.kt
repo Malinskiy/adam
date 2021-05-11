@@ -19,7 +19,11 @@ package com.malinskiy.adam.integration
 import assertk.assertThat
 import assertk.assertions.contains
 import assertk.assertions.doesNotContain
-import com.malinskiy.adam.request.pkg.*
+import com.malinskiy.adam.request.pkg.InstallRemotePackageRequest
+import com.malinskiy.adam.request.pkg.InstallSplitPackageRequest
+import com.malinskiy.adam.request.pkg.Package
+import com.malinskiy.adam.request.pkg.PmListRequest
+import com.malinskiy.adam.request.pkg.UninstallRemotePackageRequest
 import com.malinskiy.adam.request.pkg.multi.ApkSplitInstallationPackage
 import com.malinskiy.adam.request.shell.v1.ShellCommandRequest
 import com.malinskiy.adam.request.sync.v1.PushFileRequest

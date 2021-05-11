@@ -19,7 +19,12 @@ package com.malinskiy.adam.integration.feature
 import assertk.assertThat
 import assertk.assertions.contains
 import com.malinskiy.adam.request.Feature
-import com.malinskiy.adam.request.pkg.*
+import com.malinskiy.adam.request.pkg.AtomicInstallPackageRequest
+import com.malinskiy.adam.request.pkg.InstallSplitPackageRequest
+import com.malinskiy.adam.request.pkg.Package
+import com.malinskiy.adam.request.pkg.PmListRequest
+import com.malinskiy.adam.request.pkg.StreamingPackageInstallRequest
+import com.malinskiy.adam.request.pkg.UninstallRemotePackageRequest
 import com.malinskiy.adam.request.pkg.multi.ApkSplitInstallationPackage
 import com.malinskiy.adam.request.pkg.multi.SingleFileInstallationPackage
 import com.malinskiy.adam.rule.AdbDeviceRule

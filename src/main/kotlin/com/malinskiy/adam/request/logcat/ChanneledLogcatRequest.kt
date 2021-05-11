@@ -29,9 +29,9 @@ class ChanneledLogcatRequest(
 ) : ChanneledShellCommandRequest(
     cmd = "logcat" +
             "${
-            since?.let {
-                " -T ${since.toEpochMilli()}.0"
-            } ?: ""
+                since?.let {
+                    " -T ${since.toEpochMilli()}.0"
+                } ?: ""
             }" +
             " ${modes.joinToString(separator = " ") { "-v $it" }}" +
             if (buffers.isNotEmpty()) {
@@ -42,7 +42,8 @@ class ChanneledLogcatRequest(
             "${pid?.let { " --pid=$it" } ?: ""}" +
             "${lastReboot?.let { " -L" } ?: ""}" +
             " ${filters.joinToString(separator = " ") { "${it.tag}:${it.level.name}" }}"
-                .trimEnd()
+                .trimEnd(),
+    socketIdleTimeout = Long.MAX_VALUE,
 )
 
 enum class LogcatReadMode {
@@ -89,16 +90,22 @@ enum class LogcatReadMode {
 enum class LogcatBuffer {
     //View the buffer that contains radio/telephony related messages
     radio,
+
     //View the interpreted binary system event buffer messages
     events,
+
     //View the main log buffer (default) does not contain system and crash log messages
     main,
+
     //View the system log buffer (default)
     system,
+
     //View the crash log buffer (default)
     crash,
+
     //View all buffers
     all,
+
     //Reports main, system, and crash buffers
     default
 }

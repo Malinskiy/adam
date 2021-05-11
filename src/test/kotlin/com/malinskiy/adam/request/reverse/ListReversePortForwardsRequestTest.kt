@@ -20,10 +20,14 @@ import assertk.assertThat
 import assertk.assertions.containsExactly
 import assertk.assertions.isEqualTo
 import com.malinskiy.adam.Const
-import com.malinskiy.adam.request.forwarding.*
+import com.malinskiy.adam.request.forwarding.LocalTcpPortSpec
+import com.malinskiy.adam.request.forwarding.LocalUnixSocketPortSpec
+import com.malinskiy.adam.request.forwarding.RemoteAbstractPortSpec
+import com.malinskiy.adam.request.forwarding.RemoteFilesystemPortSpec
+import com.malinskiy.adam.request.forwarding.RemoteReservedPortSpec
+import com.malinskiy.adam.request.forwarding.RemoteTcpPortSpec
 import com.malinskiy.adam.server.AndroidDebugBridgeServer
 import io.ktor.utils.io.close
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 
@@ -50,7 +54,6 @@ class ListReversePortForwardsRequestTest {
                     
                 """.trimIndent()
                 )
-                delay(1000)
                 output.close()
             }
 

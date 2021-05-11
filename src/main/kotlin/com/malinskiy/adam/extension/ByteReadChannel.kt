@@ -16,34 +16,9 @@
 
 package com.malinskiy.adam.extension
 
-import com.malinskiy.adam.transport.Socket
-import io.ktor.utils.io.*
+import io.ktor.utils.io.ByteReadChannel
 import kotlinx.coroutines.yield
-import java.nio.ByteBuffer
 import kotlin.math.min
-
-suspend fun ByteReadChannel.copyTo(socket: Socket, buffer: ByteBuffer) = copyTo(socket, buffer.array())
-suspend fun ByteReadChannel.copyTo(socket: Socket, buffer: ByteArray): Long {
-    var processed = 0L
-    loop@ while (true) {
-        val available = readAvailable(buffer, 0, buffer.size)
-        when {
-            available < 0 -> {
-                break@loop
-            }
-            available > 0 -> {
-                socket.writeFully(buffer, 0, available)
-                processed += available
-                yield()
-            }
-            else -> {
-                yield()
-                continue@loop
-            }
-        }
-    }
-    return processed
-}
 
 /**
  * Copies up to limit bytes into transformer using buffer. If limit is null - copy until EOF

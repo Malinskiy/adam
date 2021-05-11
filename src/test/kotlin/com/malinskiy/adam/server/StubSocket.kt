@@ -18,8 +18,15 @@ package com.malinskiy.adam.server
 
 import com.malinskiy.adam.log.AdamLogging
 import com.malinskiy.adam.transport.Socket
-import io.ktor.utils.io.*
-import io.ktor.utils.io.core.*
+import io.ktor.utils.io.ByteChannelSequentialJVM
+import io.ktor.utils.io.ByteReadChannel
+import io.ktor.utils.io.ByteWriteChannel
+import io.ktor.utils.io.cancel
+import io.ktor.utils.io.close
+import io.ktor.utils.io.core.IoBuffer
+import io.ktor.utils.io.readIntLittleEndian
+import io.ktor.utils.io.writeByte
+import io.ktor.utils.io.writeIntLittleEndian
 import java.nio.ByteBuffer
 
 class StubSocket(

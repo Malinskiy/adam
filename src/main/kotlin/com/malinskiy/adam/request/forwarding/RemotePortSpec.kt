@@ -25,7 +25,7 @@ sealed class RemotePortSpec {
         fun parse(value: String): RemotePortSpec {
             val split = value.split(':')
             val type = split[0]
-            return when(type) {
+            return when (type) {
                 "tcp" -> RemoteTcpPortSpec(split[1].toInt())
                 "localabstract" -> RemoteAbstractPortSpec(split[1])
                 "localreserved" -> RemoteReservedPortSpec(split[1])

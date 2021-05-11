@@ -16,10 +16,12 @@
 
 package com.malinskiy.adam.request.emu
 
+import com.malinskiy.adam.io.AsyncFileReader
+import com.malinskiy.adam.io.copyTo
+import com.malinskiy.adam.request.transform.StringResponseTransformer
 import com.malinskiy.adam.transport.Socket
+import com.malinskiy.adam.transport.use
 import com.malinskiy.adam.transport.withDefaultBuffer
-import io.ktor.util.cio.*
-import io.ktor.utils.io.*
 import java.io.File
 import java.net.InetSocketAddress
 
@@ -46,11 +48,11 @@ class EmulatorCommandRequest(
     private suspend fun readAuthToken(): String? {
         val authTokenFile = File(System.getProperty("user.home"), ".emulator_console_auth_token")
         return if (authTokenFile.exists() && authTokenFile.isFile) {
-            val readChannel = authTokenFile.readChannel()
-            try {
-                readChannel.readUTF8Line()
-            } finally {
-                readChannel.cancel()
+            val transformer = StringResponseTransformer()
+            AsyncFileReader(authTokenFile).use { reader ->
+                reader.start()
+                reader.copyTo(transformer)
+                transformer.transform()
             }
         } else {
             null
@@ -72,7 +74,7 @@ class EmulatorCommandRequest(
             val buffer = array()
             val output = StringBuilder()
             loop@ do {
-                if (socket.isClosedForWrite || socket.isClosedForRead) break@loop
+                if (socket.isClosedForRead) break@loop
 
                 val count = socket.readAvailable(buffer, 0, buffer.size)
                 when {
@@ -87,6 +89,11 @@ class EmulatorCommandRequest(
 
             val firstOkPosition = output.indexOf(OUTPUT_DELIMITER)
             val secondOkPosition = output.indexOf(OUTPUT_DELIMITER, firstOkPosition + 1)
+
+            assert(secondOkPosition + OUTPUT_DELIMITER.length <= output.length) {
+                "Unable to parse response from:\n$output"
+            }
+
             return output.substring(secondOkPosition + OUTPUT_DELIMITER.length)
         }
     }

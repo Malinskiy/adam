@@ -17,7 +17,16 @@
 package com.malinskiy.adam.request.transform
 
 import com.malinskiy.adam.Const
-import com.malinskiy.adam.request.testrunner.*
+import com.malinskiy.adam.request.testrunner.TestAssumptionFailed
+import com.malinskiy.adam.request.testrunner.TestEnded
+import com.malinskiy.adam.request.testrunner.TestEvent
+import com.malinskiy.adam.request.testrunner.TestFailed
+import com.malinskiy.adam.request.testrunner.TestIdentifier
+import com.malinskiy.adam.request.testrunner.TestIgnored
+import com.malinskiy.adam.request.testrunner.TestRunEnded
+import com.malinskiy.adam.request.testrunner.TestRunFailed
+import com.malinskiy.adam.request.testrunner.TestRunStartedEvent
+import com.malinskiy.adam.request.testrunner.TestStarted
 import com.malinskiy.adam.request.testrunner.model.Status
 import com.malinskiy.adam.request.testrunner.model.TokenType
 
@@ -32,6 +41,21 @@ class InstrumentationResponseTransformer : ProgressiveResponseTransformer<List<T
 
     override suspend fun process(bytes: ByteArray, offset: Int, limit: Int): List<TestEvent>? {
         buffer.append(String(bytes, offset, limit, Const.DEFAULT_TRANSPORT_ENCODING))
+
+        var result: MutableList<TestEvent>? = null
+        while (true) {
+            val atom = findAtom() ?: break
+            parse(atom)?.let { events ->
+                val localResult = result ?: mutableListOf()
+                localResult.addAll(events)
+                result = localResult
+            }
+        }
+
+        return result
+    }
+
+    private fun findAtom(): List<String>? {
         val tokenPosition = buffer.indexOfAny(
             listOf(
                 TokenType.INSTRUMENTATION_STATUS_CODE.name,
@@ -50,8 +74,7 @@ class InstrumentationResponseTransformer : ProgressiveResponseTransformer<List<T
 
         val atom = buffer.substring(0, nextLineBreak).lines()
         buffer = buffer.delete(0, nextLineBreak + 1)
-
-        return parse(atom)
+        return atom
     }
 
     override fun transform(): List<TestEvent>? {

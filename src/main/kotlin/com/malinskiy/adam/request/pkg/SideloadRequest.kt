@@ -17,23 +17,24 @@
 package com.malinskiy.adam.request.pkg
 
 import com.malinskiy.adam.Const
+import com.malinskiy.adam.io.AsyncFileReader
 import com.malinskiy.adam.request.ComplexRequest
 import com.malinskiy.adam.request.ValidationResponse
+import com.malinskiy.adam.transport.AdamMaxFilePacketPool
 import com.malinskiy.adam.transport.Socket
-import io.ktor.util.cio.*
-import io.ktor.utils.io.*
 import java.io.File
 
 class SideloadRequest(
     private val pkg: File,
-    private var blockSize: Int = Const.MAX_FILE_PACKET_LENGTH
 ) : ComplexRequest<Boolean>() {
+    private val blockSize: Int = Const.MAX_FILE_PACKET_LENGTH
     val buffer = ByteArray(blockSize)
 
     override suspend fun readElement(socket: Socket): Boolean {
-        var pkgChannel: ByteReadChannel? = null
+        var reader: AsyncFileReader? = null
         try {
-            pkgChannel = pkg.readChannel()
+            reader = AsyncFileReader(pkg)
+            reader.start()
             var currentOffset = 0L
 
             while (true) {
@@ -47,8 +48,9 @@ class SideloadRequest(
                         val offset = blockId * blockSize
                         if (offset != currentOffset) {
                             //We can't seek on the channels. Recreating the channel again
-                            pkgChannel?.cancel()
-                            pkgChannel = pkg.readChannel(start = offset)
+                            reader?.close()
+                            reader = AsyncFileReader(pkg, start = offset)
+                            reader.start()
                             currentOffset = offset
                         }
 
@@ -57,14 +59,21 @@ class SideloadRequest(
                         } else {
                             blockSize.toLong()
                         }
-                        pkgChannel?.readFully(buffer, 0, expectedLength.toInt())
-                        socket.writeFully(buffer, 0, expectedLength.toInt())
-                        currentOffset += expectedLength
+                        reader?.read {
+                            try {
+                                if (it == null) return@read
+                                assert(it.remaining().toLong() == expectedLength)
+                                socket.writeFully(it)
+                                currentOffset += expectedLength
+                            } finally {
+                                it?.let { buffer -> AdamMaxFilePacketPool.recycle(buffer) }
+                            }
+                        }
                     }
                 }
             }
         } finally {
-            pkgChannel?.cancel()
+            reader?.close()
         }
     }
 

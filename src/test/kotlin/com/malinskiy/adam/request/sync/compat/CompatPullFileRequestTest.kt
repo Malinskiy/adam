@@ -21,7 +21,8 @@ import assertk.assertions.isEqualTo
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.request.Feature
 import com.malinskiy.adam.server.AndroidDebugBridgeServer
-import io.ktor.utils.io.*
+import io.ktor.utils.io.close
+import io.ktor.utils.io.discard
 import kotlinx.coroutines.channels.receiveOrNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -122,10 +123,9 @@ class CompatPullFileRequestTest {
                 val execute = client.execute(request, "serial")
 
                 var progress = 0.0
-                while (!execute.isClosedForReceive) {
-                    progress = execute.receiveOrNull() ?: break
+                for (update in execute) {
+                    progress = update
                 }
-
                 assertThat(progress).isEqualTo(1.0)
 
                 server.dispose()

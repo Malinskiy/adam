@@ -14,7 +14,8 @@ sealed class SessionStatusCode(override val value: Int, override val name: Strin
     companion object : pbandk.Message.Enum.Companion<SessionStatusCode> {
         val values: List<SessionStatusCode> by lazy { listOf(SESSION_FINISHED, SESSION_ABORTED) }
         override fun fromValue(value: Int) = values.firstOrNull { it.value == value } ?: UNRECOGNIZED(value)
-        override fun fromName(name: String) = values.firstOrNull { it.name == name } ?: throw IllegalArgumentException("No SessionStatusCode with name: $name")
+        override fun fromName(name: String) =
+            values.firstOrNull { it.name == name } ?: throw IllegalArgumentException("No SessionStatusCode with name: $name")
     }
 }
 
@@ -32,6 +33,7 @@ data class ResultsBundleEntry(
     override operator fun plus(other: pbandk.Message?) = protoMergeImpl(other)
     override val descriptor get() = Companion.descriptor
     override val protoSize by lazy { super.protoSize }
+
     companion object : pbandk.Message.Companion<ResultsBundleEntry> {
         val defaultInstance by lazy { ResultsBundleEntry() }
         override fun decodeWith(u: pbandk.MessageDecoder) = ResultsBundleEntry.decodeWithImpl(u)
@@ -135,6 +137,7 @@ data class ResultsBundle(
     override operator fun plus(other: pbandk.Message?) = protoMergeImpl(other)
     override val descriptor get() = Companion.descriptor
     override val protoSize by lazy { super.protoSize }
+
     companion object : pbandk.Message.Companion<ResultsBundle> {
         val defaultInstance by lazy { ResultsBundle() }
         override fun decodeWith(u: pbandk.MessageDecoder) = ResultsBundle.decodeWithImpl(u)
@@ -146,7 +149,11 @@ data class ResultsBundle(
                         messageDescriptor = this@Companion::descriptor,
                         name = "entries",
                         number = 1,
-                        type = pbandk.FieldDescriptor.Type.Repeated<ResultsBundleEntry>(valueType = pbandk.FieldDescriptor.Type.Message(messageCompanion = ResultsBundleEntry.Companion)),
+                        type = pbandk.FieldDescriptor.Type.Repeated<ResultsBundleEntry>(
+                            valueType = pbandk.FieldDescriptor.Type.Message(
+                                messageCompanion = ResultsBundleEntry.Companion
+                            )
+                        ),
                         jsonName = "entries",
                         value = ResultsBundle::entries
                     )
@@ -170,6 +177,7 @@ data class TestStatus(
     override operator fun plus(other: pbandk.Message?) = protoMergeImpl(other)
     override val descriptor get() = Companion.descriptor
     override val protoSize by lazy { super.protoSize }
+
     companion object : pbandk.Message.Companion<TestStatus> {
         val defaultInstance by lazy { TestStatus() }
         override fun decodeWith(u: pbandk.MessageDecoder) = TestStatus.decodeWithImpl(u)
@@ -226,6 +234,7 @@ data class SessionStatus(
     override operator fun plus(other: pbandk.Message?) = protoMergeImpl(other)
     override val descriptor get() = Companion.descriptor
     override val protoSize by lazy { super.protoSize }
+
     companion object : pbandk.Message.Companion<SessionStatus> {
         val defaultInstance by lazy { SessionStatus() }
         override fun decodeWith(u: pbandk.MessageDecoder) = SessionStatus.decodeWithImpl(u)
@@ -290,6 +299,7 @@ data class Session(
     override operator fun plus(other: pbandk.Message?) = protoMergeImpl(other)
     override val descriptor get() = Companion.descriptor
     override val protoSize by lazy { super.protoSize }
+
     companion object : pbandk.Message.Companion<Session> {
         val defaultInstance by lazy { Session() }
         override fun decodeWith(u: pbandk.MessageDecoder) = Session.decodeWithImpl(u)
@@ -301,7 +311,11 @@ data class Session(
                         messageDescriptor = this@Companion::descriptor,
                         name = "test_status",
                         number = 1,
-                        type = pbandk.FieldDescriptor.Type.Repeated<TestStatus>(valueType = pbandk.FieldDescriptor.Type.Message(messageCompanion = TestStatus.Companion)),
+                        type = pbandk.FieldDescriptor.Type.Repeated<TestStatus>(
+                            valueType = pbandk.FieldDescriptor.Type.Message(
+                                messageCompanion = TestStatus.Companion
+                            )
+                        ),
                         jsonName = "testStatus",
                         value = Session::testStatus
                     )
@@ -363,8 +377,10 @@ private fun ResultsBundleEntry.Companion.decodeWithImpl(u: pbandk.MessageDecoder
             8 -> valueBytes = _fieldValue as pbandk.ByteArr
         }
     }
-    return ResultsBundleEntry(key, valueString, valueInt, valueFloat,
-        valueDouble, valueLong, valueBundle, valueBytes, unknownFields)
+    return ResultsBundleEntry(
+        key, valueString, valueInt, valueFloat,
+        valueDouble, valueLong, valueBundle, valueBytes, unknownFields
+    )
 }
 
 fun ResultsBundle?.orDefault() = this ?: ResultsBundle.defaultInstance

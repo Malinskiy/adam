@@ -25,7 +25,7 @@ abstract class SynchronousRequest<T : Any?>(target: Target = NonSpecifiedTarget)
     override suspend fun readElement(socket: Socket): T {
         withMaxPacketBuffer {
             loop@ do {
-                if (socket.isClosedForWrite || socket.isClosedForRead) break@loop
+                if (socket.isClosedForRead) break@loop
 
                 val data = array()
                 val count = socket.readAvailable(data, 0, data.size)

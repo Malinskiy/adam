@@ -33,6 +33,7 @@ jobs:
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
   integration-test:
+    needs: test
     runs-on: macOS-10.15
     strategy:
       matrix:

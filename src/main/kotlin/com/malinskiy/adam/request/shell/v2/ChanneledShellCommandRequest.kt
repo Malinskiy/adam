@@ -34,14 +34,7 @@ open class ChanneledShellCommandRequest(
     override suspend fun readElement(socket: Socket, sendChannel: SendChannel<ShellCommandResultChunk>): Boolean {
         withMaxPacketBuffer {
             val data = array()
-            val readAvailable = socket.readAvailable(data, 0, 1)
-            when (readAvailable) {
-                //Skip as if nothing is happening
-                0, -1 -> return false
-            }
-
-            val readByte = data[0]
-            when (MessageType.of(readByte.toInt())) {
+            when (MessageType.of(socket.readByte().toInt())) {
                 MessageType.STDOUT -> {
                     val length = socket.readIntLittleEndian()
                     socket.readFully(data, 0, length)
@@ -56,6 +49,7 @@ open class ChanneledShellCommandRequest(
                     val ignoredLength = socket.readIntLittleEndian()
                     val exitCode = socket.readByte().toInt()
                     sendChannel.send(ShellCommandResultChunk(exitCode = exitCode))
+                    return true
                 }
                 else -> Unit
             }

@@ -21,7 +21,14 @@ import com.malinskiy.adam.annotation.Features
 import com.malinskiy.adam.request.Feature
 import com.malinskiy.adam.request.MultiRequest
 import com.malinskiy.adam.request.ValidationResponse
-import com.malinskiy.adam.request.pkg.multi.*
+import com.malinskiy.adam.request.pkg.multi.AddSessionRequest
+import com.malinskiy.adam.request.pkg.multi.ApkSplitInstallationPackage
+import com.malinskiy.adam.request.pkg.multi.CreateIndividualPackageSessionRequest
+import com.malinskiy.adam.request.pkg.multi.CreateMultiPackageSessionRequest
+import com.malinskiy.adam.request.pkg.multi.InstallCommitRequest
+import com.malinskiy.adam.request.pkg.multi.InstallationPackage
+import com.malinskiy.adam.request.pkg.multi.SingleFileInstallationPackage
+import com.malinskiy.adam.request.pkg.multi.WriteIndividualPackageRequest
 import kotlinx.coroutines.Dispatchers
 import kotlin.coroutines.CoroutineContext
 
