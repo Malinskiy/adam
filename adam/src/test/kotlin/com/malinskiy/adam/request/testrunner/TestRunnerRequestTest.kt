@@ -23,14 +23,14 @@ import com.malinskiy.adam.Const
 import com.malinskiy.adam.server.AndroidDebugBridgeServer
 import com.malinskiy.adam.server.StubSocket
 import com.malinskiy.adam.transport.use
-import io.ktor.utils.io.*
+import io.ktor.utils.io.ByteChannel
+import io.ktor.utils.io.close
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.Channel.Factory.BUFFERED
 import kotlinx.coroutines.channels.receiveOrNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
-import java.nio.channels.ByteChannel
 
 class TestRunnerRequestTest {
     @Test

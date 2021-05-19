@@ -17,9 +17,8 @@
 package com.malinskiy.adam
 
 import com.malinskiy.adam.interactor.DiscoverAdbSocketInteractor
-import com.malinskiy.adam.transport.KtorSocketFactory
 import com.malinskiy.adam.transport.SocketFactory
-import kotlinx.coroutines.Dispatchers
+import com.malinskiy.adam.transport.vertx.VertxSocketFactory
 import java.net.InetAddress
 import java.time.Duration
 import kotlin.coroutines.CoroutineContext
@@ -30,14 +29,15 @@ class AndroidDebugBridgeClientFactory {
     var coroutineContext: CoroutineContext? = null
     var socketFactory: SocketFactory? = null
     var idleTimeout: Duration? = null
+    var connectTimeout: Duration? = null
 
     fun build(): AndroidDebugBridgeClient {
         return AndroidDebugBridgeClient(
             port = port ?: DiscoverAdbSocketInteractor().execute(),
             host = host ?: InetAddress.getByName(Const.DEFAULT_ADB_HOST),
-            socketFactory = socketFactory ?: KtorSocketFactory(
-                coroutineContext = coroutineContext ?: Dispatchers.IO,
-                idleTimeout = idleTimeout?.toMillis() ?: 30_000
+            socketFactory = socketFactory ?: VertxSocketFactory(
+                idleTimeout = idleTimeout?.toMillis() ?: 30_000,
+                connectTimeout = connectTimeout?.toMillis() ?: 10_000
             )
         )
     }

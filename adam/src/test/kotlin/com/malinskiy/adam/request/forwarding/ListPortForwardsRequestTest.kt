@@ -20,7 +20,8 @@ import assertk.assertThat
 import assertk.assertions.containsExactly
 import assertk.assertions.isEqualTo
 import com.malinskiy.adam.server.AndroidDebugBridgeServer
-import io.ktor.utils.io.*
+import io.ktor.utils.io.close
+import io.ktor.utils.io.discard
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 

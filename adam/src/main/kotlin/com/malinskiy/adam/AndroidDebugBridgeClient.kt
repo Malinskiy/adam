@@ -25,9 +25,13 @@ import com.malinskiy.adam.request.emu.EmulatorCommandRequest
 import com.malinskiy.adam.request.misc.SetDeviceRequest
 import com.malinskiy.adam.transport.SocketFactory
 import com.malinskiy.adam.transport.use
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.channels.produce
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.net.InetAddress
 import java.net.InetSocketAddress
 
@@ -45,14 +49,14 @@ class AndroidDebugBridgeClient(
             throw RequestValidationException("Request $requestSimpleClassName did not pass validation: ${validationResponse.message}")
         }
 
-        socketFactory.tcp(
+        return socketFactory.tcp(
             socketAddress = socketAddress,
             idleTimeout = request.socketIdleTimeout
         ).use { socket ->
             serial?.let {
                 SetDeviceRequest(it).handshake(socket)
             }
-            return request.process(socket)
+            request.process(socket)
         }
     }
 
@@ -68,6 +72,7 @@ class AndroidDebugBridgeClient(
                 idleTimeout = request.socketIdleTimeout
             ).use { socket ->
                 var backChannel = request.channel
+                var backChannelJob: Job? = null
 
                 try {
                     serial?.let {
@@ -76,26 +81,30 @@ class AndroidDebugBridgeClient(
 
                     request.handshake(socket)
 
+                    backChannelJob = launch {
+                        if (backChannel == null) return@launch
+                        for (it in backChannel) {
+                            if (!socket.isClosedForWrite) {
+                                request.writeElement(it, socket)
+                            }
+                        }
+                    }
+
                     while (true) {
                         if (isClosedForSend ||
                             socket.isClosedForRead ||
-                            socket.isClosedForWrite ||
                             request.channel?.isClosedForReceive == true
                         ) {
                             break
                         }
                         val finished = request.readElement(socket, this)
                         if (finished) break
-                        yield()
-
-                        backChannel?.poll()?.let {
-                            request.writeElement(it, socket)
-                        }
                     }
                 } finally {
                     try {
                         withContext(NonCancellable) {
                             request.close(channel)
+                            backChannelJob?.cancel()
                         }
                     } catch (e: Exception) {
                         log.debug(e) { "Exception during cleanup. Ignoring" }
@@ -106,11 +115,11 @@ class AndroidDebugBridgeClient(
     }
 
     suspend fun execute(request: EmulatorCommandRequest): String {
-        socketFactory.tcp(
+        return socketFactory.tcp(
             socketAddress = request.address,
             idleTimeout = request.idleTimeoutOverride
         ).use { socket ->
-            return request.process(socket)
+            request.process(socket)
         }
     }
 

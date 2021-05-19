@@ -23,7 +23,9 @@ import com.malinskiy.adam.exception.PullFailedException
 import com.malinskiy.adam.exception.UnsupportedSyncProtocolException
 import com.malinskiy.adam.request.Feature
 import com.malinskiy.adam.server.AndroidDebugBridgeServer
-import io.ktor.utils.io.*
+import io.ktor.utils.io.close
+import io.ktor.utils.io.discard
+import io.ktor.utils.io.writeIntLittleEndian
 import kotlinx.coroutines.channels.receiveOrNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -219,7 +221,7 @@ class PullFileRequestTest {
                     assertThat(recvPath).isEqualTo("/sdcard/testfile")
 
                     output.respond(Const.Message.DATA)
-                    output.respondData(ByteArray(Const.MAX_FILE_PACKET_LENGTH + 1))
+                    output.writeIntLittleEndian(Const.MAX_FILE_PACKET_LENGTH + 1)
                 }
 
                 val request = PullFileRequest("/sdcard/testfile", tempFile, listOf(Feature.SENDRECV_V2))

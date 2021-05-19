@@ -18,7 +18,11 @@ package com.malinskiy.adam.integration
 
 import assertk.assertThat
 import assertk.assertions.contains
+import assertk.assertions.hasClass
 import assertk.assertions.isEqualTo
+import assertk.assertions.isFailure
+import assertk.assertions.isFalse
+import com.malinskiy.adam.exception.PullFailedException
 import com.malinskiy.adam.extension.md5
 import com.malinskiy.adam.request.shell.v1.ShellCommandRequest
 import com.malinskiy.adam.request.sync.v1.ListFileRequest
@@ -26,9 +30,11 @@ import com.malinskiy.adam.request.sync.v1.PullFileRequest
 import com.malinskiy.adam.request.sync.v1.PushFileRequest
 import com.malinskiy.adam.request.sync.v1.StatFileRequest
 import com.malinskiy.adam.rule.AdbDeviceRule
+import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.receiveOrNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.supervisorScope
 import kotlinx.coroutines.withTimeout
 import org.junit.After
 import org.junit.Before
@@ -172,6 +178,39 @@ class FileE2ETest {
             assertThat(split[dateIndex - 1].toLong()).isEqualTo(testFile.length())
 
             assertThat(testFile.readText()).contains("cafebabe")
+        }
+    }
+
+    @Test
+    fun testPullingNonExistentFile() {
+        runBlocking {
+            val testFile = File(temp.newFolder(), "shoudnotexist")
+
+            supervisorScope {
+                val async = async {
+                    val channel = adbRule.adb.execute(
+                        PullFileRequest("/data/local/tmp/shoudnotexist", testFile, coroutineContext = coroutineContext),
+                        this,
+                        adbRule.deviceSerial
+                    )
+
+                    var percentage = 0
+                    while (!channel.isClosedForReceive) {
+                        val percentageDouble = channel.receiveOrNull() ?: break
+
+                        val newPercentage = (percentageDouble * 100).roundToInt()
+                        if (newPercentage != percentage) {
+                            print('.')
+                            percentage = newPercentage
+                        }
+                    }
+                    println()
+                }
+
+                assertThat { async.await() }.isFailure().hasClass(PullFailedException::class)
+            }
+
+            assertThat(testFile.exists()).isFalse()
         }
     }
 }

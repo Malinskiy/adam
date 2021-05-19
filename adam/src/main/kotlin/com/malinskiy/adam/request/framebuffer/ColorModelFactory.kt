@@ -19,7 +19,11 @@ package com.malinskiy.adam.request.framebuffer
 import java.awt.Transparency
 import java.awt.color.ICC_ColorSpace
 import java.awt.color.ICC_Profile
-import java.awt.image.*
+import java.awt.image.BufferedImage
+import java.awt.image.ColorModel
+import java.awt.image.ComponentColorModel
+import java.awt.image.DataBuffer
+import java.awt.image.DirectColorModel
 import java.io.IOException
 
 class ColorModelFactory {

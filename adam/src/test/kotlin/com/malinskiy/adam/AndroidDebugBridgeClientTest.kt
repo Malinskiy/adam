@@ -25,7 +25,7 @@ import com.malinskiy.adam.request.ValidationResponse
 import com.malinskiy.adam.request.shell.v1.ShellCommandRequest
 import com.malinskiy.adam.server.AndroidDebugBridgeServer
 import com.malinskiy.adam.transport.Socket
-import io.ktor.utils.io.*
+import io.ktor.utils.io.close
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 

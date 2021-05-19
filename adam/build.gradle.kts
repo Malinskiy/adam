@@ -14,7 +14,13 @@
  * limitations under the License.
  */
 
-import com.google.protobuf.gradle.*
+import com.google.protobuf.gradle.builtins
+import com.google.protobuf.gradle.generateProtoTasks
+import com.google.protobuf.gradle.id
+import com.google.protobuf.gradle.plugins
+import com.google.protobuf.gradle.protobuf
+import com.google.protobuf.gradle.protoc
+import com.google.protobuf.gradle.remove
 
 plugins {
     kotlin("jvm")
@@ -154,6 +160,9 @@ dependencies {
     api(Libraries.grpcKotlinStubLite)
     api(Libraries.grpcOkhttp)
     implementation(Libraries.javaxAnnotations)
+    implementation(Libraries.vertxCore)
+    implementation(Libraries.vertxKotlin)
+    implementation(Libraries.vertxCoroutines)
 
     testImplementation(TestLibraries.assertk)
     testImplementation(TestLibraries.junit4)

@@ -24,15 +24,12 @@ import com.malinskiy.adam.request.device.AsyncDeviceMonitorRequest
 import com.malinskiy.adam.request.device.Device
 import com.malinskiy.adam.request.device.DeviceState
 import com.malinskiy.adam.server.AndroidDebugBridgeServer
-import io.ktor.utils.io.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import io.ktor.utils.io.close
 import kotlinx.coroutines.channels.receiveOrNull
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
-import kotlin.coroutines.CoroutineContext
 
-class AsyncDeviceMonitorRequestTest : CoroutineScope {
+class AsyncDeviceMonitorRequestTest {
     @Test
     fun testReturnsProperContent() {
         runBlocking {
@@ -47,7 +44,6 @@ class AsyncDeviceMonitorRequestTest : CoroutineScope {
                 output.writeFully(response, 0, response.size)
                 response = ("0015emulator-5554\tdevice\n").toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
                 output.writeFully(response, 0, response.size)
-                input.discard()
                 output.close()
             }
 
@@ -61,7 +57,4 @@ class AsyncDeviceMonitorRequestTest : CoroutineScope {
             server.dispose()
         }
     }
-
-    override val coroutineContext: CoroutineContext
-        get() = Dispatchers.IO
 }

@@ -18,42 +18,18 @@ package com.malinskiy.adam.extension
 
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.exception.RequestRejectedException
+import com.malinskiy.adam.io.AsyncFileReader
 import com.malinskiy.adam.request.transform.ResponseTransformer
 import com.malinskiy.adam.request.transform.StringResponseTransformer
+import com.malinskiy.adam.transport.AdamMaxFilePacketPool
 import com.malinskiy.adam.transport.Socket
 import com.malinskiy.adam.transport.TransportResponse
+import com.malinskiy.adam.transport.use
 import com.malinskiy.adam.transport.withDefaultBuffer
-import io.ktor.util.cio.*
-import io.ktor.utils.io.*
-import io.ktor.utils.io.bits.*
-import io.ktor.utils.io.core.*
 import kotlinx.coroutines.yield
 import java.io.File
 import java.nio.ByteBuffer
 import kotlin.coroutines.CoroutineContext
-import kotlin.text.toByteArray
-
-suspend fun Socket.copyTo(channel: ByteWriteChannel, buffer: ByteArray): Long {
-    var processed = 0L
-    loop@ while (true) {
-        val available = readAvailable(buffer, 0, buffer.size)
-        when {
-            available < 0 -> {
-                break@loop
-            }
-            available > 0 -> {
-                channel.writeFully(buffer, 0, available)
-                processed += available
-                yield()
-            }
-            else -> {
-                yield()
-                continue@loop
-            }
-        }
-    }
-    return processed
-}
 
 /**
  * Copies up to limit bytes into transformer using buffer. If limit is null - copy until EOF
@@ -68,6 +44,9 @@ suspend fun <T> Socket.copyTo(transformer: ResponseTransformer<T>, buffer: ByteA
             else -> {
                 (limit - processed).toInt()
             }
+        }
+        if (toRead == 0) {
+            break@loop
         }
         val available = readAvailable(buffer, 0, toRead)
         when {
@@ -93,7 +72,6 @@ suspend fun <T> Socket.copyTo(transformer: ResponseTransformer<T>, buffer: ByteA
  * TODO: rewrite
  * Assumes buffer hasArray == true
  */
-suspend fun Socket.copyTo(channel: ByteWriteChannel, buffer: ByteBuffer) = copyTo(channel, buffer.array())
 suspend fun <T> Socket.copyTo(transformer: ResponseTransformer<T>, buffer: ByteBuffer) = copyTo(transformer, buffer.array())
 suspend fun <T> Socket.copyTo(transformer: ResponseTransformer<T>, buffer: ByteBuffer, limit: Long? = null) =
     copyTo(transformer, buffer.array(), limit)
@@ -137,20 +115,6 @@ suspend fun Socket.readProtocolString(): String {
     }
 }
 
-suspend fun Socket.read(): TransportResponse {
-    val ok = withDefaultBuffer {
-        compatLimit(4)
-        readFully(this)
-        isOkay()
-    }
-    val message = if (!ok) {
-        readOptionalProtocolString()
-    } else {
-        null
-    }
-    return TransportResponse(ok, message)
-}
-
 private fun ByteBuffer.isOkay(): Boolean {
     if (limit() != 4) return false
     for (i in 0..3) {
@@ -171,13 +135,23 @@ suspend fun Socket.write(request: ByteArray, length: Int? = null) {
     writeFully(request, 0, length ?: request.size)
 }
 
-suspend fun Socket.writeFile(file: File, coroutineContext: CoroutineContext) = withDefaultBuffer {
-    var fileChannel: ByteReadChannel? = null
-    try {
-        val fileChannel = file.readChannel(coroutineContext = coroutineContext)
-        fileChannel.copyTo(this@writeFile, this)
-    } finally {
-        fileChannel?.cancel()
+suspend fun Socket.writeFile(file: File, coroutineContext: CoroutineContext) {
+    AsyncFileReader(file, coroutineContext = coroutineContext).use { reader ->
+        reader.start()
+        while (true) {
+            val shouldContinue = reader.read {
+                try {
+                    if (it == null) {
+                        return@read false
+                    }
+                    this@writeFile.writeFully(it)
+                    true
+                } finally {
+                    it?.let { buffer -> AdamMaxFilePacketPool.recycle(buffer) }
+                }
+            }
+            if (!shouldContinue) break
+        }
     }
 }
 
@@ -200,7 +174,7 @@ suspend fun Socket.writeSyncV2Request(type: ByteArray, remotePath: String, flags
     withDefaultBuffer {
         compatLimit(4 + 4)
         put(type)
-        putInt(path.size.reverseByteOrder())
+        putInt(Integer.reverseBytes(path.size))
         compatRewind()
         writeFully(this)
 
@@ -209,8 +183,8 @@ suspend fun Socket.writeSyncV2Request(type: ByteArray, remotePath: String, flags
         compatRewind()
         mode?.let { compatLimit(4 + 4 + 4) } ?: compatLimit(4 + 4)
         put(type)
-        mode?.let { putInt(it.reverseByteOrder()) }
-        putInt(flags.reverseByteOrder())
+        mode?.let { putInt(Integer.reverseBytes(it)) }
+        putInt(Integer.reverseBytes(flags))
         compatRewind()
         writeFully(this)
     }

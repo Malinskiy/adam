@@ -17,7 +17,11 @@
 package com.malinskiy.adam.integration
 
 import assertk.assertThat
-import assertk.assertions.*
+import assertk.assertions.endsWith
+import assertk.assertions.hasSize
+import assertk.assertions.isEqualTo
+import assertk.assertions.isNotEqualTo
+import assertk.assertions.startsWith
 import com.malinskiy.adam.request.device.FetchDeviceFeaturesRequest
 import com.malinskiy.adam.request.device.ListDevicesRequest
 import com.malinskiy.adam.request.framebuffer.RawImageScreenCaptureAdapter

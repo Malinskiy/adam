@@ -210,4 +210,20 @@ class InstrumentationResponseTransformerTest {
         assertThat(events.map { it.toString() }.reduce { acc, s -> acc + "\n" + s })
             .isEqualTo(javaClass.getResourceAsStream("/instrumentation/log_3.expected").reader().readText())
     }
+
+    @Test
+    fun testSingleBlock() = runBlocking {
+        val transformer = InstrumentationResponseTransformer()
+        val lines = javaClass.getResourceAsStream("/instrumentation/log_7.input").reader().readText()
+
+        val events = mutableListOf<TestEvent>()
+        val bytes = (lines).toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
+        transformer.process(bytes, 0, bytes.size)?.let {
+            events.addAll(it)
+        }
+        transformer.transform()?.let { events.addAll(it) }
+
+        assertThat(events.map { it.toString() }.reduce { acc, s -> acc + "\n" + s })
+            .isEqualTo(javaClass.getResourceAsStream("/instrumentation/log_7.expected").reader().readText().trimEnd())
+    }
 }

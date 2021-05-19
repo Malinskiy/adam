@@ -14,14 +14,17 @@
  * limitations under the License.
  */
 
-package com.malinskiy.adam.transport
+package com.malinskiy.adam.transport.ktor
 
-import io.ktor.network.selector.*
-import io.ktor.network.sockets.*
-import io.ktor.utils.io.nio.*
+import com.malinskiy.adam.transport.Socket
+import com.malinskiy.adam.transport.SocketFactory
+import io.ktor.network.selector.ActorSelectorManager
+import io.ktor.network.selector.SelectorManager
+import io.ktor.network.sockets.aSocket
 import java.net.InetSocketAddress
 import kotlin.coroutines.CoroutineContext
 
+@Deprecated(message = "Deprecated due to stability and performance issues")
 class KtorSocketFactory(
     coroutineContext: CoroutineContext,
     private val connectTimeout: Long = 10_000,

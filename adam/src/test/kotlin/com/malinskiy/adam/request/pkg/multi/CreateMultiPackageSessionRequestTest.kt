@@ -28,14 +28,14 @@ import com.malinskiy.adam.request.Feature
 import com.malinskiy.adam.request.ValidationResponse
 import com.malinskiy.adam.server.StubSocket
 import com.malinskiy.adam.transport.use
-import io.ktor.utils.io.*
-import io.ktor.utils.io.core.*
+import io.ktor.utils.io.ByteChannelSequentialJVM
+import io.ktor.utils.io.ByteWriteChannel
+import io.ktor.utils.io.core.IoBuffer
 import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
 import java.io.File
-import kotlin.text.toByteArray
 
 class CreateMultiPackageSessionRequestTest {
     @Rule

@@ -89,14 +89,17 @@ class InstrumentOptionsTest {
     }
 
     @Test
-    fun testWithMultipleOverrides() {
+    fun testMultipleOverrides() {
         val options = InstrumentOptions(
-            overrides = mapOf("test1" to "test1x", "test2" to "test2x")
+            overrides = mapOf(
+                "param1" to "value1",
+                "param2" to "value2"
+            )
         )
 
         assertThat(options.toString()).isEqualTo(
-            " -e test1 test1x" +
-                    " -e test2 test2x"
+            " -e param1 value1" +
+                    " -e param2 value2"
         )
     }
 }

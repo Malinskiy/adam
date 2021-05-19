@@ -23,15 +23,13 @@ import com.malinskiy.adam.extension.compatClear
 import com.malinskiy.adam.extension.compatFlip
 import com.malinskiy.adam.extension.compatLimit
 import com.malinskiy.adam.extension.toInt
+import com.malinskiy.adam.io.AsyncFileWriter
 import com.malinskiy.adam.request.AsyncChannelRequest
 import com.malinskiy.adam.request.ValidationResponse
 import com.malinskiy.adam.request.sync.v1.StatFileRequest
+import com.malinskiy.adam.transport.AdamMaxFilePacketPool
 import com.malinskiy.adam.transport.Socket
-import com.malinskiy.adam.transport.withMaxFilePacketBuffer
-import io.ktor.util.cio.*
-import io.ktor.utils.io.*
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.SendChannel
 import java.io.File
 import kotlin.coroutines.CoroutineContext
@@ -41,20 +39,12 @@ import kotlin.coroutines.CoroutineContext
  */
 abstract class BasePullFileRequest(
     private val remotePath: String,
-    private val local: File,
+    local: File,
     private val size: Long? = null,
     coroutineContext: CoroutineContext = Dispatchers.IO
 ) : AsyncChannelRequest<Double, Unit>() {
 
-    private val job = Job()
-    private val fileWriteChannel = local.also {
-        if (!local.exists()) {
-            if (!local.parentFile.exists()) {
-                local.parentFile.mkdirs()
-            }
-            local.createNewFile()
-        }
-    }.writeChannel(coroutineContext = coroutineContext + job)
+    private val fileWriter = AsyncFileWriter(local, coroutineContext)
     var totalBytes = -1L
     var currentPosition = 0L
 
@@ -62,56 +52,73 @@ abstract class BasePullFileRequest(
         super.handshake(socket)
         //If we don't have expected size, fetch it
         totalBytes = size ?: StatFileRequest(remotePath).readElement(socket).size.toLong()
+        if (totalBytes > 0) {
+            fileWriter.start()
+        }
     }
 
     override suspend fun readElement(socket: Socket, sendChannel: SendChannel<Double>): Boolean {
-        withMaxFilePacketBuffer {
+        AdamMaxFilePacketPool.borrow().apply {
             val data = array()
-            socket.readFully(data, 0, 8)
+            var shouldDispose = true
 
-            val header = data.copyOfRange(0, 4)
-            return when {
-                header.contentEquals(Const.Message.DONE) -> {
-                    fileWriteChannel.close()
-                    true
-                }
-                header.contentEquals(Const.Message.DATA) -> {
-                    val available = data.copyOfRange(4, 8).toInt()
-                    if (available > Const.MAX_FILE_PACKET_LENGTH) {
-                        throw UnsupportedSyncProtocolException()
+            try {
+                socket.readFully(data, 0, 8)
+
+                val header = data.copyOfRange(0, 4)
+                return when {
+                    header.contentEquals(Const.Message.DONE) -> {
+                        if (totalBytes > 0) {
+                            fileWriter.close()
+                        }
+                        true
                     }
-                    compatClear()
-                    compatLimit(available)
-                    socket.readFully(this)
-                    compatFlip()
-                    fileWriteChannel.writeFully(this)
-
-                    currentPosition += available
-
-                    sendChannel.send(currentPosition.toDouble() / totalBytes)
-                    false
+                    header.contentEquals(Const.Message.DATA) -> {
+                        val available = data.copyOfRange(4, 8).toInt()
+                        if (available > Const.MAX_FILE_PACKET_LENGTH) {
+                            throw UnsupportedSyncProtocolException()
+                        }
+                        compatClear()
+                        compatLimit(available)
+                        socket.readFully(this)
+                        compatFlip()
+                        fileWriter.write(this)
+                        shouldDispose = false
+                        currentPosition += available
+                        sendChannel.send(currentPosition.toDouble() / totalBytes)
+                        false
+                    }
+                    header.contentEquals(Const.Message.FAIL) -> {
+                        val size = data.copyOfRange(4, 8).toInt()
+                        compatClear()
+                        compatLimit(size)
+                        socket.readFully(this)
+                        compatFlip()
+                        array()
+                        val errorMessage = String(array(), 0, size)
+                        throw PullFailedException("Failed to pull file $remotePath: $errorMessage")
+                    }
+                    else -> {
+                        throw UnsupportedSyncProtocolException(
+                            "Unexpected header message ${
+                                String(
+                                    header,
+                                    Const.DEFAULT_TRANSPORT_ENCODING
+                                )
+                            }"
+                        )
+                    }
                 }
-                header.contentEquals(Const.Message.FAIL) -> {
-                    val size = data.copyOfRange(4, 8).toInt()
-                    compatClear()
-                    compatLimit(size)
-                    socket.readFully(this)
-                    compatFlip()
-                    array()
-                    val errorMessage = String(array(), 0, size)
-                    throw PullFailedException("Failed to pull file $remotePath: $errorMessage")
-                }
-                else -> {
-                    throw UnsupportedSyncProtocolException("Unexpected header message ${String(header, Const.DEFAULT_TRANSPORT_ENCODING)}")
-                }
+            } finally {
+                if (shouldDispose) AdamMaxFilePacketPool.recycle(this)
             }
         }
     }
 
     override suspend fun close(channel: SendChannel<Double>) {
-        fileWriteChannel.close()
-        job.complete()
-        job.join()
+        if (totalBytes > 0) {
+            fileWriter.close()
+        }
     }
 
     override fun serialize() = createBaseRequest("sync:")
