@@ -1,12 +1,20 @@
-import com.android.build.gradle.api.AndroidBasePlugin
+import com.android.build.gradle.LibraryExtension
 import org.gradle.api.Project
 import org.gradle.api.plugins.JavaPluginConvention
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPom
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.tasks.bundling.Jar
-import org.gradle.kotlin.dsl.*
+import org.gradle.kotlin.dsl.configure
+import org.gradle.kotlin.dsl.creating
+import org.gradle.kotlin.dsl.extra
+import org.gradle.kotlin.dsl.findByType
+import org.gradle.kotlin.dsl.get
+import org.gradle.kotlin.dsl.getValue
+import org.gradle.kotlin.dsl.provideDelegate
+import org.gradle.kotlin.dsl.the
 import org.gradle.plugins.signing.SigningExtension
+import org.jetbrains.dokka.gradle.DokkaTask
 import java.net.URI
 
 object Deployment {
@@ -48,8 +56,21 @@ object Deployment {
         project.plugins.apply("maven-publish")
 
         val (component, additionalArtifacts) = when {
-            project.plugins.hasPlugin(AndroidBasePlugin::class) -> {
-                Pair(project.components["release"], emptyList())
+            project.extensions.findByType(LibraryExtension::class) != null -> {
+                val android = project.extensions.findByType(LibraryExtension::class)!!
+                val main = android.sourceSets.getByName("main")
+                val sourcesJar by project.tasks.creating(Jar::class) {
+                    classifier = "sources"
+                    from(main.java.srcDirs)
+                }
+                val javadocJar by project.tasks.creating(Jar::class) {
+                    classifier = "javadoc"
+                    val dokka = project.tasks.findByName("dokkaJavadoc") as DokkaTask
+                    from(dokka.outputDirectory)
+                    dependsOn(dokka)
+                }
+
+                Pair(project.components["release"], listOf(sourcesJar, javadocJar))
             }
             project.the(JavaPluginConvention::class) != null -> {
                 val javaPlugin = project.the(JavaPluginConvention::class)

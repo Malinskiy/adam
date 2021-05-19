@@ -25,11 +25,10 @@ import com.google.protobuf.gradle.remove
 plugins {
     kotlin("jvm")
     id("jacoco")
-    id("org.jetbrains.dokka") version Versions.dokka
+    id("org.jetbrains.dokka")
     id("com.google.protobuf") version Versions.protobufGradle
     id("idea")
 }
-
 
 Deployment.initialize(project)
 

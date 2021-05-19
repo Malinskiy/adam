@@ -21,7 +21,7 @@ object Versions {
     val protobuf = "3.14.0"
     val javax = "1.3.2"
 
-    val androidGradle = "4.0.0"
+    val androidGradle = "4.1.0"
     val testMonitor = "1.3.0"
 }
 
