@@ -68,7 +68,7 @@ class TestRunnerRequestTest {
     }
 
     @Test
-    fun testReturnsProperContent() {
+    fun testReturnsContentOnFailure() {
         runBlocking {
             launch {
                 val server = AndroidDebugBridgeServer()
@@ -97,7 +97,7 @@ class TestRunnerRequestTest {
                     events.addAll(chunk)
                 }
 
-                assertThat(events).containsOnly(TestRunFailed("No test results"))
+                assertThat(events).containsOnly(TestRunFailed("No test results\nsomething-something"))
 
                 server.dispose()
             }.join()

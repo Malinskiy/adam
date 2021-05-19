@@ -81,7 +81,8 @@ class InstrumentationResponseTransformer : ProgressiveResponseTransformer<List<T
         if (finishReported) return null
 
         return if (!startReported) {
-            listOf(TestRunFailed("No test results"))
+            buffer.insert(0, "No test results\n")
+            listOf(TestRunFailed(buffer.trim().toString()))
         } else if (testsExpected > testsExecuted) {
             listOf(TestRunFailed("Test run failed to complete. Expected $testsExpected tests, executed $testsExecuted"))
         } else {
