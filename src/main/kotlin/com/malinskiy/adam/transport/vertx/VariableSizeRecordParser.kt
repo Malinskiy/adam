@@ -21,6 +21,7 @@ import io.vertx.core.Handler
 import io.vertx.core.buffer.Buffer
 import io.vertx.core.impl.Arguments
 import io.vertx.core.streams.ReadStream
+import kotlin.math.min
 
 class VariableSizeRecordParser(
     private val stream: ReadStream<Buffer>? = null
@@ -31,7 +32,7 @@ class VariableSizeRecordParser(
     private val bufferLock = Object()
     private var pos = 0 // Current position in buffer
     private var start = 0 // Position of beginning of current record
-    private var requested = 0
+    private var requestedAtMost = 0
     private var maxRecordSize = 0
     private var demand = Long.MAX_VALUE
     private var eventHandler: Handler<Buffer>? = null
@@ -63,7 +64,7 @@ class VariableSizeRecordParser(
 
     fun request(size: Int) {
         Arguments.require(size > 0, "Size must be > 0")
-        requested = size
+        requestedAtMost = size
         handleParsing()
     }
 
@@ -83,7 +84,7 @@ class VariableSizeRecordParser(
                             break
                         }
                     }
-                    requested = 0
+                    requestedAtMost = 0
                     if (demand != Long.MAX_VALUE) {
                         demand--
                     }
@@ -117,11 +118,12 @@ class VariableSizeRecordParser(
     private fun parseFixed(): Int {
         val length = buff.length()
         val available = length - start
-        if (available >= requested && requested > 0) {
-            val end = start + requested
+        if (available > 0 && requestedAtMost > 0) {
+            val toSend = min(requestedAtMost, available)
+            val end = start + toSend
             pos = end
             return end
-        } else if (streamEnded && available > 0 && available < requested) {
+        } else if (streamEnded && available > 0 && available < requestedAtMost) {
             val end = start + length
             pos = end
             return end
