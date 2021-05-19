@@ -88,13 +88,20 @@ class EmulatorCommandRequest(
             } while (count >= 0)
 
             val firstOkPosition = output.indexOf(OUTPUT_DELIMITER)
-            val secondOkPosition = output.indexOf(OUTPUT_DELIMITER, firstOkPosition + 1)
 
-            assert(secondOkPosition + OUTPUT_DELIMITER.length <= output.length) {
+            val resultPosition = when {
+                /**
+                 * Additional confirmation of auth
+                 */
+                token.isNotBlank() -> output.indexOf(OUTPUT_DELIMITER, firstOkPosition + 1)
+                else -> firstOkPosition
+            }
+
+            assert(resultPosition + OUTPUT_DELIMITER.length <= output.length) {
                 "Unable to parse response from:\n$output"
             }
 
-            return output.substring(secondOkPosition + OUTPUT_DELIMITER.length)
+            return output.substring(resultPosition + OUTPUT_DELIMITER.length)
         }
     }
 

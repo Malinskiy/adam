@@ -44,19 +44,18 @@ class EmulatorConsoleRule(private val mode: Mode = Mode.ASSERT, private val coro
                 val arguments = InstrumentationRegistry.getArguments()
                 val port = arguments.getString(TestRunnerContract.consolePortArgumentName)?.toIntOrNull()
                 val host = arguments.getString(TestRunnerContract.consoleHostArgumentName)
-                val token = arguments.getString(TestRunnerContract.emulatorAuthTokenArgumentName)
+                authToken = arguments.getString(TestRunnerContract.emulatorAuthTokenArgumentName) ?: ""
 
-                if (port != null && host != null && token != null) {
+                if (port != null && host != null) {
                     client = AndroidDebugBridgeClientFactory().apply {
                         coroutineContext = this@EmulatorConsoleRule.coroutineContext
                     }.build()
                     inetSocketAddress = InetSocketAddress(host, port)
-                    authToken = token
                 } else {
                     when (mode) {
                         Mode.SKIP -> return
-                        Mode.ASSUME -> throw AssumptionViolatedException("No access to console port: host = $host, port = $port, token = $token")
-                        Mode.ASSERT -> throw AssertionError("No access to console port: host = $host, port = $port, token = $token")
+                        Mode.ASSUME -> throw AssumptionViolatedException("No access to console port: host = $host, port = $port, token = $authToken")
+                        Mode.ASSERT -> throw AssertionError("No access to console port: host = $host, port = $port, token = $authToken")
                     }
                 }
 
