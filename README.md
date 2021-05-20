@@ -1,4 +1,4 @@
-![Maven Central](https://img.shields.io/maven-central/v/com.malinskiy/adam)
+![Maven Central](https://img.shields.io/maven-central/v/com.malinskiy.adam/adam)
 ![Codecov](https://img.shields.io/codecov/c/github/Malinskiy/adam)
 ![Documentation](https://img.shields.io/badge/docs-documentation-green?link=https://malinskiy.github.io/adam/)
 
