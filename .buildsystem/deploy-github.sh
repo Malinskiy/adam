@@ -16,8 +16,12 @@ if [ -z "$GPG_PASSPHRASE" ]; then
   exit 1
 fi
 
-ATASK=":adam:assemble :android-junit4:assemble :android-testrunner-contract:assemble"
-DTASK=":adam:publishDefaultPublicationToGitHubRepository :android-junit4:publishDefaultPublicationToGitHubRepository :android-testrunner-contract:publishDefaultPublicationToGitHubRepository"
+ATASK=""
+DTASK=""
+for i in ":adam" ":android-junit4" ":android-testrunner-contract"; do
+  ATASK="$ATASK $i:assemble"
+  DTASK="$DTASK $i:publishDefaultPublicationToGitHubRepository"
+done
 
 if [ -n "$GIT_TAG_NAME" ]; then
   echo "on a tag -> deploy release version $GIT_TAG_NAME"

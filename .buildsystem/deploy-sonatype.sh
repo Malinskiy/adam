@@ -16,8 +16,12 @@ if [ -z "$GPG_PASSPHRASE" ]; then
   exit 1
 fi
 
-ATASK=":adam:assemble :android-junit4:assemble :android-testrunner-contract:assemble"
-DTASK=":adam:publishDefaultPublicationToOSSHRRepository :android-junit4:publishDefaultPublicationToOSSHRRepository :android-testrunner-contract:publishDefaultPublicationToOSSHRRepository"
+ATASK=""
+DTASK=""
+for i in ":adam" ":android-junit4" ":android-testrunner-contract"; do
+  ATASK="$ATASK $i:assemble"
+  DTASK="$DTASK $i:publishDefaultPublicationToOSSHRRepository"
+done
 
 echo "Value of TEST_ENVVAR is $TEST_ENVVAR"
 
