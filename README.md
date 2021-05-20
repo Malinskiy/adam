@@ -1,4 +1,4 @@
-![Maven Central](https://img.shields.io/maven-central/v/com.malinskiy/adam)
+![Maven Central](https://img.shields.io/maven-central/v/com.malinskiy.adam/adam)
 ![Codecov](https://img.shields.io/codecov/c/github/Malinskiy/adam)
 ![Documentation](https://img.shields.io/badge/docs-documentation-green?link=https://malinskiy.github.io/adam/)
 
@@ -60,18 +60,19 @@ Full E2E testing with at least Android emulator is also used to guarantee stabil
 * Android Binder Bridge: "abb" and "abb_exec"
 * Restart adbd on device: "root:", "unroot:", as well as switching transport "usb:", "tcpip:"
 * Miscellaneous
-    * Fetch adb server version
-    * Kill adb server
-    * Remount partition
-    * Enable/disable dm-verity checking on userdebug builds
-    * Fetch host features
-    * Check if mDNS discovery is available
-    * List all mDNS discovered services
+  * Fetch adb server version
+  * Kill adb server
+  * Remount partition
+  * Enable/disable dm-verity checking on userdebug builds
+  * Fetch host features
+  * Check if mDNS discovery is available
+  * List all mDNS discovered services
 
 Not to mention any device shell commands.
 
 ## API compatibility
-Until v1.0.0 release, there is no guarantee that the interfaces and requests will not change. 
+
+Until v1.0.0 release, there is no guarantee that the interfaces and requests will not change.
 
 License
 -------

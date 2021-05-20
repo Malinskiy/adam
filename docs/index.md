@@ -94,7 +94,7 @@ To add a dependency using Gradle:
 
 ```
 dependencies {
-  implementation 'com.malinskiy:adam:X.X.X'
+  implementation 'com.malinskiy.adam:adam:X.X.X'
 }
 ```
 

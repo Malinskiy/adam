@@ -16,13 +16,15 @@ if [ -z "$GPG_PASSPHRASE" ]; then
   exit 1
 fi
 
-DTASK=":publishDefaultPublicationToGitHubRepository"
-TARGETS="$DTASK"
+ATASK=":adam:assemble :android-junit4:assemble :android-testrunner-contract:assemble"
+DTASK=":adam:publishDefaultPublicationToGitHubRepository :android-junit4:publishDefaultPublicationToGitHubRepository :android-testrunner-contract:publishDefaultPublicationToGitHubRepository"
 
 if [ -n "$GIT_TAG_NAME" ]; then
   echo "on a tag -> deploy release version $GIT_TAG_NAME"
-  ./gradlew "$TARGETS" -PreleaseMode=RELEASE
+  ./gradlew "$ATASK" -PreleaseMode=RELEASE
+  ./gradlew "$DTASK" -PreleaseMode=RELEASE
 else
   echo "not on a tag -> deploy snapshot version"
-  ./gradlew "$TARGETS" -PreleaseMode=SNAPSHOT
+  ./gradlew "$ATASK" -PreleaseMode=SNAPSHOT
+  ./gradlew "$DTASK" -PreleaseMode=SNAPSHOT
 fi

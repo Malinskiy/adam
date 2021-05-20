@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 Anton Malinskiy
+ * Copyright (C) 2020 Anton Malinskiy
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,14 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-rootProject.name = "adm"
-pluginManagement {
-    repositories {
-        gradlePluginPortal()
-        jcenter()
-        google()
-    }
+
+package com.malinskiy.adam.transport
+
+import java.net.InetSocketAddress
+
+interface SocketFactory {
+    suspend fun tcp(socketAddress: InetSocketAddress, connectTimeout: Long? = null, idleTimeout: Long? = null): Socket
+    fun close()
 }
-include(":adam")
-include(":android-junit4")
-include(":android-testrunner-contract")
