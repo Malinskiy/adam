@@ -22,6 +22,9 @@ collections:
   tutorials:
     permalink: "/:collection/:path/"
     output: true
+  extensions:
+    permalink: "/:collection/:path/"
+    output: true
 
 just_the_docs:
   collections:
@@ -29,6 +32,8 @@ just_the_docs:
       name: Documentation
     tutorials:
       name: Tutorials
+    extensions:
+      name: Add-ons
 
 aux_links:
   "Adam on GitHub":

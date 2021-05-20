@@ -77,14 +77,14 @@ Not to mention any device shell commands.
 
 # Getting started
 
-![Maven Central](https://img.shields.io/maven-central/v/com.malinskiy/adam)
+![Maven Central](https://img.shields.io/maven-central/v/com.malinskiy.adam/adam)
 
 To add a dependency on Adam using Maven, use the following:
 
 ```xml
 
 <dependency>
-  <groupId>com.malinskiy</groupId>
+  <groupId>com.malinskiy.adam</groupId>
   <artifactId>adam</artifactId>
   <version>X.X.X</version>
 </dependency>
