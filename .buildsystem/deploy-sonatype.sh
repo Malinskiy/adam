@@ -27,10 +27,10 @@ echo "Value of TEST_ENVVAR is $TEST_ENVVAR"
 
 if [ -z "$GIT_TAG_NAME" ]; then
   echo "not on a tag -> deploy snapshot version"
-  ./gradlew "$ATASK" -PreleaseMode=SNAPSHOT
-  ./gradlew "$DTASK" -PreleaseMode=SNAPSHOT
+  ./gradlew $ATASK -PreleaseMode=SNAPSHOT
+  ./gradlew $DTASK -PreleaseMode=SNAPSHOT
 else
   echo "on a tag -> deploy release version $GIT_TAG_NAME"
-  ./gradlew "$ATASK" -PreleaseMode=RELEASE
-  ./gradlew "$DTASK" -PreleaseMode=RELEASE
+  ./gradlew $ATASK -PreleaseMode=RELEASE
+  ./gradlew $DTASK -PreleaseMode=RELEASE
 fi
