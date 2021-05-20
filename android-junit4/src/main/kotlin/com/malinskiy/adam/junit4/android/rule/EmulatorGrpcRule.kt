@@ -18,7 +18,7 @@ package com.malinskiy.adam.junit4.rule
 
 import androidx.test.platform.app.InstrumentationRegistry
 import com.android.emulator.control.EmulatorControllerGrpcKt
-import com.malinskiy.adam.junit4.android.contract.TestRunnerContract
+import com.malinskiy.adam.android.contract.TestRunnerContract
 import com.malinskiy.adam.junit4.android.rule.Mode
 import io.grpc.ManagedChannel
 import io.grpc.ManagedChannelBuilder

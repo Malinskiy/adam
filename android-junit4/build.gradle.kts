@@ -60,7 +60,7 @@ dependencies {
     api(TestLibraries.junit4)
     api(Libraries.coroutines)
     api(AndroidX.testMonitor)
-    api(project(":adam-junit4-android-contract"))
+    api(project(":android-testrunner-contract"))
 }
 
 afterEvaluate {

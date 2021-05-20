@@ -10,11 +10,11 @@ buildscript {
     }
 }
 
-allprojects {
+subprojects {
     repositories {
         jcenter()
         mavenCentral()
         google()
     }
-    group = "com.malinskiy"
+    group = "com.malinskiy.adam"
 }

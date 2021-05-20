@@ -19,8 +19,8 @@ package com.malinskiy.adam.junit4.rule
 import androidx.test.platform.app.InstrumentationRegistry
 import com.malinskiy.adam.AndroidDebugBridgeClient
 import com.malinskiy.adam.AndroidDebugBridgeClientFactory
+import com.malinskiy.adam.android.contract.TestRunnerContract
 import com.malinskiy.adam.junit4.android.UnsafeAdbAccess
-import com.malinskiy.adam.junit4.android.contract.TestRunnerContract
 import com.malinskiy.adam.junit4.android.rule.Mode
 import com.malinskiy.adam.junit4.android.rule.sandbox.SingleTargetAndroidDebugBridgeClient
 import kotlinx.coroutines.Dispatchers
