@@ -10,8 +10,8 @@ jobs:
         with:
           java-version: 1.8
       - uses: malinskiy/action-android/install-sdk@release/0.1.1
-      - name: gradle :adam:test :adam:jacocoTestReport
-        run: ./gradlew :adam:test :adam:jacocoTestReport
+      - name: build & test
+        run: ./gradlew :adam:test :adam:jacocoTestReport :adam-junit4-android:build :adam-junit4-android-contract:build
       - name: archive test results
         if: failure()
         run: (cd adam/build/reports/tests/test; zip -r -X ../../../../../test-result.zip .)
