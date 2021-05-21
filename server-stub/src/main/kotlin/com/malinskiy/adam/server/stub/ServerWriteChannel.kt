@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.malinskiy.adam.server
+package com.malinskiy.adam.server.stub
 
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.request.shell.v2.MessageType

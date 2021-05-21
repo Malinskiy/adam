@@ -19,8 +19,7 @@ package com.malinskiy.adam.request.misc
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import com.malinskiy.adam.extension.toRequestString
-import com.malinskiy.adam.server.AndroidDebugBridgeServer
-import io.ktor.utils.io.close
+import com.malinskiy.adam.server.stub.AndroidDebugBridgeServer
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 
@@ -54,7 +53,6 @@ class DisconnectDeviceRequestTest {
                 output.respondOkay()
 
                 output.respondStringV1("disconnected 123.123.123.123")
-                output.close()
             }
 
             val output = client.execute(DisconnectDeviceRequest("123.123.123.123", 8888))

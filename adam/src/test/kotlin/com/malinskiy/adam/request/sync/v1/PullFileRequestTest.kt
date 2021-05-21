@@ -21,11 +21,9 @@ import assertk.assertions.isEqualTo
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.exception.PullFailedException
 import com.malinskiy.adam.exception.UnsupportedSyncProtocolException
-import com.malinskiy.adam.server.AndroidDebugBridgeServer
-import io.ktor.utils.io.close
+import com.malinskiy.adam.server.stub.AndroidDebugBridgeServer
 import io.ktor.utils.io.discard
 import io.ktor.utils.io.writeIntLittleEndian
-import kotlinx.coroutines.channels.receiveOrNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.Rule
@@ -74,7 +72,6 @@ class PullFileRequestTest {
                     output.respondDone()
                     output.respondDone()
 
-                    output.close()
                     input.discard()
                 }
 
@@ -128,7 +125,6 @@ class PullFileRequestTest {
                     output.respondDone()
                     output.respondDone()
 
-                    output.close()
                     input.discard()
                 }
 

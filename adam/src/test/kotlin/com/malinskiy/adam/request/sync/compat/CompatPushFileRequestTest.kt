@@ -20,10 +20,8 @@ import assertk.assertThat
 import assertk.assertions.isEqualTo
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.request.Feature
-import com.malinskiy.adam.server.AndroidDebugBridgeServer
-import io.ktor.utils.io.close
+import com.malinskiy.adam.server.stub.AndroidDebugBridgeServer
 import io.ktor.utils.io.discard
-import kotlinx.coroutines.channels.receiveOrNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.Rule
@@ -61,8 +59,6 @@ class CompatPushFileRequestTest {
                     output.respond(Const.Message.OKAY)
 
                     input.discard()
-
-                    output.close()
                 }
 
                 val request = CompatPushFileRequest(fixture, "/sdcard/testfile", emptyList(), this)
@@ -106,7 +102,6 @@ class CompatPushFileRequestTest {
 
                     input.receiveFile(receiveFile)
                     output.respond(Const.Message.OKAY)
-                    output.close()
                 }
 
                 val request = CompatPushFileRequest(fixture, "/sdcard/testfile", listOf(Feature.SENDRECV_V2), this)

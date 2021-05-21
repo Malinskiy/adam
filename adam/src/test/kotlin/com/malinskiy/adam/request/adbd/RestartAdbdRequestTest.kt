@@ -20,8 +20,7 @@ import assertk.assertThat
 import assertk.assertions.isEqualTo
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.extension.toRequestString
-import com.malinskiy.adam.server.AndroidDebugBridgeServer
-import io.ktor.utils.io.close
+import com.malinskiy.adam.server.stub.AndroidDebugBridgeServer
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 
@@ -68,7 +67,6 @@ class RestartAdbdRequestTest {
                 output.respondOkay()
 
                 output.respondStringRaw("adbd cannot run as root in production builds")
-                output.close()
             }
 
             val output = client.execute(RestartAdbdRequest(RootAdbdMode), "serial")

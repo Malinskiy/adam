@@ -26,8 +26,7 @@ import com.malinskiy.adam.request.forwarding.RemoteAbstractPortSpec
 import com.malinskiy.adam.request.forwarding.RemoteFilesystemPortSpec
 import com.malinskiy.adam.request.forwarding.RemoteReservedPortSpec
 import com.malinskiy.adam.request.forwarding.RemoteTcpPortSpec
-import com.malinskiy.adam.server.AndroidDebugBridgeServer
-import io.ktor.utils.io.close
+import com.malinskiy.adam.server.stub.AndroidDebugBridgeServer
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 
@@ -54,7 +53,6 @@ class ListReversePortForwardsRequestTest {
                     
                 """.trimIndent()
                 )
-                output.close()
             }
 
             val output = client.execute(ListReversePortForwardsRequest(), serial = "xx")

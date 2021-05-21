@@ -24,3 +24,4 @@ pluginManagement {
 include(":adam")
 include(":android-junit4")
 include(":android-testrunner-contract")
+include(":server-stub")

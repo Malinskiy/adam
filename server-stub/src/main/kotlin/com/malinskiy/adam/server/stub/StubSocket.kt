@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.malinskiy.adam.server
+package com.malinskiy.adam.server.stub
 
 import com.malinskiy.adam.log.AdamLogging
 import com.malinskiy.adam.transport.Socket
@@ -55,11 +55,8 @@ class StubSocket(
             writeChannel.close()
             readChannel.cancel()
         } catch (e: Exception) {
-            log.debug(e) { "Exception during cleanup. Ignoring" }
+            println("Exception during cleanup. Ignoring")
+            e.printStackTrace()
         }
-    }
-
-    companion object {
-        private val log = AdamLogging.logger {}
     }
 }

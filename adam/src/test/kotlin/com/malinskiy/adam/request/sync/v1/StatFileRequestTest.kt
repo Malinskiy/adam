@@ -19,8 +19,7 @@ package com.malinskiy.adam.request.sync.v1
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import com.malinskiy.adam.Const
-import com.malinskiy.adam.server.AndroidDebugBridgeServer
-import io.ktor.utils.io.close
+import com.malinskiy.adam.server.stub.AndroidDebugBridgeServer
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import java.time.Instant
@@ -45,7 +44,6 @@ class StatFileRequestTest {
                 assertThat(receiveStat).isEqualTo("/sdcard/testfile")
 
                 output.respondStat(128, 0x744, 10000)
-                output.close()
             }
 
             val output = client.execute(StatFileRequest("/sdcard/testfile"), serial = "serial")

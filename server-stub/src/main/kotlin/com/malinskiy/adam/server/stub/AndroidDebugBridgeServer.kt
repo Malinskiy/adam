@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 Anton Malinskiy
+ * Copyright (C) 2021 Anton Malinskiy
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package com.malinskiy.adam.server
+package com.malinskiy.adam.server.stub
 
 import com.malinskiy.adam.AndroidDebugBridgeClient
 import com.malinskiy.adam.AndroidDebugBridgeClientFactory
 import io.ktor.network.selector.ActorSelectorManager
+import io.ktor.network.sockets.ServerSocket
 import io.ktor.network.sockets.aSocket
 import io.ktor.network.sockets.openReadChannel
 import io.ktor.network.sockets.openWriteChannel
@@ -30,17 +31,14 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
-import kotlinx.coroutines.cancelAndJoin
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.newFixedThreadPoolContext
-import kotlinx.coroutines.runBlocking
-import java.io.Closeable
 import java.net.InetSocketAddress
 import kotlin.coroutines.CoroutineContext
 
-class EmulatorConsoleServer : CoroutineScope, Closeable {
+
+class AndroidDebugBridgeServer : CoroutineScope {
     private val executionDispatcher by lazy {
-        newFixedThreadPoolContext(4, "EmulatorConsoleServer")
+        newFixedThreadPoolContext(4, "AndroidDebugBridgeServer")
     }
     override val coroutineContext: CoroutineContext
         get() = executionDispatcher
@@ -48,13 +46,27 @@ class EmulatorConsoleServer : CoroutineScope, Closeable {
     private val job = SupervisorJob()
     var port: Int = 0
 
-    suspend fun startAndListen(block: suspend (ConsoleReadChannel, ConsoleWriteChannel) -> Unit): Pair<AndroidDebugBridgeClient, InetSocketAddress> {
+    lateinit var server: ServerSocket
+
+    fun start(): AndroidDebugBridgeClient {
         val address = InetSocketAddress("127.0.0.1", port)
-        val server = aSocket(ActorSelectorManager(Dispatchers.IO)).tcp().bind(address)
+        server = aSocket(ActorSelectorManager(Dispatchers.IO)).tcp().bind(address)
         port = server.localAddress.port
 
+        return AndroidDebugBridgeClientFactory().apply {
+            port = this@AndroidDebugBridgeServer.port
+        }.build()
+    }
+
+    suspend fun startAndListen(block: suspend (ServerReadChannel, ServerWriteChannel) -> Unit): AndroidDebugBridgeClient {
+        val client = start()
+        listen(block)
+        return client
+    }
+
+    fun listen(block: suspend (ServerReadChannel, ServerWriteChannel) -> Unit) {
         async(context = job) {
-            while (isActive) {
+            try {
                 val socket = server.accept()
                 val input = socket.openReadChannel().toServerReadChannel()
                 val output = socket.openWriteChannel(autoFlush = true).toServerWriteChannel()
@@ -67,16 +79,19 @@ class EmulatorConsoleServer : CoroutineScope, Closeable {
                     output.close()
                     socket.close()
                 }
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
         }
-
-        return Pair(AndroidDebugBridgeClientFactory().build(), InetSocketAddress(address.address, port))
     }
 
-    override fun close() = runBlocking {
-        job.cancelAndJoin()
+    suspend fun dispose() {
+        if (job.isActive) {
+            job.complete()
+            job.join()
+        }
     }
 }
 
-private fun ByteReadChannel.toServerReadChannel() = ConsoleReadChannel(this)
-private fun ByteWriteChannel.toServerWriteChannel() = ConsoleWriteChannel(this)
+private fun ByteReadChannel.toServerReadChannel() = ServerReadChannel(this)
+private fun ByteWriteChannel.toServerWriteChannel() = ServerWriteChannel(this)

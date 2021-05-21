@@ -19,8 +19,7 @@ package com.malinskiy.adam.request.forwarding
 import assertk.assertThat
 import assertk.assertions.containsExactly
 import assertk.assertions.isEqualTo
-import com.malinskiy.adam.server.AndroidDebugBridgeServer
-import io.ktor.utils.io.close
+import com.malinskiy.adam.server.stub.AndroidDebugBridgeServer
 import io.ktor.utils.io.discard
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
@@ -48,7 +47,6 @@ class ListPortForwardsRequestTest {
                     """.trimIndent()
                 )
                 input.discard()
-                output.close()
             }
 
             val output = client.execute(ListPortForwardsRequest("xx"))

@@ -23,9 +23,8 @@ import com.malinskiy.adam.exception.RequestValidationException
 import com.malinskiy.adam.request.ComplexRequest
 import com.malinskiy.adam.request.ValidationResponse
 import com.malinskiy.adam.request.shell.v1.ShellCommandRequest
-import com.malinskiy.adam.server.AndroidDebugBridgeServer
+import com.malinskiy.adam.server.stub.AndroidDebugBridgeServer
 import com.malinskiy.adam.transport.Socket
-import io.ktor.utils.io.close
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 
@@ -42,7 +41,6 @@ class AndroidDebugBridgeClientTest {
 
                 val response = "0013something-somethingx0".toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
                 output.writeFully(response, 0, response.size)
-                output.close()
             }
 
             val output = client.execute(ShellCommandRequest("xx"), serial = "serial")
@@ -69,7 +67,6 @@ class AndroidDebugBridgeClientTest {
 
                 val response = "0013something-somethingx0".toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
                 output.writeFully(response, 0, response.size)
-                output.close()
             }
 
             client.execute(ShellCommandRequest("xx"), serial = "serial")
@@ -93,7 +90,6 @@ class AndroidDebugBridgeClientTest {
 
                 val response = "XXXXx".toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
                 output.writeFully(response, 0, response.size)
-                output.close()
             }
 
             client.execute(ShellCommandRequest("xx"), serial = "serial")
@@ -113,7 +109,6 @@ class AndroidDebugBridgeClientTest {
 
                 val response = "XXXXsomething-something".toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
                 output.writeFully(response, 0, response.size)
-                output.close()
             }
 
             val output = client.execute(ShellCommandRequest("xx"), serial = "serial")

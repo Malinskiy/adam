@@ -23,8 +23,7 @@ import com.malinskiy.adam.exception.RequestRejectedException
 import com.malinskiy.adam.request.forwarding.LocalTcpPortSpec
 import com.malinskiy.adam.request.forwarding.PortForwardingMode
 import com.malinskiy.adam.request.forwarding.RemoteTcpPortSpec
-import com.malinskiy.adam.server.AndroidDebugBridgeServer
-import io.ktor.utils.io.close
+import com.malinskiy.adam.server.stub.AndroidDebugBridgeServer
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 
@@ -65,7 +64,6 @@ class ReversePortForwardRequestTest {
 
                 output.respond(Const.Message.OKAY)
                 output.respondStringV1("7070")
-                output.close()
             }
 
             val output = client.execute(ReversePortForwardRequest(RemoteTcpPortSpec(8080), LocalTcpPortSpec(0)), "serial")
@@ -90,7 +88,6 @@ class ReversePortForwardRequestTest {
 
                 output.respond(Const.Message.FAIL)
                 output.respondStringV1("7070")
-                output.close()
             }
 
             val output = client.execute(ReversePortForwardRequest(RemoteTcpPortSpec(8080), LocalTcpPortSpec(0)), "serial")

@@ -22,7 +22,7 @@ import assertk.assertions.isFalse
 import assertk.assertions.isTrue
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.extension.toRequestString
-import com.malinskiy.adam.server.AndroidDebugBridgeServer
+import com.malinskiy.adam.server.stub.AndroidDebugBridgeServer
 import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test

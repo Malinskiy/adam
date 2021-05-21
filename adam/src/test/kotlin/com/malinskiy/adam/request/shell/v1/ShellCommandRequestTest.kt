@@ -19,8 +19,7 @@ package com.malinskiy.adam.request.shell.v1
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import com.malinskiy.adam.Const
-import com.malinskiy.adam.server.AndroidDebugBridgeServer
-import io.ktor.utils.io.close
+import com.malinskiy.adam.server.stub.AndroidDebugBridgeServer
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 
@@ -42,7 +41,6 @@ class ShellCommandRequestTest {
 
                 val response = "something-somethingx1".toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
                 output.writeFully(response, 0, response.size)
-                output.close()
             }
 
             val output = client.execute(ShellCommandRequest("xx"), serial = "serial")
@@ -69,7 +67,6 @@ class ShellCommandRequestTest {
 
                 val response = "something-something\nx1".toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
                 output.writeFully(response, 0, response.size)
-                output.close()
             }
 
             val output = client.execute(ShellCommandRequest("xx"), serial = "serial")

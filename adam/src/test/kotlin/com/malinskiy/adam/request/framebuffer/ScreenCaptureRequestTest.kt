@@ -24,8 +24,7 @@ import com.github.romankh3.image.comparison.model.ImageComparisonResult
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.exception.UnsupportedImageProtocolException
 import com.malinskiy.adam.extension.newFileWithExtension
-import com.malinskiy.adam.server.AndroidDebugBridgeServer
-import io.ktor.utils.io.close
+import com.malinskiy.adam.server.stub.AndroidDebugBridgeServer
 import io.ktor.utils.io.writeIntLittleEndian
 import kotlinx.coroutines.runBlocking
 import org.junit.Rule
@@ -63,7 +62,6 @@ class ScreenCaptureRequestTest {
                 output.writeFully(sample, 0, 48)
                 assertThat(input.readByte()).isEqualTo(0.toByte())
                 output.writeFully(sample, 48, sample.size - 48)
-                output.close()
             }
 
             val adapter = RawImageScreenCaptureAdapter()
@@ -115,7 +113,6 @@ class ScreenCaptureRequestTest {
                 output.writeFully(sample, 0, 48)
                 assertThat(input.readByte()).isEqualTo(0.toByte())
                 output.writeFully(sample, 48, sample.size - 48)
-                output.close()
             }
 
             val adapter = RawImageScreenCaptureAdapter()
@@ -166,7 +163,6 @@ class ScreenCaptureRequestTest {
             output.writeFully(sample, 0, 48)
             assertThat(input.readByte()).isEqualTo(0.toByte())
             output.writeFully(sample, 48, sample.size - 48)
-            output.close()
         }
 
         val adapter = BufferedImageScreenCaptureAdapter()
@@ -199,7 +195,6 @@ class ScreenCaptureRequestTest {
             output.writeFully(sample, 0, 48)
             assertThat(input.readByte()).isEqualTo(0.toByte())
             output.writeFully(sample, 48, sample.size - 48)
-            output.close()
         }
         measureTimeMillis {
             actual = client.execute(ScreenCaptureRequest(adapter), serial = "serial")
@@ -237,7 +232,6 @@ class ScreenCaptureRequestTest {
             output.writeFully(sample, 0, 48)
             assertThat(input.readByte()).isEqualTo(0.toByte())
             output.writeFully(sample, 48, sample.size - 48)
-            output.close()
         }
 
         val adapter = BufferedImageScreenCaptureAdapter()
@@ -270,7 +264,6 @@ class ScreenCaptureRequestTest {
             output.writeFully(sample, 0, 48)
             assertThat(input.readByte()).isEqualTo(0.toByte())
             output.writeFully(sample, 48, sample.size - 48)
-            output.close()
         }
         measureTimeMillis {
             actual = client.execute(ScreenCaptureRequest(adapter), serial = "serial")
@@ -305,7 +298,6 @@ class ScreenCaptureRequestTest {
             output.writeFully(sample, 0, 48)
             assertThat(input.readByte()).isEqualTo(0.toByte())
             output.writeFully(sample, 48, sample.size - 48)
-            output.close()
         }
 
         val adapter = BufferedImageScreenCaptureAdapter()
@@ -338,7 +330,6 @@ class ScreenCaptureRequestTest {
             output.writeFully(sample, 0, 48)
             assertThat(input.readByte()).isEqualTo(0.toByte())
             output.writeFully(sample, 48, sample.size - 48)
-            output.close()
         }
         measureTimeMillis {
             actual = client.execute(ScreenCaptureRequest(adapter), serial = "serial")
@@ -372,7 +363,6 @@ class ScreenCaptureRequestTest {
             output.writeFully(sample, 0, 52)
             assertThat(input.readByte()).isEqualTo(0.toByte())
             output.writeFully(sample, 52, sample.size - 52)
-            output.close()
         }
 
         val adapter = BufferedImageScreenCaptureAdapter()
@@ -405,7 +395,6 @@ class ScreenCaptureRequestTest {
             output.writeFully(sample, 0, 52)
             assertThat(input.readByte()).isEqualTo(0.toByte())
             output.writeFully(sample, 52, sample.size - 52)
-            output.close()
         }
         measureTimeMillis {
             actual = client.execute(ScreenCaptureRequest(adapter), serial = "serial")
@@ -435,7 +424,6 @@ class ScreenCaptureRequestTest {
 
                 //Extended version
                 output.writeIntLittleEndian(99)
-                output.close()
             }
 
             client.execute(ScreenCaptureRequest(RawImageScreenCaptureAdapter()), serial = "serial")

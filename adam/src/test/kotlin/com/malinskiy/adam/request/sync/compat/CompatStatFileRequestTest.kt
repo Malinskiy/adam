@@ -22,8 +22,7 @@ import com.malinskiy.adam.Const
 import com.malinskiy.adam.request.Feature
 import com.malinskiy.adam.request.sync.model.FileEntryV1
 import com.malinskiy.adam.request.sync.model.FileEntryV2
-import com.malinskiy.adam.server.AndroidDebugBridgeServer
-import io.ktor.utils.io.close
+import com.malinskiy.adam.server.stub.AndroidDebugBridgeServer
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import java.time.Instant
@@ -47,7 +46,6 @@ class CompatStatFileRequestTest {
                 assertThat(receiveStat).isEqualTo("/sdcard/testfile")
 
                 output.respondStat(128, 0x744, 10000)
-                output.close()
             }
 
             val result = client.execute(CompatStatFileRequest("/sdcard/testfile", emptyList()), serial = "serial")
@@ -90,7 +88,6 @@ class CompatStatFileRequestTest {
                     mtime = 1589042332,
                     ctime = 1589042333
                 )
-                output.close()
             }
 
             val result = client.execute(CompatStatFileRequest("/sdcard/testfile", listOf(Feature.STAT_V2)), serial = "serial")

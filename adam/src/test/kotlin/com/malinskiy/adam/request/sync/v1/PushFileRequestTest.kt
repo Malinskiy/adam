@@ -20,9 +20,7 @@ import assertk.assertThat
 import assertk.assertions.isEqualTo
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.exception.PushFailedException
-import com.malinskiy.adam.server.AndroidDebugBridgeServer
-import io.ktor.utils.io.close
-import kotlinx.coroutines.channels.receiveOrNull
+import com.malinskiy.adam.server.stub.AndroidDebugBridgeServer
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.Rule
@@ -67,7 +65,6 @@ class PushFileRequestTest {
                     assertThat(receiveCmd).isEqualTo("/sdcard/testfile,511")
                     input.receiveFile(receiveFile)
                     output.respond(Const.Message.OKAY)
-                    output.close()
                 }
 
                 val request = PushFileRequest(fixture, "/sdcard/testfile")
@@ -111,7 +108,6 @@ class PushFileRequestTest {
                     val s = "CAFEBABE"
                     output.writeFully("0008".toByteArray(Const.DEFAULT_TRANSPORT_ENCODING), 0, 4)
                     output.writeFully(s.toByteArray(Const.DEFAULT_TRANSPORT_ENCODING), 0, s.length)
-                    output.close()
                 }
 
                 val request = PushFileRequest(fixture, "/sdcard/testfile")

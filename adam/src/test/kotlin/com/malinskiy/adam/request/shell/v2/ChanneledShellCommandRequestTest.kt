@@ -19,8 +19,7 @@ package com.malinskiy.adam.request.shell.v2
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import com.malinskiy.adam.Const
-import com.malinskiy.adam.server.AndroidDebugBridgeServer
-import io.ktor.utils.io.close
+import com.malinskiy.adam.server.stub.AndroidDebugBridgeServer
 import io.ktor.utils.io.discard
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
@@ -56,7 +55,6 @@ class ChanneledShellCommandRequestTest {
                 output.respondShellV2Stderr("r\n")
                 output.respondShellV2Exit(17)
 
-                output.close()
                 input.discard()
             }
 

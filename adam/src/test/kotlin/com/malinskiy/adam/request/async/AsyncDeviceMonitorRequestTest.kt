@@ -23,9 +23,7 @@ import com.malinskiy.adam.Const
 import com.malinskiy.adam.request.device.AsyncDeviceMonitorRequest
 import com.malinskiy.adam.request.device.Device
 import com.malinskiy.adam.request.device.DeviceState
-import com.malinskiy.adam.server.AndroidDebugBridgeServer
-import io.ktor.utils.io.close
-import kotlinx.coroutines.channels.receiveOrNull
+import com.malinskiy.adam.server.stub.AndroidDebugBridgeServer
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 
@@ -44,7 +42,6 @@ class AsyncDeviceMonitorRequestTest {
                 output.writeFully(response, 0, response.size)
                 response = ("0015emulator-5554\tdevice\n").toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
                 output.writeFully(response, 0, response.size)
-                output.close()
             }
 
             val updates = client.execute(AsyncDeviceMonitorRequest(), scope = this)

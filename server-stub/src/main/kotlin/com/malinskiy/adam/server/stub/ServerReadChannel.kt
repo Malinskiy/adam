@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.malinskiy.adam.server
+package com.malinskiy.adam.server.stub
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo

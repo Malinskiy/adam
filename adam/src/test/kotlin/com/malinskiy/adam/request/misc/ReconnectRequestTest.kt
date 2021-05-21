@@ -21,8 +21,7 @@ import assertk.assertions.isEqualTo
 import com.malinskiy.adam.extension.toRequestString
 import com.malinskiy.adam.request.HostTarget
 import com.malinskiy.adam.request.SerialTarget
-import com.malinskiy.adam.server.AndroidDebugBridgeServer
-import io.ktor.utils.io.close
+import com.malinskiy.adam.server.stub.AndroidDebugBridgeServer
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 
@@ -55,7 +54,6 @@ class ReconnectRequestTest {
             output.respondOkay()
 
             output.respondStringV1("reconnecting emulator-5554 [offline]")
-            output.close()
         }
 
         val output = client.execute(ReconnectRequest(reconnectTarget = Offline, target = HostTarget))
@@ -73,7 +71,6 @@ class ReconnectRequestTest {
             assertThat(cmd).isEqualTo("host-serial:serial:reconnect")
             output.respondOkay()
             output.respondStringRaw("done")
-            output.close()
         }
 
         val output = client.execute(ReconnectRequest(reconnectTarget = Device, target = SerialTarget("serial")))

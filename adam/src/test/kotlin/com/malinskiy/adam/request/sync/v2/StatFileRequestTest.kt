@@ -21,8 +21,7 @@ import assertk.assertions.isEqualTo
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.request.Feature
 import com.malinskiy.adam.request.sync.model.FileEntryV2
-import com.malinskiy.adam.server.AndroidDebugBridgeServer
-import io.ktor.utils.io.close
+import com.malinskiy.adam.server.stub.AndroidDebugBridgeServer
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import java.time.Instant
@@ -59,7 +58,6 @@ class StatFileRequestTest {
                     mtime = 1589042332,
                     ctime = 1589042333
                 )
-                output.close()
             }
 
             val output: FileEntryV2 = client.execute(StatFileRequest("/sdcard/testfile", listOf(Feature.STAT_V2)), serial = "serial")

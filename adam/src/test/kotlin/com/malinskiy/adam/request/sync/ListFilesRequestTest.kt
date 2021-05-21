@@ -21,8 +21,7 @@ import assertk.assertions.containsExactly
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNull
 import com.malinskiy.adam.Const
-import com.malinskiy.adam.server.AndroidDebugBridgeServer
-import io.ktor.utils.io.close
+import com.malinskiy.adam.server.stub.AndroidDebugBridgeServer
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 
@@ -54,7 +53,6 @@ class ListFilesRequestTest {
                     x0
                 """.trimIndent().toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
                 output.writeFully(response, 0, response.size)
-                output.close()
             }
 
             val files = client.execute(ListFilesRequest("/sdcard/"), serial = "serial")

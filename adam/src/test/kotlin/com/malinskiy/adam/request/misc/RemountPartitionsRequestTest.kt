@@ -20,8 +20,7 @@ import assertk.assertThat
 import assertk.assertions.isEqualTo
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.extension.toRequestString
-import com.malinskiy.adam.server.AndroidDebugBridgeServer
-import io.ktor.utils.io.close
+import com.malinskiy.adam.server.stub.AndroidDebugBridgeServer
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 
@@ -53,7 +52,6 @@ class RemountPartitionsRequestTest {
 
                 val response = "something-something".toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
                 output.writeFully(response, 0, response.size)
-                output.close()
             }
 
             val output = client.execute(RemountPartitionsRequest(), serial = "serial")

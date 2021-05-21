@@ -20,8 +20,7 @@ import assertk.assertThat
 import assertk.assertions.isEqualTo
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.exception.RequestRejectedException
-import com.malinskiy.adam.server.AndroidDebugBridgeServer
-import io.ktor.utils.io.close
+import com.malinskiy.adam.server.stub.AndroidDebugBridgeServer
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 
@@ -59,7 +58,6 @@ class PortForwardRequestTest {
 
                 output.respond(Const.Message.OKAY)
                 output.respondStringV1("7070")
-                output.close()
             }
 
             val output = client.execute(PortForwardRequest(LocalTcpPortSpec(0), RemoteTcpPortSpec(8080), "serial"))
@@ -81,7 +79,6 @@ class PortForwardRequestTest {
 
                 output.respond(Const.Message.FAIL)
                 output.respondStringV1("7070")
-                output.close()
             }
 
             val output = client.execute(PortForwardRequest(LocalTcpPortSpec(0), RemoteTcpPortSpec(8080), "serial"))

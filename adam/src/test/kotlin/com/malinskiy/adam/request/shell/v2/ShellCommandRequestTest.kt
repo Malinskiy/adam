@@ -20,8 +20,7 @@ import assertk.assertThat
 import assertk.assertions.isEqualTo
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.exception.RequestValidationException
-import com.malinskiy.adam.server.AndroidDebugBridgeServer
-import io.ktor.utils.io.close
+import com.malinskiy.adam.server.stub.AndroidDebugBridgeServer
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 
@@ -45,8 +44,6 @@ class ShellCommandRequestTest {
                 output.respondShellV2Stdout("o\n")
                 output.respondShellV2Stderr("r\n")
                 output.respondShellV2Exit(17)
-
-                output.close()
             }
 
 
@@ -93,10 +90,7 @@ class ShellCommandRequestTest {
                 output.respond(Const.Message.OKAY)
 
                 output.writeByte(messageType.toValue().toByte())
-
-                output.close()
             }
-
 
             val output = client.execute(ShellCommandRequest("echo foo; echo bar >&2; exit 17"), serial = "serial")
             assertThat(output.stdout).isEqualTo("foo\n")
