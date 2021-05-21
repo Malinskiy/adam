@@ -34,8 +34,9 @@ class GetAdbServerVersionRequestTest {
     fun testReturnsProperVersion() {
         runBlocking {
             server.session {
-                expectCmd { "host:version" }.accept()
-                respondAdbServerVersion(41)
+                expectAdbServerVersion()
+                    .accept()
+                    .respondAdbServerVersion(41)
             }
 
             val version = client.execute(GetAdbServerVersionRequest())

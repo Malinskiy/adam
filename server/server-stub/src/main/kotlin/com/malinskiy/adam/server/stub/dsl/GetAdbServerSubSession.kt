@@ -16,12 +16,18 @@
 
 package com.malinskiy.adam.server.stub.dsl
 
-class OkayFailExpectation(private val session: Session) {
-    suspend fun accept() {
+class GetAdbServerSubSession(private val session: Session) {
+    suspend fun accept(): GetAdbServerSubSession {
         session.respondTransport(true)
+        return this
     }
 
-    suspend fun reject(message: String) {
+    suspend fun reject(message: String): GetAdbServerSubSession {
         session.respondTransport(false, message)
+        return this
+    }
+
+    suspend fun respondAdbServerVersion(version: Int) {
+        session.respondAdbServerVersion(version)
     }
 }

@@ -43,8 +43,9 @@ class GetSinglePropRequestTest {
         runBlocking {
             server.session {
                 expectCmd { "host:transport:serial" }.accept()
-                expectCmd { "shell:getprop prop1;echo x$?" }.accept()
-                respondShellV1("testingx0")
+                expectShell { "getprop prop1;echo x$?" }
+                    .accept()
+                    .respond("testingx0")
             }
 
             val version = client.execute(GetSinglePropRequest("prop1"), serial = "serial")

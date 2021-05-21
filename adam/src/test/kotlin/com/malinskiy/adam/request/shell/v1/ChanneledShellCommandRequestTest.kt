@@ -35,10 +35,10 @@ class ChanneledShellCommandRequestTest {
         runBlocking {
             server.session {
                 expectCmd { "host:transport:emulator-5554" }.accept()
-                expectCmd { "shell:logcat -v" }.accept()
-
-                respondShellV1("something-something")
-                respondShellV1("something2-something2")
+                expectShell { "logcat -v" }
+                    .accept()
+                    .respond("something-something")
+                    .respond("something2-something2")
             }
 
             val updates = client.execute(ChanneledShellCommandRequest("logcat -v"), scope = this, serial = "emulator-5554")

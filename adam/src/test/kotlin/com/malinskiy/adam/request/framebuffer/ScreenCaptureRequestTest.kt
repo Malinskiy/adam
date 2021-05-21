@@ -51,8 +51,9 @@ class ScreenCaptureRequestTest {
         runBlocking {
             server.session {
                 expectCmd { "host:transport:serial" }.accept()
-                expectCmd { "framebuffer:" }.accept()
-                respondScreencaptureV2(File(javaClass.getResource("/fixture/screencap_1.bin").toURI()))
+                expectFramebuffer()
+                    .accept()
+                    .respondScreencaptureV2(File(javaClass.getResource("/fixture/screencap_1.bin").toURI()))
             }
 
             val adapter = RawImageScreenCaptureAdapter()
@@ -86,8 +87,9 @@ class ScreenCaptureRequestTest {
         runBlocking {
             server.session {
                 expectCmd { "host:transport:serial" }.accept()
-                expectCmd { "framebuffer:" }.accept()
-                respondScreencaptureV2(File(javaClass.getResource("/fixture/screencap_2.bin").toURI()))
+                expectFramebuffer()
+                    .accept()
+                    .respondScreencaptureV2(File(javaClass.getResource("/fixture/screencap_2.bin").toURI()))
             }
 
             val adapter = RawImageScreenCaptureAdapter()
@@ -120,8 +122,9 @@ class ScreenCaptureRequestTest {
     fun `test with buffered image adapter`() = runBlocking {
         server.session {
             expectCmd { "host:transport:serial" }.accept()
-            expectCmd { "framebuffer:" }.accept()
-            respondScreencaptureV2(File(javaClass.getResource("/fixture/screencap_1.bin").toURI()))
+            expectFramebuffer()
+                .accept()
+                .respondScreencaptureV2(File(javaClass.getResource("/fixture/screencap_1.bin").toURI()))
         }
 
         val adapter = BufferedImageScreenCaptureAdapter()
@@ -140,8 +143,9 @@ class ScreenCaptureRequestTest {
 
         server.session {
             expectCmd { "host:transport:serial" }.accept()
-            expectCmd { "framebuffer:" }.accept()
-            respondScreencaptureV2(File(javaClass.getResource("/fixture/screencap_1.bin").toURI()))
+            expectFramebuffer()
+                .accept()
+                .respondScreencaptureV2(File(javaClass.getResource("/fixture/screencap_1.bin").toURI()))
         }
 
         measureTimeMillis {
@@ -162,8 +166,9 @@ class ScreenCaptureRequestTest {
     fun `test with buffered image adapter 16 bit`() = runBlocking {
         server.session {
             expectCmd { "host:transport:serial" }.accept()
-            expectCmd { "framebuffer:" }.accept()
-            respondScreencaptureV2(File(javaClass.getResource("/fixture/screencap_2.bin").toURI()))
+            expectFramebuffer()
+                .accept()
+                .respondScreencaptureV2(File(javaClass.getResource("/fixture/screencap_2.bin").toURI()))
         }
 
         val adapter = BufferedImageScreenCaptureAdapter()
@@ -182,8 +187,9 @@ class ScreenCaptureRequestTest {
 
         server.session {
             expectCmd { "host:transport:serial" }.accept()
-            expectCmd { "framebuffer:" }.accept()
-            respondScreencaptureV2(File(javaClass.getResource("/fixture/screencap_2.bin").toURI()))
+            expectFramebuffer()
+                .accept()
+                .respondScreencaptureV2(File(javaClass.getResource("/fixture/screencap_2.bin").toURI()))
         }
 
         measureTimeMillis {
@@ -200,8 +206,9 @@ class ScreenCaptureRequestTest {
     fun `test with buffered image adapter unaligned 32 bit `() = runBlocking {
         server.session {
             expectCmd { "host:transport:serial" }.accept()
-            expectCmd { "framebuffer:" }.accept()
-            respondScreencaptureV2(File(javaClass.getResource("/fixture/screencap_1_unaligned.bin").toURI()))
+            expectFramebuffer()
+                .accept()
+                .respondScreencaptureV2(File(javaClass.getResource("/fixture/screencap_1_unaligned.bin").toURI()))
         }
 
         val adapter = BufferedImageScreenCaptureAdapter()
@@ -220,8 +227,9 @@ class ScreenCaptureRequestTest {
 
         server.session {
             expectCmd { "host:transport:serial" }.accept()
-            expectCmd { "framebuffer:" }.accept()
-            respondScreencaptureV2(File(javaClass.getResource("/fixture/screencap_1_unaligned.bin").toURI()))
+            expectFramebuffer()
+                .accept()
+                .respondScreencaptureV2(File(javaClass.getResource("/fixture/screencap_1_unaligned.bin").toURI()))
         }
 
         measureTimeMillis {
@@ -238,8 +246,9 @@ class ScreenCaptureRequestTest {
     fun `test with buffered image adapter with srgb color model`() = runBlocking {
         server.session {
             expectCmd { "host:transport:serial" }.accept()
-            expectCmd { "framebuffer:" }.accept()
-            respondScreencaptureV3(File(javaClass.getResource("/fixture/screencap_3.bin").toURI()))
+            expectFramebuffer()
+                .accept()
+                .respondScreencaptureV3(File(javaClass.getResource("/fixture/screencap_3.bin").toURI()))
         }
 
         val adapter = BufferedImageScreenCaptureAdapter()
@@ -258,8 +267,9 @@ class ScreenCaptureRequestTest {
 
         server.session {
             expectCmd { "host:transport:serial" }.accept()
-            expectCmd { "framebuffer:" }.accept()
-            respondScreencaptureV3(File(javaClass.getResource("/fixture/screencap_3.bin").toURI()))
+            expectFramebuffer()
+                .accept()
+                .respondScreencaptureV3(File(javaClass.getResource("/fixture/screencap_3.bin").toURI()))
         }
         measureTimeMillis {
             actual = client.execute(ScreenCaptureRequest(adapter), serial = "serial")

@@ -16,15 +16,18 @@
 
 package com.malinskiy.adam.server.stub.dsl
 
-import java.io.File
-
-class ReceiveFileExpectation(private val session: Session) {
-    suspend fun respondFile(fixture: File): ReceiveFileExpectation {
-        session.respondFile(fixture)
+class ShellV1SubSession(private val session: Session) {
+    suspend fun accept(): ShellV1SubSession {
+        session.respondOkay()
         return this
     }
 
-    suspend fun respondDoneDone() {
-        session.output.respondDoneDone()
+    suspend fun respond(stdout: String): ShellV1SubSession {
+        session.respondShellV1(stdout)
+        return this
+    }
+
+    suspend fun reject(message: String) {
+        session.respondTransport(false, message)
     }
 }

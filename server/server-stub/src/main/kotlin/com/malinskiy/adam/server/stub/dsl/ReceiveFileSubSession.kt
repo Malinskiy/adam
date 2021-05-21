@@ -16,21 +16,15 @@
 
 package com.malinskiy.adam.server.stub.dsl
 
-import com.malinskiy.adam.Const
 import java.io.File
 
-class SendFileExpectationV2(private val session: Session) {
-    suspend fun receiveFile(fixture: File): SendFileExpectationV2 {
-        session.receiveFile(fixture)
+class ReceiveFileSubSession(private val session: Session) {
+    suspend fun respondFile(fixture: File): ReceiveFileSubSession {
+        session.respondFile(fixture)
         return this
     }
 
-    suspend fun done() {
-        session.respondOkay()
-    }
-
-    suspend fun fail(message: String) {
-        session.output.respond(Const.Message.FAIL)
-        session.output.respondStringV2(message)
+    suspend fun respondDoneDone() {
+        session.output.respondDoneDone()
     }
 }

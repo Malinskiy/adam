@@ -43,8 +43,9 @@ class GetPropRequestTest {
         runBlocking {
             server.session {
                 expectCmd { "host:transport:serial" }.accept()
-                expectCmd { "shell:getprop;echo x$?" }.accept()
-                respondShellV1("[testing]: [testing]\r\r\nx0")
+                expectShell { "getprop;echo x$?" }
+                    .accept()
+                    .respond("[testing]: [testing]\r\r\nx0")
             }
 
             val version = client.execute(GetPropRequest(), serial = "serial")

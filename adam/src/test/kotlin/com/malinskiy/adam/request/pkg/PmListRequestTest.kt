@@ -35,8 +35,9 @@ class PmListRequestTest {
         runBlocking {
             server.session {
                 expectCmd { "host:transport:serial" }.accept()
-                expectCmd { "shell:pm list packages;echo x$?" }.accept()
-                respondShellV1("package:test.packagex0")
+                expectShell { "pm list packages;echo x$?" }
+                    .accept()
+                    .respond("package:test.packagex0")
             }
 
             val output = client.execute(PmListRequest(), serial = "serial")
@@ -49,8 +50,9 @@ class PmListRequestTest {
         runBlocking {
             server.session {
                 expectCmd { "host:transport:serial" }.accept()
-                expectCmd { "shell:pm list packages -f;echo x$?" }.accept()
-                respondShellV1("package:/data/app/x=test.packagex0\n\n")
+                expectShell { "pm list packages -f;echo x$?" }
+                    .accept()
+                    .respond("package:/data/app/x=test.packagex0\n\n")
             }
 
             val output = client.execute(PmListRequest(includePath = true), serial = "serial")

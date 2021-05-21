@@ -36,8 +36,9 @@ class ShellCommandRequestTest {
         runBlocking {
             server.session {
                 expectCmd { "host:transport:serial" }.accept()
-                expectCmd { "shell:xx;echo x$?" }.accept()
-                respondShellV1("something-somethingx1")
+                expectShell { "xx;echo x$?" }
+                    .accept()
+                    .respond("something-somethingx1")
             }
 
             val output = client.execute(ShellCommandRequest("xx"), serial = "serial")
@@ -51,8 +52,9 @@ class ShellCommandRequestTest {
         runBlocking {
             server.session {
                 expectCmd { "host:transport:serial" }.accept()
-                expectCmd { "shell:xx;echo x$?" }.accept()
-                respondShellV1("something-something\nx1")
+                expectShell { "xx;echo x$?" }
+                    .accept()
+                    .respond("something-something\nx1")
             }
 
             val output = client.execute(ShellCommandRequest("xx"), serial = "serial")

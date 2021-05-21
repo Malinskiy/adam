@@ -16,12 +16,17 @@
 
 package com.malinskiy.adam.server.stub.dsl
 
-class DoneFailExpectation(private val session: Session) {
-    suspend fun done() {
-        session.output.respondDone()
+class LegacySideloadSubSession(private val session: Session) {
+    suspend fun receive(size: Int): LegacySideloadSubSession {
+        session.receiveBytes(614)
+        return this
+    }
+
+    suspend fun okay() {
+        session.respondOkay()
     }
 
     suspend fun fail(message: String) {
-        session.output.respondFail(message)
+        session.respondTransport(false, message)
     }
 }

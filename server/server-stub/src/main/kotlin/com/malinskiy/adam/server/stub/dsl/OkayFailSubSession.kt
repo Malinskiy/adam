@@ -16,17 +16,14 @@
 
 package com.malinskiy.adam.server.stub.dsl
 
-class LegacySideloadExpectation(private val session: Session) {
-    suspend fun receive(size: Int): LegacySideloadExpectation {
-        session.receiveBytes(614)
+open class OkayFailSubSession(private val session: Session) {
+    suspend fun accept(): OkayFailSubSession {
+        session.respondTransport(true)
         return this
     }
 
-    suspend fun okay() {
-        session.respondOkay()
-    }
-
-    suspend fun fail(message: String) {
+    suspend fun reject(message: String): OkayFailSubSession {
         session.respondTransport(false, message)
+        return this
     }
 }

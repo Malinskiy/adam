@@ -37,9 +37,10 @@ class ListFilesRequestTest {
         runBlocking {
             server.session {
                 expectCmd { "host:transport:serial" }.accept()
-                expectCmd { "shell:ls -l /sdcard/;echo x$?" }.accept()
-
-                val response = """
+                expectShell { "ls -l /sdcard/;echo x$?" }
+                    .accept()
+                    .respond(
+                        """
                     total 88
                     -rwxrwx--x 2 root sdcard_rw 4096 2020-10-24 16:29 Alarms
                     brwxrwx--x 4 root sdcard_rw 4096 2020-10-24 16:29 Android
@@ -51,7 +52,7 @@ class ListFilesRequestTest {
                     Orwxrwx--x 2 root sdcard_rw 4096 2020-10-24 16:29 XXX
                     x0
                 """.trimIndent()
-                respondShellV1(response)
+                    )
             }
 
             val files = client.execute(ListFilesRequest("/sdcard/"), serial = "serial")

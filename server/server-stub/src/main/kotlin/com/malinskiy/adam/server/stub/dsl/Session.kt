@@ -26,11 +26,17 @@ import java.io.File
 
 
 class Session(val input: ServerReadChannel, val output: ServerWriteChannel) {
-    suspend fun expectCmd(expected: () -> String): OkayFailExpectation {
+    suspend fun expectCmd(expected: () -> String): OkayFailSubSession {
         val transportCmd = input.receiveCommand()
         assertThat(transportCmd).isEqualTo(expected())
 
-        return OkayFailExpectation(session = this)
+        return OkayFailSubSession(session = this)
+    }
+
+    suspend fun expectShell(expected: () -> String): ShellV1SubSession {
+        val transportCmd = input.receiveCommand()
+        assertThat(transportCmd).isEqualTo("shell:${expected()}")
+        return ShellV1SubSession(session = this)
     }
 
     suspend fun respondTransport(success: Boolean, message: String? = null) {
@@ -48,6 +54,11 @@ class Session(val input: ServerReadChannel, val output: ServerWriteChannel) {
 
     suspend fun respondShellV1(stdout: String) {
         output.respondShellV1(stdout)
+    }
+
+    suspend fun expectFramebuffer(): FramebufferSubSession {
+        expectCmd { "framebuffer:" }
+        return FramebufferSubSession(this)
     }
 
     suspend fun respondScreencaptureV2(replay: File) {
@@ -165,41 +176,41 @@ class Session(val input: ServerReadChannel, val output: ServerWriteChannel) {
         output.respondStatV2(mode, size, error, dev, ino, nlink, uid, gid, atime, mtime, ctime)
     }
 
-    suspend fun expectSend(message: () -> String): SendFileExpectation {
+    suspend fun expectSend(message: () -> String): SendFileSubSession {
         val receiveCmd = input.receiveSend()
         assertThat(receiveCmd).isEqualTo(message())
 
-        return SendFileExpectation(this)
+        return SendFileSubSession(this)
     }
 
     suspend fun receiveFile(receiveFile: File) {
         input.receiveFile(receiveFile)
     }
 
-    suspend fun expectSendV2(receiveCmd: String, mode: String, flags: Int): SendFileExpectationV2 {
+    suspend fun expectSendV2(receiveCmd: String, mode: String, flags: Int): SendFileV2SubSession {
         val (actualReceiveCmd, actualMode, actualFlags) = input.receiveSendV2()
         assertThat(actualReceiveCmd).isEqualTo(receiveCmd)
         assertThat(actualMode.toString(8)).isEqualTo(mode)
         assertThat(actualFlags).isEqualTo(flags)
 
-        return SendFileExpectationV2(this)
+        return SendFileV2SubSession(this)
     }
 
-    suspend fun expectRecv(path: () -> String): ReceiveFileExpectation {
+    suspend fun expectRecv(path: () -> String): ReceiveFileSubSession {
         val recvPath = input.receiveRecv()
         assertThat(recvPath).isEqualTo(path())
-        return ReceiveFileExpectation(this)
+        return ReceiveFileSubSession(this)
     }
 
     suspend fun respondFile(fixture: File) {
         output.respondData(fixture.readBytes())
     }
 
-    suspend fun expectRecv2(path: () -> String): ReceiveFileExpectation {
+    suspend fun expectRecv2(path: () -> String): ReceiveFileSubSession {
         val recvPath = input.receiveRecv2()
         assertThat(recvPath).isEqualTo(path())
 
-        return ReceiveFileExpectation(this)
+        return ReceiveFileSubSession(this)
     }
 
     suspend fun expectList(path: () -> String) {
@@ -207,9 +218,9 @@ class Session(val input: ServerReadChannel, val output: ServerWriteChannel) {
         assertThat(listPath).isEqualTo(path())
     }
 
-    suspend fun respondList(size: Int, mode: Int = 0, lastModified: Int = 0, name: String): DoneFailExpectation {
+    suspend fun respondList(size: Int, mode: Int = 0, lastModified: Int = 0, name: String): DoneFailSubSession {
         output.respondList(size, mode, lastModified, name)
-        return DoneFailExpectation(this)
+        return DoneFailSubSession(this)
     }
 
     suspend fun expectListV2(path: () -> String) {
@@ -230,9 +241,9 @@ class Session(val input: ServerReadChannel, val output: ServerWriteChannel) {
         atime: Int,
         mtime: Int,
         ctime: Int
-    ): DoneFailExpectation {
+    ): DoneFailSubSession {
         output.respondListV2(name, mode, size, error, dev, ino, nlink, uid, gid, atime, mtime, ctime)
-        return DoneFailExpectation(this)
+        return DoneFailSubSession(this)
     }
 
     suspend fun expectStatV2(path: () -> String) {
@@ -257,10 +268,10 @@ class Session(val input: ServerReadChannel, val output: ServerWriteChannel) {
         output.respondStringV1(response)
     }
 
+
     suspend fun respondConnectDevice(response: String) {
         output.respondStringV1(response)
     }
-
 
     suspend fun respondDisconnectDevice(response: String) {
         output.respondStringV1(response)
@@ -270,12 +281,17 @@ class Session(val input: ServerReadChannel, val output: ServerWriteChannel) {
         output.respondOkay()
     }
 
-    suspend fun expectLegacySideload(size: Int): LegacySideloadExpectation {
+    suspend fun expectLegacySideload(size: Int): LegacySideloadSubSession {
         expectCmd { "sideload:$size" }.accept()
-        return LegacySideloadExpectation(this)
+        return LegacySideloadSubSession(this)
     }
 
     suspend fun receiveBytes(size: Int): ByteArray {
         return input.receiveBytes(size)
+    }
+
+    suspend fun expectAdbServerVersion(): GetAdbServerSubSession {
+        expectCmd { "host:version" }
+        return GetAdbServerSubSession(this)
     }
 }

@@ -79,8 +79,9 @@ class TestRunnerRequestTest {
             launch {
                 server.session {
                     expectCmd { "host:transport:serial" }.accept()
-                    expectCmd { "shell:am instrument -w -r com.example.test/android.support.test.runner.AndroidJUnitRunner" }.accept()
-                    respondShellV1("something-something")
+                    expectShell { "am instrument -w -r com.example.test/android.support.test.runner.AndroidJUnitRunner" }
+                        .accept()
+                        .respond("something-something")
                 }
 
                 val channel = client.execute(

@@ -53,7 +53,7 @@ class AndroidDebugBridgeClientTest {
         runBlocking {
             server.session {
                 expectCmd { "host:transport:serial" }.accept()
-                expectCmd { "shell:xx;echo x$?" }.reject("something-somethingx0")
+                expectShell { "xx;echo x$?" }.reject("something-somethingx0")
             }
 
             client.execute(ShellCommandRequest("xx"), serial = "serial")
@@ -66,7 +66,7 @@ class AndroidDebugBridgeClientTest {
             server.session {
                 expectCmd { "host:transport:serial" }.accept()
 
-                expectCmd { "shell:xx;echo x\$?" }
+                expectShell { "xx;echo x\$?" }
                 output.respond(Const.Message.FAIL)
                 output.respondStringRaw("XXXXx")
             }

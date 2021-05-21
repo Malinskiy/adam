@@ -19,8 +19,8 @@ package com.malinskiy.adam.server.stub.dsl
 import com.malinskiy.adam.Const
 import java.io.File
 
-class SendFileExpectation(private val session: Session) {
-    suspend fun receiveFile(fixture: File): SendFileExpectation {
+class SendFileSubSession(private val session: Session) {
+    suspend fun receiveFile(fixture: File): SendFileSubSession {
         session.receiveFile(fixture)
         return this
     }
