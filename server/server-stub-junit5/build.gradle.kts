@@ -38,8 +38,11 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile::class) {
 }
 
 dependencies {
-    implementation(project(":server:server-stub"))
+    api(project(":server:server-stub"))
     implementation(TestLibraries.junit5)
+    implementation(TestLibraries.junit5commons)
+    implementation(kotlin("reflect", version = Versions.kotlin))
+    implementation(Libraries.coroutines)
 
     testImplementation(TestLibraries.coroutinesDebug)
 }

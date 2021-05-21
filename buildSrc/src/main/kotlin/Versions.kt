@@ -12,6 +12,7 @@ object Versions {
     val assertk = "0.19"
     val junit4 = "4.12"
     val junit5 = "5.4.2"
+    val junit5commons = "1.7.2"
     val imageComparison = "4.3.0"
     val dokka = "1.4.20"
     val coroutinesDebug = "1.4.0"
@@ -54,6 +55,7 @@ object TestLibraries {
     val assertk = "com.willowtreeapps.assertk:assertk:${Versions.assertk}"
     val junit4 = "junit:junit:${Versions.junit4}"
     val junit5 = "org.junit.jupiter:junit-jupiter-engine:${Versions.junit5}"
+    val junit5commons = "org.junit.platform:junit-platform-commons:${Versions.junit5commons}"
     val imageComparison = "com.github.romankh3:image-comparison:${Versions.imageComparison}"
     val coroutinesDebug = "org.jetbrains.kotlinx:kotlinx-coroutines-debug:${Versions.coroutinesDebug}"
 }
