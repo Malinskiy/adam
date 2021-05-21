@@ -18,7 +18,7 @@ fi
 
 ATASK=""
 DTASK=""
-for i in ":adam" ":android-junit4" ":android-testrunner-contract" ":server-stub"; do
+for i in ":adam" ":android-junit4" ":android-testrunner-contract" ":server:server-stub" ":server:server-stub-junit4" ":server:server-stub-junit5"; do
   ATASK="$ATASK $i:assemble"
   DTASK="$DTASK $i:publishDefaultPublicationToOSSHRRepository"
 done
