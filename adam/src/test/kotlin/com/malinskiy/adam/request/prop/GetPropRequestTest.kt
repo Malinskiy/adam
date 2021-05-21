@@ -19,12 +19,19 @@ package com.malinskiy.adam.request.prop
 import assertk.assertThat
 import assertk.assertions.contains
 import assertk.assertions.isEqualTo
+import com.malinskiy.adam.AndroidDebugBridgeClient
 import com.malinskiy.adam.Const
-import com.malinskiy.adam.server.stub.AndroidDebugBridgeServer
+import com.malinskiy.adam.server.junit4.AdbServerRule
 import kotlinx.coroutines.runBlocking
+import org.junit.Rule
 import org.junit.Test
 
 class GetPropRequestTest {
+    @get:Rule
+    val server = AdbServerRule()
+    val client: AndroidDebugBridgeClient
+        get() = server.client
+
     @Test
     fun testGetAll() {
         assertThat(String(GetPropRequest().serialize(), Const.DEFAULT_TRANSPORT_ENCODING))
@@ -34,25 +41,14 @@ class GetPropRequestTest {
     @Test
     fun testReturnsProperContent() {
         runBlocking {
-            val server = AndroidDebugBridgeServer()
-
-            val client = server.startAndListen { input, output ->
-                val transportCmd = input.receiveCommand()
-                assertThat(transportCmd).isEqualTo("host:transport:serial")
-                output.respond(Const.Message.OKAY)
-
-                val shellCmd = input.receiveCommand()
-                assertThat(shellCmd).isEqualTo("shell:getprop;echo x$?")
-                output.respond(Const.Message.OKAY)
-
-                val response = "[testing]: [testing]\r\r\nx0".toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
-                output.writeFully(response, 0, response.size)
+            server.session {
+                expectCmd { "host:transport:serial" }.accept()
+                expectCmd { "shell:getprop;echo x$?" }.accept()
+                respondShellV1("[testing]: [testing]\r\r\nx0")
             }
 
             val version = client.execute(GetPropRequest(), serial = "serial")
             assertThat(version).contains("testing", "testing")
-
-            server.dispose()
         }
     }
 }

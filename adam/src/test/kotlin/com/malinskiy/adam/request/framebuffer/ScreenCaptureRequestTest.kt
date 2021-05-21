@@ -21,10 +21,10 @@ import assertk.assertions.isEqualTo
 import com.github.romankh3.image.comparison.ImageComparison
 import com.github.romankh3.image.comparison.ImageComparisonUtil
 import com.github.romankh3.image.comparison.model.ImageComparisonResult
-import com.malinskiy.adam.Const
+import com.malinskiy.adam.AndroidDebugBridgeClient
 import com.malinskiy.adam.exception.UnsupportedImageProtocolException
 import com.malinskiy.adam.extension.newFileWithExtension
-import com.malinskiy.adam.server.stub.AndroidDebugBridgeServer
+import com.malinskiy.adam.server.junit4.AdbServerRule
 import io.ktor.utils.io.writeIntLittleEndian
 import kotlinx.coroutines.runBlocking
 import org.junit.Rule
@@ -41,27 +41,18 @@ class ScreenCaptureRequestTest {
     @JvmField
     val temp = TemporaryFolder()
 
+    @get:Rule
+    val server = AdbServerRule()
+    val client: AndroidDebugBridgeClient
+        get() = server.client
+
     @Test
     fun testProtocol1() {
         runBlocking {
-            val server = AndroidDebugBridgeServer()
-
-            val client = server.startAndListen { input, output ->
-                val transportCmd = input.receiveCommand()
-                assertThat(transportCmd).isEqualTo("host:transport:serial")
-                output.respond(Const.Message.OKAY)
-
-                val shellCmd = input.receiveCommand()
-                assertThat(shellCmd).isEqualTo("framebuffer:")
-                output.respond(Const.Message.OKAY)
-
-                //Extended version
-                output.writeIntLittleEndian(1)
-
-                val sample = File(javaClass.getResource("/fixture/screencap_1.bin").toURI()).readBytes()
-                output.writeFully(sample, 0, 48)
-                assertThat(input.readByte()).isEqualTo(0.toByte())
-                output.writeFully(sample, 48, sample.size - 48)
+            server.session {
+                expectCmd { "host:transport:serial" }.accept()
+                expectCmd { "framebuffer:" }.accept()
+                respondScreencaptureV2(File(javaClass.getResource("/fixture/screencap_1.bin").toURI()))
             }
 
             val adapter = RawImageScreenCaptureAdapter()
@@ -87,32 +78,16 @@ class ScreenCaptureRequestTest {
 
             val expected = ImageIO.read(File(javaClass.getResource("/fixture/screencap_1.png").toURI()))
             compare(expected, actualImage)
-
-            server.dispose()
         }
     }
 
     @Test
     fun testProtocol16bit() {
         runBlocking {
-            val server = AndroidDebugBridgeServer()
-
-            val client = server.startAndListen { input, output ->
-                val transportCmd = input.receiveCommand()
-                assertThat(transportCmd).isEqualTo("host:transport:serial")
-                output.respond(Const.Message.OKAY)
-
-                val shellCmd = input.receiveCommand()
-                assertThat(shellCmd).isEqualTo("framebuffer:")
-                output.respond(Const.Message.OKAY)
-
-                //Extended version
-                output.writeIntLittleEndian(1)
-
-                val sample = File(javaClass.getResource("/fixture/screencap_2.bin").toURI()).readBytes()
-                output.writeFully(sample, 0, 48)
-                assertThat(input.readByte()).isEqualTo(0.toByte())
-                output.writeFully(sample, 48, sample.size - 48)
+            server.session {
+                expectCmd { "host:transport:serial" }.accept()
+                expectCmd { "framebuffer:" }.accept()
+                respondScreencaptureV2(File(javaClass.getResource("/fixture/screencap_2.bin").toURI()))
             }
 
             val adapter = RawImageScreenCaptureAdapter()
@@ -138,31 +113,15 @@ class ScreenCaptureRequestTest {
 
             val expected = ImageIO.read(File(javaClass.getResource("/fixture/screencap_2.png").toURI()))
             compare(expected, actualImage)
-
-            server.dispose()
         }
     }
 
     @Test
     fun `test with buffered image adapter`() = runBlocking {
-        val server = AndroidDebugBridgeServer()
-
-        val client = server.startAndListen { input, output ->
-            val transportCmd = input.receiveCommand()
-            assertThat(transportCmd).isEqualTo("host:transport:serial")
-            output.respond(Const.Message.OKAY)
-
-            val shellCmd = input.receiveCommand()
-            assertThat(shellCmd).isEqualTo("framebuffer:")
-            output.respond(Const.Message.OKAY)
-
-            //Extended version
-            output.writeIntLittleEndian(1)
-
-            val sample = File(javaClass.getResource("/fixture/screencap_1.bin").toURI()).readBytes()
-            output.writeFully(sample, 0, 48)
-            assertThat(input.readByte()).isEqualTo(0.toByte())
-            output.writeFully(sample, 48, sample.size - 48)
+        server.session {
+            expectCmd { "host:transport:serial" }.accept()
+            expectCmd { "framebuffer:" }.accept()
+            respondScreencaptureV2(File(javaClass.getResource("/fixture/screencap_1.bin").toURI()))
         }
 
         val adapter = BufferedImageScreenCaptureAdapter()
@@ -179,23 +138,12 @@ class ScreenCaptureRequestTest {
         var comparisonResult = compare(expected, actual!!)
         assertThat(comparisonResult.differencePercent).isEqualTo(0.0f)
 
-        server.listen { input, output ->
-            val transportCmd = input.receiveCommand()
-            assertThat(transportCmd).isEqualTo("host:transport:serial")
-            output.respond(Const.Message.OKAY)
-
-            val shellCmd = input.receiveCommand()
-            assertThat(shellCmd).isEqualTo("framebuffer:")
-            output.respond(Const.Message.OKAY)
-
-            //Extended version
-            output.writeIntLittleEndian(1)
-
-            val sample = File(javaClass.getResource("/fixture/screencap_1.bin").toURI()).readBytes()
-            output.writeFully(sample, 0, 48)
-            assertThat(input.readByte()).isEqualTo(0.toByte())
-            output.writeFully(sample, 48, sample.size - 48)
+        server.session {
+            expectCmd { "host:transport:serial" }.accept()
+            expectCmd { "framebuffer:" }.accept()
+            respondScreencaptureV2(File(javaClass.getResource("/fixture/screencap_1.bin").toURI()))
         }
+
         measureTimeMillis {
             actual = client.execute(ScreenCaptureRequest(adapter), serial = "serial")
         }.let { println("Read image with buffer reuse in ${it}ms") }
@@ -204,8 +152,6 @@ class ScreenCaptureRequestTest {
         ImageIO.write(actual, "png", createTempFile2)
         comparisonResult = compare(expected, actual!!)
         assertThat(comparisonResult.differencePercent).isEqualTo(0.0f)
-
-        server.dispose()
     }
 
     /**
@@ -214,24 +160,10 @@ class ScreenCaptureRequestTest {
      */
     @Test
     fun `test with buffered image adapter 16 bit`() = runBlocking {
-        val server = AndroidDebugBridgeServer()
-
-        val client = server.startAndListen { input, output ->
-            val transportCmd = input.receiveCommand()
-            assertThat(transportCmd).isEqualTo("host:transport:serial")
-            output.respond(Const.Message.OKAY)
-
-            val shellCmd = input.receiveCommand()
-            assertThat(shellCmd).isEqualTo("framebuffer:")
-            output.respond(Const.Message.OKAY)
-
-            //Extended version
-            output.writeIntLittleEndian(1)
-
-            val sample = File(javaClass.getResource("/fixture/screencap_2.bin").toURI()).readBytes()
-            output.writeFully(sample, 0, 48)
-            assertThat(input.readByte()).isEqualTo(0.toByte())
-            output.writeFully(sample, 48, sample.size - 48)
+        server.session {
+            expectCmd { "host:transport:serial" }.accept()
+            expectCmd { "framebuffer:" }.accept()
+            respondScreencaptureV2(File(javaClass.getResource("/fixture/screencap_2.bin").toURI()))
         }
 
         val adapter = BufferedImageScreenCaptureAdapter()
@@ -248,23 +180,12 @@ class ScreenCaptureRequestTest {
         var comparisonResult = compare(expected, actual!!)
         assertThat(comparisonResult.differencePercent).isEqualTo(0.0f)
 
-        server.listen { input, output ->
-            val transportCmd = input.receiveCommand()
-            assertThat(transportCmd).isEqualTo("host:transport:serial")
-            output.respond(Const.Message.OKAY)
-
-            val shellCmd = input.receiveCommand()
-            assertThat(shellCmd).isEqualTo("framebuffer:")
-            output.respond(Const.Message.OKAY)
-
-            //Extended version
-            output.writeIntLittleEndian(1)
-
-            val sample = File(javaClass.getResource("/fixture/screencap_2.bin").toURI()).readBytes()
-            output.writeFully(sample, 0, 48)
-            assertThat(input.readByte()).isEqualTo(0.toByte())
-            output.writeFully(sample, 48, sample.size - 48)
+        server.session {
+            expectCmd { "host:transport:serial" }.accept()
+            expectCmd { "framebuffer:" }.accept()
+            respondScreencaptureV2(File(javaClass.getResource("/fixture/screencap_2.bin").toURI()))
         }
+
         measureTimeMillis {
             actual = client.execute(ScreenCaptureRequest(adapter), serial = "serial")
         }.let { println("Read image with buffer reuse in ${it}ms") }
@@ -273,31 +194,14 @@ class ScreenCaptureRequestTest {
         ImageIO.write(actual, "png", createTempFile2)
         comparisonResult = compare(expected, actual!!)
         assertThat(comparisonResult.differencePercent).isEqualTo(0.0f)
-
-
-        server.dispose()
     }
 
     @Test
     fun `test with buffered image adapter unaligned 32 bit `() = runBlocking {
-        val server = AndroidDebugBridgeServer()
-
-        val client = server.startAndListen { input, output ->
-            val transportCmd = input.receiveCommand()
-            assertThat(transportCmd).isEqualTo("host:transport:serial")
-            output.respond(Const.Message.OKAY)
-
-            val shellCmd = input.receiveCommand()
-            assertThat(shellCmd).isEqualTo("framebuffer:")
-            output.respond(Const.Message.OKAY)
-
-            //Extended version
-            output.writeIntLittleEndian(1)
-
-            val sample = File(javaClass.getResource("/fixture/screencap_1_unaligned.bin").toURI()).readBytes()
-            output.writeFully(sample, 0, 48)
-            assertThat(input.readByte()).isEqualTo(0.toByte())
-            output.writeFully(sample, 48, sample.size - 48)
+        server.session {
+            expectCmd { "host:transport:serial" }.accept()
+            expectCmd { "framebuffer:" }.accept()
+            respondScreencaptureV2(File(javaClass.getResource("/fixture/screencap_1_unaligned.bin").toURI()))
         }
 
         val adapter = BufferedImageScreenCaptureAdapter()
@@ -314,23 +218,12 @@ class ScreenCaptureRequestTest {
         var comparisonResult = compare(expected, actual!!)
         assertThat(comparisonResult.differencePercent).isEqualTo(0.0f)
 
-        server.listen { input, output ->
-            val transportCmd = input.receiveCommand()
-            assertThat(transportCmd).isEqualTo("host:transport:serial")
-            output.respond(Const.Message.OKAY)
-
-            val shellCmd = input.receiveCommand()
-            assertThat(shellCmd).isEqualTo("framebuffer:")
-            output.respond(Const.Message.OKAY)
-
-            //Extended version
-            output.writeIntLittleEndian(1)
-
-            val sample = File(javaClass.getResource("/fixture/screencap_1_unaligned.bin").toURI()).readBytes()
-            output.writeFully(sample, 0, 48)
-            assertThat(input.readByte()).isEqualTo(0.toByte())
-            output.writeFully(sample, 48, sample.size - 48)
+        server.session {
+            expectCmd { "host:transport:serial" }.accept()
+            expectCmd { "framebuffer:" }.accept()
+            respondScreencaptureV2(File(javaClass.getResource("/fixture/screencap_1_unaligned.bin").toURI()))
         }
+
         measureTimeMillis {
             actual = client.execute(ScreenCaptureRequest(adapter), serial = "serial")
         }.let { println("Read image with buffer reuse in ${it}ms") }
@@ -339,30 +232,14 @@ class ScreenCaptureRequestTest {
         ImageIO.write(actual, "png", createTempFile2)
         comparisonResult = compare(expected, actual!!)
         assertThat(comparisonResult.differencePercent).isEqualTo(0.0f)
-
-        server.dispose()
     }
 
     @Test
     fun `test with buffered image adapter with srgb color model`() = runBlocking {
-        val server = AndroidDebugBridgeServer()
-
-        val client = server.startAndListen { input, output ->
-            val transportCmd = input.receiveCommand()
-            assertThat(transportCmd).isEqualTo("host:transport:serial")
-            output.respond(Const.Message.OKAY)
-
-            val shellCmd = input.receiveCommand()
-            assertThat(shellCmd).isEqualTo("framebuffer:")
-            output.respond(Const.Message.OKAY)
-
-            //Extended version
-            output.writeIntLittleEndian(2)
-
-            val sample = File(javaClass.getResource("/fixture/screencap_3.bin").toURI()).readBytes()
-            output.writeFully(sample, 0, 52)
-            assertThat(input.readByte()).isEqualTo(0.toByte())
-            output.writeFully(sample, 52, sample.size - 52)
+        server.session {
+            expectCmd { "host:transport:serial" }.accept()
+            expectCmd { "framebuffer:" }.accept()
+            respondScreencaptureV3(File(javaClass.getResource("/fixture/screencap_3.bin").toURI()))
         }
 
         val adapter = BufferedImageScreenCaptureAdapter()
@@ -379,22 +256,10 @@ class ScreenCaptureRequestTest {
         var comparisonResult = compare(expected, actual!!)
         assertThat(comparisonResult.differencePercent).isEqualTo(0.0f)
 
-        server.listen { input, output ->
-            val transportCmd = input.receiveCommand()
-            assertThat(transportCmd).isEqualTo("host:transport:serial")
-            output.respond(Const.Message.OKAY)
-
-            val shellCmd = input.receiveCommand()
-            assertThat(shellCmd).isEqualTo("framebuffer:")
-            output.respond(Const.Message.OKAY)
-
-            //Extended version
-            output.writeIntLittleEndian(2)
-
-            val sample = File(javaClass.getResource("/fixture/screencap_3.bin").toURI()).readBytes()
-            output.writeFully(sample, 0, 52)
-            assertThat(input.readByte()).isEqualTo(0.toByte())
-            output.writeFully(sample, 52, sample.size - 52)
+        server.session {
+            expectCmd { "host:transport:serial" }.accept()
+            expectCmd { "framebuffer:" }.accept()
+            respondScreencaptureV3(File(javaClass.getResource("/fixture/screencap_3.bin").toURI()))
         }
         measureTimeMillis {
             actual = client.execute(ScreenCaptureRequest(adapter), serial = "serial")
@@ -404,30 +269,20 @@ class ScreenCaptureRequestTest {
         ImageIO.write(actual, "png", createTempFile2)
         comparisonResult = compare(expected, actual!!)
         assertThat(comparisonResult.differencePercent).isEqualTo(0.0f)
-
-        server.dispose()
     }
 
     @Test(expected = UnsupportedImageProtocolException::class)
     fun testProtocolUnsupported() {
         runBlocking {
-            val server = AndroidDebugBridgeServer()
+            server.session {
+                expectCmd { "host:transport:serial" }.accept()
+                expectCmd { "framebuffer:" }.accept()
 
-            val client = server.startAndListen { input, output ->
-                val transportCmd = input.receiveCommand()
-                assertThat(transportCmd).isEqualTo("host:transport:serial")
-                output.respond(Const.Message.OKAY)
-
-                val shellCmd = input.receiveCommand()
-                assertThat(shellCmd).isEqualTo("framebuffer:")
-                output.respond(Const.Message.OKAY)
-
-                //Extended version
+                //Unsupported version
                 output.writeIntLittleEndian(99)
             }
 
             client.execute(ScreenCaptureRequest(RawImageScreenCaptureAdapter()), serial = "serial")
-            server.dispose()
         }
     }
 

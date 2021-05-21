@@ -18,30 +18,27 @@ package com.malinskiy.adam.request.shell.v1
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
-import com.malinskiy.adam.Const
-import com.malinskiy.adam.server.stub.AndroidDebugBridgeServer
+import com.malinskiy.adam.AndroidDebugBridgeClient
+import com.malinskiy.adam.server.junit4.AdbServerRule
 import kotlinx.coroutines.runBlocking
+import org.junit.Rule
 import org.junit.Test
 
 class ChanneledShellCommandRequestTest {
+    @get:Rule
+    val server = AdbServerRule()
+    val client: AndroidDebugBridgeClient
+        get() = server.client
+
     @Test
     fun testReturnsProperContent() {
         runBlocking {
-            val server = AndroidDebugBridgeServer()
+            server.session {
+                expectCmd { "host:transport:emulator-5554" }.accept()
+                expectCmd { "shell:logcat -v" }.accept()
 
-            val client = server.startAndListen { input, output ->
-                val transportCmd = input.receiveCommand()
-                assertThat(transportCmd).isEqualTo("host:transport:emulator-5554")
-                output.respond(Const.Message.OKAY)
-
-                val shellCmd = input.receiveCommand()
-                assertThat(shellCmd).isEqualTo("shell:logcat -v")
-                output.respond(Const.Message.OKAY)
-
-                var response = "something-something".toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
-                output.writeFully(response, 0, response.size)
-                response = "something2-something2".toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
-                output.writeFully(response, 0, response.size)
+                respondShellV1("something-something")
+                respondShellV1("something2-something2")
             }
 
             val updates = client.execute(ChanneledShellCommandRequest("logcat -v"), scope = this, serial = "emulator-5554")
@@ -52,7 +49,6 @@ class ChanneledShellCommandRequestTest {
             }
 
             assertThat(stringBuffer.toString()).isEqualTo("something-somethingsomething2-something2")
-            server.dispose()
         }
     }
 }

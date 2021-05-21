@@ -168,7 +168,7 @@ dependencies {
     testImplementation(TestLibraries.imageComparison)
     testImplementation(kotlin("reflect", version = Versions.kotlin))
     testImplementation(TestLibraries.coroutinesDebug)
-    testImplementation(project(":server-stub"))
+    testImplementation(project(":server:server-stub-junit4"))
 
     integrationTestImplementation(TestLibraries.coroutinesDebug)
     integrationTestImplementation(TestLibraries.assertk)

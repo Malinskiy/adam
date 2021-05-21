@@ -142,6 +142,12 @@ class ServerWriteChannel(private val delegate: ByteWriteChannel) : ByteWriteChan
         writeFully(message.toByteArray(Const.DEFAULT_TRANSPORT_ENCODING))
     }
 
+    suspend fun respondStringV2(message: String) {
+        val bytes = message.toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
+        writeIntLittleEndian(bytes.size)
+        writeFully(bytes)
+    }
+
     suspend fun respondStringRaw(message: String) {
         respond(message.toByteArray(Const.DEFAULT_TRANSPORT_ENCODING))
     }
@@ -150,6 +156,10 @@ class ServerWriteChannel(private val delegate: ByteWriteChannel) : ByteWriteChan
         respond(Const.Message.FAIL)
         writeIntLittleEndian(message.length)
         respondStringRaw(message)
+    }
+
+    suspend fun respondShellV1(stdout: String) {
+        respondStringRaw(stdout)
     }
 
     suspend fun respondShellV2(stdout: String, stderr: String, exitCode: Int) {
@@ -172,12 +182,6 @@ class ServerWriteChannel(private val delegate: ByteWriteChannel) : ByteWriteChan
     suspend fun respondShellV2Stdout(stdout: String) {
         writeByte(MessageType.STDOUT.toValue().toByte())
         respondStringV2(stdout)
-    }
-
-    suspend fun respondStringV2(message: String) {
-        val bytes = message.toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
-        writeIntLittleEndian(bytes.size)
-        writeFully(bytes)
     }
 
     suspend fun respondShellV2WindowSizeChange() {

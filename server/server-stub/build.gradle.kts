@@ -84,9 +84,9 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile::class) {
 dependencies {
     implementation(kotlin("stdlib-jdk8", version = Versions.kotlin))
     implementation(Libraries.coroutines)
-    implementation(project(":adam"))
-    implementation(Libraries.ktorNetwork)
-    implementation(TestLibraries.assertk)
+    api(project(":adam"))
+    api(Libraries.ktorNetwork)
+    api(TestLibraries.assertk)
 
     testImplementation(TestLibraries.junit4)
     testImplementation(TestLibraries.coroutinesDebug)

@@ -18,34 +18,31 @@ package com.malinskiy.adam.request.sync.v2
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
-import com.malinskiy.adam.Const
+import com.malinskiy.adam.AndroidDebugBridgeClient
 import com.malinskiy.adam.request.Feature
 import com.malinskiy.adam.request.sync.model.FileEntryV2
-import com.malinskiy.adam.server.stub.AndroidDebugBridgeServer
+import com.malinskiy.adam.server.junit4.AdbServerRule
 import kotlinx.coroutines.runBlocking
+import org.junit.Rule
 import org.junit.Test
 import java.time.Instant
 
 
 class StatFileRequestTest {
+    @get:Rule
+    val server = AdbServerRule()
+    val client: AndroidDebugBridgeClient
+        get() = server.client
+
     @Test
     fun testReturnsProperContent() {
         runBlocking {
-            val server = AndroidDebugBridgeServer()
+            server.session {
+                expectCmd { "host:transport:serial" }.accept()
+                expectCmd { "sync:" }.accept()
 
-            val client = server.startAndListen { input, output ->
-                val transportCmd = input.receiveCommand()
-                assertThat(transportCmd).isEqualTo("host:transport:serial")
-                output.respond(Const.Message.OKAY)
-
-                val shellCmd = input.receiveCommand()
-                assertThat(shellCmd).isEqualTo("sync:")
-                output.respond(Const.Message.OKAY)
-
-                val receiveStat = input.receiveStatV2()
-                assertThat(receiveStat).isEqualTo("/sdcard/testfile")
-
-                output.respondStatV2(
+                expectStatV2 { "/sdcard/testfile" }
+                respondStatV2(
                     mode = 123,
                     size = 420,
                     error = 0,
@@ -76,8 +73,6 @@ class StatFileRequestTest {
                     ctime = Instant.ofEpochSecond(1589042333)
                 )
             )
-
-            server.dispose()
         }
     }
 

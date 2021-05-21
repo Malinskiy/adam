@@ -18,48 +18,41 @@ package com.malinskiy.adam.request.sync.compat
 
 import assertk.assertThat
 import assertk.assertions.containsExactly
-import assertk.assertions.isEqualTo
-import com.malinskiy.adam.Const
+import com.malinskiy.adam.AndroidDebugBridgeClient
 import com.malinskiy.adam.request.Feature
 import com.malinskiy.adam.request.sync.model.FileEntryV1
 import com.malinskiy.adam.request.sync.model.FileEntryV2
-import com.malinskiy.adam.server.stub.AndroidDebugBridgeServer
+import com.malinskiy.adam.server.junit4.AdbServerRule
 import kotlinx.coroutines.runBlocking
+import org.junit.Rule
 import org.junit.Test
 import java.time.Instant
 
 class CompatListFileRequestTest {
+    @get:Rule
+    val server = AdbServerRule()
+    val client: AndroidDebugBridgeClient
+        get() = server.client
+
     @Test
     fun testV1() {
         runBlocking {
-            val server = AndroidDebugBridgeServer()
+            server.session {
+                expectCmd { "host:transport:serial" }.accept()
+                expectCmd { "sync:" }.accept()
 
-            val client = server.startAndListen { input, output ->
-                val transportCmd = input.receiveCommand()
-                assertThat(transportCmd).isEqualTo("host:transport:serial")
-                output.respond(Const.Message.OKAY)
-
-                val actualCommand = input.receiveCommand()
-                assertThat(actualCommand).isEqualTo("sync:")
-                output.respond(Const.Message.OKAY)
-
-                val listPath = input.receiveList()
-                assertThat(listPath).isEqualTo("/sdcard/")
-                output.respondList(
+                expectList { "/sdcard/" }
+                respondList(
                     420,
                     123,
                     1589042331,
                     "some-file"
-                )
-                output.respondDone()
+                ).done()
             }
 
             val list = client.execute(
                 CompatListFileRequest("/sdcard/", emptyList()), "serial"
             )
-
-
-            server.dispose()
 
             assertThat(list).containsExactly(
                 FileEntryV1(
@@ -74,20 +67,12 @@ class CompatListFileRequestTest {
 
     @Test
     fun testV2() = runBlocking {
-        val server = AndroidDebugBridgeServer()
+        server.session {
+            expectCmd { "host:transport:serial" }.accept()
+            expectCmd { "sync:" }.accept()
 
-        val client = server.startAndListen { input, output ->
-            val transportCmd = input.receiveCommand()
-            assertThat(transportCmd).isEqualTo("host:transport:serial")
-            output.respond(Const.Message.OKAY)
-
-            val actualCommand = input.receiveCommand()
-            assertThat(actualCommand).isEqualTo("sync:")
-            output.respond(Const.Message.OKAY)
-
-            val listPath = input.receiveListV2()
-            assertThat(listPath).isEqualTo("/sdcard/")
-            output.respondListV2(
+            expectListV2 { "/sdcard/" }
+            respondListV2(
                 name = "some-file",
                 mode = 123,
                 size = 420,
@@ -100,14 +85,12 @@ class CompatListFileRequestTest {
                 atime = 1589042331,
                 mtime = 1589042332,
                 ctime = 1589042333
-            )
-            output.respondDone()
+            ).done()
         }
 
         val list = client.execute(
             CompatListFileRequest("/sdcard/", listOf(Feature.LS_V2)), "serial"
         )
-        server.dispose()
 
         assertThat(list).containsExactly(
             FileEntryV2(

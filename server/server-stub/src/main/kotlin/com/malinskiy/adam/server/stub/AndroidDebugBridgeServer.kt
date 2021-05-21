@@ -43,6 +43,12 @@ class AndroidDebugBridgeServer : CoroutineScope {
     override val coroutineContext: CoroutineContext
         get() = executionDispatcher
 
+    val client: AndroidDebugBridgeClient by lazy {
+        AndroidDebugBridgeClientFactory().apply {
+            port = this@AndroidDebugBridgeServer.port
+        }.build()
+    }
+
     private val job = SupervisorJob()
     var port: Int = 0
 
@@ -53,18 +59,10 @@ class AndroidDebugBridgeServer : CoroutineScope {
         server = aSocket(ActorSelectorManager(Dispatchers.IO)).tcp().bind(address)
         port = server.localAddress.port
 
-        return AndroidDebugBridgeClientFactory().apply {
-            port = this@AndroidDebugBridgeServer.port
-        }.build()
-    }
-
-    suspend fun startAndListen(block: suspend (ServerReadChannel, ServerWriteChannel) -> Unit): AndroidDebugBridgeClient {
-        val client = start()
-        listen(block)
         return client
     }
 
-    fun listen(block: suspend (ServerReadChannel, ServerWriteChannel) -> Unit) {
+    fun listen(block: suspend (input: ServerReadChannel, output: ServerWriteChannel) -> Unit) {
         async(context = job) {
             try {
                 val socket = server.accept()

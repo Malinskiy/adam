@@ -23,109 +23,76 @@ import com.malinskiy.adam.exception.RequestValidationException
 import com.malinskiy.adam.request.ComplexRequest
 import com.malinskiy.adam.request.ValidationResponse
 import com.malinskiy.adam.request.shell.v1.ShellCommandRequest
-import com.malinskiy.adam.server.stub.AndroidDebugBridgeServer
+import com.malinskiy.adam.server.junit4.AdbServerRule
 import com.malinskiy.adam.transport.Socket
 import kotlinx.coroutines.runBlocking
+import org.junit.Rule
 import org.junit.Test
 
 class AndroidDebugBridgeClientTest {
+    @get:Rule
+    val server = AdbServerRule()
+    val client: AndroidDebugBridgeClient
+        get() = server.client
+
     @Test(expected = RequestRejectedException::class)
     fun testRequestRejection() {
         runBlocking {
-            val server = AndroidDebugBridgeServer()
-
-            val client = server.startAndListen { input, output ->
-                val transportCmd = input.receiveCommand()
-                assertThat(transportCmd).isEqualTo("host:transport:serial")
-                output.respond(Const.Message.FAIL)
-
-                val response = "0013something-somethingx0".toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
-                output.writeFully(response, 0, response.size)
+            server.session {
+                expectCmd { "host:transport:serial" }.reject("something-something")
             }
 
             val output = client.execute(ShellCommandRequest("xx"), serial = "serial")
             assertThat(output.output).isEqualTo("something-something")
             assertThat(output.exitCode).isEqualTo(0)
-
-            server.dispose()
         }
     }
 
     @Test(expected = RequestRejectedException::class)
     fun testRequestRejectionDuringHandshake() {
         runBlocking {
-            val server = AndroidDebugBridgeServer()
-
-            val client = server.startAndListen { input, output ->
-                val transportCmd = input.receiveCommand()
-                assertThat(transportCmd).isEqualTo("host:transport:serial")
-                output.respond(Const.Message.OKAY)
-
-                val shellCmd = input.receiveCommand()
-                assertThat(shellCmd).isEqualTo("shell:xx;echo x$?")
-                output.respond(Const.Message.FAIL)
-
-                val response = "0013something-somethingx0".toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
-                output.writeFully(response, 0, response.size)
+            server.session {
+                expectCmd { "host:transport:serial" }.accept()
+                expectCmd { "shell:xx;echo x$?" }.reject("something-somethingx0")
             }
 
             client.execute(ShellCommandRequest("xx"), serial = "serial")
-            server.dispose()
         }
     }
 
     @Test(expected = RequestRejectedException::class)
     fun testRequestRejectionDuringHandshakeWithNoMessage() {
         runBlocking {
-            val server = AndroidDebugBridgeServer()
+            server.session {
+                expectCmd { "host:transport:serial" }.accept()
 
-            val client = server.startAndListen { input, output ->
-                val transportCmd = input.receiveCommand()
-                assertThat(transportCmd).isEqualTo("host:transport:serial")
-                output.respond(Const.Message.OKAY)
-
-                val shellCmd = input.receiveCommand()
-                assertThat(shellCmd).isEqualTo("shell:xx;echo x\$?")
+                expectCmd { "shell:xx;echo x\$?" }
                 output.respond(Const.Message.FAIL)
-
-                val response = "XXXXx".toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
-                output.writeFully(response, 0, response.size)
+                output.respondStringRaw("XXXXx")
             }
 
             client.execute(ShellCommandRequest("xx"), serial = "serial")
-            server.dispose()
         }
     }
 
     @Test(expected = RequestRejectedException::class)
     fun testRequestRejectionAndUnexpectedMessageLength() {
         runBlocking {
-            val server = AndroidDebugBridgeServer()
+            server.session {
+                expectCmd { "host:transport:serial" }
 
-            val client = server.startAndListen { input, output ->
-                val transportCmd = input.receiveCommand()
-                assertThat(transportCmd).isEqualTo("host:transport:serial")
                 output.respond(Const.Message.FAIL)
-
-                val response = "XXXXsomething-something".toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
-                output.writeFully(response, 0, response.size)
+                output.respondStringRaw("XXXXsomething-something")
             }
 
             val output = client.execute(ShellCommandRequest("xx"), serial = "serial")
             assertThat(output.output).isEqualTo("something-something")
-
-            server.dispose()
         }
     }
 
     @Test(expected = RequestValidationException::class)
     fun testRequestValidation() {
         runBlocking {
-            val server = AndroidDebugBridgeServer()
-
-            val client = server.startAndListen { _, _ ->
-            }
-
             client.execute(object : ComplexRequest<String>() {
                 override fun validate() = ValidationResponse(false, "Fake")
                 override suspend fun readElement(socket: Socket): String {
@@ -136,7 +103,6 @@ class AndroidDebugBridgeClientTest {
                     TODO("Not yet implemented")
                 }
             }, serial = "serial")
-            server.dispose()
         }
     }
 }

@@ -18,9 +18,9 @@ package com.malinskiy.adam.request.sync.compat
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
-import com.malinskiy.adam.Const
+import com.malinskiy.adam.AndroidDebugBridgeClient
 import com.malinskiy.adam.request.Feature
-import com.malinskiy.adam.server.stub.AndroidDebugBridgeServer
+import com.malinskiy.adam.server.junit4.AdbServerRule
 import io.ktor.utils.io.discard
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -34,6 +34,11 @@ class CompatPushFileRequestTest {
     @JvmField
     val temp = TemporaryFolder()
 
+    @get:Rule
+    val server = AdbServerRule()
+    val client: AndroidDebugBridgeClient
+        get() = server.client
+
     @Test
     fun testV1() {
         runBlocking {
@@ -41,22 +46,14 @@ class CompatPushFileRequestTest {
             val receiveFile = temp.newFile()
 
             launch {
-                val server = AndroidDebugBridgeServer()
+                server.session {
+                    expectCmd { "host:transport:serial" }.accept()
 
+                    expectCmd { "sync:" }.accept()
 
-                val client = server.startAndListen { input, output ->
-                    val transportCmd = input.receiveCommand()
-                    assertThat(transportCmd).isEqualTo("host:transport:serial")
-                    output.respond(Const.Message.OKAY)
-
-                    val actualCommand = input.receiveCommand()
-                    assertThat(actualCommand).isEqualTo("sync:")
-                    output.respond(Const.Message.OKAY)
-
-                    val receiveCmd = input.receiveSend()
-                    assertThat(receiveCmd).isEqualTo("/sdcard/testfile,511")
-                    input.receiveFile(receiveFile)
-                    output.respond(Const.Message.OKAY)
+                    expectSend { "/sdcard/testfile,511" }
+                        .receiveFile(receiveFile)
+                        .done()
 
                     input.discard()
                 }
@@ -70,7 +67,6 @@ class CompatPushFileRequestTest {
                 }
 
                 assertThat(progress).isEqualTo(1.0)
-                server.dispose()
             }.join()
 
             assertThat(receiveFile.readBytes()).isEqualTo(fixture.readBytes())
@@ -84,24 +80,15 @@ class CompatPushFileRequestTest {
             var receiveFile = temp.newFile()
 
             launch {
-                val server = AndroidDebugBridgeServer()
+                server.session {
+                    expectCmd { "host:transport:serial" }.accept()
+                    expectCmd { "sync:" }.accept()
 
-                val client = server.startAndListen { input, output ->
-                    val transportCmd = input.receiveCommand()
-                    assertThat(transportCmd).isEqualTo("host:transport:serial")
-                    output.respond(Const.Message.OKAY)
+                    expectSendV2("/sdcard/testfile", "777", 0)
+                        .receiveFile(receiveFile)
+                        .done()
 
-                    val actualCommand = input.receiveCommand()
-                    assertThat(actualCommand).isEqualTo("sync:")
-                    output.respond(Const.Message.OKAY)
-
-                    val (receiveCmd, mode, flags) = input.receiveSendV2()
-                    assertThat(receiveCmd).isEqualTo("/sdcard/testfile")
-                    assertThat(mode.toString(8)).isEqualTo("777")
-                    assertThat(flags).isEqualTo(0)
-
-                    input.receiveFile(receiveFile)
-                    output.respond(Const.Message.OKAY)
+                    input.discard()
                 }
 
                 val request = CompatPushFileRequest(fixture, "/sdcard/testfile", listOf(Feature.SENDRECV_V2), this)
@@ -113,7 +100,6 @@ class CompatPushFileRequestTest {
                 }
 
                 assertThat(progress).isEqualTo(1.0)
-                server.dispose()
             }.join()
 
             assertThat(receiveFile.readBytes()).isEqualTo(fixture.readBytes())

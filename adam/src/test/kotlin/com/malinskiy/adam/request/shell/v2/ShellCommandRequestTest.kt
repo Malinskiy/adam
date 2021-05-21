@@ -18,32 +18,31 @@ package com.malinskiy.adam.request.shell.v2
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
-import com.malinskiy.adam.Const
+import com.malinskiy.adam.AndroidDebugBridgeClient
 import com.malinskiy.adam.exception.RequestValidationException
-import com.malinskiy.adam.server.stub.AndroidDebugBridgeServer
+import com.malinskiy.adam.server.junit4.AdbServerRule
 import kotlinx.coroutines.runBlocking
+import org.junit.Rule
 import org.junit.Test
 
 class ShellCommandRequestTest {
+    @get:Rule
+    val server = AdbServerRule()
+    val client: AndroidDebugBridgeClient
+        get() = server.client
+
     @Test
     fun testReturnsNonStrippedStdout() {
         runBlocking {
-            val server = AndroidDebugBridgeServer()
+            server.session {
+                expectCmd { "host:transport:serial" }.accept()
+                expectCmd { "shell,v2,raw:echo foo; echo bar >&2; exit 17" }.accept()
 
-            val client = server.startAndListen { input, output ->
-                val transportCmd = input.receiveCommand()
-                assertThat(transportCmd).isEqualTo("host:transport:serial")
-                output.respond(Const.Message.OKAY)
-
-                val shellCmd = input.receiveCommand()
-                assertThat(shellCmd).isEqualTo("shell,v2,raw:echo foo; echo bar >&2; exit 17")
-                output.respond(Const.Message.OKAY)
-
-                output.respondShellV2Stdout("fo")
-                output.respondShellV2Stderr("ba")
-                output.respondShellV2Stdout("o\n")
-                output.respondShellV2Stderr("r\n")
-                output.respondShellV2Exit(17)
+                respondShellV2Stdout("fo")
+                respondShellV2Stderr("ba")
+                respondShellV2Stdout("o\n")
+                respondShellV2Stderr("r\n")
+                respondShellV2Exit(17)
             }
 
 
@@ -51,8 +50,6 @@ class ShellCommandRequestTest {
             assertThat(output.stdout).isEqualTo("foo\n")
             assertThat(output.stderr).isEqualTo("bar\n")
             assertThat(output.exitCode).isEqualTo(17)
-
-            server.dispose()
         }
     }
 
@@ -78,17 +75,9 @@ class ShellCommandRequestTest {
 
     private fun runUnsupportedTestMessage(messageType: MessageType) {
         runBlocking {
-            val server = AndroidDebugBridgeServer()
-
-            val client = server.startAndListen { input, output ->
-                val transportCmd = input.receiveCommand()
-                assertThat(transportCmd).isEqualTo("host:transport:serial")
-                output.respond(Const.Message.OKAY)
-
-                val shellCmd = input.receiveCommand()
-                assertThat(shellCmd).isEqualTo("shell,v2,raw:echo foo; echo bar >&2; exit 17")
-                output.respond(Const.Message.OKAY)
-
+            server.session {
+                expectCmd { "host:transport:serial" }.accept()
+                expectCmd { "shell,v2,raw:echo foo; echo bar >&2; exit 17" }.accept()
                 output.writeByte(messageType.toValue().toByte())
             }
 
@@ -96,8 +85,6 @@ class ShellCommandRequestTest {
             assertThat(output.stdout).isEqualTo("foo\n")
             assertThat(output.stderr).isEqualTo("bar\n")
             assertThat(output.exitCode).isEqualTo(17)
-
-            server.dispose()
         }
     }
 }

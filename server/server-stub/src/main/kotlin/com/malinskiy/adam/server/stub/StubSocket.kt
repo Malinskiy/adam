@@ -16,7 +16,6 @@
 
 package com.malinskiy.adam.server.stub
 
-import com.malinskiy.adam.log.AdamLogging
 import com.malinskiy.adam.transport.Socket
 import io.ktor.utils.io.ByteChannelSequentialJVM
 import io.ktor.utils.io.ByteReadChannel

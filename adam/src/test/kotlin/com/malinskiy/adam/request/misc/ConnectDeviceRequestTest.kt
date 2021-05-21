@@ -18,12 +18,19 @@ package com.malinskiy.adam.request.misc
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import com.malinskiy.adam.AndroidDebugBridgeClient
 import com.malinskiy.adam.extension.toRequestString
-import com.malinskiy.adam.server.stub.AndroidDebugBridgeServer
+import com.malinskiy.adam.server.junit4.AdbServerRule
 import kotlinx.coroutines.runBlocking
+import org.junit.Rule
 import org.junit.Test
 
 class ConnectDeviceRequestTest {
+    @get:Rule
+    val server = AdbServerRule()
+    val client: AndroidDebugBridgeClient
+        get() = server.client
+
     @Test
     fun testSerialize() {
         val bytes = ConnectDeviceRequest("123.123.123.123").serialize()
@@ -39,20 +46,13 @@ class ConnectDeviceRequestTest {
     @Test
     fun testReturnsResultString() {
         runBlocking {
-            val server = AndroidDebugBridgeServer()
-
-            val client = server.startAndListen { input, output ->
-                val cmd = input.receiveCommand()
-                assertThat(cmd).isEqualTo("host:connect:123.123.123.123:8888")
-                output.respondOkay()
-
-                output.respondStringV1("connected to 123.123.123.123:8888")
+            server.session {
+                expectCmd { "host:connect:123.123.123.123:8888" }.accept()
+                respondConnectDevice("connected to 123.123.123.123:8888")
             }
 
             val output = client.execute(ConnectDeviceRequest("123.123.123.123", 8888))
             assertThat(output).isEqualTo("connected to 123.123.123.123:8888")
-
-            server.dispose()
         }
     }
 }

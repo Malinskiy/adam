@@ -19,31 +19,30 @@ package com.malinskiy.adam.request.sync.v2
 import assertk.assertThat
 import assertk.assertions.containsExactly
 import assertk.assertions.isEqualTo
-import com.malinskiy.adam.Const
+import com.malinskiy.adam.AndroidDebugBridgeClient
 import com.malinskiy.adam.request.Feature
 import com.malinskiy.adam.request.sync.model.FileEntryV2
-import com.malinskiy.adam.server.stub.AndroidDebugBridgeServer
+import com.malinskiy.adam.server.junit4.AdbServerRule
 import kotlinx.coroutines.runBlocking
+import org.junit.Rule
 import org.junit.Test
 import java.time.Instant
 
 class ListFileRequestTest {
+    @get:Rule
+    val server = AdbServerRule()
+    val client: AndroidDebugBridgeClient
+        get() = server.client
+
     @Test
     fun testSerialize() = runBlocking {
-        val server = AndroidDebugBridgeServer()
+        server.session {
+            expectCmd { "host:transport:serial" }.accept()
 
-        val client = server.startAndListen { input, output ->
-            val transportCmd = input.receiveCommand()
-            assertThat(transportCmd).isEqualTo("host:transport:serial")
-            output.respond(Const.Message.OKAY)
+            expectCmd { "sync:" }.accept()
 
-            val actualCommand = input.receiveCommand()
-            assertThat(actualCommand).isEqualTo("sync:")
-            output.respond(Const.Message.OKAY)
-
-            val listPath = input.receiveListV2()
-            assertThat(listPath).isEqualTo("/sdcard/")
-            output.respondListV2(
+            expectListV2 { "/sdcard/" }
+            respondListV2(
                 name = "some-file",
                 mode = 123,
                 size = 420,
@@ -63,7 +62,6 @@ class ListFileRequestTest {
         val list = client.execute(
             ListFileRequest("/sdcard/", listOf(Feature.LS_V2)), "serial"
         )
-        server.dispose()
 
         assertThat(list).containsExactly(
             FileEntryV2(

@@ -20,25 +20,24 @@ import assertk.assertThat
 import assertk.assertions.containsExactly
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNull
-import com.malinskiy.adam.Const
-import com.malinskiy.adam.server.stub.AndroidDebugBridgeServer
+import com.malinskiy.adam.AndroidDebugBridgeClient
+import com.malinskiy.adam.server.junit4.AdbServerRule
 import kotlinx.coroutines.runBlocking
+import org.junit.Rule
 import org.junit.Test
 
 class ListFilesRequestTest {
+    @get:Rule
+    val server = AdbServerRule()
+    val client: AndroidDebugBridgeClient
+        get() = server.client
+
     @Test
     fun testReturnsProperContent() {
         runBlocking {
-            val server = AndroidDebugBridgeServer()
-
-            val client = server.startAndListen { input, output ->
-                val transportCmd = input.receiveCommand()
-                assertThat(transportCmd).isEqualTo("host:transport:serial")
-                output.respond(Const.Message.OKAY)
-
-                val shellCmd = input.receiveCommand()
-                assertThat(shellCmd).isEqualTo("shell:ls -l /sdcard/;echo x$?")
-                output.respond(Const.Message.OKAY)
+            server.session {
+                expectCmd { "host:transport:serial" }.accept()
+                expectCmd { "shell:ls -l /sdcard/;echo x$?" }.accept()
 
                 val response = """
                     total 88
@@ -51,8 +50,8 @@ class ListFilesRequestTest {
                     drwxrwx--x 2 root sdcard_rw 4096 2020-10-24 16:29 Ringtones
                     Orwxrwx--x 2 root sdcard_rw 4096 2020-10-24 16:29 XXX
                     x0
-                """.trimIndent().toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
-                output.writeFully(response, 0, response.size)
+                """.trimIndent()
+                respondShellV1(response)
             }
 
             val files = client.execute(ListFilesRequest("/sdcard/"), serial = "serial")
@@ -153,8 +152,6 @@ class ListFilesRequestTest {
             assertThat(files.first().size).isEqualTo(4096L)
             assertThat(files.first().time).isEqualTo("16:29")
             assertThat(files.first().type).isEqualTo(AndroidFileType.REGULAR_FILE)
-
-            server.dispose()
         }
     }
 }
