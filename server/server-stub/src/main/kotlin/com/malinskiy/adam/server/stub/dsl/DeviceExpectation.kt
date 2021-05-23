@@ -14,13 +14,19 @@
  * limitations under the License.
  */
 
-package com.malinskiy.adam.server.junit5
+package com.malinskiy.adam.server.stub.dsl
 
-import org.junit.jupiter.api.extension.ExtendWith
-import java.lang.annotation.Inherited
+data class DeviceExpectation(
+    val serialNo: String,
+    private val list: MutableList<suspend Session.() -> Unit> = mutableListOf()
+) {
+    fun session(block: suspend Session.() -> Unit) {
+        list.add(block)
+    }
 
-@Target(AnnotationTarget.CLASS)
-@ExtendWith(AdbServerExtension::class)
-@Inherited
-@Retention(AnnotationRetention.RUNTIME)
-annotation class AdbTest
+    suspend fun handle(session: Session) {
+        assert(list.size > 0) { "No handles registered for request" }
+        val head = list.removeAt(0)
+        head(session)
+    }
+}

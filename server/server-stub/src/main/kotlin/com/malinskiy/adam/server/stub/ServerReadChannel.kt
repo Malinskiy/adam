@@ -179,6 +179,8 @@ class ServerReadChannel(private val delegate: ByteReadChannel) : ByteReadChannel
 
                 when {
                     header.contentEquals(Const.Message.DONE) -> {
+                        channel.flush()
+                        channel.close()
                         return file
                     }
                     header.contentEquals(Const.Message.DATA) -> {
@@ -188,8 +190,6 @@ class ServerReadChannel(private val delegate: ByteReadChannel) : ByteReadChannel
                         }
                         readFully(dataBuffer, 0, available)
                         channel.writeFully(dataBuffer, 0, available)
-                        channel.flush()
-                        channel.close()
                     }
                     else -> throw RuntimeException("Something bad happened")
                 }

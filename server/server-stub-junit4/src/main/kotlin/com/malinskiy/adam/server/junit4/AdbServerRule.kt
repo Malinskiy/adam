@@ -51,10 +51,7 @@ class AdbServerRule : TestRule {
     }
 
     fun session(block: suspend Session.() -> Unit) {
-        server.listen { input, output ->
-            val session = Session(input, output)
-            block(session)
-        }
+        server.session(block)
     }
 }
 

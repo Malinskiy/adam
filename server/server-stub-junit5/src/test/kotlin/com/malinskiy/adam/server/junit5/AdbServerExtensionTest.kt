@@ -16,10 +16,12 @@
 
 package com.malinskiy.adam.server.junit5
 
+import assertk.assertThat
+import assertk.assertions.isEqualTo
 import com.malinskiy.adam.AndroidDebugBridgeClient
 import com.malinskiy.adam.request.misc.GetAdbServerVersionRequest
+import com.malinskiy.adam.request.shell.v1.ShellCommandRequest
 import com.malinskiy.adam.server.stub.AndroidDebugBridgeServer
-import com.malinskiy.adam.server.stub.dsl.Session
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -32,16 +34,9 @@ class AdbServerExtensionTest {
     @AdbServer
     lateinit var server: AndroidDebugBridgeServer
 
-    fun session(block: suspend Session.() -> Unit) {
-        server.listen { input, output ->
-            val session = Session(input, output)
-            block(session)
-        }
-    }
-
     @Test
     fun testX() {
-        session {
+        server.session {
             expectAdbServerVersion()
                 .accept()
                 .respondAdbServerVersion(41)
@@ -50,6 +45,39 @@ class AdbServerExtensionTest {
         runBlocking {
             val version = client.execute(GetAdbServerVersionRequest())
             assert(version == 41)
+        }
+    }
+
+    @Test
+    fun testMultisession() {
+        runBlocking {
+            server.multipleSessions {
+                serial("emulator-5554") {
+                    session {
+                        respondOkay()
+                        expectShell { "echo 1;echo x$?" }.accept().respond("1x0")
+                    }
+                    session {
+                        respondOkay()
+                        expectShell { "echo 3;echo x$?" }.accept().respond("3x0")
+                    }
+                }
+                serial("emulator-5556") {
+                    session {
+                        respondOkay()
+                        expectShell { "echo 2;echo x$?" }.accept().respond("2x0")
+                    }
+                    session {
+                        respondOkay()
+                        expectShell { "echo 4;echo x$?" }.accept().respond("4x0")
+                    }
+                }
+            }
+
+            assertThat(client.execute(ShellCommandRequest("echo 1"), "emulator-5554").output).isEqualTo("1")
+            assertThat(client.execute(ShellCommandRequest("echo 2"), "emulator-5556").output).isEqualTo("2")
+            assertThat(client.execute(ShellCommandRequest("echo 3"), "emulator-5554").output).isEqualTo("3")
+            assertThat(client.execute(ShellCommandRequest("echo 4"), "emulator-5556").output).isEqualTo("4")
         }
     }
 }
