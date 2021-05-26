@@ -31,8 +31,16 @@ open class AdbBinaryInteractor {
             null
         }?.let { File(it) }
 
+        val os = System.getProperty("os.name").toLowerCase()
+        val adbBinaryName = when {
+            os.contains("win") -> {
+                "adb.exe"
+            }
+            else -> "adb"
+        }
+
         val adb =
-            adbBinary ?: (androidHome ?: androidEnvHome)?.let { File(it, "platform-tools" + File.separator + "adb") }
+            adbBinary ?: (androidHome ?: androidEnvHome)?.let { File(it, "platform-tools" + File.separator + adbBinaryName) }
             ?: return false
         if (!adb.isFile) return false
 
