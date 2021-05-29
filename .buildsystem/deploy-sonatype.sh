@@ -16,21 +16,12 @@ if [ -z "$GPG_PASSPHRASE" ]; then
   exit 1
 fi
 
-ATASK=""
-DTASK=""
-for i in ":adam" ":android-junit4" ":android-testrunner-contract" ":server:server-stub" ":server:server-stub-junit4" ":server:server-stub-junit5"; do
-  ATASK="$ATASK $i:assemble"
-  DTASK="$DTASK $i:publishDefaultPublicationToOSSHRRepository"
-done
-
-echo "Value of TEST_ENVVAR is $TEST_ENVVAR"
-
 if [ -z "$GIT_TAG_NAME" ]; then
   echo "not on a tag -> deploy snapshot version"
-  ./gradlew $ATASK -PreleaseMode=SNAPSHOT
-  ./gradlew $DTASK -PreleaseMode=SNAPSHOT
+  ./gradlew assemble -PreleaseMode=SNAPSHOT
+  ./gradlew publishDefaultPublicationToOSSHRRepository -PreleaseMode=SNAPSHOT
 else
   echo "on a tag -> deploy release version $GIT_TAG_NAME"
-  ./gradlew $ATASK -PreleaseMode=RELEASE
-  ./gradlew $DTASK -PreleaseMode=RELEASE
+  ./gradlew assemble -PreleaseMode=RELEASE
+  ./gradlew publishDefaultPublicationToOSSHRRepository -PreleaseMode=RELEASE
 fi
