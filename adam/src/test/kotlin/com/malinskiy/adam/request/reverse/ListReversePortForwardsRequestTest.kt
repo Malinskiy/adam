@@ -19,33 +19,32 @@ package com.malinskiy.adam.request.reverse
 import assertk.assertThat
 import assertk.assertions.containsExactly
 import assertk.assertions.isEqualTo
-import com.malinskiy.adam.Const
+import com.malinskiy.adam.AndroidDebugBridgeClient
 import com.malinskiy.adam.request.forwarding.LocalTcpPortSpec
 import com.malinskiy.adam.request.forwarding.LocalUnixSocketPortSpec
 import com.malinskiy.adam.request.forwarding.RemoteAbstractPortSpec
 import com.malinskiy.adam.request.forwarding.RemoteFilesystemPortSpec
 import com.malinskiy.adam.request.forwarding.RemoteReservedPortSpec
 import com.malinskiy.adam.request.forwarding.RemoteTcpPortSpec
-import com.malinskiy.adam.server.AndroidDebugBridgeServer
-import io.ktor.utils.io.close
+import com.malinskiy.adam.server.junit4.AdbServerRule
 import kotlinx.coroutines.runBlocking
+import org.junit.Rule
 import org.junit.Test
 
 class ListReversePortForwardsRequestTest {
+    @get:Rule
+    val server = AdbServerRule()
+    val client: AndroidDebugBridgeClient
+        get() = server.client
+
     @Test
     fun testReturnsProperContent() {
         runBlocking {
-            val server = AndroidDebugBridgeServer()
+            server.session {
+                expectCmd { "host:transport:xx" }.accept()
+                expectCmd { "reverse:list-forward" }.accept()
 
-            val client = server.startAndListen { input, output ->
-                val transportCmd = input.receiveCommand()
-                assertThat(transportCmd).isEqualTo("host:transport:xx")
-                output.respond(Const.Message.OKAY)
-
-                val reverseCmd = input.receiveCommand()
-                assertThat(reverseCmd).isEqualTo("reverse:list-forward")
-                output.respond(Const.Message.OKAY)
-                output.respondStringV1(
+                respondListPortForwards(
                     """
                     xx tcp:80 tcp:80
                     xx localabstract:namedsocket local:/tmp/socket
@@ -54,7 +53,6 @@ class ListReversePortForwardsRequestTest {
                     
                 """.trimIndent()
                 )
-                output.close()
             }
 
             val output = client.execute(ListReversePortForwardsRequest(), serial = "xx")
@@ -68,8 +66,6 @@ class ListReversePortForwardsRequestTest {
             assertThat(output.first().serial).isEqualTo("xx")
             assertThat(output.first().remoteSpec).isEqualTo(LocalTcpPortSpec(80))
             assertThat(output.first().localSpec).isEqualTo(RemoteTcpPortSpec(80))
-
-            server.dispose()
         }
     }
 }

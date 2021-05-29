@@ -26,7 +26,7 @@ import com.malinskiy.adam.extension.newFileWithExtension
 import com.malinskiy.adam.extension.toRequestString
 import com.malinskiy.adam.request.Feature
 import com.malinskiy.adam.request.ValidationResponse
-import com.malinskiy.adam.server.StubSocket
+import com.malinskiy.adam.server.stub.StubSocket
 import com.malinskiy.adam.transport.use
 import io.ktor.utils.io.ByteChannelSequentialJVM
 import io.ktor.utils.io.ByteWriteChannel

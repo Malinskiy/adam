@@ -18,15 +18,21 @@ package com.malinskiy.adam.request.misc
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import com.malinskiy.adam.AndroidDebugBridgeClient
 import com.malinskiy.adam.extension.toRequestString
 import com.malinskiy.adam.request.HostTarget
 import com.malinskiy.adam.request.SerialTarget
-import com.malinskiy.adam.server.AndroidDebugBridgeServer
-import io.ktor.utils.io.close
+import com.malinskiy.adam.server.junit4.AdbServerRule
 import kotlinx.coroutines.runBlocking
+import org.junit.Rule
 import org.junit.Test
 
 class ReconnectRequestTest {
+    @get:Rule
+    val server = AdbServerRule()
+    val client: AndroidDebugBridgeClient
+        get() = server.client
+
     @Test
     fun testSerialize() {
         val bytes = ReconnectRequest().serialize()
@@ -47,38 +53,23 @@ class ReconnectRequestTest {
 
     @Test
     fun testResponse() = runBlocking {
-        val server = AndroidDebugBridgeServer()
-
-        val client = server.startAndListen { input, output ->
-            val cmd = input.receiveCommand()
-            assertThat(cmd).isEqualTo("host:reconnect-offline")
-            output.respondOkay()
-
-            output.respondStringV1("reconnecting emulator-5554 [offline]")
-            output.close()
+        server.session {
+            expectCmd { "host:reconnect-offline" }.accept()
+            respondReconnectOffline("reconnecting emulator-5554 [offline]")
         }
 
         val output = client.execute(ReconnectRequest(reconnectTarget = Offline, target = HostTarget))
         assertThat(output).isEqualTo("reconnecting emulator-5554 [offline]")
-
-        server.dispose()
     }
 
     @Test
     fun testResponseForSingleTarget() = runBlocking {
-        val server = AndroidDebugBridgeServer()
-
-        val client = server.startAndListen { input, output ->
-            val cmd = input.receiveCommand()
-            assertThat(cmd).isEqualTo("host-serial:serial:reconnect")
-            output.respondOkay()
-            output.respondStringRaw("done")
-            output.close()
+        server.session {
+            expectCmd { "host-serial:serial:reconnect" }.accept()
+            respondReconnectSingleDevice("done")
         }
 
         val output = client.execute(ReconnectRequest(reconnectTarget = Device, target = SerialTarget("serial")))
         assertThat(output).isEqualTo("done")
-
-        server.dispose()
     }
 }

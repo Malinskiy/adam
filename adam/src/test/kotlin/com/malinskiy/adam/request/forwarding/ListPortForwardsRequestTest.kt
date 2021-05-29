@@ -19,24 +19,26 @@ package com.malinskiy.adam.request.forwarding
 import assertk.assertThat
 import assertk.assertions.containsExactly
 import assertk.assertions.isEqualTo
-import com.malinskiy.adam.server.AndroidDebugBridgeServer
-import io.ktor.utils.io.close
+import com.malinskiy.adam.AndroidDebugBridgeClient
+import com.malinskiy.adam.server.junit4.AdbServerRule
 import io.ktor.utils.io.discard
 import kotlinx.coroutines.runBlocking
+import org.junit.Rule
 import org.junit.Test
 
 class ListPortForwardsRequestTest {
+    @get:Rule
+    val server = AdbServerRule()
+    val client: AndroidDebugBridgeClient
+        get() = server.client
+
     @Test
     fun testReturnsProperContent() {
         runBlocking {
-            val server = AndroidDebugBridgeServer()
+            server.session {
+                expectCmd { "host-serial:xx:list-forward" }.accept()
 
-            val client = server.startAndListen { input, output ->
-                val transportCmd = input.receiveCommand()
-                assertThat(transportCmd).isEqualTo("host-serial:xx:list-forward")
-                output.respondOkay()
-
-                output.respondStringV1(
+                respondListPortForwards(
                     """
                         xx tcp:80 tcp:80
                         xx local:/tmp/socket localabstract:namedsocket
@@ -47,8 +49,8 @@ class ListPortForwardsRequestTest {
                         
                     """.trimIndent()
                 )
+
                 input.discard()
-                output.close()
             }
 
             val output = client.execute(ListPortForwardsRequest("xx"))
@@ -64,8 +66,6 @@ class ListPortForwardsRequestTest {
             assertThat(output.first().serial).isEqualTo("xx")
             assertThat(output.first().localSpec).isEqualTo(LocalTcpPortSpec(80))
             assertThat(output.first().remoteSpec).isEqualTo(RemoteTcpPortSpec(80))
-
-            server.dispose()
         }
     }
 }

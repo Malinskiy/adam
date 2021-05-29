@@ -18,33 +18,28 @@ package com.malinskiy.adam.request.async
 
 import assertk.assertThat
 import assertk.assertions.containsExactly
-import assertk.assertions.isEqualTo
-import com.malinskiy.adam.Const
+import com.malinskiy.adam.AndroidDebugBridgeClient
 import com.malinskiy.adam.request.device.AsyncDeviceMonitorRequest
 import com.malinskiy.adam.request.device.Device
 import com.malinskiy.adam.request.device.DeviceState
-import com.malinskiy.adam.server.AndroidDebugBridgeServer
-import io.ktor.utils.io.close
-import kotlinx.coroutines.channels.receiveOrNull
+import com.malinskiy.adam.server.junit4.AdbServerRule
 import kotlinx.coroutines.runBlocking
+import org.junit.Rule
 import org.junit.Test
 
 class AsyncDeviceMonitorRequestTest {
+    @get:Rule
+    val server = AdbServerRule()
+    val client: AndroidDebugBridgeClient
+        get() = server.client
+
     @Test
     fun testReturnsProperContent() {
         runBlocking {
-            val server = AndroidDebugBridgeServer()
-
-            val client = server.startAndListen { input, output ->
-                val transportCmd = input.receiveCommand()
-                assertThat(transportCmd).isEqualTo("host:track-devices")
-                output.respond(Const.Message.OKAY)
-
-                var response = ("0016emulator-5554\toffline\n").toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
-                output.writeFully(response, 0, response.size)
-                response = ("0015emulator-5554\tdevice\n").toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
-                output.writeFully(response, 0, response.size)
-                output.close()
+            server.session {
+                expectCmd { "host:track-devices" }.accept()
+                respondAsyncDeviceMonitor("emulator-5554", "offline")
+                respondAsyncDeviceMonitor("emulator-5554", "device")
             }
 
             val updates = client.execute(AsyncDeviceMonitorRequest(), scope = this)
@@ -53,8 +48,6 @@ class AsyncDeviceMonitorRequestTest {
             update = updates.receiveOrNull()
             assertThat(update!!).containsExactly(Device("emulator-5554", DeviceState.DEVICE))
             updates.cancel()
-
-            server.dispose()
         }
     }
 }

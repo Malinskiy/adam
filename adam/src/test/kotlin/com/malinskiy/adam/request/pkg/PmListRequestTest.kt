@@ -18,63 +18,45 @@ package com.malinskiy.adam.request.pkg
 
 import assertk.assertThat
 import assertk.assertions.containsExactly
-import assertk.assertions.isEqualTo
-import com.malinskiy.adam.Const
-import com.malinskiy.adam.server.AndroidDebugBridgeServer
-import io.ktor.utils.io.close
+import com.malinskiy.adam.AndroidDebugBridgeClient
+import com.malinskiy.adam.server.junit4.AdbServerRule
 import kotlinx.coroutines.runBlocking
+import org.junit.Rule
 import org.junit.Test
 
 class PmListRequestTest {
+    @get:Rule
+    val server = AdbServerRule()
+    val client: AndroidDebugBridgeClient
+        get() = server.client
+
     @Test
     fun testReturnsProperContent() {
         runBlocking {
-            val server = AndroidDebugBridgeServer()
-
-            val client = server.startAndListen { input, output ->
-                val transportCmd = input.receiveCommand()
-                assertThat(transportCmd).isEqualTo("host:transport:serial")
-                output.respond(Const.Message.OKAY)
-
-                val shellCmd = input.receiveCommand()
-                assertThat(shellCmd).isEqualTo("shell:pm list packages;echo x$?")
-                output.respond(Const.Message.OKAY)
-
-                val response = "package:test.packagex0".toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
-                output.writeFully(response, 0, response.size)
-                output.close()
+            server.session {
+                expectCmd { "host:transport:serial" }.accept()
+                expectShell { "pm list packages;echo x$?" }
+                    .accept()
+                    .respond("package:test.packagex0")
             }
 
             val output = client.execute(PmListRequest(), serial = "serial")
             assertThat(output).containsExactly(Package("test.package"))
-
-            server.dispose()
         }
     }
 
     @Test
     fun testReturnsProperContentWithPath() {
         runBlocking {
-            val server = AndroidDebugBridgeServer()
-
-            val client = server.startAndListen { input, output ->
-                val transportCmd = input.receiveCommand()
-                assertThat(transportCmd).isEqualTo("host:transport:serial")
-                output.respond(Const.Message.OKAY)
-
-                val shellCmd = input.receiveCommand()
-                assertThat(shellCmd).isEqualTo("shell:pm list packages -f;echo x$?")
-                output.respond(Const.Message.OKAY)
-
-                val response = "package:/data/app/x=test.packagex0\n\n".toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
-                output.writeFully(response, 0, response.size)
-                output.close()
+            server.session {
+                expectCmd { "host:transport:serial" }.accept()
+                expectShell { "pm list packages -f;echo x$?" }
+                    .accept()
+                    .respond("package:/data/app/x=test.packagex0\n\n")
             }
 
             val output = client.execute(PmListRequest(includePath = true), serial = "serial")
             assertThat(output).containsExactly(Package("test.package", "/data/app/x"))
-
-            server.dispose()
         }
     }
 }

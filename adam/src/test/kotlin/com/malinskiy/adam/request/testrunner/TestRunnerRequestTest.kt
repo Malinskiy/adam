@@ -19,20 +19,26 @@ package com.malinskiy.adam.request.testrunner
 import assertk.assertThat
 import assertk.assertions.containsOnly
 import assertk.assertions.isEqualTo
+import com.malinskiy.adam.AndroidDebugBridgeClient
 import com.malinskiy.adam.Const
-import com.malinskiy.adam.server.AndroidDebugBridgeServer
-import com.malinskiy.adam.server.StubSocket
+import com.malinskiy.adam.server.junit4.AdbServerRule
+import com.malinskiy.adam.server.stub.StubSocket
 import com.malinskiy.adam.transport.use
 import io.ktor.utils.io.ByteChannel
 import io.ktor.utils.io.close
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.Channel.Factory.BUFFERED
-import kotlinx.coroutines.channels.receiveOrNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import org.junit.Rule
 import org.junit.Test
 
 class TestRunnerRequestTest {
+    @get:Rule
+    val server = AdbServerRule()
+    val client: AndroidDebugBridgeClient
+        get() = server.client
+
     @Test
     fun testSerialize() {
         val request = TestRunnerRequest(
@@ -71,19 +77,11 @@ class TestRunnerRequestTest {
     fun testReturnsContentOnFailure() {
         runBlocking {
             launch {
-                val server = AndroidDebugBridgeServer()
-                val client = server.startAndListen { input, output ->
-                    val transportCmd = input.receiveCommand()
-                    assertThat(transportCmd).isEqualTo("host:transport:serial")
-                    output.respond(Const.Message.OKAY)
-
-                    val shellCmd = input.receiveCommand()
-                    assertThat(shellCmd).isEqualTo("shell:am instrument -w -r com.example.test/android.support.test.runner.AndroidJUnitRunner")
-                    output.respond(Const.Message.OKAY)
-
-                    val response = "something-something".toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
-                    output.writeFully(response, 0, response.size)
-                    output.close()
+                server.session {
+                    expectCmd { "host:transport:serial" }.accept()
+                    expectShell { "am instrument -w -r com.example.test/android.support.test.runner.AndroidJUnitRunner" }
+                        .accept()
+                        .respond("something-something")
                 }
 
                 val channel = client.execute(
@@ -98,8 +96,6 @@ class TestRunnerRequestTest {
                 }
 
                 assertThat(events).containsOnly(TestRunFailed("No test results\nsomething-something"))
-
-                server.dispose()
             }.join()
         }
     }
