@@ -1,0 +1,6 @@
+name: "sample-junit4-project tests"
+outputDir: "build/reports/marathon"
+vendorConfiguration:
+  type: "JUnit4"
+  applicationJar: "adam/build/libs/adam-0.3.0-SNAPSHOT-all.jar"
+  testsJar: "adam/build/libs/adam-0.3.0-SNAPSHOT-tests.jar"
