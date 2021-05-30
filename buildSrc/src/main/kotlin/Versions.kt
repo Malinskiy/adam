@@ -10,7 +10,7 @@ object Versions {
     val vertx = "4.0.3"
 
     val assertk = "0.19"
-    val junit4 = "4.12"
+    val junit4 = "4.13.2"
     val junit5 = "5.4.2"
     val junit5commons = "1.7.2"
     val imageComparison = "4.3.0"
