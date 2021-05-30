@@ -18,8 +18,7 @@ package com.malinskiy.adam.request.emu
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
-import com.malinskiy.adam.server.EmulatorConsoleServer
-import io.ktor.utils.io.close
+import com.malinskiy.adam.server.stub.EmulatorConsoleServer
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 
@@ -38,7 +37,6 @@ class EmulatorCommandRequestTest {
                     output.respond("Android console commands:")
 
                     input.receiveExit()
-                    output.close()
                 }
 
                 val output = client.execute(EmulatorCommandRequest("help", consoleAddr, authToken = "token"))

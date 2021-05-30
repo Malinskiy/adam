@@ -99,6 +99,8 @@ enum class Feature {
      */
     SENDRECV_V2_DRY_RUN_SEND;
 
+    fun value() = name.toLowerCase()
+
     companion object {
         /**
          * see adb/transport.cpp for up-to-date list

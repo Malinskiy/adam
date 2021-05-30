@@ -18,11 +18,10 @@ package com.malinskiy.adam.request.sync.v1
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import com.malinskiy.adam.AndroidDebugBridgeClient
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.exception.PushFailedException
-import com.malinskiy.adam.server.AndroidDebugBridgeServer
-import io.ktor.utils.io.close
-import kotlinx.coroutines.channels.receiveOrNull
+import com.malinskiy.adam.server.junit4.AdbServerRule
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.Rule
@@ -35,6 +34,11 @@ class PushFileRequestTest {
     @Rule
     @JvmField
     val temp = TemporaryFolder()
+
+    @get:Rule
+    val server = AdbServerRule()
+    val client: AndroidDebugBridgeClient
+        get() = server.client
 
     @Test
     fun testSerialize() {
@@ -52,22 +56,13 @@ class PushFileRequestTest {
             val receiveFile = temp.newFile()
 
             launch {
-                val server = AndroidDebugBridgeServer()
+                server.session {
+                    expectCmd { "host:transport:serial" }.accept()
+                    expectCmd { "sync:" }.accept()
 
-                val client = server.startAndListen { input, output ->
-                    val transportCmd = input.receiveCommand()
-                    assertThat(transportCmd).isEqualTo("host:transport:serial")
-                    output.respond(Const.Message.OKAY)
-
-                    val actualCommand = input.receiveCommand()
-                    assertThat(actualCommand).isEqualTo("sync:")
-                    output.respond(Const.Message.OKAY)
-
-                    val receiveCmd = input.receiveSend()
-                    assertThat(receiveCmd).isEqualTo("/sdcard/testfile,511")
-                    input.receiveFile(receiveFile)
-                    output.respond(Const.Message.OKAY)
-                    output.close()
+                    expectSend { "/sdcard/testfile,511" }
+                        .receiveFile(receiveFile)
+                        .done()
                 }
 
                 val request = PushFileRequest(fixture, "/sdcard/testfile")
@@ -79,7 +74,6 @@ class PushFileRequestTest {
                 }
 
                 assertThat(progress).isEqualTo(1.0)
-                server.dispose()
             }.join()
 
             assertThat(receiveFile!!.readBytes()).isEqualTo(fixture.readBytes())
@@ -93,25 +87,14 @@ class PushFileRequestTest {
             val receiveFile = temp.newFile()
 
             launch {
-                val server = AndroidDebugBridgeServer()
+                server.session {
+                    expectCmd { "host:transport:serial" }.accept()
 
-                val client = server.startAndListen { input, output ->
-                    val transportCmd = input.receiveCommand()
-                    assertThat(transportCmd).isEqualTo("host:transport:serial")
-                    output.respond(Const.Message.OKAY)
+                    expectCmd { "sync:" }.accept()
 
-                    val actualCommand = input.receiveCommand()
-                    assertThat(actualCommand).isEqualTo("sync:")
-                    output.respond(Const.Message.OKAY)
-
-                    val receiveCmd = input.receiveSend()
-                    assertThat(receiveCmd).isEqualTo("/sdcard/testfile,511")
-                    input.receiveFile(receiveFile)
-                    output.respond(Const.Message.FAIL)
-                    val s = "CAFEBABE"
-                    output.writeFully("0008".toByteArray(Const.DEFAULT_TRANSPORT_ENCODING), 0, 4)
-                    output.writeFully(s.toByteArray(Const.DEFAULT_TRANSPORT_ENCODING), 0, s.length)
-                    output.close()
+                    expectSend { "/sdcard/testfile,511" }
+                        .receiveFile(receiveFile)
+                        .fail("CAFEBABE")
                 }
 
                 val request = PushFileRequest(fixture, "/sdcard/testfile")
@@ -121,7 +104,6 @@ class PushFileRequestTest {
                 while (!execute.isClosedForReceive) {
                     progress = execute.receiveOrNull() ?: break
                 }
-                server.dispose()
             }.join()
 
 

@@ -18,39 +18,38 @@ package com.malinskiy.adam.request.device
 
 import assertk.assertThat
 import assertk.assertions.containsExactly
-import assertk.assertions.isEqualTo
-import com.malinskiy.adam.Const
-import com.malinskiy.adam.server.AndroidDebugBridgeServer
-import io.ktor.utils.io.close
+import com.malinskiy.adam.AndroidDebugBridgeClient
+import com.malinskiy.adam.server.junit4.AdbServerRule
 import kotlinx.coroutines.runBlocking
+import org.junit.Rule
 import org.junit.Test
 
 class ListDevicesRequestTest {
+    @get:Rule
+    val server = AdbServerRule()
+    val client: AndroidDebugBridgeClient
+        get() = server.client
+
     @Test
     fun testReturnsProperContent() {
         runBlocking {
-            val server = AndroidDebugBridgeServer()
-
-            val client = server.startAndListen { input, output ->
-                val transportCmd = input.receiveCommand()
-                assertThat(transportCmd).isEqualTo("host:devices")
-                output.respond(Const.Message.OKAY)
-
-                val response = ("00FA" +
-                        "emulator-5554\toffline\n" +
-                        "emulator-5556\tbootloader\n" +
-                        "emulator-5558\tdevice\n" +
-                        "emulator-5560\thost\n" +
-                        "emulator-5562\trecovery\n" +
-                        "emulator-5564\trescue\n" +
-                        "emulator-5566\tsideload\n" +
-                        "emulator-5568\tunauthorized\n" +
-                        "emulator-5570\tauthorizing\n" +
-                        "emulator-5572\tconnecting\n" +
-                        "emulator-5574\twtf\n"
-                        ).toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
-                output.writeFully(response, 0, response.size)
-                output.close()
+            server.session {
+                expectCmd { "host:devices" }.accept()
+                respondListDevices(
+                    mapOf(
+                        "emulator-5554" to "offline",
+                        "emulator-5556" to "bootloader",
+                        "emulator-5558" to "device",
+                        "emulator-5560" to "host",
+                        "emulator-5562" to "recovery",
+                        "emulator-5564" to "rescue",
+                        "emulator-5566" to "sideload",
+                        "emulator-5568" to "unauthorized",
+                        "emulator-5570" to "authorizing",
+                        "emulator-5572" to "connecting",
+                        "emulator-5574" to "wtf",
+                    )
+                )
             }
 
             val version = client.execute(ListDevicesRequest())
@@ -67,8 +66,6 @@ class ListDevicesRequestTest {
                 Device("emulator-5572", DeviceState.CONNECTING),
                 Device("emulator-5574", DeviceState.UNKNOWN)
             )
-
-            server.dispose()
         }
     }
 }

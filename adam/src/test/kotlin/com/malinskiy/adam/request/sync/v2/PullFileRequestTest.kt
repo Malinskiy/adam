@@ -18,15 +18,14 @@ package com.malinskiy.adam.request.sync.v2
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import com.malinskiy.adam.AndroidDebugBridgeClient
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.exception.PullFailedException
 import com.malinskiy.adam.exception.UnsupportedSyncProtocolException
 import com.malinskiy.adam.request.Feature
-import com.malinskiy.adam.server.AndroidDebugBridgeServer
-import io.ktor.utils.io.close
+import com.malinskiy.adam.server.junit4.AdbServerRule
 import io.ktor.utils.io.discard
 import io.ktor.utils.io.writeIntLittleEndian
-import kotlinx.coroutines.channels.receiveOrNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.Rule
@@ -39,6 +38,11 @@ class PullFileRequestTest {
     @Rule
     @JvmField
     val temp = TemporaryFolder()
+
+    @get:Rule
+    val server = AdbServerRule()
+    val client: AndroidDebugBridgeClient
+        get() = server.client
 
     @Test
     fun testSerialize() {
@@ -58,29 +62,17 @@ class PullFileRequestTest {
             val tempFile = temp.newFile()
 
             launch {
-                val server = AndroidDebugBridgeServer()
+                server.session {
+                    expectCmd { "host:transport:serial" }.accept()
+                    expectCmd { "sync:" }.accept()
 
-                val client = server.startAndListen { input, output ->
-                    val transportCmd = input.receiveCommand()
-                    assertThat(transportCmd).isEqualTo("host:transport:serial")
-                    output.respond(Const.Message.OKAY)
+                    expectStat { "/sdcard/testfile" }
+                    respondStat(size = fixture.length().toInt())
 
-                    val actualCommand = input.receiveCommand()
-                    assertThat(actualCommand).isEqualTo("sync:")
-                    output.respond(Const.Message.OKAY)
+                    expectRecv2 { "/sdcard/testfile" }
+                        .respondFile(fixture)
+                        .respondDoneDone()
 
-                    val statPath = input.receiveStat()
-                    assertThat(statPath).isEqualTo("/sdcard/testfile")
-                    output.respondStat(fixture.length().toInt())
-
-                    val recvPath = input.receiveRecv2()
-                    assertThat(recvPath).isEqualTo("/sdcard/testfile")
-
-                    output.respondData(fixture.readBytes())
-                    output.respondDone()
-                    output.respondDone()
-
-                    output.close()
                     input.discard()
                 }
 
@@ -94,8 +86,6 @@ class PullFileRequestTest {
                 }
 
                 assertThat(progress).isEqualTo(1.0)
-
-                server.dispose()
             }.join()
 
             assertThat(tempFile.readBytes()).isEqualTo(fixture.readBytes())
@@ -109,30 +99,21 @@ class PullFileRequestTest {
             val tempFile = temp.newFile()
 
             launch {
-                val server = AndroidDebugBridgeServer()
-                val client = server.startAndListen { input, output ->
-                    val transportCmd = input.receiveCommand()
-                    assertThat(transportCmd).isEqualTo("host:transport:serial")
-                    output.respond(Const.Message.OKAY)
+                server.session {
+                    expectCmd { "host:transport:serial" }.accept()
+                    expectCmd { "sync:" }.accept()
 
-                    val actualCommand = input.receiveCommand()
-                    assertThat(actualCommand).isEqualTo("sync:")
-                    output.respond(Const.Message.OKAY)
+                    expectStat { "/sdcard/testfile" }
+                    respondStat(size = fixture.length().toInt())
 
-                    val statPath = input.receiveStat()
-                    assertThat(statPath).isEqualTo("/sdcard/testfile")
-                    output.respondStat(fixture.length().toInt())
-
-                    val recvPath = input.receiveRecv2()
-                    assertThat(recvPath).isEqualTo("/sdcard/testfile")
+                    expectRecv2 { "/sdcard/testfile" }
 
                     val fileBytes = fixture.readBytes().asSequence().chunked(100)
                     val iterator = fileBytes.iterator()
                     while (iterator.hasNext()) {
                         output.respondData(iterator.next().toByteArray())
                     }
-                    output.respondDone()
-                    output.respondDone()
+                    output.respondDoneDone()
                 }
 
                 val request =
@@ -145,8 +126,6 @@ class PullFileRequestTest {
                 }
 
                 assertThat(progress).isEqualTo(1.0)
-
-                server.dispose()
             }.join()
 
             assertThat(tempFile.readBytes()).isEqualTo(fixture.readBytes())
@@ -159,28 +138,17 @@ class PullFileRequestTest {
         val tempFile = temp.newFile()
 
         launch {
-            val server = AndroidDebugBridgeServer()
+            server.session {
+                expectCmd { "host:transport:serial" }.accept()
+                expectCmd { "sync:" }.accept()
 
-            val client = server.startAndListen { input, output ->
-                val transportCmd = input.receiveCommand()
-                assertThat(transportCmd).isEqualTo("host:transport:serial")
-                output.respond(Const.Message.OKAY)
+                expectStat { "/sdcard/testfile" }
+                respondStat(size = fixture.length().toInt())
 
-                val actualCommand = input.receiveCommand()
-                assertThat(actualCommand).isEqualTo("sync:")
-                output.respond(Const.Message.OKAY)
-
-                val statPath = input.receiveStat()
-                assertThat(statPath).isEqualTo("/sdcard/testfile")
-                output.respondStat(fixture.length().toInt())
-
-                val recvPath = input.receiveRecv2()
-                assertThat(recvPath).isEqualTo("/sdcard/testfile")
+                expectRecv2 { "/sdcard/testfile" }
 
                 output.respond(Const.Message.FAIL)
-                val message = "lorem ipsum"
-                output.writeIntLittleEndian(message.length)
-                output.respondData(message.toByteArray(Const.DEFAULT_TRANSPORT_ENCODING))
+                output.respondStringV2("lorem ipsum")
             }
 
             val request = PullFileRequest("/sdcard/testfile", tempFile, listOf(Feature.SENDRECV_V2))
@@ -190,8 +158,6 @@ class PullFileRequestTest {
             while (!execute.isClosedForReceive) {
                 progress = execute.receiveOrNull() ?: break
             }
-
-            server.dispose()
         }.join()
     }
 
@@ -202,23 +168,14 @@ class PullFileRequestTest {
             val tempFile = temp.newFile()
 
             launch {
-                val server = AndroidDebugBridgeServer()
+                server.session {
+                    expectCmd { "host:transport:serial" }.accept()
+                    expectCmd { "sync:" }.accept()
 
-                val client = server.startAndListen { input, output ->
-                    val transportCmd = input.receiveCommand()
-                    assertThat(transportCmd).isEqualTo("host:transport:serial")
-                    output.respond(Const.Message.OKAY)
+                    expectStat { "/sdcard/testfile" }
+                    respondStat(size = fixture.length().toInt())
 
-                    val actualCommand = input.receiveCommand()
-                    assertThat(actualCommand).isEqualTo("sync:")
-                    output.respond(Const.Message.OKAY)
-
-                    val statPath = input.receiveStat()
-                    assertThat(statPath).isEqualTo("/sdcard/testfile")
-                    output.respondStat(fixture.length().toInt())
-
-                    val recvPath = input.receiveRecv2()
-                    assertThat(recvPath).isEqualTo("/sdcard/testfile")
+                    expectRecv2 { "/sdcard/testfile" }
 
                     output.respond(Const.Message.DATA)
                     output.writeIntLittleEndian(Const.MAX_FILE_PACKET_LENGTH + 1)
@@ -231,8 +188,6 @@ class PullFileRequestTest {
                 while (!execute.isClosedForReceive) {
                     progress = execute.receiveOrNull() ?: break
                 }
-
-                server.dispose()
             }.join()
         }
     }
@@ -244,23 +199,14 @@ class PullFileRequestTest {
             val tempFile = temp.newFile()
 
             launch {
-                val server = AndroidDebugBridgeServer()
+                server.session {
+                    expectCmd { "host:transport:serial" }.accept()
+                    expectCmd { "sync:" }.accept()
 
-                val client = server.startAndListen { input, output ->
-                    val transportCmd = input.receiveCommand()
-                    assertThat(transportCmd).isEqualTo("host:transport:serial")
-                    output.respond(Const.Message.OKAY)
+                    expectStat { "/sdcard/testfile" }
+                    respondStat(size = fixture.length().toInt())
 
-                    val actualCommand = input.receiveCommand()
-                    assertThat(actualCommand).isEqualTo("sync:")
-                    output.respond(Const.Message.OKAY)
-
-                    val statPath = input.receiveStat()
-                    assertThat(statPath).isEqualTo("/sdcard/testfile")
-                    output.respondStat(fixture.length().toInt())
-
-                    val recvPath = input.receiveRecv2()
-                    assertThat(recvPath).isEqualTo("/sdcard/testfile")
+                    expectRecv2 { "/sdcard/testfile" }
 
                     output.respond(Const.Message.SEND_V1)
                     output.respond(Const.Message.SEND_V1)
@@ -273,8 +219,6 @@ class PullFileRequestTest {
                 while (!execute.isClosedForReceive) {
                     progress = execute.receiveOrNull() ?: break
                 }
-
-                server.dispose()
             }.join()
         }
     }

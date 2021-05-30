@@ -18,14 +18,19 @@ package com.malinskiy.adam.request.security
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
-import com.malinskiy.adam.Const
+import com.malinskiy.adam.AndroidDebugBridgeClient
 import com.malinskiy.adam.extension.toRequestString
-import com.malinskiy.adam.server.AndroidDebugBridgeServer
-import io.ktor.utils.io.close
+import com.malinskiy.adam.server.junit4.AdbServerRule
 import kotlinx.coroutines.runBlocking
+import org.junit.Rule
 import org.junit.Test
 
 class SetDmVerityCheckingRequestTest {
+    @get:Rule
+    val server = AdbServerRule()
+    val client: AndroidDebugBridgeClient
+        get() = server.client
+
     @Test
     fun testSerialize() {
         assertThat(SetDmVerityCheckingRequest(false).serialize().toRequestString()).isEqualTo("000Fdisable-verity:")
@@ -34,25 +39,14 @@ class SetDmVerityCheckingRequestTest {
     @Test
     fun testRead() {
         runBlocking {
-            val server = AndroidDebugBridgeServer()
-
-            val client = server.startAndListen { input, output ->
-                val transportCmd = input.receiveCommand()
-                assertThat(transportCmd).isEqualTo("host:transport:serial")
-                output.respond(Const.Message.OKAY)
-
-                val cmd = input.receiveCommand()
-                assertThat(cmd).isEqualTo("disable-verity:")
-                output.respondOkay()
-
-                output.respondStringRaw("Success")
-                output.close()
+            server.session {
+                expectCmd { "host:transport:serial" }.accept()
+                expectCmd { "disable-verity:" }.accept()
+                respondSetDmVerityChecking("Success")
             }
 
             val output = client.execute(SetDmVerityCheckingRequest(false), "serial")
             assertThat(output).isEqualTo("Success")
-
-            server.dispose()
         }
     }
 }

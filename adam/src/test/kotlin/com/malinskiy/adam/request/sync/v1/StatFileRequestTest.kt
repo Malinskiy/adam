@@ -18,42 +18,35 @@ package com.malinskiy.adam.request.sync.v1
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
-import com.malinskiy.adam.Const
-import com.malinskiy.adam.server.AndroidDebugBridgeServer
-import io.ktor.utils.io.close
+import com.malinskiy.adam.AndroidDebugBridgeClient
+import com.malinskiy.adam.server.junit4.AdbServerRule
 import kotlinx.coroutines.runBlocking
+import org.junit.Rule
 import org.junit.Test
 import java.time.Instant
 
 
 class StatFileRequestTest {
+    @get:Rule
+    val server = AdbServerRule()
+    val client: AndroidDebugBridgeClient
+        get() = server.client
+
     @Test
     fun testReturnsProperContent() {
         runBlocking {
-            val server = AndroidDebugBridgeServer()
+            server.session {
+                expectCmd { "host:transport:serial" }.accept()
+                expectCmd { "sync:" }.accept()
 
-            val client = server.startAndListen { input, output ->
-                val transportCmd = input.receiveCommand()
-                assertThat(transportCmd).isEqualTo("host:transport:serial")
-                output.respond(Const.Message.OKAY)
-
-                val shellCmd = input.receiveCommand()
-                assertThat(shellCmd).isEqualTo("sync:")
-                output.respond(Const.Message.OKAY)
-
-                val receiveStat = input.receiveStat()
-                assertThat(receiveStat).isEqualTo("/sdcard/testfile")
-
-                output.respondStat(128, 0x744, 10000)
-                output.close()
+                expectStat { "/sdcard/testfile" }
+                respondStat(128, 0x744, 10000)
             }
 
             val output = client.execute(StatFileRequest("/sdcard/testfile"), serial = "serial")
             assertThat(output.mtime).isEqualTo(Instant.ofEpochSecond(10000))
             assertThat(output.mode).isEqualTo(0x744.toUInt())
             assertThat(output.size).isEqualTo(128.toUInt())
-
-            server.dispose()
         }
     }
 }

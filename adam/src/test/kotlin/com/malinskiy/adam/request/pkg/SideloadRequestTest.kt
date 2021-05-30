@@ -20,9 +20,10 @@ import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
 import assertk.assertions.isTrue
+import com.malinskiy.adam.AndroidDebugBridgeClient
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.extension.toRequestString
-import com.malinskiy.adam.server.AndroidDebugBridgeServer
+import com.malinskiy.adam.server.junit4.AdbServerRule
 import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
@@ -31,6 +32,10 @@ import java.io.File
 import java.nio.ByteBuffer
 
 class SideloadRequestTest {
+    @get:Rule
+    val server = AdbServerRule()
+    val client: AndroidDebugBridgeClient
+        get() = server.client
 
     @Rule
     @JvmField
@@ -49,24 +54,17 @@ class SideloadRequestTest {
             fixture.appendBytes(ByteArray(65536) { 1.toByte() })
             fixture.appendBytes(ByteArray(14) { 2.toByte() })
 
-            val server = AndroidDebugBridgeServer()
+            server.session {
+                expectCmd { "host:transport:serial" }.accept()
+                expectCmd { "sideload-host:131086:65536" }.accept()
 
-            val client = server.startAndListen { input, output ->
-                val transportCmd = input.receiveCommand()
-                assertThat(transportCmd).isEqualTo("host:transport:serial")
-                output.respond(Const.Message.OKAY)
-
-                val actualCommand = input.receiveCommand()
-                assertThat(actualCommand).isEqualTo("sideload-host:131086:65536")
-                output.respond(Const.Message.OKAY)
-
-                output.respondStringRaw("00000000")
+                respondSideloadChunkRequested("00000000")
                 val chunk1 = input.receiveBytes(Const.MAX_FILE_PACKET_LENGTH)
-                output.respondStringRaw("00000001")
+                respondSideloadChunkRequested("00000001")
                 val chunk2 = input.receiveBytes(Const.MAX_FILE_PACKET_LENGTH)
-                output.respondStringRaw("00000000")
+                respondSideloadChunkRequested("00000000")
                 val chunk1Replay = input.receiveBytes(Const.MAX_FILE_PACKET_LENGTH)
-                output.respondStringRaw("00000002")
+                respondSideloadChunkRequested("00000002")
                 val chunk3 = input.receiveBytes(14)
 
                 assertThat(chunk1).isEqualTo(chunk1Replay)
@@ -87,8 +85,6 @@ class SideloadRequestTest {
             val request = SideloadRequest(fixture)
             val result = client.execute(request, "serial")
             assertThat(result).isTrue()
-
-            server.dispose()
         }
     }
 
@@ -96,16 +92,10 @@ class SideloadRequestTest {
     fun testTransferFailure() {
         runBlocking {
             val fixture = File(SideloadRequestTest::class.java.getResource("/fixture/sample.yaml").file)
-            val server = AndroidDebugBridgeServer()
 
-            val client = server.startAndListen { input, output ->
-                val transportCmd = input.receiveCommand()
-                assertThat(transportCmd).isEqualTo("host:transport:serial")
-                output.respond(Const.Message.OKAY)
-
-                val actualCommand = input.receiveCommand()
-                assertThat(actualCommand).isEqualTo("sideload-host:614:65536")
-                output.respond(Const.Message.OKAY)
+            server.session {
+                expectCmd { "host:transport:serial" }.accept()
+                expectCmd { "sideload-host:614:65536" }.accept()
 
                 output.respondFailFail()
             }
@@ -113,8 +103,6 @@ class SideloadRequestTest {
             val request = SideloadRequest(fixture)
             val result = client.execute(request, "serial")
             assertThat(result).isFalse()
-
-            server.dispose()
         }
     }
 

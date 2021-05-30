@@ -23,7 +23,7 @@ import assertk.assertions.isTrue
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.extension.toRequestString
 import com.malinskiy.adam.request.Feature
-import com.malinskiy.adam.server.StubSocket
+import com.malinskiy.adam.server.stub.StubSocket
 import com.malinskiy.adam.transport.use
 import kotlinx.coroutines.runBlocking
 import org.junit.Rule

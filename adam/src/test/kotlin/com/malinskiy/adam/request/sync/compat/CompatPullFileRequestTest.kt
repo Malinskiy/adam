@@ -18,12 +18,10 @@ package com.malinskiy.adam.request.sync.compat
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
-import com.malinskiy.adam.Const
+import com.malinskiy.adam.AndroidDebugBridgeClient
 import com.malinskiy.adam.request.Feature
-import com.malinskiy.adam.server.AndroidDebugBridgeServer
-import io.ktor.utils.io.close
+import com.malinskiy.adam.server.junit4.AdbServerRule
 import io.ktor.utils.io.discard
-import kotlinx.coroutines.channels.receiveOrNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.Rule
@@ -36,6 +34,11 @@ class CompatPullFileRequestTest {
     @JvmField
     val temp = TemporaryFolder()
 
+    @get:Rule
+    val server = AdbServerRule()
+    val client: AndroidDebugBridgeClient
+        get() = server.client
+
     @Test
     fun testV1() {
         runBlocking {
@@ -43,29 +46,17 @@ class CompatPullFileRequestTest {
             val tempFile = temp.newFile()
 
             launch {
-                val server = AndroidDebugBridgeServer()
+                server.session {
+                    expectCmd { "host:transport:serial" }.accept()
+                    expectCmd { "sync:" }.accept()
 
-                val client = server.startAndListen { input, output ->
-                    val transportCmd = input.receiveCommand()
-                    assertThat(transportCmd).isEqualTo("host:transport:serial")
-                    output.respond(Const.Message.OKAY)
+                    expectStat { "/sdcard/testfile" }
+                    respondStat(size = fixture.length().toInt())
 
-                    val actualCommand = input.receiveCommand()
-                    assertThat(actualCommand).isEqualTo("sync:")
-                    output.respond(Const.Message.OKAY)
+                    expectRecv { "/sdcard/testfile" }
+                        .respondFile(fixture)
+                        .respondDoneDone()
 
-                    val statPath = input.receiveStat()
-                    assertThat(statPath).isEqualTo("/sdcard/testfile")
-                    output.respondStat(fixture.length().toInt())
-
-                    val recvPath = input.receiveRecv()
-                    assertThat(recvPath).isEqualTo("/sdcard/testfile")
-
-                    output.respondData(fixture.readBytes())
-                    output.respondDone()
-                    output.respondDone()
-
-                    output.close()
                     input.discard()
                 }
 
@@ -78,8 +69,6 @@ class CompatPullFileRequestTest {
                 }
 
                 assertThat(progress).isEqualTo(1.0)
-
-                server.dispose()
             }.join()
 
             assertThat(tempFile.readBytes()).isEqualTo(fixture.readBytes())
@@ -93,29 +82,17 @@ class CompatPullFileRequestTest {
             val tempFile = temp.newFile()
 
             launch {
-                val server = AndroidDebugBridgeServer()
+                server.session {
+                    expectCmd { "host:transport:serial" }.accept()
+                    expectCmd { "sync:" }.accept()
 
-                val client = server.startAndListen { input, output ->
-                    val transportCmd = input.receiveCommand()
-                    assertThat(transportCmd).isEqualTo("host:transport:serial")
-                    output.respond(Const.Message.OKAY)
+                    expectStat { "/sdcard/testfile" }
+                    respondStat(size = fixture.length().toInt())
 
-                    val actualCommand = input.receiveCommand()
-                    assertThat(actualCommand).isEqualTo("sync:")
-                    output.respond(Const.Message.OKAY)
+                    expectRecv2 { "/sdcard/testfile" }
+                        .respondFile(fixture)
+                        .respondDoneDone()
 
-                    val statPath = input.receiveStat()
-                    assertThat(statPath).isEqualTo("/sdcard/testfile")
-                    output.respondStat(fixture.length().toInt())
-
-                    val recvPath = input.receiveRecv2()
-                    assertThat(recvPath).isEqualTo("/sdcard/testfile")
-
-                    output.respondData(fixture.readBytes())
-                    output.respondDone()
-                    output.respondDone()
-
-                    output.close()
                     input.discard()
                 }
 
@@ -127,8 +104,6 @@ class CompatPullFileRequestTest {
                     progress = update
                 }
                 assertThat(progress).isEqualTo(1.0)
-
-                server.dispose()
             }.join()
 
             assertThat(tempFile.readBytes()).isEqualTo(fixture.readBytes())

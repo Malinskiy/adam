@@ -18,13 +18,19 @@ package com.malinskiy.adam.request.misc
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import com.malinskiy.adam.AndroidDebugBridgeClient
 import com.malinskiy.adam.extension.toRequestString
-import com.malinskiy.adam.server.AndroidDebugBridgeServer
-import io.ktor.utils.io.close
+import com.malinskiy.adam.server.junit4.AdbServerRule
 import kotlinx.coroutines.runBlocking
+import org.junit.Rule
 import org.junit.Test
 
 class DisconnectDeviceRequestTest {
+    @get:Rule
+    val server = AdbServerRule()
+    val client: AndroidDebugBridgeClient
+        get() = server.client
+
     @Test
     fun testSerialize() {
         val bytes = DisconnectDeviceRequest("123.123.123.123").serialize()
@@ -46,21 +52,13 @@ class DisconnectDeviceRequestTest {
     @Test
     fun testReturnsResultString() {
         runBlocking {
-            val server = AndroidDebugBridgeServer()
-
-            val client = server.startAndListen { input, output ->
-                val cmd = input.receiveCommand()
-                assertThat(cmd).isEqualTo("host:disconnect:123.123.123.123:8888")
-                output.respondOkay()
-
-                output.respondStringV1("disconnected 123.123.123.123")
-                output.close()
+            server.session {
+                expectCmd { "host:disconnect:123.123.123.123:8888" }.accept()
+                respondDisconnectDevice("disconnected 123.123.123.123")
             }
 
             val output = client.execute(DisconnectDeviceRequest("123.123.123.123", 8888))
             assertThat(output).isEqualTo("disconnected 123.123.123.123")
-
-            server.dispose()
         }
     }
 }
