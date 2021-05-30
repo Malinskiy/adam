@@ -61,5 +61,5 @@ data class FileEntryV2(
     val ctime: Instant,
     override val name: String? = null
 ) : FileEntry() {
-    override fun exists() = error == 3025.toUInt()
+    override fun exists() = !(size == 0.toULong() && mode == 0.toUInt() && mtime.epochSecond == 0L)
 }

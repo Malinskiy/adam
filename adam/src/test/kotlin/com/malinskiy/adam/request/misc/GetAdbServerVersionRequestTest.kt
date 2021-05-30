@@ -18,30 +18,29 @@ package com.malinskiy.adam.request.misc
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
-import com.malinskiy.adam.Const
-import com.malinskiy.adam.server.AndroidDebugBridgeServer
+import com.malinskiy.adam.AndroidDebugBridgeClient
+import com.malinskiy.adam.server.junit4.AdbServerRule
 import kotlinx.coroutines.runBlocking
+import org.junit.Rule
 import org.junit.Test
 
 class GetAdbServerVersionRequestTest {
+    @get:Rule
+    val server = AdbServerRule()
+    val client: AndroidDebugBridgeClient
+        get() = server.client
+
     @Test
     fun testReturnsProperVersion() {
         runBlocking {
-            val server = AndroidDebugBridgeServer()
-
-            val client = server.startAndListen { input, output ->
-                val transportCmd = input.receiveCommand()
-                assertThat(transportCmd).isEqualTo("host:version")
-                output.respond(Const.Message.OKAY)
-
-                val version = ("0002" + 41.toString(16)).toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
-                output.writeFully(version, 0, version.size)
+            server.session {
+                expectAdbServerVersion()
+                    .accept()
+                    .respondAdbServerVersion(41)
             }
 
             val version = client.execute(GetAdbServerVersionRequest())
             assertThat(version).isEqualTo(41)
-
-            server.dispose()
         }
     }
 }

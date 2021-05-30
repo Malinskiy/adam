@@ -18,13 +18,19 @@ package com.malinskiy.adam.request.misc
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import com.malinskiy.adam.AndroidDebugBridgeClient
 import com.malinskiy.adam.extension.toRequestString
-import com.malinskiy.adam.server.AndroidDebugBridgeServer
-import io.ktor.utils.io.close
+import com.malinskiy.adam.server.junit4.AdbServerRule
 import kotlinx.coroutines.runBlocking
+import org.junit.Rule
 import org.junit.Test
 
 class PairDeviceRequestTest {
+    @get:Rule
+    val server = AdbServerRule()
+    val client: AndroidDebugBridgeClient
+        get() = server.client
+
     @Test
     fun testSerialize() {
         val bytes = PairDeviceRequest("10.0.0.2:39567", "123456").serialize()
@@ -33,20 +39,12 @@ class PairDeviceRequestTest {
 
     @Test
     fun testResponse() = runBlocking {
-        val server = AndroidDebugBridgeServer()
-
-        val client = server.startAndListen { input, output ->
-            val cmd = input.receiveCommand()
-            assertThat(cmd).isEqualTo("host:pair:123456:10.0.0.2:39567")
-            output.respondOkay()
-
-            output.respondStringV1("Successfully paired to 10.0.0.2:39567 [guid=adb-serial-hYG6sO]")
-            output.close()
+        server.session {
+            expectCmd { "host:pair:123456:10.0.0.2:39567" }.accept()
+            respondPairDevice("Successfully paired to 10.0.0.2:39567 [guid=adb-serial-hYG6sO]")
         }
 
         val output = client.execute(PairDeviceRequest("10.0.0.2:39567", "123456"))
         assertThat(output).isEqualTo("Successfully paired to 10.0.0.2:39567 [guid=adb-serial-hYG6sO]")
-
-        server.dispose()
     }
 }
