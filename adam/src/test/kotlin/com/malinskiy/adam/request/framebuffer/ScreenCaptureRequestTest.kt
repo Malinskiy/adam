@@ -24,6 +24,7 @@ import com.github.romankh3.image.comparison.model.ImageComparisonResult
 import com.malinskiy.adam.AndroidDebugBridgeClient
 import com.malinskiy.adam.exception.UnsupportedImageProtocolException
 import com.malinskiy.adam.extension.newFileWithExtension
+import com.malinskiy.adam.extension.testResource
 import com.malinskiy.adam.server.junit4.AdbServerRule
 import io.ktor.utils.io.writeIntLittleEndian
 import kotlinx.coroutines.runBlocking
@@ -31,7 +32,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
 import java.awt.image.BufferedImage
-import java.io.File
 import javax.imageio.ImageIO
 import kotlin.system.measureTimeMillis
 
@@ -53,7 +53,7 @@ class ScreenCaptureRequestTest {
                 expectCmd { "host:transport:serial" }.accept()
                 expectFramebuffer()
                     .accept()
-                    .respondScreencaptureV2(File(javaClass.getResource("/fixture/screencap_1.bin").toURI()))
+                    .respondScreencaptureV2(testResource("/fixture/screencap_1.bin"))
             }
 
             val adapter = RawImageScreenCaptureAdapter()
@@ -77,7 +77,7 @@ class ScreenCaptureRequestTest {
             val actualImage = actual.toBufferedImage()
             ImageIO.write(actualImage, "png", createTempFile)
 
-            val expected = ImageIO.read(File(javaClass.getResource("/fixture/screencap_1.png").toURI()))
+            val expected = ImageIO.read(testResource("/fixture/screencap_1.png"))
             compare(expected, actualImage)
         }
     }
@@ -89,7 +89,7 @@ class ScreenCaptureRequestTest {
                 expectCmd { "host:transport:serial" }.accept()
                 expectFramebuffer()
                     .accept()
-                    .respondScreencaptureV2(File(javaClass.getResource("/fixture/screencap_2.bin").toURI()))
+                    .respondScreencaptureV2(testResource("/fixture/screencap_2.bin"))
             }
 
             val adapter = RawImageScreenCaptureAdapter()
@@ -113,7 +113,7 @@ class ScreenCaptureRequestTest {
             val actualImage = actual.toBufferedImage()
             ImageIO.write(actualImage, "png", createTempFile)
 
-            val expected = ImageIO.read(File(javaClass.getResource("/fixture/screencap_2.png").toURI()))
+            val expected = ImageIO.read(testResource("/fixture/screencap_2.png"))
             compare(expected, actualImage)
         }
     }
@@ -124,7 +124,7 @@ class ScreenCaptureRequestTest {
             expectCmd { "host:transport:serial" }.accept()
             expectFramebuffer()
                 .accept()
-                .respondScreencaptureV2(File(javaClass.getResource("/fixture/screencap_1.bin").toURI()))
+                .respondScreencaptureV2(testResource("/fixture/screencap_1.bin"))
         }
 
         val adapter = BufferedImageScreenCaptureAdapter()
@@ -136,7 +136,7 @@ class ScreenCaptureRequestTest {
         val createTempFile = temp.newFileWithExtension("png")
         ImageIO.write(actual, "png", createTempFile)
 
-        val expected = ImageIO.read(File(javaClass.getResource("/fixture/screencap_1.png").toURI()))
+        val expected = ImageIO.read(testResource("/fixture/screencap_1.png"))
 
         var comparisonResult = compare(expected, actual!!)
         assertThat(comparisonResult.differencePercent).isEqualTo(0.0f)
@@ -145,7 +145,7 @@ class ScreenCaptureRequestTest {
             expectCmd { "host:transport:serial" }.accept()
             expectFramebuffer()
                 .accept()
-                .respondScreencaptureV2(File(javaClass.getResource("/fixture/screencap_1.bin").toURI()))
+                .respondScreencaptureV2(testResource("/fixture/screencap_1.bin"))
         }
 
         measureTimeMillis {
@@ -168,7 +168,7 @@ class ScreenCaptureRequestTest {
             expectCmd { "host:transport:serial" }.accept()
             expectFramebuffer()
                 .accept()
-                .respondScreencaptureV2(File(javaClass.getResource("/fixture/screencap_2.bin").toURI()))
+                .respondScreencaptureV2(testResource("/fixture/screencap_2.bin"))
         }
 
         val adapter = BufferedImageScreenCaptureAdapter()
@@ -180,7 +180,7 @@ class ScreenCaptureRequestTest {
         val createTempFile = temp.newFileWithExtension("png")
         ImageIO.write(actual, "png", createTempFile)
 
-        val expected = ImageIO.read(File(javaClass.getResource("/fixture/screencap_2.png").toURI()))
+        val expected = ImageIO.read(testResource("/fixture/screencap_2.png"))
 
         var comparisonResult = compare(expected, actual!!)
         assertThat(comparisonResult.differencePercent).isEqualTo(0.0f)
@@ -189,7 +189,7 @@ class ScreenCaptureRequestTest {
             expectCmd { "host:transport:serial" }.accept()
             expectFramebuffer()
                 .accept()
-                .respondScreencaptureV2(File(javaClass.getResource("/fixture/screencap_2.bin").toURI()))
+                .respondScreencaptureV2(testResource("/fixture/screencap_2.bin"))
         }
 
         measureTimeMillis {
@@ -208,7 +208,7 @@ class ScreenCaptureRequestTest {
             expectCmd { "host:transport:serial" }.accept()
             expectFramebuffer()
                 .accept()
-                .respondScreencaptureV2(File(javaClass.getResource("/fixture/screencap_1_unaligned.bin").toURI()))
+                .respondScreencaptureV2(testResource("/fixture/screencap_1_unaligned.bin"))
         }
 
         val adapter = BufferedImageScreenCaptureAdapter()
@@ -220,7 +220,7 @@ class ScreenCaptureRequestTest {
         val createTempFile = temp.newFileWithExtension("png")
         ImageIO.write(actual, "png", createTempFile)
 
-        val expected = ImageIO.read(File(javaClass.getResource("/fixture/screencap_1.png").toURI()))
+        val expected = ImageIO.read(testResource("/fixture/screencap_1.png"))
 
         var comparisonResult = compare(expected, actual!!)
         assertThat(comparisonResult.differencePercent).isEqualTo(0.0f)
@@ -229,7 +229,7 @@ class ScreenCaptureRequestTest {
             expectCmd { "host:transport:serial" }.accept()
             expectFramebuffer()
                 .accept()
-                .respondScreencaptureV2(File(javaClass.getResource("/fixture/screencap_1_unaligned.bin").toURI()))
+                .respondScreencaptureV2(testResource("/fixture/screencap_1_unaligned.bin"))
         }
 
         measureTimeMillis {
@@ -248,7 +248,7 @@ class ScreenCaptureRequestTest {
             expectCmd { "host:transport:serial" }.accept()
             expectFramebuffer()
                 .accept()
-                .respondScreencaptureV3(File(javaClass.getResource("/fixture/screencap_3.bin").toURI()))
+                .respondScreencaptureV3(testResource("/fixture/screencap_3.bin"))
         }
 
         val adapter = BufferedImageScreenCaptureAdapter()
@@ -260,7 +260,7 @@ class ScreenCaptureRequestTest {
         val createTempFile = temp.newFileWithExtension("png")
         ImageIO.write(actual, "png", createTempFile)
 
-        val expected = ImageIO.read(File(javaClass.getResource("/fixture/screencap_3.png").toURI()))
+        val expected = ImageIO.read(testResource("/fixture/screencap_3.png"))
 
         var comparisonResult = compare(expected, actual!!)
         assertThat(comparisonResult.differencePercent).isEqualTo(0.0f)
@@ -269,7 +269,7 @@ class ScreenCaptureRequestTest {
             expectCmd { "host:transport:serial" }.accept()
             expectFramebuffer()
                 .accept()
-                .respondScreencaptureV3(File(javaClass.getResource("/fixture/screencap_3.bin").toURI()))
+                .respondScreencaptureV3(testResource("/fixture/screencap_3.bin"))
         }
         measureTimeMillis {
             actual = client.execute(ScreenCaptureRequest(adapter), serial = "serial")

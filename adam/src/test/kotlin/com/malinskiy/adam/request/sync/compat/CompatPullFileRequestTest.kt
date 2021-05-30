@@ -19,6 +19,7 @@ package com.malinskiy.adam.request.sync.compat
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import com.malinskiy.adam.AndroidDebugBridgeClient
+import com.malinskiy.adam.extension.testResource
 import com.malinskiy.adam.request.Feature
 import com.malinskiy.adam.server.junit4.AdbServerRule
 import io.ktor.utils.io.discard
@@ -27,7 +28,6 @@ import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
-import java.io.File
 
 class CompatPullFileRequestTest {
     @Rule
@@ -42,7 +42,7 @@ class CompatPullFileRequestTest {
     @Test
     fun testV1() {
         runBlocking {
-            val fixture = File(CompatPullFileRequestTest::class.java.getResource("/fixture/sample.yaml").file)
+            val fixture = testResource("/fixture/sample.yaml")
             val tempFile = temp.newFile()
 
             launch {
@@ -78,7 +78,7 @@ class CompatPullFileRequestTest {
     @Test
     fun testV2() {
         runBlocking {
-            val fixture = File(CompatPullFileRequestTest::class.java.getResource("/fixture/sample.yaml").file)
+            val fixture = testResource("/fixture/sample.yaml")
             val tempFile = temp.newFile()
 
             launch {

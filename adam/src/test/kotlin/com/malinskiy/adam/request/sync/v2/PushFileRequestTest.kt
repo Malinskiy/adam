@@ -21,6 +21,7 @@ import assertk.assertions.isEqualTo
 import com.malinskiy.adam.AndroidDebugBridgeClient
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.exception.PushFailedException
+import com.malinskiy.adam.extension.testResource
 import com.malinskiy.adam.request.Feature
 import com.malinskiy.adam.server.junit4.AdbServerRule
 import kotlinx.coroutines.launch
@@ -28,7 +29,6 @@ import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
-import java.io.File
 
 class PushFileRequestTest {
 
@@ -53,7 +53,7 @@ class PushFileRequestTest {
     @Test
     fun testSingleChunkHappyPath() {
         runBlocking {
-            val fixture = File(PushFileRequestTest::class.java.getResource("/fixture/sample.yaml").file)
+            val fixture = testResource("/fixture/sample.yaml")
             val receiveFile = temp.newFile()
 
             launch {
@@ -85,7 +85,7 @@ class PushFileRequestTest {
     @Test(expected = PushFailedException::class)
     fun testTransportFailureOnDone() {
         runBlocking {
-            val fixture = File(PushFileRequestTest::class.java.getResource("/fixture/sample.yaml").file)
+            val fixture = testResource("/fixture/sample.yaml")
             val receiveFile = temp.newFile()
 
             launch {

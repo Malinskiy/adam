@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import com.google.protobuf.gradle.builtins
 import com.google.protobuf.gradle.generateProtoTasks
 import com.google.protobuf.gradle.id
@@ -28,6 +29,7 @@ plugins {
     id("org.jetbrains.dokka")
     id("com.google.protobuf") version Versions.protobufGradle
     id("idea")
+    id("com.github.johnrengelman.shadow") version "6.1.0"
 }
 
 Deployment.initialize(project)
@@ -162,7 +164,6 @@ dependencies {
     implementation(Libraries.vertxCore)
     implementation(Libraries.vertxKotlin)
     implementation(Libraries.vertxCoroutines)
-
     testImplementation(TestLibraries.assertk)
     testImplementation(TestLibraries.junit4)
     testImplementation(TestLibraries.imageComparison)
@@ -174,4 +175,14 @@ dependencies {
     integrationTestImplementation(TestLibraries.assertk)
     integrationTestImplementation(TestLibraries.junit4)
     integrationTestImplementation(kotlin("reflect", version = Versions.kotlin))
+}
+
+task("testJar", ShadowJar::class) {
+    classifier = "tests"
+    from(sourceSets.test.get().output)
+    configurations = listOf(project.configurations.testRuntimeClasspath.get())
+}
+
+task("prepareMarathonBundle") {
+    dependsOn("testJar", "shadowJar")
 }
