@@ -22,7 +22,6 @@ import assertk.assertions.isFalse
 import assertk.assertions.isTrue
 import com.malinskiy.adam.AndroidDebugBridgeClient
 import com.malinskiy.adam.Const
-import com.malinskiy.adam.extension.testResource
 import com.malinskiy.adam.extension.toRequestString
 import com.malinskiy.adam.server.junit4.AdbServerRule
 import kotlinx.coroutines.runBlocking
@@ -92,7 +91,7 @@ class SideloadRequestTest {
     @Test
     fun testTransferFailure() {
         runBlocking {
-            val fixture = testResource("/fixture/sample.yaml")
+            val fixture = File(SideloadRequestTest::class.java.getResource("/fixture/sample.yaml").file)
 
             server.session {
                 expectCmd { "host:transport:serial" }.accept()

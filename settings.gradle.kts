@@ -19,6 +19,14 @@ pluginManagement {
         gradlePluginPortal()
         jcenter()
         google()
+        mavenLocal()
+    }
+    resolutionStrategy {
+        eachPlugin {
+            if (requested.id.id == "marathon-junit4") {
+                useModule("com.malinskiy.marathon:gradle-junit4:${requested.version}")
+            }
+        }
     }
 }
 include(":adam")

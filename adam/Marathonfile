@@ -1,0 +1,4 @@
+name: "adam unit tests"
+outputDir: "build/reports/marathon"
+vendorConfiguration:
+  type: "JUnit4"

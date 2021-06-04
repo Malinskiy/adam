@@ -22,7 +22,6 @@ import com.malinskiy.adam.AndroidDebugBridgeClient
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.exception.PullFailedException
 import com.malinskiy.adam.exception.UnsupportedSyncProtocolException
-import com.malinskiy.adam.extension.testResource
 import com.malinskiy.adam.request.Feature
 import com.malinskiy.adam.server.junit4.AdbServerRule
 import io.ktor.utils.io.discard
@@ -59,7 +58,7 @@ class PullFileRequestTest {
     @Test
     fun testSingleChunkHappyPath() {
         runBlocking {
-            val fixture = testResource("/fixture/sample.yaml")
+            val fixture = File(PullFileRequestTest::class.java.getResource("/fixture/sample.yaml").file)
             val tempFile = temp.newFile()
 
             launch {
@@ -96,7 +95,7 @@ class PullFileRequestTest {
     @Test
     fun testMultipleChunksHappyPath() {
         runBlocking {
-            val fixture = testResource("/fixture/sample.yaml")
+            val fixture = File(PullFileRequestTest::class.java.getResource("/fixture/sample.yaml").file)
             val tempFile = temp.newFile()
 
             launch {
@@ -135,7 +134,7 @@ class PullFileRequestTest {
 
     @Test(expected = PullFailedException::class)
     fun testTransportFail() = runBlocking {
-        val fixture = testResource("/fixture/sample.yaml")
+        val fixture = File(PullFileRequestTest::class.java.getResource("/fixture/sample.yaml").file)
         val tempFile = temp.newFile()
 
         launch {
@@ -165,7 +164,7 @@ class PullFileRequestTest {
     @Test(expected = UnsupportedSyncProtocolException::class)
     fun testTransportPacketSizeFailure() {
         runBlocking {
-            val fixture = testResource("/fixture/sample.yaml")
+            val fixture = File(PullFileRequestTest::class.java.getResource("/fixture/sample.yaml").file)
             val tempFile = temp.newFile()
 
             launch {
@@ -196,7 +195,7 @@ class PullFileRequestTest {
     @Test(expected = UnsupportedSyncProtocolException::class)
     fun testTransportUnsupportedPacket() {
         runBlocking {
-            val fixture = testResource("/fixture/sample.yaml")
+            val fixture = File(PullFileRequestTest::class.java.getResource("/fixture/sample.yaml").file)
             val tempFile = temp.newFile()
 
             launch {

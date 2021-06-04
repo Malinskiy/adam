@@ -21,7 +21,6 @@ import assertk.assertions.isEqualTo
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.exception.RequestRejectedException
 import com.malinskiy.adam.extension.newFileWithExtension
-import com.malinskiy.adam.extension.testResource
 import com.malinskiy.adam.extension.toRequestString
 import com.malinskiy.adam.request.Feature
 import com.malinskiy.adam.server.stub.StubSocket
@@ -33,6 +32,7 @@ import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
+import java.io.File
 
 class WriteIndividualPackageRequestTest {
     @Rule
@@ -48,12 +48,9 @@ class WriteIndividualPackageRequestTest {
 
     @Test
     fun serializeAbb() {
-        val apk = temp.newFile("sample-fake.apk")
-        testResource("/fixture/sample-fake.apk").copyTo(apk, overwrite = true)
-
         val request = WriteIndividualPackageRequest(
             supportedFeatures = listOf(Feature.CMD, Feature.ABB_EXEC),
-            file = apk,
+            file = File(WriteIndividualPackageRequestTest::class.java.getResource("/fixture/sample-fake.apk").file),
             session = "session-id"
         )
         assertThat(request.serialize().toRequestString())
@@ -62,12 +59,9 @@ class WriteIndividualPackageRequestTest {
 
     @Test
     fun serializeNoFeatures() {
-        val apk = temp.newFile("sample-fake.apk")
-        testResource("/fixture/sample-fake.apk").copyTo(apk, overwrite = true)
-
         val request = WriteIndividualPackageRequest(
             supportedFeatures = emptyList(),
-            file = apk,
+            file = File(WriteIndividualPackageRequestTest::class.java.getResource("/fixture/sample-fake.apk").file),
             session = "session-id"
         )
         assertThat(request.serialize().toRequestString())
@@ -76,7 +70,7 @@ class WriteIndividualPackageRequestTest {
 
     @Test
     fun testRead() {
-        val fixture = testResource("/fixture/sample-fake.apk")
+        val fixture = File(WriteIndividualPackageRequestTest::class.java.getResource("/fixture/sample-fake.apk").file)
 
         val request = WriteIndividualPackageRequest(
             supportedFeatures = listOf(Feature.CMD),
@@ -98,7 +92,7 @@ class WriteIndividualPackageRequestTest {
 
     @Test(expected = RequestRejectedException::class)
     fun testReadException() {
-        val fixture = testResource("/fixture/sample-fake.apk")
+        val fixture = File(WriteIndividualPackageRequestTest::class.java.getResource("/fixture/sample-fake.apk").file)
 
         val request = WriteIndividualPackageRequest(
             supportedFeatures = listOf(Feature.CMD),
@@ -118,12 +112,9 @@ class WriteIndividualPackageRequestTest {
     }
 
     private fun stub(): WriteIndividualPackageRequest {
-        val apk = temp.newFile("sample-fake.apk")
-        testResource("/fixture/sample-fake.apk").copyTo(apk, overwrite = true)
-
         val request = WriteIndividualPackageRequest(
             supportedFeatures = listOf(Feature.CMD),
-            file = apk,
+            file = File(WriteIndividualPackageRequestTest::class.java.getResource("/fixture/sample-fake.apk").file),
             session = "session-id"
         )
         return request
