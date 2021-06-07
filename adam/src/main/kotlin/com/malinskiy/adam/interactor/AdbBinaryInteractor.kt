@@ -26,7 +26,7 @@ open class AdbBinaryInteractor {
         vararg cmd: String
     ): Boolean {
         val androidEnvHome: File? = try {
-            System.getenv("ANDROID_HOME")
+            System.getenv("ANDROID_HOME") ?: System.getenv("ANDROID_SDK_ROOT")
         } catch (e: SecurityException) {
             null
         }?.let { File(it) }
