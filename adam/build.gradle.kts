@@ -149,7 +149,6 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile::class) {
 }
 
 dependencies {
-    implementation(Libraries.kxml)
     implementation(Libraries.annotations)
     implementation(kotlin("stdlib-jdk8", version = Versions.kotlin))
     implementation(Libraries.coroutines)
