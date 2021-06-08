@@ -17,7 +17,6 @@ rootProject.name = "adm"
 pluginManagement {
     repositories {
         gradlePluginPortal()
-        jcenter()
         google()
     }
 }
