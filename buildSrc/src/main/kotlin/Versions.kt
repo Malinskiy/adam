@@ -6,7 +6,6 @@ object Versions {
 
 
     val annotations = "21.0.1"
-    val kxml = "2.3.0"
     val ktor = "1.5.2"
     val logging = "2.0.8"
     val vertx = "4.0.3"
@@ -38,7 +37,6 @@ object BuildPlugins {
 object Libraries {
     val annotations = "org.jetbrains:annotations:${Versions.annotations}"
     val coroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.coroutines}"
-    val kxml = "net.sf.kxml:kxml2:${Versions.kxml}"
     val ktorNetwork = "io.ktor:ktor-network-jvm:${Versions.ktor}"
     val logging = "io.github.microutils:kotlin-logging:${Versions.logging}"
     val vertxCore = "io.vertx:vertx-core:${Versions.vertx}"
