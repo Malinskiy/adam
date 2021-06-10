@@ -120,3 +120,4 @@ TestEnded(id=TestIdentifier(className=com.example.MainActivityFlakyTest, testNam
 TestStarted(id=TestIdentifier(className=com.example.MainActivityFlakyTest, testName=testTextFlaky8))
 TestEnded(id=TestIdentifier(className=com.example.MainActivityFlakyTest, testName=testTextFlaky8), metrics={})
 TestRunFailed(error=Unexpected INSTRUMENTATION_CODE: 0)
+TestRunEnded(elapsedTimeMillis=5832, metrics={})

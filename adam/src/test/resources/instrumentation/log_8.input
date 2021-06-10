@@ -1,0 +1,151 @@
+INSTRUMENTATION_STATUS: class=kz.kolesa.tests.advertdetails.AddAdvertToFavoritesTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=9
+INSTRUMENTATION_STATUS: stream=
+kz.kolesa.tests.advertdetails.AddAdvertToFavoritesTest:
+INSTRUMENTATION_STATUS: test=addAdvertToFavorite
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=kz.kolesa.tests.advertdetails.AddAdvertToFavoritesTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=9
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=addAdvertToFavorite
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=kz.kolesa.tests.advertdetails.AdvertDetailsTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=9
+INSTRUMENTATION_STATUS: stream=
+kz.kolesa.tests.advertdetails.AdvertDetailsTest:
+INSTRUMENTATION_STATUS: test=checkHeaderIsShown
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=kz.kolesa.tests.advertdetails.AdvertDetailsTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=9
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=checkHeaderIsShown
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=kz.kolesa.tests.advertdetails.AdvertDetailsTest
+INSTRUMENTATION_STATUS: current=3
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=9
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=checkCommentButtonIsShown
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=kz.kolesa.tests.advertdetails.AdvertDetailsTest
+INSTRUMENTATION_STATUS: current=3
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=9
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=checkCommentButtonIsShown
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=kz.kolesa.tests.advertdetails.AdvertDetailsTest
+INSTRUMENTATION_STATUS: current=4
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=9
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=checkUnAuthClickOnMessageButton
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=kz.kolesa.tests.advertdetails.AdvertDetailsTest
+INSTRUMENTATION_STATUS: current=4
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=9
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=checkUnAuthClickOnMessageButton
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=kz.kolesa.tests.advertdetails.AdvertDetailsTest
+INSTRUMENTATION_STATUS: current=5
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=9
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=checkEmptyPhotoViewIsShown
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=kz.kolesa.tests.advertdetails.AdvertDetailsTest
+INSTRUMENTATION_STATUS: current=5
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=9
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=checkEmptyPhotoViewIsShown
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=kz.kolesa.tests.report.ReportBugTest
+INSTRUMENTATION_STATUS: current=6
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=9
+INSTRUMENTATION_STATUS: stream=
+kz.kolesa.tests.report.ReportBugTest:
+INSTRUMENTATION_STATUS: test=emptyMessageFieldTest
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=kz.kolesa.tests.report.ReportBugTest
+INSTRUMENTATION_STATUS: current=6
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=9
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=emptyMessageFieldTest
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=kz.kolesa.tests.report.ReportBugTest
+INSTRUMENTATION_STATUS: current=7
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=9
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=sendReportTest
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=kz.kolesa.tests.report.ReportBugTest
+INSTRUMENTATION_STATUS: current=7
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=9
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=sendReportTest
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=kz.kolesa.tests.login.SignInEmptyDataTest
+INSTRUMENTATION_STATUS: current=8
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=9
+INSTRUMENTATION_STATUS: stream=
+kz.kolesa.tests.login.SignInEmptyDataTest:
+INSTRUMENTATION_STATUS: test=signInWithEmptyPassword[0]
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=kz.kolesa.tests.login.SignInEmptyDataTest
+INSTRUMENTATION_STATUS: current=8
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=9
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=signInWithEmptyPassword[0]
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=kz.kolesa.tests.login.SignInEmptyDataTest
+INSTRUMENTATION_STATUS: current=9
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=9
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=signInWithEmptyPassword[1]
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=kz.kolesa.tests.login.SignInEmptyDataTest
+INSTRUMENTATION_STATUS: current=9
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=9
+INSTRUMENTATION_STATUS: stack=java.lang.NullPointerException: Attempt to read from field 'java.lang.Object kz.library.network.model.Response.result' on a null object reference
+        at kz.library.auth.domain.AuthInteractor.login(AuthInteractor.kt:43)
+        at kz.library.auth.presentation.AuthViewModel$onLoginClicked$1$invokeSuspend$$inlined$let$lambda$1.invokeSuspend(AuthViewModel.kt:152)
+        at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+        at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:56)
+        at kotlinx.coroutines.scheduling.CoroutineScheduler.runSafely(CoroutineScheduler.kt:571)
+        at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.executeTask(CoroutineScheduler.kt:738)
+        at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.runWorker(CoroutineScheduler.kt:678)
+        at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.run(CoroutineScheduler.kt:665)
+INSTRUMENTATION_STATUS: stream=
+Process crashed while executing signInWithEmptyPassword[1](kz.kolesa.tests.login.SignInEmptyDataTest):
+java.lang.NullPointerException: Attempt to read from field 'java.lang.Object kz.library.network.model.Response.result' on a null object reference
+        at kz.library.auth.domain.AuthInteractor.login(AuthInteractor.kt:43)
+        at kz.library.auth.presentation.AuthViewModel$onLoginClicked$1$invokeSuspend$$inlined$let$lambda$1.invokeSuspend(AuthViewModel.kt:152)
+        at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+        at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:56)
+        at kotlinx.coroutines.scheduling.CoroutineScheduler.runSafely(CoroutineScheduler.kt:571)
+        at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.executeTask(CoroutineScheduler.kt:738)
+        at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.runWorker(CoroutineScheduler.kt:678)
+        at kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.run(CoroutineScheduler.kt:665)
+INSTRUMENTATION_STATUS: test=signInWithEmptyPassword[1]
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_RESULT: shortMsg=Process crashed.
+INSTRUMENTATION_CODE: 0

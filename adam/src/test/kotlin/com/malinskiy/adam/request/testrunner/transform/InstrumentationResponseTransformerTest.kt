@@ -117,7 +117,7 @@ class InstrumentationResponseTransformerTest {
             transformer.transform()?.let { events.addAll(it) }
 
             assertThat(events.map { it.toString() }.reduce { acc, s -> acc + "\n" + s })
-                .isEqualTo(javaClass.getResourceAsStream("/instrumentation/log_4.expected").reader().readText())
+                .isEqualTo(javaClass.getResourceAsStream("/instrumentation/log_4.expected").reader().readText().trimEnd())
         }
     }
 
@@ -161,7 +161,7 @@ class InstrumentationResponseTransformerTest {
         transformer.transform()?.let { events.addAll(it) }
 
         assertThat(events.map { it.toString() }.reduce { acc, s -> acc + "\n" + s })
-            .isEqualTo(javaClass.getResourceAsStream("/instrumentation/log_6.expected").reader().readText())
+            .isEqualTo(javaClass.getResourceAsStream("/instrumentation/log_6.expected").reader().readText().trimEnd())
     }
 
     @Test
@@ -186,7 +186,7 @@ class InstrumentationResponseTransformerTest {
         transformer.transform()?.let { events.addAll(it) }
 
         assertThat(events.map { it.toString() }.reduce { acc, s -> acc + "\n" + s })
-            .isEqualTo(javaClass.getResourceAsStream("/instrumentation/log_6.expected").reader().readText())
+            .isEqualTo(javaClass.getResourceAsStream("/instrumentation/log_6.expected").reader().readText().trimEnd())
     }
 
     /**
@@ -225,5 +225,21 @@ class InstrumentationResponseTransformerTest {
 
         assertThat(events.map { it.toString() }.reduce { acc, s -> acc + "\n" + s })
             .isEqualTo(javaClass.getResourceAsStream("/instrumentation/log_7.expected").reader().readText().trimEnd())
+    }
+
+    @Test
+    fun testFailureHandling() = runBlocking {
+        val transformer = InstrumentationResponseTransformer()
+        val lines = javaClass.getResourceAsStream("/instrumentation/log_8.input").reader().readText()
+
+        val events = mutableListOf<TestEvent>()
+        val bytes = (lines).toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
+        transformer.process(bytes, 0, bytes.size)?.let {
+            events.addAll(it)
+        }
+        transformer.transform()?.let { events.addAll(it) }
+
+        assertThat(events.map { it.toString() }.reduce { acc, s -> acc + "\n" + s })
+            .isEqualTo(javaClass.getResourceAsStream("/instrumentation/log_8.expected").reader().readText().trimEnd())
     }
 }
