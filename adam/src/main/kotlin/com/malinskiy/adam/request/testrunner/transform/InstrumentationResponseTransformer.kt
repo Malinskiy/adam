@@ -228,14 +228,26 @@ class InstrumentationResponseTransformer : ProgressiveResponseTransformer<List<T
             }
             else -> {
                 finishReported = true
-                listOf(TestRunFailed("Unexpected INSTRUMENTATION_CODE: $code"))
+                var shortMessage: String? = null
+                var time = 0L
+                atom.forEach { line ->
+                    when {
+                        line.startsWith("INSTRUMENTATION_RESULT: shortMsg=") -> {
+                            shortMessage = line.substring(33)
+                        }
+                        line.startsWith("Time: ") -> {
+                            time = line.substring(6).toDoubleOrNull()?.times(1000)?.toLong() ?: 0L
+                        }
+                    }
+                }
+                listOf(TestRunFailed(shortMessage ?: "Unexpected INSTRUMENTATION_CODE: $code"), TestRunEnded(time, emptyMap()))
             }
         }
     }
 }
 
-private fun List<String>.toMap(): Map<String, String> {
-    return this.filter { it.isNotEmpty() }.joinToString(separator = "\n").split("INSTRUMENTATION_STATUS: ").mapNotNull {
+private fun List<String>.toMap(delimiter: String = "INSTRUMENTATION_STATUS: "): Map<String, String> {
+    return this.filter { it.isNotEmpty() }.joinToString(separator = "\n").split(delimiter).mapNotNull {
         /**
          * Generally, the stacktrace field will have only a single = sign.
          * But as observed on Sony Xperia D5833, it can contain multiple `=` signs (because stacktrace value is equal to the stream)
