@@ -1,0 +1,638 @@
+{"0": {
+    "doc": "Home",
+    "title": "Adam",
+    "content": "Android Debug Bridge helper written in Kotlin . Get started now View it on GitHub . ",
+    "url": "https://malinskiy.github.io/adam/#adam",
+    "relUrl": "/#adam"
+  },"1": {
+    "doc": "Home",
+    "title": "Motivation",
+    "content": "The only way to get access to the adb programmatically from java world currently is to use the ddmlib java project. Unfortunately it has several limitations, namely: . | Sub-optimal resources usage | Code is not tested properly | Limitations of adb server are propagated to the user of ddmlib | . To optimize the resources usage adam uses coroutines instead of blocking threads. This reduced the load dramatically for scenarios where dozens of devices are connected and are communicated with. Full E2E testing with at least Android emulator is also used to guarantee stability. ",
+    "url": "https://malinskiy.github.io/adam/#motivation",
+    "relUrl": "/#motivation"
+  },"2": {
+    "doc": "Home",
+    "title": "Supported functionality",
+    "content": ". | Shell . | Basic shell: support (with stdout and patched exit code) | shell_v2 support (with separated stdout, stderr and exit code as well as stdin) | Exec shell with stdin on legacy devices without shell_v2 support | . | Package install, uninstall, list . | Streaming installation | Atomic multi-package installation | Apk split installation | Supports APEX | Sideload (with pre-KitKat support) | Install sessions support | . | Device management . | List connected devices | Monitor connected devices continuously | Fetch device features | Connect/disconnect/reconnect device | adb over WiFi pairing setup | Reboot device | . | Files . | List file using ls | Push/pull files and folders(recursive) | Stat, list, pull and push using sync: | Support for stat_v2, sendrecv_v2, ls_v2 | . | Emulator commands (gsm call, rotate, etc) | Props . | Get single prop | Get all props | . | Instrumented tests . | Raw output parsing | Proto output parsing | . | Screen capture . | Dynamic adapters with raw buffer and fast BufferedImage conversion | Supports legacy devices as well as new sRGB and DCI-P3 ones | . | Logcat . | Fetch logcat log | Monitor logcat continuously | . | Port-forwarding (including reverse port-forwarding) . | List ports | Add rule | Remove rule | Remove all rules | . | Android Binder Bridge: “abb” and “abb_exec” | Restart adbd on device: “root:”, “unroot:”, as well as switching transport “usb:”, “tcpip:” | Miscellaneous . | Fetch adb server version | Kill adb server | Remount partition | Enable/disable dm-verity checking on userdebug builds | Fetch host features | Check if mDNS discovery is available | List all mDNS discovered services | . | . Not to mention any device shell commands. ",
+    "url": "https://malinskiy.github.io/adam/#supported-functionality",
+    "relUrl": "/#supported-functionality"
+  },"3": {
+    "doc": "Home",
+    "title": "Getting started",
+    "content": ". To add a dependency on Adam using Maven, use the following: . &lt;dependency&gt; &lt;groupId&gt;com.malinskiy.adam&lt;/groupId&gt; &lt;artifactId&gt;adam&lt;/artifactId&gt; &lt;version&gt;X.X.X&lt;/version&gt; &lt;/dependency&gt; . To add a dependency using Gradle: . dependencies { implementation 'com.malinskiy.adam:adam:X.X.X' } . ",
+    "url": "https://malinskiy.github.io/adam/#getting-started",
+    "relUrl": "/#getting-started"
+  },"4": {
+    "doc": "Home",
+    "title": "Basic usage example",
+    "content": "//Start the adb server StartAdbInteractor().execute() //Create adb client val adb = AndroidDebugBridgeClientFactory().build() //Execute a request val output = adb.execute(ShellCommandRequest(\"echo hello\"), \"emulator-5554\") println(output) // hello . ",
+    "url": "https://malinskiy.github.io/adam/#basic-usage-example",
+    "relUrl": "/#basic-usage-example"
+  },"5": {
+    "doc": "Home",
+    "title": "About the project",
+    "content": "Adam is © 2019-2021 by Anton Malinskiy. License . Licensed under the Apache License, Version 2.0 (the \"License\"); you may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an \"AS IS\" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License. Contributing . When contributing to this repository, please first discuss the change you wish to make via issue, email, or Slack #adam with the owners of this repository before making a change. ",
+    "url": "https://malinskiy.github.io/adam/#about-the-project",
+    "relUrl": "/#about-the-project"
+  },"6": {
+    "doc": "Home",
+    "title": "Home",
+    "content": " ",
+    "url": "https://malinskiy.github.io/adam/",
+    "relUrl": "/"
+  },"7": {
+    "doc": "Android Binder Bridge",
+    "title": "Execute with stdout, stderr and exit code",
+    "content": "Requires Feature.ABB . Executing something on a service is equivalent to executing an arbitrary cmd sub-command (cmd package list, cmd statusbar expand-notifications, etc) on the device. Here is an example of listing currently available services: . val result = adb.execute( request = AbbRequest(listOf(\"-l\")), serial = \"emulator-5554\" ) println(result.stdout) . This will give you the result of the execution that includes stdout, stderr and exit code. ",
+    "url": "https://malinskiy.github.io/adam/docs/abb#execute-with-stdout-stderr-and-exit-code",
+    "relUrl": "/docs/abb#execute-with-stdout-stderr-and-exit-code"
+  },"8": {
+    "doc": "Android Binder Bridge",
+    "title": "Executing with stdout only",
+    "content": "Requires Feature.ABB_EXEC . Some devices will not support the abb requests, instead they will support abb_exec that only returns stdout. val stdout = adb.execute( request = AbbExecRequest(listOf(\"-l\")), serial = \"emulator-5554\" ) println(stdout) . ",
+    "url": "https://malinskiy.github.io/adam/docs/abb#executing-with-stdout-only",
+    "relUrl": "/docs/abb#executing-with-stdout-only"
+  },"9": {
+    "doc": "Android Binder Bridge",
+    "title": "Android Binder Bridge",
+    "content": "Android Binder Bridge gives the ability to communicate directly with the services on the devices. An example of service is package which is handling the package management. To see the full list available services use -l on the abb request. ",
+    "url": "https://malinskiy.github.io/adam/docs/abb",
+    "relUrl": "/docs/abb"
+  },"10": {
+    "doc": "adbd (on-device)",
+    "title": "Root permissions",
+    "content": "You can restart adbd with root permissions: . val stdout = adb.execute( request = RestartAdbdRequest(RootAdbdMode), serial = \"emulator-5554\" ) println(stdout) . Or without root permissions: . val stdout = adb.execute( request = RestartAdbdRequest(UnrootAdbdMode), serial = \"emulator-5554\" ) println(stdout) . ",
+    "url": "https://malinskiy.github.io/adam/docs/adbd#root-permissions",
+    "relUrl": "/docs/adbd#root-permissions"
+  },"11": {
+    "doc": "adbd (on-device)",
+    "title": "Switching transport",
+    "content": "You can switch your device to start listening on a TCP port instead of USB: . val stdout = adb.execute( request = RestartAdbdRequest(TcpIpAdbdMode(8080)), serial = \"emulator-5554\" ) println(stdout) . To switch back to USB: . val stdout = adb.execute( request = RestartAdbdRequest(UsbAdbdMode), serial = \"emulator-5554\" ) println(stdout) . ",
+    "url": "https://malinskiy.github.io/adam/docs/adbd#switching-transport",
+    "relUrl": "/docs/adbd#switching-transport"
+  },"12": {
+    "doc": "adbd (on-device)",
+    "title": "adbd (on-device)",
+    "content": " ",
+    "url": "https://malinskiy.github.io/adam/docs/adbd",
+    "relUrl": "/docs/adbd"
+  },"13": {
+    "doc": "API",
+    "title": "API",
+    "content": " ",
+    "url": "https://malinskiy.github.io/adam/docs/api/",
+    "relUrl": "/docs/api/"
+  },"14": {
+    "doc": "Caveats",
+    "title": "Caveats",
+    "content": "When working with adam it’s a good idea to keep the following things in mind. | Response types | Exception handling | Request target | . ",
+    "url": "https://malinskiy.github.io/adam/docs/caveats/",
+    "relUrl": "/docs/caveats/"
+  },"15": {
+    "doc": "Caveats",
+    "title": "Response types",
+    "content": "Every request in adam requires you to create an instance of AndroidDebugBridgeClient in order to execute a requests. All the requests produce either a single response (e.g. ListDevicesRequest): . val devices: List&lt;Device&gt; = adbClient.execute(request = ListDevicesRequest()) . or request produces a stream of responses, e.g. a progress of pulling a file: . val testFile = createTempFile() val channel = adbClient.execute( request = PullFileRequest(\"/data/local/tmp/testfile\", testFile), scope = GlobalScope, serial = \"emulator-5554\" ) var percentage = 0 while (!channel.isClosedForReceive) { val progressDouble = channel.receiveOrNull() ?: break println(progressDouble) } println(\"done!\") . ",
+    "url": "https://malinskiy.github.io/adam/docs/caveats/#response-types",
+    "relUrl": "/docs/caveats/#response-types"
+  },"16": {
+    "doc": "Caveats",
+    "title": "Exception handling",
+    "content": "In general, you can expect the following for any request: . | ClosedWriteChannelException if the device connection is not be available anymore | RequestRejectedException if ADB server doesn’t respond properly | RequestValidationException if request’s #validate() returns false before execution | . There are additional exceptions, namely: . | PullFailedException, PushFailedException and UnsupportedSyncProtocolException for file requests | UnsupportedForwardingSpecException for port forwarding requests | UnsupportedImageProtocolException for screenshot requests | . ",
+    "url": "https://malinskiy.github.io/adam/docs/caveats/#exception-handling",
+    "relUrl": "/docs/caveats/#exception-handling"
+  },"17": {
+    "doc": "Caveats",
+    "title": "Request target",
+    "content": "When executing the request agains an ADB server client sends what is the target for that particular request. Possible targets are: . | HostTarget. When asking for information related to a device, ‘host:’ can also be interpreted as ‘any single device or emulator connected to/running on the host’. | SerialTarget. This is a special form of query, where the ‘host-serial::' prefix can be used to indicate that the client is asking the ADB server for information related to a specific device. | UsbTarget. A variant of host-serial used to target the single USB device connected to the host. This will fail if there is none or more than one. | LocalTarget. A variant of host-serial used to target the single emulator instance running on the host. This will fail if there is none or more than one. | NonSpecifiedTarget | . In most of the cases you can specify any of them and there are sensible defaults. For example, KillAdbRequest’s default target is HostTarget since this request doesn’t make sense for Android device itself. For all the requests targeting a particular device, e.g. ScreenCaptureRequest you have to specify the serial parameter when executing, e.g.: . adb.execute( request = ScreenCaptureRequest(), serial = \"emulator-5554\" ) . The serial for each particular device can be retrieved by executing either ListDevicesRequest or AsyncDeviceMonitorRequest . ",
+    "url": "https://malinskiy.github.io/adam/docs/caveats/#request-target",
+    "relUrl": "/docs/caveats/#request-target"
+  },"18": {
+    "doc": "Device management",
+    "title": "List devices",
+    "content": "This request will capture a snapshot of device states at a point of execution: . val devices: List&lt;Device&gt; = adb.execute(request = ListDevicesRequest()) . ",
+    "url": "https://malinskiy.github.io/adam/docs/monitor-devices#list-devices",
+    "relUrl": "/docs/monitor-devices#list-devices"
+  },"19": {
+    "doc": "Device management",
+    "title": "Monitoring device changes",
+    "content": "If listing devices once is not enough, i.e. you want to continually monitor if devices change their states (disconnect, connect, etc) use the following request: . val deviceEventsChannel: ReceiveChannel&lt;List&lt;Device&gt;&gt; = adb.execute( request = AsyncDeviceMonitorRequest(), scope = GlobalScope ) for (currentDeviceList in deviceEventsChannel) { //... } . Keep in mind that this will send the device events for all devices even if some of them didn’t change. ",
+    "url": "https://malinskiy.github.io/adam/docs/monitor-devices#monitoring-device-changes",
+    "relUrl": "/docs/monitor-devices#monitoring-device-changes"
+  },"20": {
+    "doc": "Device management",
+    "title": "Fetch device features",
+    "content": "This request will retrieve a list of features supported by a particular device: . val features: List&lt;Feature&gt; = adb.execute(request = FetchDeviceFeaturesRequest(\"emulator-5554\")) . Here is a list of features adam is aware of: . | Feature.SHELL_V2: support for separate stdout, stderr and exit code | Feature.CMD: The ‘cmd’ command is available, Android 24+ | Feature.STAT_V2: device supports extended FileEntryV2 format for stat operation | Feature.LS_V2: device supports extended FileEntryV2 format for list operation | Feature.APEX: adbd supports installing .apex packages | Feature.ABB: adbd supports android binder bridge (abb) in interactive mode using shell protocol | Feature.ABB_EXEC: adbd supports abb using raw pipe | Feature.SENDRECV_V2: adbd supports version 2 of send/recv | . There are more features, but adam is not using them at the moment. Every time you see in the documentation something like Requires Feature.ABB . it means that this request will not succeed unless the device has support for a particular feature. You can check the support by executing the FetchDeviceFeaturesRequest beforehand or catch the RequestValidationException. Sometimes a feature might be optionally used if there is a fallback, see docs for a particular request. ",
+    "url": "https://malinskiy.github.io/adam/docs/monitor-devices#fetch-device-features",
+    "relUrl": "/docs/monitor-devices#fetch-device-features"
+  },"21": {
+    "doc": "Device management",
+    "title": "Connect device",
+    "content": "If you need to connect remote Android devices to a local adb server: . val output = adb.execute(ConnectDeviceRequest(\"10.0.0.2\", 5555)) . ",
+    "url": "https://malinskiy.github.io/adam/docs/monitor-devices#connect-device",
+    "relUrl": "/docs/monitor-devices#connect-device"
+  },"22": {
+    "doc": "Device management",
+    "title": "Disconnect device",
+    "content": "To disconnect a previously connected Android device: . val output = adb.execute(DisconnectDeviceRequest(\"10.0.0.2\", 5555)) . ",
+    "url": "https://malinskiy.github.io/adam/docs/monitor-devices#disconnect-device",
+    "relUrl": "/docs/monitor-devices#disconnect-device"
+  },"23": {
+    "doc": "Device management",
+    "title": "Reconnect device",
+    "content": "This request is quite tricky to use since the target of the request varies with the reconnection target . If you don’t specify anything in reconnectTarget then it’s treated as find the first available device and reconnect . val output = adb.execute(ReconnectRequest()) . If you specify Device target then you have to provide the target either here or via serial during execution . val output = adb.execute(ReconnectRequest(reconnectTarget = Device, target = SerialTarget(\"10.0.0.2:5555\"))) . If you use Offline then you have to use the host target only . val output = adb.execute(ReconnectRequest(reconnectTarget = Offline, target = HostTarget)) . ",
+    "url": "https://malinskiy.github.io/adam/docs/monitor-devices#reconnect-device",
+    "relUrl": "/docs/monitor-devices#reconnect-device"
+  },"24": {
+    "doc": "Device management",
+    "title": "Pair device",
+    "content": "Pairs adb server with device over WiFi connection See https://developer.android.com/studio/command-line/adb#connect-to-a-device-over-wi-fi-android-11+ . val output = adb.execute(PairDeviceRequest(\"10.0.0.2:39567\", \"123456\")) . The target device should be in the form of host[:port], port is optional. ",
+    "url": "https://malinskiy.github.io/adam/docs/monitor-devices#pair-device",
+    "relUrl": "/docs/monitor-devices#pair-device"
+  },"25": {
+    "doc": "Device management",
+    "title": "Reboot device",
+    "content": "If you need to reboot a particular device (for example if it stopped executing requests properly): . adb.execute(request = RebootRequest(), serial = \"emulator-5554\") . Or if you want to reboot to recovery: . adb.execute(request = RebootRequest(mode = RECOVERY), serial = \"emulator-5554\") . Or bootloader: . adb.execute(request = RebootRequest(mode = BOOTLOADER), serial = \"emulator-5554\") . ",
+    "url": "https://malinskiy.github.io/adam/docs/monitor-devices#reboot-device",
+    "relUrl": "/docs/monitor-devices#reboot-device"
+  },"26": {
+    "doc": "Device management",
+    "title": "Device management",
+    "content": ". | List devices | Monitoring device changes | Fetch device features | Connect device | Disconnect device | Reconnect device | Pair device | Reboot device | . ",
+    "url": "https://malinskiy.github.io/adam/docs/monitor-devices",
+    "relUrl": "/docs/monitor-devices"
+  },"27": {
+    "doc": "Emulator",
+    "title": "Run emulator console command",
+    "content": "This request will execute an emulator console command: . val devices: List&lt;Device&gt; = adb.execute( request = EmulatorCommandRequest( \"help\", InetSocketAddress(\"localhost\", 5556) ) ) . This request is completely different to other requests: it connects directly to emulator instead of adb server. For simplicity, it can be used in the same way as adb server requests and shares the socket creation logic with other requests. ",
+    "url": "https://malinskiy.github.io/adam/docs/emu#run-emulator-console-command",
+    "relUrl": "/docs/emu#run-emulator-console-command"
+  },"28": {
+    "doc": "Emulator",
+    "title": "Run gRPC bridge commands",
+    "content": "Adam bundles a gRPC client for emulator gRPC bridge. The spec is generated from emulator_controller.proto . Please refer to the gRPC docs on using the client. A very simple example looks something like this: . val channel = ManagedChannelBuilder.forAddress(grpcHost, grpcPort).apply { usePlaintext() executor(Dispatchers.IO.asExecutor()) }.build() val client = EmulatorControllerGrpcKt.EmulatorControllerCoroutineStub(channel) val state = client.getVmState(Empty.getDefaultInstance()) . Please refer to the emulator_controller.proto for the supported functionality. ",
+    "url": "https://malinskiy.github.io/adam/docs/emu#run-grpc-bridge-commands",
+    "relUrl": "/docs/emu#run-grpc-bridge-commands"
+  },"29": {
+    "doc": "Emulator",
+    "title": "Emulator",
+    "content": "There are three ways to control an emulator: . | Regular adb commands | Using a console port | Using a gRPC port | . At boot time each emulator allocates 2 ports on the host’s loopback interface: a console port and a gRPC bridge port. The console port can be established using the serial number of emulator, for example emulator-5554’s console port is 5554, emulator-5556 - 5556. If you want to make sure emulator uses a particular console port you can start the emulator with a parameter: . $ emulator @Nexus_5X_API_23 -port &lt;port&gt; . gRPC bridge port is usually calculated as console port + 3000, so for emulator-5554 default gRPC port will be 8554. If you want to make sure emulator uses a particular grpc bridge port you can start the emulator with a parameter: . $ emulator @Nexus_5X_API_23 -grpc &lt;port&gt; . ",
+    "url": "https://malinskiy.github.io/adam/docs/emu",
+    "relUrl": "/docs/emu"
+  },"30": {
+    "doc": "Compatibility mode",
+    "title": "Stat file",
+    "content": "Optionally uses Feature.STAT_V2 . The following request will return file stats: . val stats = adb.execute(CompatStatFileRequest(\"/data/local/tmp/app-debug.apk\", supportedFeaturesList), \"emulator-5554\") . The model of stats is represented as FileEntry that will be an instance of FileEntryV1 or FileEntryV2 depending on the features available: . sealed class FileEntry { abstract val mode: UInt abstract val name: String? abstract val mtime: Instant fun isDirectory() fun isRegularFile() fun isBlockDevice() fun isCharDevice() fun isLink() fun size() abstract fun exists(): Boolean } . Name is optional and is only filled by list requests but not stat requests. ",
+    "url": "https://malinskiy.github.io/adam/docs/files/compat/#stat-file",
+    "relUrl": "/docs/files/compat/#stat-file"
+  },"31": {
+    "doc": "Compatibility mode",
+    "title": "List files",
+    "content": "Optionally uses Feature.LS_V2 . The following request will return list of files for a particular path: . val list: List&lt;FileEntry&gt; = adb.execute(CompatListFileRequest(\"/sdcard/\", supportedFeaturesList), \"emulator-5554\") . ",
+    "url": "https://malinskiy.github.io/adam/docs/files/compat/#list-files",
+    "relUrl": "/docs/files/compat/#list-files"
+  },"32": {
+    "doc": "Compatibility mode",
+    "title": "Pull file",
+    "content": "Optionally uses Feature.SENDRECV_V2 . Use the following to pull a file(not a folder) with a known path on the device . launch { val channel = adb.execute( PullFileRequest(\"/data/local/tmp/testfile\", createTempFile(), supportedFeaturesList, coroutineContext = coroutineContext), scope = this, \"emulator-5554\" ) var percentage = 0 for (percentageDouble in channel) { percentage = (percentageDouble * 100).roundToInt() println(percentage) } } . ",
+    "url": "https://malinskiy.github.io/adam/docs/files/compat/#pull-file",
+    "relUrl": "/docs/files/compat/#pull-file"
+  },"33": {
+    "doc": "Compatibility mode",
+    "title": "Push file",
+    "content": "Optionally uses Feature.SENDRECV_V2 . To push a local file to Android device’s folder (remotePath should be the full path with the name of the target file): . launch { val file = File(\"some-file\") val channel = adb.execute( PushFileRequest( local = file, remotePath = \"/data/local/tmp/some-file\", supportedFeaturesList, mode = \"0644\" ), scope = this, serial = \"emulator-5554\" ) var percentage = 0 for (percentageDouble in channel) { percentage = (percentageDouble * 100).roundToInt() println(percentage) } } . mode is the access rights in octal represented as an instance of String. ",
+    "url": "https://malinskiy.github.io/adam/docs/files/compat/#push-file",
+    "relUrl": "/docs/files/compat/#push-file"
+  },"34": {
+    "doc": "Compatibility mode",
+    "title": "Compatibility mode",
+    "content": " ",
+    "url": "https://malinskiy.github.io/adam/docs/files/compat/",
+    "relUrl": "/docs/files/compat/"
+  },"35": {
+    "doc": "Files",
+    "title": "File requests",
+    "content": "This request type transfers files or information about files . If you want to push/pull without worrying about the device features and protocols - see recommended requests. When working with sync v1/v2 protocols, a proper fallback has to be implemented if device doesn’t support some of the features. To simplify working with this - see compatibility requests. If you want to directly interact with sync v1 see sync v1 docs, for sync v2 - sync v2 docs . For compatibility reasons, you might want to use plain ls. This is wrapped in ListFilesRequest . ",
+    "url": "https://malinskiy.github.io/adam/docs/files#file-requests",
+    "relUrl": "/docs/files#file-requests"
+  },"36": {
+    "doc": "Files",
+    "title": "Files",
+    "content": " ",
+    "url": "https://malinskiy.github.io/adam/docs/files",
+    "relUrl": "/docs/files"
+  },"37": {
+    "doc": "ls wrapper",
+    "title": "List files using ls",
+    "content": "Traversing directories can be done using the following wrapper around ls: . val files: List&lt;AndroidFile&gt; = adb.execute( request = ListFilesRequest( directory = \"/sdcard/\" ), serial = \"emulator-5554\" ) . AndroidFile is a data class with the following properties: . /** * @property permissions full permissions string, e.g. -rw-rw---- * @property owner file owner, e.g. root * @property group file group, e.g. sdcard_rw * @property date e.g. 2020-12-01 * @property time e.g. 22:22 * @property name the file name without path, e.g. testfile.txt * @property directionality file's directory, e.g. /sdcard/ * @property size file's size, e.g. 1024 * @property type file's type * @property link if the file is a symbolic link, this field is what the link points to */ data class AndroidFile( val permissions: String, val owner: String, val group: String, val date: String, val time: String, val name: String, val directory: String, val size: Long, val type: AndroidFileType, val link: String? = null ) . ",
+    "url": "https://malinskiy.github.io/adam/docs/files/ls/#list-files-using-ls",
+    "relUrl": "/docs/files/ls/#list-files-using-ls"
+  },"38": {
+    "doc": "ls wrapper",
+    "title": "ls wrapper",
+    "content": " ",
+    "url": "https://malinskiy.github.io/adam/docs/files/ls/",
+    "relUrl": "/docs/files/ls/"
+  },"39": {
+    "doc": "Recommended mode",
+    "title": "Pull file(s)/folder(s)",
+    "content": "Optionally uses Feature.STAT_V2, Feature.LS_V2, Feature.SENDRECV_V2 . The following request will pull remote file(s) or folder(s): . val success: Boolean = adb.execute(PullRequest(\"/data/local/tmp/testdir\", destination, supportedFeatures), \"emulator-5554\") . Please note that this request doesn’t handle file links. If source is a directory and the destination is an existing directory, a subdirectory will be created . ",
+    "url": "https://malinskiy.github.io/adam/docs/files/recommended/#pull-filesfolders",
+    "relUrl": "/docs/files/recommended/#pull-filesfolders"
+  },"40": {
+    "doc": "Recommended mode",
+    "title": "Push file(s)/folder(s)",
+    "content": "Optionally uses Feature.STAT_V2, Feature.LS_V2, Feature.SENDRECV_V2 . The following request will push local file(s) or folder(s) to the remote device: . val success: Boolean = adb.execute(PushRequest(source, \"/data/local/tmp/testdir\", supportedFeatures), \"emulator-5554\") . Please note that this request doesn’t handle file links. If source is a directory and the destination is an existing directory, a subdirectory will be created . ",
+    "url": "https://malinskiy.github.io/adam/docs/files/recommended/#push-filesfolders",
+    "relUrl": "/docs/files/recommended/#push-filesfolders"
+  },"41": {
+    "doc": "Recommended mode",
+    "title": "Recommended mode",
+    "content": " ",
+    "url": "https://malinskiy.github.io/adam/docs/files/recommended/",
+    "relUrl": "/docs/files/recommended/"
+  },"42": {
+    "doc": "sync v1",
+    "title": "Stat file",
+    "content": "The following request will return file stats: . val stats = adb.execute(StatFileRequest(\"/data/local/tmp/app-debug.apk\"), \"emulator-5554\") . The model of stats is represented as FileEntryV1: . data class FileEntryV1( val name: String? = null, val mode: UInt, val size: UInt, val mtime: Instant ) { fun exists(): Boolean fun isDirectory(): Boolean fun isRegularFile(): Boolean fun isBlockDevice(): Boolean fun isCharDevice(): Boolean fun isLink(): Boolean } . Name is optional and is only filled by list requests but not stat requests. ",
+    "url": "https://malinskiy.github.io/adam/docs/files/sync-v1/#stat-file",
+    "relUrl": "/docs/files/sync-v1/#stat-file"
+  },"43": {
+    "doc": "sync v1",
+    "title": "List files",
+    "content": "The following request will return list of files for a particular path: . val list: List&lt;FileEntryV1&gt; = adb.execute(ListFileRequest(\"/sdcard/\"), \"emulator-5554\") . ",
+    "url": "https://malinskiy.github.io/adam/docs/files/sync-v1/#list-files",
+    "relUrl": "/docs/files/sync-v1/#list-files"
+  },"44": {
+    "doc": "sync v1",
+    "title": "Pull file",
+    "content": "Use the following to pull a file(not a folder) with a known path on the device . launch { val channel = adb.execute( PullFileRequest(\"/data/local/tmp/testfile\", createTempFile(), coroutineContext = coroutineContext), scope = this, \"emulator-5554\" ) var percentage = 0 for (percentageDouble in channel) { percentage = (percentageDouble * 100).roundToInt() println(percentage) } } . ",
+    "url": "https://malinskiy.github.io/adam/docs/files/sync-v1/#pull-file",
+    "relUrl": "/docs/files/sync-v1/#pull-file"
+  },"45": {
+    "doc": "sync v1",
+    "title": "Push file",
+    "content": "To push a local file to Android device’s folder (remotePath should be the full path with the name of the target file): . launch { val file = File(\"some-file\") val channel = adb.execute( PushFileRequest( local = file, remotePath = \"/data/local/tmp/some-file\", mode = \"0644\" ), scope = this, serial = \"emulator-5554\" ) var percentage = 0 for(percentageDouble in channel) { percentage = (percentageDouble * 100).roundToInt() println(percentage) } } . mode is the access rights in octal represented as an instance of String. ",
+    "url": "https://malinskiy.github.io/adam/docs/files/sync-v1/#push-file",
+    "relUrl": "/docs/files/sync-v1/#push-file"
+  },"46": {
+    "doc": "sync v1",
+    "title": "sync v1",
+    "content": " ",
+    "url": "https://malinskiy.github.io/adam/docs/files/sync-v1/",
+    "relUrl": "/docs/files/sync-v1/"
+  },"47": {
+    "doc": "sync v2",
+    "title": "Stat file",
+    "content": "Requires Feature.STAT_V2 . The following request will return file stats: . val stats = adb.execute(StatFileRequest(\"/data/local/tmp/app-debug.apk\", supportedFeaturesList), \"emulator-5554\") . The model of stats is represented as FileEntryV1: . data class FileEntryV2( val error: UInt, val dev: ULong, val ino: ULong, val mode: UInt, val nlink: UInt, val uid: UInt, val gid: UInt, val size: ULong, val atime: Instant, val mtime: Instant, val ctime: Instant, val name: String? = null ) { fun exists(): Boolean fun isDirectory(): Boolean fun isRegularFile(): Boolean fun isBlockDevice(): Boolean fun isCharDevice(): Boolean fun isLink(): Boolean } . Name is optional and is only filled by list requests but not stat requests. ",
+    "url": "https://malinskiy.github.io/adam/docs/files/sync-v2/#stat-file",
+    "relUrl": "/docs/files/sync-v2/#stat-file"
+  },"48": {
+    "doc": "sync v2",
+    "title": "List files",
+    "content": "Requires Feature.LS_V2 . The following request will return list of files for a particular path: . val list: List&lt;FileEntryV2&gt; = adb.execute(ListFileRequest(\"/sdcard/\", supportedFeaturesList), \"emulator-5554\") . ",
+    "url": "https://malinskiy.github.io/adam/docs/files/sync-v2/#list-files",
+    "relUrl": "/docs/files/sync-v2/#list-files"
+  },"49": {
+    "doc": "sync v2",
+    "title": "Pull file",
+    "content": "Requires Feature.SENDRECV_V2 . Use the following to pull a file(not a folder) with a known path on the device . launch { val channel = adb.execute( PullFileRequest(\"/data/local/tmp/testfile\", createTempFile(), supportedFeaturesList, coroutineContext = coroutineContext), scope = this, \"emulator-5554\" ) var percentage = 0 for (percentageDouble in channel) { percentage = (percentageDouble * 100).roundToInt() println(percentage) } } . ",
+    "url": "https://malinskiy.github.io/adam/docs/files/sync-v2/#pull-file",
+    "relUrl": "/docs/files/sync-v2/#pull-file"
+  },"50": {
+    "doc": "sync v2",
+    "title": "Push file",
+    "content": "Requires Feature.SENDRECV_V2 . To push a local file to Android device’s folder (remotePath should be the full path with the name of the target file): . launch { val file = File(\"some-file\") val channel = adb.execute( PushFileRequest( local = file, remotePath = \"/data/local/tmp/some-file\", supportedFeaturesList, mode = \"0644\" ), scope = this, serial = \"emulator-5554\" ) var percentage = 0 for (percentageDouble in channel) { percentage = (percentageDouble * 100).roundToInt() println(percentage) } } . mode is the access rights in octal represented as an instance of String. ",
+    "url": "https://malinskiy.github.io/adam/docs/files/sync-v2/#push-file",
+    "relUrl": "/docs/files/sync-v2/#push-file"
+  },"51": {
+    "doc": "sync v2",
+    "title": "sync v2",
+    "content": " ",
+    "url": "https://malinskiy.github.io/adam/docs/files/sync-v2/",
+    "relUrl": "/docs/files/sync-v2/"
+  },"52": {
+    "doc": "Test runner (am instrument)",
+    "title": "Test runner request",
+    "content": ". | Required parameters | Runner class | No hidden api checks | No window animation | User ID | ABI | Profiling output | Output log path | Instrument options . | pkg | clazz | functional | unit | filterSize | performance | debug | log | emma | coverageFile | . | Parsing the output | . Executing tests can be done using the TestRunnerRequest: . val channel = adb.execute( request = TestRunnerRequest( testPackage = \"com.example.test\", instrumentOptions = InstrumentOptions( clazz = listOf(\"com.example.MyTest\") ) ), scope = GlobalScope, serial = \"emulator-5554\" ) var logPart: String? = null do { logPart?.let { print(it) } logPart = channel.receiveOrNull() } while (logPart != null) . The output is a ReadChannel&lt;String&gt; that returns the output of the am instrument command. Required parameters . To execute tests you have to provide the testPackage and default InstrumentOptions() . Runner class . Default test runner class is android.support.test.runner.AndroidJUnitRunner but can be changed using the runnerClass option. For all the options check the source of the am command . No hidden api checks . Disables restrictions on the use of hidden APIs . No window animation . Turn off window animations while running . User ID . Specify user instrumentation runs in. Defaults to current user if not specified” . ABI . Profiling output . Write profiling data to specified path on the device . Output log path . Write test log to specified path . ",
+    "url": "https://malinskiy.github.io/adam/docs/instrumentation/test-runner/#test-runner-request",
+    "relUrl": "/docs/instrumentation/test-runner/#test-runner-request"
+  },"53": {
+    "doc": "Test runner (am instrument)",
+    "title": "Instrument options",
+    "content": "pkg . The fully-qualified Java package name for one of the packages in the test application. Any test case class that uses this package name is executed. Notice that this is not an Android package name; a test package has a single Android package name but may have several Java packages within it. clazz . The fully-qualified Java class name for one of the test case classes. Only this test case class is executed. or . &lt;class_name&gt;#method name. A fully-qualified test case class name, and one of its methods. Only this method is executed. Note the hash mark (#) between the class name and the method name. functional . Runs all test classes that extend InstrumentationTestCase. unit . Runs all test classes that do not extend either InstrumentationTestCase or PerformanceTestCase. filterSize . Runs a test method annotated by size. The annotations are @SmallTest, @MediumTest, and @LargeTest. performance . Runs all test classes that implement PerformanceTestCase. debug . Runs tests in debug mode. log . Loads and logs all specified tests, but does not run them. The test information appears in STDOUT. Use this to verify combinations of other filters and test specifications. emma . Runs an EMMA code coverage analysis and writes the output to /data//coverage.ec on the device. To override the file location, use the [coverageFile] key that is described in the following entry. coverageFile . Overrides the default location of the EMMA coverage file on the device. Specify this value as a path and filename in UNIX format. The default filename is described in the entry for the [emma] key. ",
+    "url": "https://malinskiy.github.io/adam/docs/instrumentation/test-runner/#instrument-options",
+    "relUrl": "/docs/instrumentation/test-runner/#instrument-options"
+  },"54": {
+    "doc": "Test runner (am instrument)",
+    "title": "Parsing the output",
+    "content": "To understand what’s happening with the tests you will need to parse the output of the am instrument. To help with this you can use the InstrumentationResponseTransformer: . val transformer = InstrumentationResponseTransformer() val channel = adb.execute(testRunnerRequest) var logPart: String? = null do { logPart?.let { for (line in it.lines()) { val bytes = ((line + '\\n') as java.lang.String).getBytes(Charset.forName(\"ISO-8859-1\")) transformer.process(bytes, 0, bytes.size) transformer.transform()?.let { events: List&lt;TestEvent&gt; -&gt; //Do something with the events } } } withTimeout(180_000) { logPart = channel.receiveOrNull() } } while (logPart != null) transformer.close()?.let { events: List&lt;TestEvent&gt; -&gt; //This is important because test run can abruptly finish and not report back the finish //Handle the events } . ",
+    "url": "https://malinskiy.github.io/adam/docs/instrumentation/test-runner/#parsing-the-output",
+    "relUrl": "/docs/instrumentation/test-runner/#parsing-the-output"
+  },"55": {
+    "doc": "Test runner (am instrument)",
+    "title": "Test runner (am instrument)",
+    "content": " ",
+    "url": "https://malinskiy.github.io/adam/docs/instrumentation/test-runner/",
+    "relUrl": "/docs/instrumentation/test-runner/"
+  },"56": {
+    "doc": "Logcat",
+    "title": "Retrieve logcat log",
+    "content": "To read logcat once you can execute: . val log = adb.execute( request = SyncLogcatRequest( since = Instant.now().minusSeconds(60), filters = listOf(LogcatFilterSpec(\"TAG\", LogcatVerbosityLevel.E)) ), serial = \"emulator-5554\" ) . SyncLogcatRequest maps most of the options exposed by the underlying logcat command: . class SyncLogcatRequest( since: Instant? = null, modes: List&lt;LogcatReadMode&gt; = listOf(LogcatReadMode.long), buffers: List&lt;LogcatBuffer&gt; = listOf(LogcatBuffer.default), pid: Long? = null, lastReboot: Boolean? = null, filters: List&lt;LogcatFilterSpec&gt; = emptyList() ) . ",
+    "url": "https://malinskiy.github.io/adam/docs/logcat/logcat/#retrieve-logcat-log",
+    "relUrl": "/docs/logcat/logcat/#retrieve-logcat-log"
+  },"57": {
+    "doc": "Logcat",
+    "title": "Stream logcat output",
+    "content": "Recording the output from logcat (for example when writing to a file): . launch { val channel = adb.execute( request = ChanneledLogcatRequest(), scope = this, serial = \"emulator-5554\" ) val line = channel.receive() //write to a file... //Dispose of channel to close the resources channel.cancel() } . ChanneledLogcatRequest maps most of the options exposed by the underlying logcat command: . class ChanneledLogcatRequest( since: Instant? = null, modes: List&lt;LogcatReadMode&gt; = listOf(LogcatReadMode.long), buffers: List&lt;LogcatBuffer&gt; = emptyList(), pid: Long? = null, lastReboot: Boolean? = null, filters: List&lt;LogcatFilterSpec&gt; = emptyList() ) . See the official docs for more info on what these options change. ",
+    "url": "https://malinskiy.github.io/adam/docs/logcat/logcat/#stream-logcat-output",
+    "relUrl": "/docs/logcat/logcat/#stream-logcat-output"
+  },"58": {
+    "doc": "Logcat",
+    "title": "Logcat",
+    "content": " ",
+    "url": "https://malinskiy.github.io/adam/docs/logcat/logcat/",
+    "relUrl": "/docs/logcat/logcat/"
+  },"59": {
+    "doc": "Miscellaneous",
+    "title": "Get adb server version",
+    "content": "This request returns the adb server version specified in adb/adb.h (e.g. here). It is useful for debugging incompatible versions of adb and also making sure your requests are supported by the adb server. val version: Int = adb.execute(request = GetAdbServerVersionRequest()) . ",
+    "url": "https://malinskiy.github.io/adam/docs/misc/misc/#get-adb-server-version",
+    "relUrl": "/docs/misc/misc/#get-adb-server-version"
+  },"60": {
+    "doc": "Miscellaneous",
+    "title": "Kill adb server",
+    "content": "This request is equivalent to executing adb kill-server: . adb.execute(request = KillAdbRequest()) . ",
+    "url": "https://malinskiy.github.io/adam/docs/misc/misc/#kill-adb-server",
+    "relUrl": "/docs/misc/misc/#kill-adb-server"
+  },"61": {
+    "doc": "Miscellaneous",
+    "title": "Remount partition",
+    "content": "Remount partitions read-write. If a reboot is required, autoReboot = true will automatically reboot the device. val output: String = adb.execute(request = RemountPartitionsRequest(autoReboot = false), \"emulator-5554\") . ",
+    "url": "https://malinskiy.github.io/adam/docs/misc/misc/#remount-partition",
+    "relUrl": "/docs/misc/misc/#remount-partition"
+  },"62": {
+    "doc": "Miscellaneous",
+    "title": "Enable/disable dm-verity checking on userdebug builds",
+    "content": "val output: String = adb.execute(request = SetDmVerityCheckingRequest(false), \"emulator-5554\") . ",
+    "url": "https://malinskiy.github.io/adam/docs/misc/misc/#enabledisable-dm-verity-checking-on-userdebug-builds",
+    "relUrl": "/docs/misc/misc/#enabledisable-dm-verity-checking-on-userdebug-builds"
+  },"63": {
+    "doc": "Miscellaneous",
+    "title": "Fetch host features",
+    "content": "val features: List&lt;Feature&gt; = adb.execute(request = FetchHostFeaturesRequest()) . ",
+    "url": "https://malinskiy.github.io/adam/docs/misc/misc/#fetch-host-features",
+    "relUrl": "/docs/misc/misc/#fetch-host-features"
+  },"64": {
+    "doc": "Miscellaneous",
+    "title": "Check if mDNS discovery is available",
+    "content": "mDNS is used for automatic discovery and connection of remote devices (for example with Android 11 ADB over WiFi) . val status: MdnsStatus = adb.execute(MdnsCheckRequest()) . ",
+    "url": "https://malinskiy.github.io/adam/docs/misc/misc/#check-if-mdns-discovery-is-available",
+    "relUrl": "/docs/misc/misc/#check-if-mdns-discovery-is-available"
+  },"65": {
+    "doc": "Miscellaneous",
+    "title": "List all mDNS discovered services",
+    "content": "val services: List&lt;MdnsService&gt; = adb.execute(ListMdnsServicesRequest()) . data class MdnsService( val name: String, val serviceType: String, val url: String ) . ",
+    "url": "https://malinskiy.github.io/adam/docs/misc/misc/#list-all-mdns-discovered-services",
+    "relUrl": "/docs/misc/misc/#list-all-mdns-discovered-services"
+  },"66": {
+    "doc": "Miscellaneous",
+    "title": "Miscellaneous",
+    "content": ". | Get adb server version | Kill adb server | Remount partition | Enable/disable dm-verity checking on userdebug builds | Fetch host features | Check if mDNS discovery is available | List all mDNS discovered services | . ",
+    "url": "https://malinskiy.github.io/adam/docs/misc/misc/",
+    "relUrl": "/docs/misc/misc/"
+  },"67": {
+    "doc": "Package management",
+    "title": "Install a package",
+    "content": "Default installation mode . In order to install a package you first need to push the file with PushFileRequest to appropriate location. You should push your apks to /data/local/tmp since it’s a user-writable path on all versions of Android (so far). val output: String = adb.execute( request = InstallRemotePackageRequest( absoluteRemoteFilePath = \"/data/local/tmp/$apkFileName\", reinstall = true, extraArgs = emptyList() ), serial = \"emulator-5554\" ) . Streaming installation . Requires Feature.CMD or Feature.ABB_EXEC . Optionally uses Feature.APEX . This mode streams the package file so that you don’t need to push the file to the device beforehand. This saves you a couple of requests, namely push file and delete file at the end. val success = client.execute( StreamingPackageInstallRequest( pkg = testFile, supportedFeatures, reinstall = false, extraArgs = emptyList() ), serial = \"emulator-5554\" ) . Split apk . Optionally uses Feature.CMD or Feature.ABB_EXEC . Install an apk split as follows: . val success = client.execute( InstallSplitPackageRequest( pkg = ApkSplitInstallationPackage(appFile1, appFile2), supportedFeatures, reinstall = false, extraArgs = emptyList() ), serial = \"emulator-5554\" ) . If both CMD and ABB_EXEC features are missing then falls back to ‘exec:’. In this case there is no guarantee that the pm binary can install the split packages at all. Atomic multi-package install . Requires Feature.CMD or Feature.ABB_EXEC . Optionally uses Feature.APEX . This request installs multiple packages as a single atomic operation. If one of them fails - all will fail. val success = client.execute( AtomicInstallPackageRequest( pkgList = listOf( SingleFileInstallationPackage(appFile), ApkSplitInstallationPackage(appFile1, appFile2) ), supportedFeatures, reinstall = false, extraArgs = emptyList() ), serial = \"emulator-5554\" ) . ",
+    "url": "https://malinskiy.github.io/adam/docs/package-management/package-management/#install-a-package",
+    "relUrl": "/docs/package-management/package-management/#install-a-package"
+  },"68": {
+    "doc": "Package management",
+    "title": "List installed packages",
+    "content": "To list all installed packages: . val packages: List&lt;Package&gt; = adb.execute( request = PmListRequest( includePath = false ), serial = \"emulator-5554\" ) . ",
+    "url": "https://malinskiy.github.io/adam/docs/package-management/package-management/#list-installed-packages",
+    "relUrl": "/docs/package-management/package-management/#list-installed-packages"
+  },"69": {
+    "doc": "Package management",
+    "title": "Uninstall package",
+    "content": "val output: String = adb.execute( request = UninstallRemotePackageRequest( packageName = \"com.example\", keepData = false ), serial = \"emulator-5554\" ) . ",
+    "url": "https://malinskiy.github.io/adam/docs/package-management/package-management/#uninstall-package",
+    "relUrl": "/docs/package-management/package-management/#uninstall-package"
+  },"70": {
+    "doc": "Package management",
+    "title": "Package management",
+    "content": ". | Install a package . | Default installation mode | Streaming installation | Split apk | Atomic multi-package install | . | List installed packages | Uninstall package | . ",
+    "url": "https://malinskiy.github.io/adam/docs/package-management/package-management/",
+    "relUrl": "/docs/package-management/package-management/"
+  },"71": {
+    "doc": "Sideload",
+    "title": "Sideload",
+    "content": "If you need to use sideload to install packages use the following: . val success = client.execute( request = SideloadRequest( pkg = file ), serial = \"emulator-5554\" ) . Sideload for legacy devices (pre KitKat) . val success = client.execute( request = LegacySideloadRequest( pkg = file ), serial = \"emulator-5554\" ) . ",
+    "url": "https://malinskiy.github.io/adam/docs/package-management/sideload/",
+    "relUrl": "/docs/package-management/sideload/"
+  },"72": {
+    "doc": "Port forwarding",
+    "title": "Port forwarding and reverse port forwarding",
+    "content": ". | Port-forwarding . | Create port forwarding rule | List port forwarding rules | Remove a port forwarding rule | Remove all port forwards | . | Reverse port-forwarding . | Create reverse port forwarding rule | List reverse port forwarding rules | Remove a reverse port forwarding rule | Remove all reverse port forwards | . | . ",
+    "url": "https://malinskiy.github.io/adam/docs/port-forwarding/port-forwarding/#port-forwarding-and-reverse-port-forwarding",
+    "relUrl": "/docs/port-forwarding/port-forwarding/#port-forwarding-and-reverse-port-forwarding"
+  },"73": {
+    "doc": "Port forwarding",
+    "title": "Port-forwarding",
+    "content": " ",
+    "url": "https://malinskiy.github.io/adam/docs/port-forwarding/port-forwarding/#port-forwarding",
+    "relUrl": "/docs/port-forwarding/port-forwarding/#port-forwarding"
+  },"74": {
+    "doc": "Port forwarding",
+    "title": "Create port forwarding rule",
+    "content": "This request forwards some local port to a remote device port. Local port can be defined as: . | LocalTcpPortSpec(val port: Int). This will map a local TCP port. | LocalUnixSocketPortSpec(val path: String). This will create a local named unix path. | . Remote port can be defined as: . | RemoteTcpPortSpec(val port: Int). This will map a remote TCP port. | RemoteAbstractPortSpec(val unixDomainSocketName: String) | RemoteReservedPortSpec(val unixDomainSocketName: String) | RemoteFilesystemPortSpec(val unixDomainSocketName: String) | RemoteDevPortSpec(val charDeviceName: String) | JDWPPortSpec(val processId: Int) | . adb.execute(request = PortForwardRequest( local = LocalTcpPortSpec(12042), remote = RemoteTcpPortSpec(12042), serial = \"emulator-5554\", mode = DEFAULT) ) . DEFAULT mode does not rebind the port. If you need to rebind use the NO_REBIND value. ",
+    "url": "https://malinskiy.github.io/adam/docs/port-forwarding/port-forwarding/#create-port-forwarding-rule",
+    "relUrl": "/docs/port-forwarding/port-forwarding/#create-port-forwarding-rule"
+  },"75": {
+    "doc": "Port forwarding",
+    "title": "List port forwarding rules",
+    "content": "To retrieve a list of port forwarding rules use the following: . val rules: List&lt;PortForwardingRule&gt; = adb.execute(ListPortForwardsRequest(\"emulator-5554\")) . ",
+    "url": "https://malinskiy.github.io/adam/docs/port-forwarding/port-forwarding/#list-port-forwarding-rules",
+    "relUrl": "/docs/port-forwarding/port-forwarding/#list-port-forwarding-rules"
+  },"76": {
+    "doc": "Port forwarding",
+    "title": "Remove a port forwarding rule",
+    "content": "To remove a forwarding you don’t need to specify the remote port spec. adb.execute(request = RemovePortForwardRequest( local = LocalTcpPortSpec(12042), serial = \"emulator-5554\") ) . ",
+    "url": "https://malinskiy.github.io/adam/docs/port-forwarding/port-forwarding/#remove-a-port-forwarding-rule",
+    "relUrl": "/docs/port-forwarding/port-forwarding/#remove-a-port-forwarding-rule"
+  },"77": {
+    "doc": "Port forwarding",
+    "title": "Remove all port forwards",
+    "content": "To clean all the rules: . adb.execute(request = RemoveAllPortForwardsRequest( serial = \"emulator-5554\" )) . ",
+    "url": "https://malinskiy.github.io/adam/docs/port-forwarding/port-forwarding/#remove-all-port-forwards",
+    "relUrl": "/docs/port-forwarding/port-forwarding/#remove-all-port-forwards"
+  },"78": {
+    "doc": "Port forwarding",
+    "title": "Reverse port-forwarding",
+    "content": " ",
+    "url": "https://malinskiy.github.io/adam/docs/port-forwarding/port-forwarding/#reverse-port-forwarding",
+    "relUrl": "/docs/port-forwarding/port-forwarding/#reverse-port-forwarding"
+  },"79": {
+    "doc": "Port forwarding",
+    "title": "Create reverse port forwarding rule",
+    "content": "This request forwards some remote device port to a local host port. Remote(host) port can be defined as: . | LocalTcpPortSpec(val port: Int). This will map a local TCP port. | LocalUnixSocketPortSpec(val path: String). This will create a local named unix path. | . Local(device) port can be defined as: . | RemoteTcpPortSpec(val port: Int). This will map a remote TCP port. | RemoteAbstractPortSpec(val unixDomainSocketName: String) | RemoteReservedPortSpec(val unixDomainSocketName: String) | RemoteFilesystemPortSpec(val unixDomainSocketName: String) | RemoteDevPortSpec(val charDeviceName: String) | JDWPPortSpec(val processId: Int) | . adb.execute(request = ReversePortForwardRequest( local = RemoteTcpPortSpec(12042), remote = LocalTcpPortSpec(12042), serial = \"emulator-5554\", mode = DEFAULT) ) . DEFAULT mode does not rebind the port. If you need to rebind use the NO_REBIND value. ",
+    "url": "https://malinskiy.github.io/adam/docs/port-forwarding/port-forwarding/#create-reverse-port-forwarding-rule",
+    "relUrl": "/docs/port-forwarding/port-forwarding/#create-reverse-port-forwarding-rule"
+  },"80": {
+    "doc": "Port forwarding",
+    "title": "List reverse port forwarding rules",
+    "content": "To retrieve a list of reverse port forwarding rules use the following: . val rules: List&lt;ReversePortForwardingRule&gt; = adb.execute(ListReversePortForwardsRequest(), \"emulator-5554\") . ",
+    "url": "https://malinskiy.github.io/adam/docs/port-forwarding/port-forwarding/#list-reverse-port-forwarding-rules",
+    "relUrl": "/docs/port-forwarding/port-forwarding/#list-reverse-port-forwarding-rules"
+  },"81": {
+    "doc": "Port forwarding",
+    "title": "Remove a reverse port forwarding rule",
+    "content": "To remove a forwarding rule you don’t need to specify a remote port spec. adb.execute(request = RemoveReversePortForwardRequest( local = RemoteTcpPortSpec(12042), serial = \"emulator-5554\") ) . ",
+    "url": "https://malinskiy.github.io/adam/docs/port-forwarding/port-forwarding/#remove-a-reverse-port-forwarding-rule",
+    "relUrl": "/docs/port-forwarding/port-forwarding/#remove-a-reverse-port-forwarding-rule"
+  },"82": {
+    "doc": "Port forwarding",
+    "title": "Remove all reverse port forwards",
+    "content": "To clean all the rules: . adb.execute(request = RemoveAllReversePortForwardsRequest( serial = \"emulator-5554\" )) . ",
+    "url": "https://malinskiy.github.io/adam/docs/port-forwarding/port-forwarding/#remove-all-reverse-port-forwards",
+    "relUrl": "/docs/port-forwarding/port-forwarding/#remove-all-reverse-port-forwards"
+  },"83": {
+    "doc": "Port forwarding",
+    "title": "Port forwarding",
+    "content": " ",
+    "url": "https://malinskiy.github.io/adam/docs/port-forwarding/port-forwarding/",
+    "relUrl": "/docs/port-forwarding/port-forwarding/"
+  },"84": {
+    "doc": "Device properties (getprop)",
+    "title": "Get all device properties",
+    "content": "This requests retrieves all properties and create a Map of String -&gt; String to allow working with properties like this properties[\"sys.boot_completed\"]. val properties: Map&lt;String, String&gt; = adb.execute( request = GetPropRequest(), serial = \"emulator-5554\" ) . ",
+    "url": "https://malinskiy.github.io/adam/docs/props/get-properties/#get-all-device-properties",
+    "relUrl": "/docs/props/get-properties/#get-all-device-properties"
+  },"85": {
+    "doc": "Device properties (getprop)",
+    "title": "Get single device property",
+    "content": "If only a single property is needed then you can use the shorter version: . val value: String = adb.execute( request = GetSinglePropRequest(name = \"sys.boot_completed\"), serial = \"emulator-5554\" ) . ",
+    "url": "https://malinskiy.github.io/adam/docs/props/get-properties/#get-single-device-property",
+    "relUrl": "/docs/props/get-properties/#get-single-device-property"
+  },"86": {
+    "doc": "Device properties (getprop)",
+    "title": "Device properties (getprop)",
+    "content": "Retrieving device properties (equivalent to executing getprop on the device) can be done using the requests below. ",
+    "url": "https://malinskiy.github.io/adam/docs/props/get-properties/",
+    "relUrl": "/docs/props/get-properties/"
+  },"87": {
+    "doc": "Screenshot",
+    "title": "Capture a screenshot",
+    "content": "Capturing screenshots is done using the ScreenCaptureRequest. This request will check the remote protocol version and will fail if the format is unsupported. val adapter = RawImageScreenCaptureAdapter() val image = adb.execute( request = ScreenCaptureRequest(adapter), serial = \"emulator-5554\" ).toBufferedImage() if (!ImageIO.write(image, \"png\", File(\"/tmp/screen.png\"))) { throw IOException(\"Failed to find png writer\") } . Image adapter . In order to receive the image you’ll have to transform the framebuffer bytes into something meaningful. There are two options here: RawImageScreenCaptureAdapter and BufferedImageScreenCaptureAdapter. The RawImageScreenCaptureAdapter is a bare minimum to receive the necessary metadata as well as the byte[] that holds the screenshot. The return type of this adapter is RawImage that supports retrieving the pixel value by index using RawImage#getARGB(index: Int). You can also transform the image into Java’s BufferedImage. However, if you intend to capture a lot of screenshots for a particular device, consider using the BufferedImageScreenCaptureAdapter that will reduce additional allocations of memory when transforming the image. Please note, that all adapter by default will try to reduce the memory consumption and reuse the internal buffers. If you’re using the same adapter on multiple threads in parallel either set the buffer to null all the time or provide an external buffer that is allocated per thread. ",
+    "url": "https://malinskiy.github.io/adam/docs/screen-capture/screenshot/#capture-a-screenshot",
+    "relUrl": "/docs/screen-capture/screenshot/#capture-a-screenshot"
+  },"88": {
+    "doc": "Screenshot",
+    "title": "Screenshot",
+    "content": " ",
+    "url": "https://malinskiy.github.io/adam/docs/screen-capture/screenshot/",
+    "relUrl": "/docs/screen-capture/screenshot/"
+  },"89": {
+    "doc": "Shell v2",
+    "title": "Execute shell command",
+    "content": "Requires Feature.SHELL_V2 . You can execute arbitrary commands (ls, date, etc) on the device using the ShellCommandRequest: . val response: ShellCommandResult = adb.execute( request = ShellCommandRequest(\"echo hello\"), serial = \"emulator-5554\" ) . The response contains separate stdout and stderr as well as an exit code. data class ShellCommandResult( val stdout: String, val stderr: String, val exitCode: Int ) . This request expects that the command returns immediately, or you don’t want to stream the output. ",
+    "url": "https://malinskiy.github.io/adam/docs/shell/shell-v2/#execute-shell-command",
+    "relUrl": "/docs/shell/shell-v2/#execute-shell-command"
+  },"90": {
+    "doc": "Shell v2",
+    "title": "Streaming shell request",
+    "content": "Requires Feature.SHELL_V2 . You can execute arbitrary commands (cat, tail -f, etc) on the device using the ChanneledShellCommandRequest. Shell v2 brings in support for stdin implemented as a separate channel. launch { val stdio = Channel&lt;ShellCommandInputChunk&gt;() val receiveChannel = adb.execute(ChanneledShellCommandRequest(\"cat\", stdio), this, \"emulator-5554\") //Sending commands requires additional pool, otherwise we might deadlock val stdioJob = launch(Dispatchers.IO) { stdio.send( ShellCommandInputChunk( stdin = \"cafebabe\" ) ) stdio.send( ShellCommandInputChunk( close = true ) ) } val stdoutBuilder = StringBuilder() val stderrBuilder = StringBuilder() var exitCode = 1 for (i in receiveChannel) { i.stdout?.let { stdoutBuilder.append(it) } i.stderr?.let { stderrBuilder.append(it) } i.exitCode?.let { exitCode = it } } stdioJob.join() println(stdoutBuilder.toString()) } . ",
+    "url": "https://malinskiy.github.io/adam/docs/shell/shell-v2/#streaming-shell-request",
+    "relUrl": "/docs/shell/shell-v2/#streaming-shell-request"
+  },"91": {
+    "doc": "Shell v2",
+    "title": "Shell v2",
+    "content": "This is a description of requests in com.malinskiy.adam.request.shell.v2 . ",
+    "url": "https://malinskiy.github.io/adam/docs/shell/shell-v2/",
+    "relUrl": "/docs/shell/shell-v2/"
+  },"92": {
+    "doc": "Shell",
+    "title": "Execute shell command",
+    "content": "You can execute arbitrary commands (ls, date, etc) on the device using the ShellCommandRequest: . val response: ShellCommandResult = adb.execute( request = ShellCommandRequest(\"echo hello\"), serial = \"emulator-5554\" ) . The response contains stdout mixed with stderr (since this protocol doesn’t support separate streams). On top of this, shell v1 doesn’t support returning an exit code natively. To mitigate this whenever you execute any shell v1 command adam appends ;echo $? to the end of the command and parses it automatically. data class ShellCommandResult( val output: String, val exitCode: Int ) . This request expects that the command returns immediately, or you don’t want to stream the output. ",
+    "url": "https://malinskiy.github.io/adam/docs/shell#execute-shell-command",
+    "relUrl": "/docs/shell#execute-shell-command"
+  },"93": {
+    "doc": "Shell",
+    "title": "Streaming shell request",
+    "content": "You can execute arbitrary commands (cat, tail -f, etc) on the device using the ChanneledShellCommandRequest: . launch { val updates = adb.execute( request = ChanneledShellCommandRequest(\"logcat -v\"), scope = this, serial = \"emulator-5554\" ) for (lines in updates) { println(lines) } } . ",
+    "url": "https://malinskiy.github.io/adam/docs/shell#streaming-shell-request",
+    "relUrl": "/docs/shell#streaming-shell-request"
+  },"94": {
+    "doc": "Shell",
+    "title": "Execute shell command with pipe input",
+    "content": "Executes the command and provides the channel as the input to the command. Does not return anything . val testFile = File(javaClass.getResource(\"/app-debug.apk\").toURI()) val success = client.execute( request = ExecInRequest( cmd = \"cmd package install -S ${testFile.length()}\", channel = testFile.readChannel() ), serial = \"emulator-5554\" ) . ",
+    "url": "https://malinskiy.github.io/adam/docs/shell#execute-shell-command-with-pipe-input",
+    "relUrl": "/docs/shell#execute-shell-command-with-pipe-input"
+  },"95": {
+    "doc": "Shell",
+    "title": "Shell",
+    "content": ". | Execute shell command | Streaming shell request | Execute shell command with pipe input | . This is a description of requests in com.malinskiy.adam.request.shell.v1 . ",
+    "url": "https://malinskiy.github.io/adam/docs/shell",
+    "relUrl": "/docs/shell"
+  },"96": {
+    "doc": "1. Execute shell request",
+    "title": "1. Executing shell request",
+    "content": "All the operations in adam require to be executed in some coroutine scope. For simplicity, you can run everything in runBlocking{} for trying out, but you should know/get to know coroutines and how to use them. In all the examples below the scoping will be omitted. First, we need to make sure adb server is actually running: . StartAdbInteractor().execute() . Next, we create an instance of AndroidDebugBridgeClient using the factory: . val adb = AndroidDebugBridgeClientFactory().build() . The AndroidDebugBridgeClient instance adb has an execute() method to execute a request. Right now we don’t know what devices are connected to a particular adb server. Let’s list them and find one that we can use: . val devices: List&lt;Device&gt; = adbRule.adb.execute(ListDevicesRequest()) val device = devices.firstOrNull { it.state == DeviceState.DEVICE } ?: throw RuntimeException(\"no devices available\") . Now we have a device and can execute a request for it: . val response: String = adb.execute(ShellCommandRequest(\"echo hello\"), device.serial) . All the waiting for response and establishing a transport connection happens transparently, you don’t need to wait for anything. This also doesn’t allocate new threads. ",
+    "url": "https://malinskiy.github.io/adam/tutorials/1-shell/#1-executing-shell-request",
+    "relUrl": "/tutorials/1-shell/#1-executing-shell-request"
+  },"97": {
+    "doc": "1. Execute shell request",
+    "title": "1. Execute shell request",
+    "content": " ",
+    "url": "https://malinskiy.github.io/adam/tutorials/1-shell/",
+    "relUrl": "/tutorials/1-shell/"
+  },"98": {
+    "doc": "2. Stream logcat",
+    "title": "2. Streaming logcat output",
+    "content": "Some operations in adam require you to stream the output. One such example is streaming the logcat since this source of data will not stop producing output unless you stop reading it or the device terminates. Here is the boilerplate from part 1 to setup the communication with the device: . StartAdbInteractor().execute() val adb = AndroidDebugBridgeClientFactory().build() val devices: List&lt;Device&gt; = adbRule.adb.execute(ListDevicesRequest()) val device = devices.firstOrNull { it.state == DeviceState.DEVICE } ?: throw RuntimeException(\"no devices available\") . Now we need to execute the request: . val response: ReceiveChannel&lt;String&gt; = adb.execute(ChanneledLogcatRequest(), device.serial) . Pay attention to the return type ReceiveChannel&lt;String&gt;. This means that we might get more instances of String as the time goes by. In order to read the output we do the following: . do { val line = channel.receiveOrNull()?.let { println(it) } if(externalSignal) { channel.cancel() break } } while (line != null) . First, we try to receive the output. This might succeed, then we print the string. This might fail, then we don’t print anything. Second, we check some external signal to stop streaming logcat (user pressed a key or something else). To close the whole request we need to cancel the channel. Then we break out of the loop. Third, we want to continue this loop until we reach other the device failure to provide us the output or we receive some external signal to stop. There are many more options available for ChanneledLogcatRequest that change the format of the output as well as filtering and more. ",
+    "url": "https://malinskiy.github.io/adam/tutorials/2-logcat/#2-streaming-logcat-output",
+    "relUrl": "/tutorials/2-logcat/#2-streaming-logcat-output"
+  },"99": {
+    "doc": "2. Stream logcat",
+    "title": "2. Stream logcat",
+    "content": " ",
+    "url": "https://malinskiy.github.io/adam/tutorials/2-logcat/",
+    "relUrl": "/tutorials/2-logcat/"
+  },"100": {
+    "doc": "3. Install package",
+    "title": "3. Install package",
+    "content": "Here is the boilerplate from part 1 to setup the communication with the device: . StartAdbInteractor().execute() val adb = AndroidDebugBridgeClientFactory().build() val devices: List&lt;Device&gt; = adbRule.adb.execute(ListDevicesRequest()) val device = devices.firstOrNull { it.state == DeviceState.DEVICE } ?: throw RuntimeException(\"no devices available\") . Now we need to execute the request. The InstallRemotePackageRequest installs a package from file that is already available on the device. This means that we first need to transfer our package to the device: . val apkFile = File(\"/my/precious/application/app-debug.apk\") val fileName = apkFile.name val channel = adb.execute(PushFileRequest(testFile, \"/data/local/tmp/$fileName\"), GlobalScope, serial = device.serial) while (!channel.isClosedForReceive) { val progress: Double? = channel.poll() } . After executing the request we need to poll the channel for progress until the channel is closed. Next we need to actually install this file: . val output: String = adb.execute(InstallRemotePackageRequest(\"/data/local/tmp/$fileName\", true), serial = device.serial) if(!output.startsWith(\"Success\")) throw RuntimeException(\"Unable to install the apk\") . If everything is ok then the output should contain something along the lines of Success. Next we can verify that this package was indeed installed: . val packages: List&lt;Package&gt; = adb.execute(PmListRequest(), serial = device.serial) val pkg: Package? = packages.find { it.name == \"com.example\" } . ",
+    "url": "https://malinskiy.github.io/adam/tutorials/3-install-package/",
+    "relUrl": "/tutorials/3-install-package/"
+  },"101": {
+    "doc": "Android JUnit 4 rules",
+    "title": "AdbRule",
+    "content": "The rule for adb provides access to the usual adam requests that target only the current device via explicitly specifying the serial number of the device for each request. class AdbActivityTest { @get:Rule val rule = ActivityScenarioRule(MainActivity::class.java) @get:Rule val adbRule = AdbRule(mode = Mode.ASSERT) @Test fun testVmState() { runBlocking { val result = adbRule.adb.execute(ShellCommandRequest(\"echo \\\"hello world\\\"\")) assert(result.exitCode == 0) assert(result.output.startsWith(\"hello world\")) } } } . ",
+    "url": "https://malinskiy.github.io/adam/extensions/1-android-junit/#adbrule",
+    "relUrl": "/extensions/1-android-junit/#adbrule"
+  },"102": {
+    "doc": "Android JUnit 4 rules",
+    "title": "EmulatorGrpcRule",
+    "content": "The rule for gRPC provides access to the supported gRPC requests and is only valid for an emulator. For a list of supported requests check the official source emulator_controller.proto . No support for gRPC TLS or auth is currently implemented . class GrpcActivityTest { @get:Rule val rule = ActivityScenarioRule(MainActivity::class.java) @get:Rule val emulator = EmulatorGrpcRule(mode = Mode.ASSERT) @Test fun testVmState() { runBlocking { val vmState = emulator.grpc.getVmState(Empty.getDefaultInstance()) assert(vmState.state == VmRunState.RunState.RUNNING) } } } . ",
+    "url": "https://malinskiy.github.io/adam/extensions/1-android-junit/#emulatorgrpcrule",
+    "relUrl": "/extensions/1-android-junit/#emulatorgrpcrule"
+  },"103": {
+    "doc": "Android JUnit 4 rules",
+    "title": "EmulatorConsoleRule",
+    "content": "Emulator console port requires an auth token by default that is stored on the host OS of the emulator in the $HOME/.emulator_console_auth_token file. If you want to get rid of the auth, leave an empty file at the same location. This will prevent the emulator from requiring an auth token during the request. class ConsoleActivityTest { @get:Rule val rule = ActivityScenarioRule(MainActivity::class.java) @get:Rule val console = EmulatorConsoleRule(mode = Mode.ASSERT) @Test fun testVmState() { runBlocking { val result = console.execute(\"avd status\") Allure.description(\"VM state is $result\") assert(result.contains(\"running\")) } } } . ",
+    "url": "https://malinskiy.github.io/adam/extensions/1-android-junit/#emulatorconsolerule",
+    "relUrl": "/extensions/1-android-junit/#emulatorconsolerule"
+  },"104": {
+    "doc": "Android JUnit 4 rules",
+    "title": "Notes for developers of test runners",
+    "content": "For real devices only adb access can be exposed. This is achieved via reverse port forwarding on the test runner’s side. This works regardless of the transport mode (direct USB connection or TCP via adb connect). The connection to adb can then be achieved via direct communication to localhost on the real device. The port number that is by default 5037, can be different though. Only test runner has the actual method of establishing the adb port (since test runner communicates with this adb server), hence test runner has to provide this port number via Instrumentation arguments to the test. For emulators there are two cases: If the emulator is a local emulator, then access to the host’s loopback interface (which has all the necessary services) can be achieved via special 10.0.2.2 IP. For adb test runner should provide the port number for the same reasons as for real phones. For telnet communication only test runner can calculate the port number (emulator-5554 -&gt; 5554). Accessing this port requires auth token which has to be supplied by test runner since there is no way to access host’s file system for the $HOME/.emulator_console_auth_token. Same problem with the gRPC - everything has to be supplied by the test runner. If the emulator is a remote emulator connected via adb connect then it is not currently possible to establish the telnet port as well as gRPC port. Although technically possible, in practice the adb port for such a case would most likely be port-forwarded already and there is no way to guarantee that the adb connect port is actually equal to the real adb port. This would be possible to solve provided the emulator was able to receive emulator-5554 variable somehow, but any Android properties would break on the load of a snapshot for example. The contract for the test runner defines passing host and port of a provided adb/console/grpc connection. You can get it as a shared dependency: . dependencies { implementation 'com.malinskiy.adam:android-testrunner-contract:X.X.X' } . Here is roughly how it looks (please use the maven dependency and don’t copy paste this): . public class TestRunnerContract { public static String grpcPortArgumentName = \"com.malinskiy.adam.android.GRPC_PORT\"; public static String grpcHostArgumentName = \"com.malinskiy.adam.android.GRPC_HOST\"; public static String adbPortArgumentName = \"com.malinskiy.adam.android.ADB_PORT\"; public static String adbHostArgumentName = \"com.malinskiy.adam.android.ADB_HOST\"; public static String consolePortArgumentName = \"com.malinskiy.adam.android.CONSOLE_PORT\"; public static String consoleHostArgumentName = \"com.malinskiy.adam.android.CONSOLE_HOST\"; public static String emulatorAuthTokenArgumentName = \"com.malinskiy.adam.android.AUTH_TOKEN\"; public static String deviceSerialArgumentName = \"com.malinskiy.adam.android.ADB_SERIAL\"; } . It is test runner’s responsibility to set these up when executing tests, e.g.: . $ am instrument -w -r --no-window-animation -e class com.example.AdbActivityTest#testUnsafeAccess -e debug false -e com.malinskiy.adam.android.ADB_PORT 5037 -e com.malinskiy.adam.android.ADB_HOST 10.0.2.2 -e com.malinskiy.adam.android.ADB_SERIAL emulator-5554 -e com.malinskiy.adam.android.GRPC_PORT 8554 -e com.malinskiy.adam.android.GRPC_HOST 10.0.2.2 com.example.test/androidx.test.runner.AndroidJUnitRunner . ",
+    "url": "https://malinskiy.github.io/adam/extensions/1-android-junit/#notes-for-developers-of-test-runners",
+    "relUrl": "/extensions/1-android-junit/#notes-for-developers-of-test-runners"
+  },"105": {
+    "doc": "Android JUnit 4 rules",
+    "title": "Android JUnit 4 rules",
+    "content": "Adam supports tests that need to interact with the device be it adb or emulator console/gRPC access. This means that you can execute a test, set the location on the device or emulate a particular sensor input. This ability makes it possible to provide end-to-end testing environment for a lot of complex applications. Some examples could be a fitness tracker app that needs to recognize a particular pattern of movement in the device, or an application that needs to handle phone calls/SMS. Here is a list of currently supported sensors by the emulator_controller.proto just as an example of the possibilities: . enum SensorType { // Measures the acceleration force in m/s2 that is applied to a device // on all three physical axes (x, y, and z), including the force of // gravity. ACCELERATION = 0; // Measures a device's rate of rotation in rad/s around each of the // three physical axes (x, y, and z). GYROSCOPE = 1; // Measures the ambient geomagnetic field for all three physical axes // (x, y, z) in μT. MAGNETIC_FIELD = 2; // Measures degrees of rotation that a device makes around all three // physical axes (x, y, z) ORIENTATION = 3; // Measures the temperature of the device in degrees Celsius (°C). TEMPERATURE = 4; // Measures the proximity of an object in cm relative to the view screen // of a device. This sensor is typically used to determine whether a // handset is being held up to a person's ear. PROXIMITY = 5; // Measures the ambient light level (illumination) in lx. LIGHT = 6; // Measures the ambient air pressure in hPa or mbar. PRESSURE = 7; // Measures the relative ambient humidity in percent (%). HUMIDITY = 8; MAGNETIC_FIELD_UNCALIBRATED = 9; } . In order to use the following rules, support from your test runner is required. A reference implementation of this can be found in Marathon test runner. Tests can be injected with a usable implementation of adb, console or gRPC as following using a custom JUnit 4 rule. All rules provide ways to fail via assumption, e.g. EmulatorGrpcRule(mode = Mode.ASSUME) in case testing is done in a mixed device environment where not every run has emulators/adb access. ",
+    "url": "https://malinskiy.github.io/adam/extensions/1-android-junit/",
+    "relUrl": "/extensions/1-android-junit/"
+  }
+}
