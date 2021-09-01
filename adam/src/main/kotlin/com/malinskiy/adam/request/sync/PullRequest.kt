@@ -99,7 +99,8 @@ class PullRequest(
                         remoteFileEntry.isRegularFile() ||
                                 remoteFileEntry.isBlockDevice() ||
                                 remoteFileEntry.isCharDevice() -> {
-                            doPullFile(source, File(destination, remoteFileEntry.name), remoteFileEntry.size().toLong(), serial)
+                            val name = source.substringAfterLast(Const.ANDROID_FILE_SEPARATOR)
+                            doPullFile(source, File(destination, name), remoteFileEntry.size().toLong(), serial)
                         }
                         remoteFileEntry.exists() -> {
                             throw PushFailedException(
