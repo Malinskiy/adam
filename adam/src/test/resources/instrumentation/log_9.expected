@@ -1,0 +1,4 @@
+TestRunStartedEvent(testCount=1)
+TestStarted(id=TestIdentifier(className=com.bofa.android.adapoc.home.HomeActivityTest, testName=verify01_homeActivity_displayed))
+TestEnded(id=TestIdentifier(className=com.bofa.android.adapoc.home.HomeActivityTest, testName=verify01_homeActivity_displayed), metrics={description=TestDescription, displayName=TestDisplayName, dsaProfileName=FooBar, module=FooBar, storyIdentifier=TestIdentifier, testIdentifier=Ex-1023})
+TestRunEnded(elapsedTimeMillis=17084, metrics={})
