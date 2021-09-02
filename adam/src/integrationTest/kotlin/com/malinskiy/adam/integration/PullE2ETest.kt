@@ -134,4 +134,26 @@ class PullE2ETest {
             assertThat(q.readText()).isEqualTo("кафебаба\n")
         }
     }
+
+    @Test
+    fun testPullFileIntoADestinationFolder() {
+        runBlocking {
+            adbRule.adb.execute(ShellCommandRequest("mkdir -p /data/local/tmp/testdir/X"), adbRule.deviceSerial)
+            adbRule.adb.execute(ShellCommandRequest("echo Xcafebabe > /data/local/tmp/testdir/X/testfilex"), adbRule.deviceSerial)
+
+            val dst = temp.newFolder()
+            val execute =
+                adbRule.adb.execute(
+                    PullRequest("/data/local/tmp/testdir/X/testfilex", dst, adbRule.supportedFeatures),
+                    adbRule.deviceSerial
+                )
+
+            val x = File(dst, "testfilex")
+
+            assertThat(x).isFile()
+
+            assertThat(x.readText()).isEqualTo("Xcafebabe\n")
+        }
+    }
 }
+    
