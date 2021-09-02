@@ -219,15 +219,17 @@ class InstrumentationResponseTransformer : ProgressiveResponseTransformer<List<T
         return when (Status.valueOf(code)) {
             Status.ERROR -> {
                 var time = 0L
-                val metrics = mutableMapOf<String, String>()
-
-                atom.forEach { line ->
+                val parameters = atom.filterNot { it == last }.toMap("INSTRUMENTATION_RESULT:")
+                parameters["stream"]?.lines()?.forEach { line ->
                     when {
                         line.startsWith("Time: ") -> {
                             time = line.substring(6).toDoubleOrNull()?.times(1000)?.toLong() ?: 0L
                         }
                     }
                 }
+
+                val metrics = parameters.filterKeys { !KNOWN_KEYS.contains(it) }
+
                 finishReported = true
                 listOf(TestRunEnded(time, metrics))
             }
