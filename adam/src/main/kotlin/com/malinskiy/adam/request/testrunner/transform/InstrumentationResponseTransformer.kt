@@ -38,6 +38,7 @@ class InstrumentationResponseTransformer : ProgressiveResponseTransformer<List<T
     private var finished = false
     private var testsExpected = 0
     private var testsExecuted = 0
+    private var testMetrics = linkedMapOf<String, String>()
 
     override suspend fun process(bytes: ByteArray, offset: Int, limit: Int): List<TestEvent>? {
         buffer.append(String(bytes, offset, limit, Const.DEFAULT_TRANSPORT_ENCODING))
@@ -138,14 +139,13 @@ class InstrumentationResponseTransformer : ProgressiveResponseTransformer<List<T
             startReported = true
         }
 
-        val metrics = emptyMap<String, String>()
-
         when (Status.valueOf(value.toIntOrNull())) {
             Status.SUCCESS -> {
                 val className = parameters["class"]
                 val testName = parameters["test"]
                 if (className != null && testName != null) {
-                    events.add(TestEnded(TestIdentifier(className, testName), metrics))
+                    events.add(TestEnded(TestIdentifier(className, testName), testMetrics))
+                    testMetrics = linkedMapOf()
                 }
                 testsExecuted += 1
             }
@@ -156,7 +156,9 @@ class InstrumentationResponseTransformer : ProgressiveResponseTransformer<List<T
                     events.add(TestStarted(TestIdentifier(className, testName)))
                 }
             }
-            Status.IN_PROGRESS -> Unit
+            Status.IN_PROGRESS -> {
+                testMetrics.putAll(parameters.filterKeys { !KNOWN_KEYS.contains(it) })
+            }
             Status.ERROR, Status.FAILURE -> {
                 val className = parameters["class"]
                 val testName = parameters["test"]
@@ -164,7 +166,8 @@ class InstrumentationResponseTransformer : ProgressiveResponseTransformer<List<T
                 if (className != null && testName != null && stack != null) {
                     val id = TestIdentifier(className, testName)
                     events.add(TestFailed(id, stack))
-                    events.add(TestEnded(id, metrics))
+                    events.add(TestEnded(id, testMetrics))
+                    testMetrics = linkedMapOf()
                 }
                 testsExecuted += 1
             }
@@ -175,7 +178,8 @@ class InstrumentationResponseTransformer : ProgressiveResponseTransformer<List<T
                     val id = TestIdentifier(className, testName)
                     events.add(TestStarted(id))
                     events.add(TestIgnored(id))
-                    events.add(TestEnded(id, metrics))
+                    events.add(TestEnded(id, testMetrics))
+                    testMetrics = linkedMapOf()
                 }
                 testsExecuted += 1
             }
@@ -186,7 +190,8 @@ class InstrumentationResponseTransformer : ProgressiveResponseTransformer<List<T
                 if (className != null && testName != null && stack != null) {
                     val id = TestIdentifier(className, testName)
                     events.add(TestAssumptionFailed(id, stack))
-                    events.add(TestEnded(id, metrics))
+                    events.add(TestEnded(id, testMetrics))
+                    testMetrics = linkedMapOf()
                 }
                 testsExecuted += 1
             }
@@ -243,6 +248,10 @@ class InstrumentationResponseTransformer : ProgressiveResponseTransformer<List<T
                 listOf(TestRunFailed(shortMessage ?: "Unexpected INSTRUMENTATION_CODE: $code"), TestRunEnded(time, emptyMap()))
             }
         }
+    }
+
+    companion object {
+        val KNOWN_KEYS = setOf("test", "class", "stack", "numtests", "Error", "shortMsg", "stream", "current", "id")
     }
 }
 
