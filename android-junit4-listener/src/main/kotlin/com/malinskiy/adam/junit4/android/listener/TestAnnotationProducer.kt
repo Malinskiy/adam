@@ -17,7 +17,7 @@ import kotlin.reflect.full.memberProperties
  * com.example.FailedAssumptionTest:
  * INSTRUMENTATION_STATUS: test=ignoreTest
  * INSTRUMENTATION_STATUS_CODE: 1
- * INSTRUMENTATION_STATUS: annotations=[org.junit.Ignore, org.junit.Test, androidx.test.filters.SmallTest]
+ * INSTRUMENTATION_STATUS: com.malinskiy.adam.junit4.android.listener.TestAnnotationProducer.v2=[androidx.test.filters.SmallTest(), io.qameta.allure.kotlin.Severity(value=critical), io.qameta.allure.kotlin.Story(value=Slow), org.junit.Test(expected=class org.junit.Test$None:timeout=0), io.qameta.allure.kotlin.Owner(value=user2), io.qameta.allure.kotlin.Feature(value=Text on main screen), io.qameta.allure.kotlin.Epic(value=General), org.junit.runner.RunWith(value=class io.qameta.allure.android.runners.AllureAndroidJUnit4), kotlin.Metadata(bytecodeVersion=[I@bdf6b25:data1=[Ljava.lang.String;@46414fa:data2=[Ljava.lang.String;@5d4aab:extraInt=0:extraString=:kind=1:metadataVersion=[I@fbb1508:packageName=), io.qameta.allure.kotlin.Severity(value=critical), io.qameta.allure.kotlin.Story(value=Slow)]
  * INSTRUMENTATION_STATUS_CODE: 2
  * INSTRUMENTATION_STATUS: class=com.example.FailedAssumptionTest
  * INSTRUMENTATION_STATUS: current=4
