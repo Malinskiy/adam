@@ -32,10 +32,10 @@ class TestAnnotationProducer : RunListener() {
         if (description?.isTest == true) {
             val annotations: List<String> =
                 (description.annotations.toList() + description.testClass.annotations.toList()).mapNotNull { annotation ->
-                    val annotationFQTN = annotation.annotationClass.qualifiedName
+                    val fqn = annotation.annotationClass.qualifiedName
                     val parameters =
                         annotation.annotationClass.memberProperties.joinToString(separator = ":") { "${it.name}=${it.getter.call(annotation)}" }
-                    "$annotationFQTN($parameters)"
+                    "$fqn($parameters)"
                 }
             val bundle = Bundle(1)
             bundle.putStringArrayList(
