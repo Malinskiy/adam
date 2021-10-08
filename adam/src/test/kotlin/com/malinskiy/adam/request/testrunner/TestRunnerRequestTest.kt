@@ -91,7 +91,7 @@ class TestRunnerRequestTest {
                 )
                 val events = mutableListOf<TestEvent>()
                 while (!channel.isClosedForReceive) {
-                    val chunk = channel.receiveOrNull() ?: break
+                    val chunk = channel.receiveCatching().getOrNull() ?: break
                     events.addAll(chunk)
                 }
 

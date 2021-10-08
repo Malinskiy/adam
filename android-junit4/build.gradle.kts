@@ -22,14 +22,14 @@ plugins {
 }
 
 android {
-    compileSdkVersion(30)
+    compileSdk = 30
 
-    defaultConfig {
-        minSdkVersion(14)
-        targetSdkVersion(30)
-        versionCode = 1
-        versionName = "0.0.1"
-    }
+//    defaultConfig {
+//        minSdkVersion(14)
+//        targetSdkVersion(30)
+//        versionCode = 1
+//        versionName = "0.0.1"
+//    }
 
     sourceSets {
         getByName("main") {
@@ -51,7 +51,7 @@ java {
 
 tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile::class) {
     kotlinOptions.jvmTarget = "1.8"
-    kotlinOptions.apiVersion = "1.4"
+    kotlinOptions.apiVersion = "1.5"
 }
 
 dependencies {

@@ -69,7 +69,12 @@ class ReconnectRequest(
          * For some reason this done is lowercase and doesn't use the DONE message as everything else
          * see daemon/services.cpp#reconnect_service
          */
-        val done = byteArrayOf('d'.toByte(), 'o'.toByte(), 'n'.toByte(), 'e'.toByte())
+        val done = byteArrayOf(
+            'd'.code.toByte(),
+            'o'.code.toByte(),
+            'n'.code.toByte(),
+            'e'.code.toByte(),
+        )
     }
 }
 
