@@ -56,6 +56,7 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile::class) {
 
 dependencies {
     implementation(kotlin("stdlib-jdk8", version = Versions.kotlin))
+    implementation(kotlin("reflect", version = Versions.kotlin))
     api(TestLibraries.junit4)
     api(AndroidX.testMonitor)
 }

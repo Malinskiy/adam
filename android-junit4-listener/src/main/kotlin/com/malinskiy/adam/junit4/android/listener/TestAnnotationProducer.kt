@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.test.platform.app.InstrumentationRegistry
 import org.junit.runner.Description
 import org.junit.runner.notification.RunListener
+import kotlin.reflect.full.memberProperties
 
 /**
  * JUnit4 listener that produces test annotations, e.g. using am instrument:
@@ -29,11 +30,18 @@ class TestAnnotationProducer : RunListener() {
     override fun testStarted(description: Description?) {
         super.testStarted(description)
         if (description?.isTest == true) {
-            val annotations: List<String> = description.annotations.mapNotNull {
-                it.annotationClass.qualifiedName
-            }
+            val annotations: List<String> =
+                (description.annotations.toList() + description.testClass.annotations.toList()).mapNotNull { annotation ->
+                    val annotationFQTN = annotation.annotationClass.qualifiedName
+                    val parameters =
+                        annotation.annotationClass.memberProperties.joinToString(separator = ":") { "${it.name}=${it.getter.call(annotation)}" }
+                    "$annotationFQTN($parameters)"
+                }
             val bundle = Bundle(1)
-            bundle.putStringArrayList("com.malinskiy.adam.junit4.android.listener.TestAnnotationProducer.v1", ArrayList(annotations))
+            bundle.putStringArrayList(
+                "com.malinskiy.adam.junit4.android.listener.TestAnnotationProducer.v2",
+                ArrayList(annotations)
+            )
             InstrumentationRegistry.getInstrumentation().sendStatus(2, bundle)
         }
     }
