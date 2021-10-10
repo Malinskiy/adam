@@ -24,12 +24,10 @@ plugins {
 android {
     compileSdk = 30
 
-//    defaultConfig {
-//        minSdkVersion(14)
-//        targetSdkVersion(30)
-//        versionCode = 1
-//        versionName = "0.0.1"
-//    }
+    defaultConfig {
+        minSdk = 14
+        targetSdk = 30
+    }
 
     sourceSets {
         getByName("main") {
