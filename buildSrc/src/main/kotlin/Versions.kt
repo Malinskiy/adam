@@ -9,6 +9,7 @@ object Versions {
     val ktor = "1.6.4"
     val logging = "2.0.11"
     val vertx = "4.1.5"
+    val apacheCommonsPool2 = "2.11.1"
 
     val assertk = "0.25"
     val junit4 = "4.13.2"
@@ -36,6 +37,7 @@ object BuildPlugins {
 
 object Libraries {
     val annotations = "org.jetbrains:annotations:${Versions.annotations}"
+    val apacheCommonsPool2 = "org.apache.commons:commons-pool2:${Versions.apacheCommonsPool2}"
     val coroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.coroutines}"
     val ktorNetwork = "io.ktor:ktor-network-jvm:${Versions.ktor}"
     val logging = "io.github.microutils:kotlin-logging:${Versions.logging}"

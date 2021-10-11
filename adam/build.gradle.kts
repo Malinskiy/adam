@@ -162,7 +162,7 @@ dependencies {
     implementation(Libraries.vertxCore)
     implementation(Libraries.vertxKotlin)
     implementation(Libraries.vertxCoroutines)
-    implementation("org.apache.commons:commons-pool2:2.11.1")
+    implementation(Libraries.apacheCommonsPool2)
 
     testImplementation(TestLibraries.assertk)
     testImplementation(TestLibraries.junit4)
