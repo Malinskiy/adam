@@ -145,7 +145,7 @@ java {
 
 tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile::class) {
     kotlinOptions.jvmTarget = "1.8"
-    kotlinOptions.apiVersion = "1.4"
+    kotlinOptions.apiVersion = "1.5"
 }
 
 dependencies {
@@ -155,7 +155,8 @@ dependencies {
     implementation(Libraries.ktorNetwork)
     implementation(Libraries.logging)
     api(Libraries.protobufLite)
-    api(Libraries.grpcKotlinStubLite)
+    api(Libraries.grpcProtobufLite)
+    api(Libraries.grpcKotlinStub)
     api(Libraries.grpcOkhttp)
     implementation(Libraries.javaxAnnotations)
     implementation(Libraries.vertxCore)

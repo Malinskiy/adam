@@ -75,7 +75,7 @@ class PullFileRequestTest {
 
                 var progress = 0.0
                 while (!execute.isClosedForReceive) {
-                    progress = execute.receiveOrNull() ?: break
+                    progress = execute.receiveCatching().getOrNull() ?: break
                 }
 
                 assertThat(progress).isEqualTo(1.0)
@@ -116,7 +116,7 @@ class PullFileRequestTest {
 
                 var progress = 0.0
                 while (!execute.isClosedForReceive) {
-                    progress = execute.receiveOrNull() ?: break
+                    progress = execute.receiveCatching().getOrNull() ?: break
                 }
 
                 assertThat(progress).isEqualTo(1.0)
@@ -150,7 +150,7 @@ class PullFileRequestTest {
 
             var progress = 0.0
             while (!execute.isClosedForReceive) {
-                progress = execute.receiveOrNull() ?: break
+                progress = execute.receiveCatching().getOrNull() ?: break
             }
         }.join()
     }
@@ -179,7 +179,7 @@ class PullFileRequestTest {
 
                 var progress = 0.0
                 while (!execute.isClosedForReceive) {
-                    progress = execute.receiveOrNull() ?: break
+                    progress = execute.receiveCatching().getOrNull() ?: break
                 }
             }.join()
         }
@@ -210,7 +210,7 @@ class PullFileRequestTest {
 
                 var progress = 0.0
                 while (!execute.isClosedForReceive) {
-                    progress = execute.receiveOrNull() ?: break
+                    progress = execute.receiveCatching().getOrNull() ?: break
                 }
             }.join()
         }

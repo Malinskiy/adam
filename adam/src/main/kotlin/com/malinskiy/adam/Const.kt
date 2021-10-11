@@ -35,28 +35,46 @@ object Const {
     val SYNC_IGNORED_FILES = setOf(".", "..")
 
     object Message {
-        val OKAY = byteArrayOf('O'.toByte(), 'K'.toByte(), 'A'.toByte(), 'Y'.toByte())
-        val FAIL = byteArrayOf('F'.toByte(), 'A'.toByte(), 'I'.toByte(), 'L'.toByte())
+        val OKAY = byteArrayOf('O'.code.toByte(), 'K'.code.toByte(), 'A'.code.toByte(), 'Y'.code.toByte())
+        val FAIL = byteArrayOf('F'.code.toByte(), 'A'.code.toByte(), 'I'.code.toByte(), 'L'.code.toByte())
 
-        val DATA = byteArrayOf('D'.toByte(), 'A'.toByte(), 'T'.toByte(), 'A'.toByte())
-        val DONE = byteArrayOf('D'.toByte(), 'O'.toByte(), 'N'.toByte(), 'E'.toByte())
+        val DATA = byteArrayOf('D'.code.toByte(), 'A'.code.toByte(), 'T'.code.toByte(), 'A'.code.toByte())
+        val DONE = byteArrayOf('D'.code.toByte(), 'O'.code.toByte(), 'N'.code.toByte(), 'E'.code.toByte())
 
-        val LSTAT_V1 = byteArrayOf('S'.toByte(), 'T'.toByte(), 'A'.toByte(), 'T'.toByte())
-        val LIST_V1 = byteArrayOf('L'.toByte(), 'I'.toByte(), 'S'.toByte(), 'T'.toByte())
-        val DENT_V1 = byteArrayOf('D'.toByte(), 'E'.toByte(), 'N'.toByte(), 'T'.toByte())
-        val SEND_V1 = byteArrayOf('S'.toByte(), 'E'.toByte(), 'N'.toByte(), 'D'.toByte())
-        val RECV_V1 = byteArrayOf('R'.toByte(), 'E'.toByte(), 'C'.toByte(), 'V'.toByte())
+        val LSTAT_V1 = byteArrayOf('S'.code.toByte(), 'T'.code.toByte(), 'A'.code.toByte(), 'T'.code.toByte())
+        val LIST_V1 = byteArrayOf('L'.code.toByte(), 'I'.code.toByte(), 'S'.code.toByte(), 'T'.code.toByte())
+        val DENT_V1 = byteArrayOf('D'.code.toByte(), 'E'.code.toByte(), 'N'.code.toByte(), 'T'.code.toByte())
+        val SEND_V1 = byteArrayOf('S'.code.toByte(), 'E'.code.toByte(), 'N'.code.toByte(), 'D'.code.toByte())
+        val RECV_V1 = byteArrayOf('R'.code.toByte(), 'E'.code.toByte(), 'C'.code.toByte(), 'V'.code.toByte())
 
-        val LIST_V2 = byteArrayOf('L'.toByte(), 'I'.toByte(), 'S'.toByte(), '2'.toByte())
-        val DENT_V2 = byteArrayOf('D'.toByte(), 'N'.toByte(), 'T'.toByte(), '2'.toByte())
-        val LSTAT_V2 = byteArrayOf('L'.toByte(), 'S'.toByte(), 'T'.toByte(), '2'.toByte())
-        val RECV_V2 = byteArrayOf('R'.toByte(), 'C'.toByte(), 'V'.toByte(), '2'.toByte())
-        val SEND_V2 = byteArrayOf('S'.toByte(), 'N'.toByte(), 'D'.toByte(), '2'.toByte())
+        val LIST_V2 = byteArrayOf('L'.code.toByte(), 'I'.code.toByte(), 'S'.code.toByte(), '2'.code.toByte())
+        val DENT_V2 = byteArrayOf('D'.code.toByte(), 'N'.code.toByte(), 'T'.code.toByte(), '2'.code.toByte())
+        val LSTAT_V2 = byteArrayOf('L'.code.toByte(), 'S'.code.toByte(), 'T'.code.toByte(), '2'.code.toByte())
+        val RECV_V2 = byteArrayOf('R'.code.toByte(), 'C'.code.toByte(), 'V'.code.toByte(), '2'.code.toByte())
+        val SEND_V2 = byteArrayOf('S'.code.toByte(), 'N'.code.toByte(), 'D'.code.toByte(), '2'.code.toByte())
 
         val DONEDONE =
-            byteArrayOf('D'.toByte(), 'O'.toByte(), 'N'.toByte(), 'E'.toByte(), 'D'.toByte(), 'O'.toByte(), 'N'.toByte(), 'E'.toByte())
+            byteArrayOf(
+                'D'.code.toByte(),
+                'O'.code.toByte(),
+                'N'.code.toByte(),
+                'E'.code.toByte(),
+                'D'.code.toByte(),
+                'O'.code.toByte(),
+                'N'.code.toByte(),
+                'E'.code.toByte()
+            )
         val FAILFAIL =
-            byteArrayOf('F'.toByte(), 'A'.toByte(), 'I'.toByte(), 'L'.toByte(), 'F'.toByte(), 'A'.toByte(), 'I'.toByte(), 'L'.toByte())
+            byteArrayOf(
+                'F'.code.toByte(),
+                'A'.code.toByte(),
+                'I'.code.toByte(),
+                'L'.code.toByte(),
+                'F'.code.toByte(),
+                'A'.code.toByte(),
+                'I'.code.toByte(),
+                'L'.code.toByte()
+            )
     }
 
     object FileType {

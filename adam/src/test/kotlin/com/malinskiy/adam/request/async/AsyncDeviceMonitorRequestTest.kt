@@ -43,9 +43,9 @@ class AsyncDeviceMonitorRequestTest {
             }
 
             val updates = client.execute(AsyncDeviceMonitorRequest(), scope = this)
-            var update = updates.receiveOrNull()
+            var update = updates.receiveCatching().getOrNull()
             assertThat(update!!).containsExactly(Device("emulator-5554", DeviceState.OFFLINE))
-            update = updates.receiveOrNull()
+            update = updates.receiveCatching().getOrNull()
             assertThat(update!!).containsExactly(Device("emulator-5554", DeviceState.DEVICE))
             updates.cancel()
         }

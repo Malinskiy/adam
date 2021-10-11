@@ -1,6 +1,6 @@
 import com.android.build.gradle.LibraryExtension
 import org.gradle.api.Project
-import org.gradle.api.plugins.JavaPluginConvention
+import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPom
 import org.gradle.api.publish.maven.MavenPublication
@@ -18,19 +18,19 @@ import org.jetbrains.dokka.gradle.DokkaTask
 import java.net.URI
 
 object Deployment {
-    val user = System.getenv("SONATYPE_USERNAME")
-    val password = System.getenv("SONATYPE_PASSWORD")
-    val githubUser = System.getenv("GITHUB_MAVEN_USERNAME")
-    val githubPassword = System.getenv("GITHUB_TOKEN")
-    var releaseMode: String? = null
-    var versionSuffix: String? = null
-    var deployUrl: String? = null
+    private val user = System.getenv("SONATYPE_USERNAME")
+    private val password = System.getenv("SONATYPE_PASSWORD")
+    private val githubUser = System.getenv("GITHUB_MAVEN_USERNAME")
+    private val githubPassword = System.getenv("GITHUB_TOKEN")
+    private var releaseMode: String? = null
+    private var versionSuffix: String? = null
+    private var deployUrl: String? = null
 
-    val snapshotDeployUrl = System.getenv("SONATYPE_SNAPSHOTS_URL")
+    private val snapshotDeployUrl = System.getenv("SONATYPE_SNAPSHOTS_URL")
         ?: "https://oss.sonatype.org/content/repositories/snapshots/"
-    val releaseDeployUrl = System.getenv("SONATYPE_RELEASES_URL")
+    private val releaseDeployUrl = System.getenv("SONATYPE_RELEASES_URL")
         ?: "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
-    val githubDeployUrl = "https://maven.pkg.github.com/Malinskiy/adam"
+    private val githubDeployUrl = "https://maven.pkg.github.com/Malinskiy/adam"
 
     fun initialize(project: Project) {
         val releaseMode: String? by project
@@ -60,11 +60,11 @@ object Deployment {
                 val android = project.extensions.findByType(LibraryExtension::class)!!
                 val main = android.sourceSets.getByName("main")
                 val sourcesJar by project.tasks.creating(Jar::class) {
-                    classifier = "sources"
+                    archiveClassifier.set("sources")
                     from(main.java.srcDirs)
                 }
                 val javadocJar by project.tasks.creating(Jar::class) {
-                    classifier = "javadoc"
+                    archiveClassifier.set("javadoc")
                     val dokka = project.tasks.findByName("dokkaJavadoc") as DokkaTask
                     from(dokka.outputDirectory)
                     dependsOn(dokka)
@@ -72,15 +72,15 @@ object Deployment {
 
                 Pair(project.components["release"], listOf(sourcesJar, javadocJar))
             }
-            project.the(JavaPluginConvention::class) != null -> {
-                val javaPlugin = project.the(JavaPluginConvention::class)
+            project.the(JavaPluginExtension::class) != null -> {
+                val javaPlugin = project.the(JavaPluginExtension::class)
 
                 val sourcesJar by project.tasks.creating(Jar::class) {
-                    classifier = "sources"
+                    archiveClassifier.set("sources")
                     from(javaPlugin.sourceSets["main"].allSource)
                 }
                 val javadocJar by project.tasks.creating(Jar::class) {
-                    classifier = "javadoc"
+                    archiveClassifier.set("javadoc")
                     from(javaPlugin.docsDir)
                     dependsOn("javadoc")
                 }

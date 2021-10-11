@@ -63,7 +63,7 @@ class CompatPushFileRequestTest {
 
                 var progress = 0.0
                 while (!execute.isClosedForReceive) {
-                    progress = execute.receiveOrNull() ?: break
+                    progress = execute.receiveCatching().getOrNull() ?: break
                 }
 
                 assertThat(progress).isEqualTo(1.0)
@@ -96,7 +96,7 @@ class CompatPushFileRequestTest {
 
                 var progress = 0.0
                 while (!execute.isClosedForReceive) {
-                    progress = execute.receiveOrNull() ?: break
+                    progress = execute.receiveCatching().getOrNull() ?: break
                 }
 
                 assertThat(progress).isEqualTo(1.0)
