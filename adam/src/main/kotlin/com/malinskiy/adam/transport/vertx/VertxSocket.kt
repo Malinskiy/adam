@@ -37,8 +37,7 @@ import io.vertx.kotlin.coroutines.dispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
-import kotlinx.coroutines.channels.receiveOrNull
-import kotlinx.coroutines.channels.sendBlocking
+import kotlinx.coroutines.channels.trySendBlocking
 import kotlinx.coroutines.isActive
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
@@ -104,9 +103,9 @@ class VertxSocket(private val socketAddress: SocketAddress, private val options:
         socket.write(buffer).await()
     }
 
-    override suspend fun writeFully(byteBuffer: ByteArray, offset: Int, limit: Int) {
+    override suspend fun writeFully(byteArray: ByteArray, offset: Int, limit: Int) {
         if (isClosedForWrite) throw IllegalStateException("Socket write error: socket is not connected ${state.get()}")
-        val appendBytes = Buffer.buffer().appendBytes(byteBuffer, offset, limit)
+        val appendBytes = Buffer.buffer().appendBytes(byteArray, offset, limit)
         socket.write(appendBytes).await()
     }
 
@@ -115,7 +114,7 @@ class VertxSocket(private val socketAddress: SocketAddress, private val options:
         vertx.runOnContext {
             recordParser.request(limit)
         }
-        return readChannel.receiveOrNull()?.let {
+        return readChannel.receiveCatching().getOrNull()?.let {
             val actualLimit = it.byteBuf.writerIndex()
             assert(actualLimit <= limit) { "Received ${it.length()} more than we can chew $limit" }
             it.getBytes(0, actualLimit, buffer, offset)
@@ -238,7 +237,7 @@ private class ChannelReadStream<T>(
             }
             .handler { event ->
                 if (!isClosedForSend) {
-                    sendBlocking(event)
+                    trySendBlocking(event)
                     stream.fetch(1)
                 } else {
                     val length = (event as Buffer).length()

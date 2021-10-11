@@ -20,10 +20,10 @@ import com.malinskiy.adam.transport.AdamMaxFilePacketPool
 import com.malinskiy.adam.transport.SuspendCloseable
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.nio.ByteBuffer
 import kotlin.coroutines.CoroutineContext
@@ -54,7 +54,6 @@ class AsyncFileWriter(
         }
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     suspend fun write(byteBuffer: ByteBuffer) {
         bufferChannel.send(byteBuffer)
     }
@@ -62,6 +61,8 @@ class AsyncFileWriter(
     override suspend fun close() {
         bufferChannel.close()
         job?.join()
-        fileChannel.close()
+        withContext(coroutineContext) {
+            fileChannel.close()
+        }
     }
 }

@@ -69,17 +69,16 @@ class TestRunnerRequest(
             val buffer = array()
             val available = socket.readAvailable(buffer, 0, buffer.size)
 
-            when {
+            return when {
                 available > 0 -> {
                     transformer.process(buffer, 0, available)?.let { sendChannel.send(it) }
+                    false
                 }
                 available < 0 -> {
-                    return true
+                    true
                 }
-                else -> null
+                else -> false
             }
-
-            return false
         }
     }
 

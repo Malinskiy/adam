@@ -30,7 +30,7 @@ import java.io.UnsupportedEncodingException
  *
  * @param socketIdleTimeout override for socket idle timeout
  */
-open abstract class Request(
+abstract class Request(
     val target: Target = HostTarget,
     val socketIdleTimeout: Long? = null
 ) {

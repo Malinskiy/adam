@@ -46,7 +46,8 @@ open class ChanneledShellCommandRequest(
                     sendChannel.send(ShellCommandResultChunk(stderr = String(data, 0, length, Const.DEFAULT_TRANSPORT_ENCODING)))
                 }
                 MessageType.EXIT -> {
-                    val ignoredLength = socket.readIntLittleEndian()
+                    //ignoredLength
+                    socket.readIntLittleEndian()
                     val exitCode = socket.readByte().toInt()
                     sendChannel.send(ShellCommandResultChunk(exitCode = exitCode))
                     return true

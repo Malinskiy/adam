@@ -38,7 +38,7 @@ suspend inline fun <C : SuspendCloseable, R> C.use(crossinline block: suspend (C
             try {
                 Throwable::class.java.getMethod("addSuppressed", Throwable::class.java).invoke(this, second)
             } catch (t: Throwable) {
-                null
+                //Nothing to do
             }
         }
 

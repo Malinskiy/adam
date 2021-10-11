@@ -16,6 +16,8 @@
 
 package com.malinskiy.adam.request
 
+import java.util.*
+
 /**
  * Each entry represents a service that is supported by the adbd on the device
  */
@@ -99,7 +101,7 @@ enum class Feature {
      */
     SENDRECV_V2_DRY_RUN_SEND;
 
-    fun value() = name.toLowerCase()
+    fun value() = name.lowercase(Locale.ENGLISH)
 
     companion object {
         /**
