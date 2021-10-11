@@ -58,7 +58,7 @@ abstract class BasePullFileRequest(
     }
 
     override suspend fun readElement(socket: Socket, sendChannel: SendChannel<Double>): Boolean {
-        AdamMaxFilePacketPool.borrow().apply {
+        AdamMaxFilePacketPool.borrowObject().apply {
             val data = array()
             var shouldDispose = true
 
@@ -110,7 +110,7 @@ abstract class BasePullFileRequest(
                     }
                 }
             } finally {
-                if (shouldDispose) AdamMaxFilePacketPool.recycle(this)
+                if (shouldDispose) AdamMaxFilePacketPool.returnObject(this)
             }
         }
     }

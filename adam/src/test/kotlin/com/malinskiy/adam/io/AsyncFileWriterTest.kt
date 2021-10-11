@@ -40,7 +40,7 @@ class AsyncFileWriterTest {
             val file = File(File(folder, "folder-that-doesnt-exist"), "file-that-doesnt-exist.test")
             AsyncFileWriter(file).use {
                 it.start()
-                val buffer = AdamMaxFilePacketPool.borrow()
+                val buffer = AdamMaxFilePacketPool.borrowObject()
                 buffer.put("Something interesting!".toByteArray())
                 buffer.compatFlip()
                 it.write(buffer)

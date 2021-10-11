@@ -91,7 +91,7 @@ abstract class BasePushFileRequest(
                     else -> false
                 }
             } finally {
-                buffer?.let { AdamMaxFilePacketPool.recycle(it) }
+                buffer?.let { AdamMaxFilePacketPool.returnObject(it) }
             }
         }
     }

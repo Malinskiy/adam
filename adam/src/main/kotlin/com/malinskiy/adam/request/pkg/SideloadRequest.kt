@@ -66,7 +66,7 @@ class SideloadRequest(
                                 socket.writeFully(it)
                                 currentOffset += expectedLength
                             } finally {
-                                it?.let { buffer -> AdamMaxFilePacketPool.recycle(buffer) }
+                                it?.let { buffer -> AdamMaxFilePacketPool.returnObject(buffer) }
                             }
                         }
                     }
