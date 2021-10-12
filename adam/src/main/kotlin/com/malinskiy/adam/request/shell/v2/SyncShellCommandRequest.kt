@@ -56,7 +56,8 @@ abstract class SyncShellCommandRequest<T : Any?>(val cmd: String, target: Target
                         stderrBuilder.append(String(data, 0, length, Const.DEFAULT_TRANSPORT_ENCODING))
                     }
                     MessageType.EXIT -> {
-                        val length = socket.readIntLittleEndian()
+                        //ignoredLength
+                        socket.readIntLittleEndian()
                         exitCode = socket.readByte().toInt()
                         break@loop
                     }

@@ -24,10 +24,8 @@ import com.malinskiy.adam.transport.Socket
 import com.malinskiy.adam.transport.SuspendCloseable
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.channels.receiveOrNull
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import java.io.File
@@ -72,9 +70,8 @@ class AsyncFileReader(
         }
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     suspend fun <T> read(block: suspend (ByteBuffer?) -> T): T {
-        return block(bufferChannel.receiveOrNull())
+        return block(bufferChannel.receiveCatching().getOrNull())
     }
 
     override suspend fun close() {

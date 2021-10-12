@@ -42,7 +42,7 @@ class StubSocket(
     override suspend fun readFully(buffer: ByteBuffer): Int = readChannel.readFully(buffer)
     override suspend fun readFully(buffer: ByteArray, offset: Int, limit: Int) = readChannel.readFully(buffer, offset, limit)
     override suspend fun writeFully(byteBuffer: ByteBuffer) = writeChannel.writeFully(byteBuffer)
-    override suspend fun writeFully(toByteArray: ByteArray, offset: Int, limit: Int) = writeChannel.writeFully(toByteArray, offset, limit)
+    override suspend fun writeFully(byteArray: ByteArray, offset: Int, limit: Int) = writeChannel.writeFully(byteArray, offset, limit)
     override suspend fun readAvailable(buffer: ByteArray, offset: Int, limit: Int): Int = readChannel.readAvailable(buffer, offset, limit)
     override suspend fun readByte(): Byte = readChannel.readByte()
     override suspend fun readIntLittleEndian(): Int = readChannel.readIntLittleEndian()

@@ -16,6 +16,8 @@
 
 package com.malinskiy.adam.request.testrunner
 
+import java.util.*
+
 /**
  * @param pkg The fully-qualified Java package name for one of the packages in the test application.
  * Any test case class that uses this package name is executed.
@@ -69,7 +71,7 @@ data class InstrumentOptions(
         if (clazz.isNotEmpty()) append(" -e class " + clazz.joinToString(separator = ","))
         if (functional != null) append(" -e func $functional")
         if (unit != null) append(" -e unit $unit")
-        if (filterSize != null) append(" -e size ${filterSize.name.toLowerCase()}")
+        if (filterSize != null) append(" -e size ${filterSize.name.lowercase(Locale.ENGLISH)}")
         if (performance != null) append(" -e perf $performance")
         if (debug != null) append(" -e debug $debug")
         if (log != null) append(" -e log $log")
