@@ -18,6 +18,7 @@ package com.malinskiy.adam.request
 
 import com.malinskiy.adam.Const
 import java.io.File
+import java.util.*
 
 data class ValidationResponse(
     val success: Boolean,
@@ -28,7 +29,7 @@ data class ValidationResponse(
 
         fun missingFeature(feature: Feature) = "${feature.name} is not supported by device"
         fun missingEitherFeature(vararg feature: Feature) = "Supported features must include either of ${feature.joinToString()}"
-        fun oneOfFilesShouldBe(extension: String) = "At least one of the files has to be an ${extension.toUpperCase()} file"
+        fun oneOfFilesShouldBe(extension: String) = "At least one of the files has to be an ${extension.uppercase(Locale.ENGLISH)} file"
         fun packageShouldExist(file: File) = "Package ${file.absolutePath} doesn't exist"
         fun packageShouldBeRegularFile(file: File) = "Package ${file.absolutePath} is not a regular file"
         fun packageShouldBeSupportedExtension(file: File, supported: Set<String>) =

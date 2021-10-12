@@ -23,7 +23,7 @@ interface Socket : SuspendCloseable {
     val isClosedForRead: Boolean
 
     suspend fun writeFully(byteBuffer: ByteBuffer)
-    suspend fun writeFully(toByteArray: ByteArray, offset: Int, limit: Int)
+    suspend fun writeFully(byteArray: ByteArray, offset: Int, limit: Int)
 
     suspend fun readAvailable(buffer: ByteArray, offset: Int, limit: Int): Int
     suspend fun readFully(buffer: ByteBuffer): Int

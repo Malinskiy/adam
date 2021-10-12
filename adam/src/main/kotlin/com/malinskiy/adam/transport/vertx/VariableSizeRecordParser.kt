@@ -72,9 +72,9 @@ class VariableSizeRecordParser(
         synchronized(bufferLock) {
             do {
                 if (demand > 0L) {
-                    var next: Int = parseFixed()
+                    val next: Int = parseFixed()
                     if (next == -1) {
-                        next = if (streamEnded) {
+                        if (streamEnded) {
                             break
                         } else {
                             stream?.resume()
@@ -141,7 +141,7 @@ class VariableSizeRecordParser(
         eventHandler = handler
         if (stream != null) {
             if (handler != null) {
-                stream.endHandler(Handler { v: Void? ->
+                stream.endHandler(Handler {
                     streamEnded = true
                     handleParsing()
                 })

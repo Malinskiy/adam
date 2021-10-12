@@ -135,7 +135,7 @@ class PullRequest(
         val (filesToPull, _) = BFFSearch<String, File>().execute(
             source,
             destination
-        ) { currentDir, newDirs, newFiles, newTargetDirs, destinationRoot ->
+        ) { currentDir, newDirs, newFiles, _, destinationRoot ->
             val ls = execute(CompatListFileRequest(currentDir, supportedFeatures), serial)
             for (file in ls.filterNot { Const.SYNC_IGNORED_FILES.contains(it.name) }) {
                 when {

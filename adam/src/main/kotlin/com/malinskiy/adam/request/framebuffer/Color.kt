@@ -90,7 +90,7 @@ object Color {
         }
     }
 
-    private inline fun getMask(length: Int): Int {
+    private fun getMask(length: Int): Int {
         return when (length) {
             1 -> 0b1
             2 -> 0b11

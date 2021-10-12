@@ -17,15 +17,65 @@
 package com.malinskiy.adam.transport
 
 import com.malinskiy.adam.Const
-import io.ktor.utils.io.pool.ByteBufferPool
-import io.ktor.utils.io.pool.ObjectPool
+import org.apache.commons.pool2.PooledObject
+import org.apache.commons.pool2.PooledObjectFactory
+import org.apache.commons.pool2.impl.DefaultPooledObject
+import org.apache.commons.pool2.impl.GenericObjectPool
+import org.apache.commons.pool2.impl.GenericObjectPoolConfig
 import java.nio.ByteBuffer
+import java.nio.ByteOrder
 
 internal const val DEFAULT_BUFFER_SIZE = 4088
 
-val AdamDefaultPool: ObjectPool<ByteBuffer> = ByteBufferPool(Const.DEFAULT_BUFFER_SIZE, bufferSize = DEFAULT_BUFFER_SIZE)
-val AdamMaxPacketPool: ObjectPool<ByteBuffer> = ByteBufferPool(Const.DEFAULT_BUFFER_SIZE, bufferSize = Const.MAX_PACKET_LENGTH)
-val AdamMaxFilePacketPool: ObjectPool<ByteBuffer> = ByteBufferPool(Const.DEFAULT_BUFFER_SIZE, bufferSize = Const.MAX_FILE_PACKET_LENGTH)
+val AdamDefaultPool: ByteBufferPool = ByteBufferPool(poolSize = Const.DEFAULT_BUFFER_SIZE, bufferSize = DEFAULT_BUFFER_SIZE)
+val AdamMaxPacketPool: ByteBufferPool = ByteBufferPool(poolSize = Const.DEFAULT_BUFFER_SIZE, bufferSize = Const.MAX_PACKET_LENGTH)
+val AdamMaxFilePacketPool: ByteBufferPool = ByteBufferPool(poolSize = Const.DEFAULT_BUFFER_SIZE, bufferSize = Const.MAX_FILE_PACKET_LENGTH)
+
+class ByteBufferPool(private val poolSize: Int, private val bufferSize: Int) {
+    private val delegate: GenericObjectPool<ByteBuffer> by lazy {
+        val config = GenericObjectPoolConfig<ByteBuffer>().apply {
+            maxTotal = poolSize
+        }
+        GenericObjectPool(ByteBufferObjectFactory(bufferSize), config)
+    }
+
+    fun borrow(): ByteBuffer = delegate.borrowObject()
+
+    fun recycle(buffer: ByteBuffer) = delegate.returnObject(buffer)
+}
+
+class ByteBufferObjectFactory(private val bufferSize: Int) : PooledObjectFactory<ByteBuffer> {
+    override fun activateObject(p: PooledObject<ByteBuffer>?) {
+        p?.`object`?.apply {
+            clear()
+            order(ByteOrder.BIG_ENDIAN)
+        }
+    }
+
+    override fun destroyObject(p: PooledObject<ByteBuffer>?) {
+        p?.`object`?.apply {
+            clear()
+            order(ByteOrder.BIG_ENDIAN)
+        }
+    }
+
+    override fun makeObject(): PooledObject<ByteBuffer> {
+        return DefaultPooledObject(ByteBuffer.allocate(bufferSize))
+    }
+
+    override fun passivateObject(p: PooledObject<ByteBuffer>?) {
+        p?.`object`?.apply {
+            clear()
+            order(ByteOrder.BIG_ENDIAN)
+        }
+    }
+
+    override fun validateObject(p: PooledObject<ByteBuffer>?): Boolean {
+        return p?.`object`?.let { instance ->
+            instance.capacity() == bufferSize && !instance.isDirect
+        } ?: true
+    }
+}
 
 inline fun <R> withDefaultBuffer(block: ByteBuffer.() -> R): R {
     val instance = AdamDefaultPool.borrow()

@@ -18,6 +18,7 @@ package com.malinskiy.adam.interactor
 
 import kotlinx.coroutines.delay
 import java.io.File
+import java.util.*
 
 open class AdbBinaryInteractor {
     suspend fun execute(
@@ -31,7 +32,7 @@ open class AdbBinaryInteractor {
             null
         }?.let { File(it) }
 
-        val os = System.getProperty("os.name").toLowerCase()
+        val os = System.getProperty("os.name").lowercase(Locale.ENGLISH)
         val adbBinaryName = when {
             os.contains("win") -> {
                 "adb.exe"
