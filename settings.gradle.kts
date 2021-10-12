@@ -22,7 +22,7 @@ pluginManagement {
 }
 include(":adam")
 include(":android-junit4")
-include(":android-junit4-listener")
+include(":android-junit4-test-annotation-producer")
 include(":android-testrunner-contract")
 include(":server:server-stub")
 include(":server:server-stub-junit4")
