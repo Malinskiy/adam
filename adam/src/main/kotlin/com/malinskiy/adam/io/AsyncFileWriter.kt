@@ -49,7 +49,7 @@ class AsyncFileWriter(
         job = launch {
             for (buffer in bufferChannel) {
                 fileChannel.write(buffer.array(), buffer.position(), buffer.limit())
-                AdamMaxFilePacketPool.returnObject(buffer)
+                AdamMaxFilePacketPool.recycle(buffer)
             }
         }
     }

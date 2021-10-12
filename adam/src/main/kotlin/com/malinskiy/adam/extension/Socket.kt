@@ -147,7 +147,7 @@ suspend fun Socket.writeFile(file: File, coroutineContext: CoroutineContext) {
                     this@writeFile.writeFully(it)
                     true
                 } finally {
-                    it?.let { buffer -> AdamMaxFilePacketPool.returnObject(buffer) }
+                    it?.let { buffer -> AdamMaxFilePacketPool.recycle(buffer) }
                 }
             }
             if (!shouldContinue) break
