@@ -17,6 +17,7 @@
 package com.malinskiy.adam.transport
 
 import com.malinskiy.adam.Const
+import com.malinskiy.adam.extension.compatClear
 import org.apache.commons.pool2.PooledObject
 import org.apache.commons.pool2.PooledObjectFactory
 import org.apache.commons.pool2.impl.DefaultPooledObject
@@ -47,14 +48,14 @@ class ByteBufferPool(private val poolSize: Int, private val bufferSize: Int) {
 class ByteBufferObjectFactory(private val bufferSize: Int) : PooledObjectFactory<ByteBuffer> {
     override fun activateObject(p: PooledObject<ByteBuffer>?) {
         p?.`object`?.apply {
-            clear()
+            compatClear()
             order(ByteOrder.BIG_ENDIAN)
         }
     }
 
     override fun destroyObject(p: PooledObject<ByteBuffer>?) {
         p?.`object`?.apply {
-            clear()
+            compatClear()
             order(ByteOrder.BIG_ENDIAN)
         }
     }
@@ -65,7 +66,7 @@ class ByteBufferObjectFactory(private val bufferSize: Int) : PooledObjectFactory
 
     override fun passivateObject(p: PooledObject<ByteBuffer>?) {
         p?.`object`?.apply {
-            clear()
+            compatClear()
             order(ByteOrder.BIG_ENDIAN)
         }
     }
