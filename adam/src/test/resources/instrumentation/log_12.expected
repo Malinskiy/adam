@@ -1,0 +1,5 @@
+TestRunStartedEvent(testCount=1)
+TestStarted(id=TestIdentifier(className=com.example.ClassIgnoredTest, testName=null))
+TestIgnored(id=TestIdentifier(className=com.example.ClassIgnoredTest, testName=null))
+TestEnded(id=TestIdentifier(className=com.example.ClassIgnoredTest, testName=null), metrics={})
+TestRunEnded(elapsedTimeMillis=1, metrics={})

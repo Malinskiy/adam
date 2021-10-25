@@ -176,7 +176,6 @@ class InstrumentationResponseTransformer : ProgressiveResponseTransformer<List<T
                 val testName = parameters["test"]
                 if (className != null && testName != null) {
                     val id = TestIdentifier(className, testName)
-                    events.add(TestStarted(id))
                     events.add(TestIgnored(id))
                     events.add(TestEnded(id, testMetrics))
                     testMetrics = linkedMapOf()
