@@ -46,13 +46,13 @@ class TestAnnotationProducer : RunListener() {
     override fun testStarted(description: Description?) {
         super.testStarted(description)
         if (description?.isTest == true) {
-            val annotations: List<String> =
+            val annotations: Set<String> =
                 (description.annotations.toList() + description.testClass.annotations.toList()).mapNotNull { annotation ->
                     val fqn = annotation.annotationClass.qualifiedName
                     val parameters =
                         annotation.annotationClass.memberProperties.joinToString(separator = ":") { "${it.name}=${it.getter.call(annotation)}" }
                     "$fqn($parameters)"
-                }
+                }.toSet()
             val bundle = Bundle(1)
             bundle.putStringArrayList(
                 "com.malinskiy.adam.junit4.android.listener.TestAnnotationProducer.v2",
