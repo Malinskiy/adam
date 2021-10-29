@@ -36,6 +36,7 @@ class ByteBufferPool(private val poolSize: Int, private val bufferSize: Int) {
     private val delegate: GenericObjectPool<ByteBuffer> by lazy {
         val config = GenericObjectPoolConfig<ByteBuffer>().apply {
             maxTotal = poolSize
+            jmxEnabled = false
         }
         GenericObjectPool(ByteBufferObjectFactory(bufferSize), config)
     }
