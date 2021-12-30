@@ -24,7 +24,7 @@ The `AndroidDebugBridgeClient` instance `adb` has an `execute()` method to execu
  connected to a particular adb server. Let's list them and find one that we can use:
  
 ```kotlin
-val devices: List<Device> = adbRule.adb.execute(ListDevicesRequest())
+val devices: List<Device> = adb.execute(ListDevicesRequest())
 val device = devices.firstOrNull { it.state == DeviceState.DEVICE } ?: throw RuntimeException("no devices available")
 ```
 

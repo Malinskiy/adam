@@ -13,7 +13,7 @@ Here is the boilerplate from [part 1]({% link _tutorials/1-shell.md %}) to setup
 ```kotlin
 StartAdbInteractor().execute()
 val adb = AndroidDebugBridgeClientFactory().build()
-val devices: List<Device> = adbRule.adb.execute(ListDevicesRequest())
+val devices: List<Device> = adb.execute(ListDevicesRequest())
 val device = devices.firstOrNull { it.state == DeviceState.DEVICE } ?: throw RuntimeException("no devices available")
 ```
 
