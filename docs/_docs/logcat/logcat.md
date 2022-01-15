@@ -43,13 +43,17 @@ launch {
         serial = "emulator-5554"
     )
 
-    val line = channel.receive()
-    //write to a file...
+    val logcatChunk = channel.receive()
+    //logcatChunk == "I/ActivityManager(  585): Starting activity: Intent { action=android.intent.action...}\nI/MyActivity( 1557): MyClass"
+    //write to a file or append to a buffer
 
     //Dispose of channel to close the resources
     channel.cancel()
 }
 ```
+
+Logcat chunks that you receive might not be `\n` terminated so if you need to parse logcat output line-by-line then you need to accumulate
+the chunks in a buffer first.
 
 `ChanneledLogcatRequest` maps most of the options exposed by the underlying `logcat` command:
 
