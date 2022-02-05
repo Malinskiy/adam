@@ -24,5 +24,5 @@ class StopAdbInteractor : AdbBinaryInteractor() {
         adbBinary: File? = null,
         androidHome: File? = null,
         serverPort: Int = Const.DEFAULT_ADB_PORT
-    ) = execute(adbBinary, androidHome, "kill-server", "-P", serverPort.toString())
+    ) = execute(adbBinary, androidHome, "-P", serverPort.toString(), "kill-server")
 }

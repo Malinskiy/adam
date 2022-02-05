@@ -24,5 +24,5 @@ class StartAdbInteractor : AdbBinaryInteractor() {
         adbBinary: File? = null,
         androidHome: File? = null,
         serverPort: Int = Const.DEFAULT_ADB_PORT
-    ) = execute(adbBinary, androidHome, "start-server", "-P", serverPort.toString())
+    ) = execute(adbBinary, androidHome, "-P", serverPort.toString(), "start-server")
 }
