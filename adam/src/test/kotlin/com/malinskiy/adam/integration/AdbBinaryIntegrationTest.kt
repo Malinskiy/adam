@@ -23,15 +23,21 @@ import org.junit.Test
 
 class AdbBinaryIntegrationTest {
     @Test
-    fun testCreateAdbServer() {
+    fun testStartAndKillAdbServer() {
         val startAdbInteractor = StartAdbInteractor()
         val stopAdbInteractor = StopAdbInteractor()
+        val customServerPort = 1234
 
         runBlocking {
             startAdbInteractor.execute()
             stopAdbInteractor.execute()
             startAdbInteractor.execute()
             stopAdbInteractor.execute()
+
+            startAdbInteractor.execute(serverPort = customServerPort)
+            stopAdbInteractor.execute(serverPort = customServerPort)
+            startAdbInteractor.execute(serverPort = customServerPort)
+            stopAdbInteractor.execute(serverPort = customServerPort)
         }
 
     }
