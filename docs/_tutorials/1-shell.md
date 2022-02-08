@@ -31,7 +31,7 @@ val device = devices.firstOrNull { it.state == DeviceState.DEVICE } ?: throw Run
 Now we have a device and can execute a request for it:
 
 ```kotlin
-val response: String = adb.execute(ShellCommandRequest("echo hello"), device.serial)
+val response: ShellCommandResult = adb.execute(ShellCommandRequest("echo hello"), device.serial)
 ```
 
 All the waiting for response and establishing a transport connection happens transparently, you don't need to wait for anything. This also
