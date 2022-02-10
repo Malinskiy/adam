@@ -19,6 +19,7 @@ package com.malinskiy.adam.request.testrunner
 import assertk.assertThat
 import assertk.assertions.containsOnly
 import assertk.assertions.isEqualTo
+import assertk.assertions.isFalse
 import com.malinskiy.adam.AndroidDebugBridgeClient
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.server.junit4.AdbServerRule
@@ -107,7 +108,9 @@ class TestRunnerRequestTest {
             StubSocket(ByteChannel(autoFlush = true).apply { close() }, ByteChannel(autoFlush = true)).use { socket ->
                 val channel = Channel<List<TestEvent>>(BUFFERED)
                 val readElement = request.readElement(socket, channel)
-                assertThat(channel.poll()).isEqualTo(null)
+                val actual = channel.tryReceive()
+                assertThat(actual.isSuccess).isFalse()
+                assertThat(actual.getOrNull()).isEqualTo(null)
             }
         }
     }

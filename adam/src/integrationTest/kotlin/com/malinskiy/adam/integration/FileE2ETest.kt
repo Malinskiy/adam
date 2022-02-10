@@ -94,15 +94,14 @@ class FileE2ETest {
                 adbRule.adb.execute(PushFileRequest(testFile, "/data/local/tmp/$fileName"), this, serial = adbRule.deviceSerial)
 
             var percentage = 0
-            while (!channel.isClosedForReceive) {
-                val percentageDouble = channel.receiveOrNull() ?: break
-
+            for(percentageDouble in channel) {
                 val newPercentage = (percentageDouble * 100).roundToInt()
                 if (newPercentage != percentage) {
                     print('.')
                     percentage = newPercentage
                 }
             }
+            
             val stats = adbRule.adb.execute(StatFileRequest("/data/local/tmp/app-debug.apk"), adbRule.deviceSerial)
             assertThat(stats.size).isEqualTo(testFile.length().toUInt())
 
@@ -154,9 +153,7 @@ class FileE2ETest {
                 )
 
                 var percentage = 0
-                while (!channel.isClosedForReceive) {
-                    val percentageDouble = channel.receiveOrNull() ?: break
-
+                for(percentageDouble in channel) {
                     val newPercentage = (percentageDouble * 100).roundToInt()
                     if (newPercentage != percentage) {
                         print('.')
@@ -195,9 +192,7 @@ class FileE2ETest {
                     )
 
                     var percentage = 0
-                    while (!channel.isClosedForReceive) {
-                        val percentageDouble = channel.receiveOrNull() ?: break
-
+                    for(percentageDouble in channel) {
                         val newPercentage = (percentageDouble * 100).roundToInt()
                         if (newPercentage != percentage) {
                             print('.')

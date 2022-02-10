@@ -158,6 +158,7 @@ dependencies {
     api(Libraries.grpcProtobufLite)
     api(Libraries.grpcKotlinStub)
     api(Libraries.grpcOkhttp)
+    api(Libraries.grpcStub)
     implementation(Libraries.javaxAnnotations)
     implementation(Libraries.vertxCore)
     implementation(Libraries.vertxKotlin)
