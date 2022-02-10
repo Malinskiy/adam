@@ -36,6 +36,17 @@ protobuf {
     protoc {
         artifact = "com.google.protobuf:protoc:${Versions.protobuf}"
     }
+    plugins {
+        id("java") {
+            artifact = "io.grpc:protoc-gen-grpc-java:${Versions.grpc}"
+        }
+        id("grpc") {
+            artifact = "io.grpc:protoc-gen-grpc-java:${Versions.grpc}"
+        }
+        id("grpckt") {
+            artifact = "io.grpc:protoc-gen-grpc-kotlin:${Versions.grpcKotlin}:jdk7@jar"
+        }
+    }
     generateProtoTasks {
         all().forEach {
             it.builtins {
@@ -43,6 +54,12 @@ protobuf {
             }
             it.plugins {
                 id("java") {
+                    option("lite")
+                }
+                id("grpc") {
+                    option("lite")
+                }
+                id("grpckt") {
                     option("lite")
                 }
             }
@@ -137,13 +154,16 @@ dependencies {
     implementation(Libraries.coroutines)
     implementation(Libraries.ktorNetwork)
     implementation(Libraries.logging)
+    api(Libraries.protobufLite)
+    api(Libraries.grpcProtobufLite)
+    api(Libraries.grpcKotlinStub)
+    api(Libraries.grpcOkhttp)
+    api(Libraries.grpcStub)
     implementation(Libraries.javaxAnnotations)
     implementation(Libraries.vertxCore)
     implementation(Libraries.vertxKotlin)
     implementation(Libraries.vertxCoroutines)
     implementation(Libraries.apacheCommonsPool2)
-
-    api(Libraries.protobufLite)
 
     testImplementation(TestLibraries.assertk)
     testImplementation(TestLibraries.junit4)
