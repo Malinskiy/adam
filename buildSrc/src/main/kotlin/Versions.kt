@@ -1,33 +1,33 @@
 object Versions {
     val adam = System.getenv("GIT_TAG_NAME") ?: "0.4.3"
-    val kotlin = "1.5.21"
-    val coroutines = "1.5.2"
+    val kotlin = "1.6.10"
+    val coroutines = "1.6.0"
     val coroutinesDebug = coroutines
 
 
-    val annotations = "22.0.0"
-    val ktor = "1.6.4"
-    val logging = "2.0.11"
-    val vertx = "4.1.5"
+    val annotations = "23.0.0"
+    val ktor = "1.6.7"
+    val logging = "2.1.21"
+    val vertx = "4.2.4"
     val apacheCommonsPool2 = "2.11.1"
 
     val assertk = "0.25"
     val junit4 = "4.13.2"
-    val junit5 = "5.8.1"
-    val junit5commons = "1.8.1"
+    val junit5 = "5.8.2"
+    val junit5commons = "1.8.2"
     val imageComparison = "4.4.0"
     val dokka = kotlin
 
-    val grpc = "1.32.1"
-    val grpcKotlin = "1.1.0"
-    val grpcOkhttp = "1.41.0"
-    val protobufGradle = "0.8.17"
-    val protobuf = "3.18.1"
+    val grpc = "1.44.0"
+    val grpcKotlin = "1.2.1"
+    val grpcOkhttp = "1.44.0"
+    val protobufGradle = "0.8.18"
+    val protobuf = "3.19.4"
     val javax = "1.3.2"
 
-    val androidGradle = "7.0.2"
-    val testMonitor = "1.4.0"
-    val gradleVersionsPlugin = "0.39.0"
+    val androidGradle = "7.1.1"
+    val testMonitor = "1.5.0"
+    val gradleVersionsPlugin = "0.42.0"
 }
 
 object BuildPlugins {
@@ -45,6 +45,7 @@ object Libraries {
     val vertxKotlin = "io.vertx:vertx-lang-kotlin:${Versions.vertx}"
     val vertxCoroutines = "io.vertx:vertx-lang-kotlin-coroutines:${Versions.vertx}"
     val protobufLite = "com.google.protobuf:protobuf-javalite:${Versions.protobuf}"
+    val grpcStub = "io.grpc:grpc-stub:${Versions.grpc}"
     val grpcKotlinStub = "io.grpc:grpc-kotlin-stub:${Versions.grpcKotlin}"
     val grpcProtobufLite = "io.grpc:grpc-protobuf-lite:${Versions.grpc}"
     val grpcOkhttp = "io.grpc:grpc-okhttp:${Versions.grpcOkhttp}"

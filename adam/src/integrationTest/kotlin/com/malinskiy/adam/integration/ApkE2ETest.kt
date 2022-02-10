@@ -28,7 +28,6 @@ import com.malinskiy.adam.request.pkg.multi.ApkSplitInstallationPackage
 import com.malinskiy.adam.request.shell.v1.ShellCommandRequest
 import com.malinskiy.adam.request.sync.v1.PushFileRequest
 import com.malinskiy.adam.rule.AdbDeviceRule
-import kotlinx.coroutines.channels.receiveOrNull
 import kotlinx.coroutines.debug.junit4.CoroutinesTimeout
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
@@ -78,9 +77,9 @@ class ApkE2ETest {
                         this,
                         serial = adb.deviceSerial
                     )
-
-                while (!channel.isClosedForReceive) {
-                    channel.receiveOrNull()
+                
+                for(result in channel) {
+                    //Do something with result
                 }
 
                 client.execute(InstallRemotePackageRequest("/data/local/tmp/$fileName", true), serial = adb.deviceSerial).let {
