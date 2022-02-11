@@ -152,7 +152,6 @@ dependencies {
     implementation(Libraries.annotations)
     implementation(kotlin("stdlib-jdk8", version = Versions.kotlin))
     implementation(Libraries.coroutines)
-    implementation(Libraries.ktorNetwork)
     implementation(Libraries.logging)
     api(Libraries.protobufLite)
     api(Libraries.grpcProtobufLite)

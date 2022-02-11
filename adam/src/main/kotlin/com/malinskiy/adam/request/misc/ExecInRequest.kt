@@ -16,31 +16,39 @@
 
 package com.malinskiy.adam.request.misc
 
-import com.malinskiy.adam.extension.copyTo
+import com.malinskiy.adam.Const
 import com.malinskiy.adam.extension.readStatus
 import com.malinskiy.adam.request.ComplexRequest
 import com.malinskiy.adam.transport.Socket
-import com.malinskiy.adam.transport.withMaxFilePacketBuffer
-import io.ktor.utils.io.ByteReadChannel
+import kotlinx.coroutines.channels.ReceiveChannel
+import kotlinx.coroutines.channels.SendChannel
 
 /**
  * Executes the command and provides the channel as the input to the command. Does not return anything
  */
-class ExecInRequest(private val cmd: String, private val channel: ByteReadChannel, socketIdleTimeout: Long? = null) :
+class ExecInRequest(
+    private val cmd: String,
+    private val channel: ReceiveChannel<ByteArray>,
+    private val sizeChannel: SendChannel<Int>,
+    socketIdleTimeout: Long? = null
+) :
     ComplexRequest<Unit>(socketIdleTimeout = socketIdleTimeout) {
     override suspend fun readElement(socket: Socket) {
-        withMaxFilePacketBuffer {
-            val buffer = array()
-            while (true) {
-                val available = channel.copyTo(buffer, 0, buffer.size)
-                when {
-                    available > 0 -> socket.writeFully(buffer, 0, available)
-                    else -> break
-                }
+        while (true) {
+            if (!channel.isClosedForReceive) {
+                //Should not request more if read channel is already closed
+                sizeChannel.send(Const.MAX_FILE_PACKET_LENGTH)
             }
-            //Have to poll
-            socket.readStatus()
+            val result = channel.tryReceive()
+            when {
+                result.isSuccess && result.getOrThrow().isNotEmpty() -> socket.writeFully(result.getOrThrow(), 0, result.getOrThrow().size)
+                result.isClosed -> break
+                result.isFailure -> continue
+                else -> break
+            }
         }
+        //Have to poll
+        socket.readStatus()
     }
 
     override fun serialize() = createBaseRequest("exec:$cmd")
