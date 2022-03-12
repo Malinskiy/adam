@@ -14,7 +14,7 @@ nav_order: 6
 Executing tests can be done using the `TestRunnerRequest`:
 
 ```kotlin
-val channel = adb.execute(
+val channel: ReceiveChannel<List<TestEvents>> = adb.execute(
                     request = TestRunnerRequest(
                                   testPackage = "com.example.test",
                                   instrumentOptions = InstrumentOptions(
@@ -25,14 +25,9 @@ val channel = adb.execute(
                     serial = "emulator-5554"
                 )
 
-var logPart: String? = null
-do {
-    logPart?.let { print(it) }
-    logPart = channel.receiveOrNull()
-} while (logPart != null)
 ```
 
-The output is a `ReadChannel<String>` that returns the output of the `am instrument` command.
+The result is a channel `ReadChannel<List<TestEvents>>` that contains parsed and converted output of the `am instrument` command.
 
 ### Required parameters
 To execute tests you have to provide the `testPackage` and default `InstrumentOptions()`
@@ -107,33 +102,3 @@ To override the file location, use the [coverageFile] key that is described in t
 ### coverageFile
 Overrides the default location of the EMMA coverage file on the device.
 Specify this value as a path and filename in UNIX format. The default filename is described in the entry for the [emma] key.
-
-## Parsing the output
-To understand what's happening with the tests you will need to parse the output of the `am instrument`. To help with this you can use the
- `InstrumentationResponseTransformer`:
-
-```kotlin
-val transformer = InstrumentationResponseTransformer()
-val channel = adb.execute(testRunnerRequest)
-
-var logPart: String? = null
-do {
-    logPart?.let {
-        for (line in it.lines()) {
-            val bytes = ((line + '\n') as java.lang.String).getBytes(Charset.forName("ISO-8859-1"))
-            transformer.process(bytes, 0, bytes.size)
-            transformer.transform()?.let { events: List<TestEvent> ->
-                //Do something with the events
-            }
-        }
-    }
-    withTimeout(180_000) {
-        logPart = channel.receiveOrNull()
-    }
-} while (logPart != null)
-
-transformer.close()?.let { events: List<TestEvent> ->
-    //This is important because test run can abruptly finish and not report back the finish
-    //Handle the events
-}
-```
