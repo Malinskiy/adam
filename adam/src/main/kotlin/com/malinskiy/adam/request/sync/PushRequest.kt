@@ -171,13 +171,13 @@ class PushRequest(
         serial: String?,
         dirsToCreate: List<String>
     ) {
-        execute(ShellCommandRequest("mkdir -p $destination"), serial)
+        execute(ShellCommandRequest("mkdir -p ${escape(destination)}"), serial)
 
         val cmdBuilder = StringBuilder()
         cmdBuilder.append("mkdir")
         val limit = 1024 * 4
         for (dir in dirsToCreate) {
-            val escapedDirArg = " \'$dir\'"
+            val escapedDirArg = " ${escape(dir)}"
             //This check might fail for multi-byte encodings
             if (cmdBuilder.length + escapedDirArg.length > limit) {
                 execute(ShellCommandRequest(cmdBuilder.toString()), serial)
@@ -193,6 +193,10 @@ class PushRequest(
             execute(ShellCommandRequest(cmdBuilder.toString()), serial)
         }
         cmdBuilder.clear()
+    }
+
+    private fun escape(str: String): String {
+        return "\'${str.replace("'", "'\\''")}\'"
     }
 
     private suspend fun AndroidDebugBridgeClient.doPushFile(
