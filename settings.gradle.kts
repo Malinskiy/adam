@@ -21,7 +21,7 @@ pluginManagement {
     }
 }
 include(":adam")
-include(":adam-ktor")
+include(":transport-ktor")
 include(":android-junit4")
 include(":android-junit4-test-annotation-producer")
 include(":android-testrunner-contract")
