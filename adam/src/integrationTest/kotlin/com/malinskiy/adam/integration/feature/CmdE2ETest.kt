@@ -92,10 +92,8 @@ class CmdE2ETest {
         runBlocking {
             val testFile = File(javaClass.getResource("/app-debug.apk").toURI())
 
-            println("Before produce")
             val blockSizeChannel = Channel<Int>(capacity = 1)
             val channel: ReceiveChannel<ByteArray> = sequentialRead(testFile, blockSizeChannel)
-            println("executing request")
             val success = client.execute(
                 ExecInRequest(
                     "cmd package install -S ${testFile.length()}",
