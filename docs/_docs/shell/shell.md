@@ -59,11 +59,15 @@ launch {
 Executes the command and provides the channel as the input to the command. Does not return anything
 
 ```kotlin
-val testFile = File(javaClass.getResource("/app-debug.apk").toURI())
+val blockSizeChannel = Channel<Int>(capacity = 1)
+//You have to implement the function below for applicable source of data that you have. 
+//Testing code in adam has an example for a file
+val channel: ReceiveChannel<ByteArray> = someFunctionThatProducesByteArrayInResponseToRequestsOverBlockSizeChannel(blockSizeChannel)
 val success = client.execute(
     request = ExecInRequest(
         cmd = "cmd package install -S ${testFile.length()}",
-        channel = testFile.readChannel()
+        channel = testFile.readChannel(),
+        sizeChannel = blockSizeChannel
     ),
     serial = "emulator-5554"
 )
