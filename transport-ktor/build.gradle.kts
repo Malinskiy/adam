@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 Anton Malinskiy
+ * Copyright (C) 2021 Anton Malinskiy
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,18 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-rootProject.name = "adm"
-pluginManagement {
-    repositories {
-        gradlePluginPortal()
-        google()
-    }
+
+plugins {
+    kotlin("jvm")
 }
-include(":adam")
-include(":transport-ktor")
-include(":android-junit4")
-include(":android-junit4-test-annotation-producer")
-include(":android-testrunner-contract")
-include(":server:server-stub")
-include(":server:server-stub-junit4")
-include(":server:server-stub-junit5")
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
+
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile::class) {
+    kotlinOptions.jvmTarget = "1.8"
+    kotlinOptions.apiVersion = "1.5"
+}
+
+dependencies {
+    implementation(project(":adam"))
+    implementation(Libraries.ktorNetwork)
+    implementation(Libraries.logging)
+}

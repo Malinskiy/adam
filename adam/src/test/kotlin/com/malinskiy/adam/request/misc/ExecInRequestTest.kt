@@ -19,28 +19,18 @@ package com.malinskiy.adam.request.misc
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import com.malinskiy.adam.extension.toRequestString
-import io.ktor.utils.io.ByteChannel
-import io.ktor.utils.io.cancel
-import org.junit.After
-import org.junit.Before
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.produce
+import kotlinx.coroutines.runBlocking
 import org.junit.Test
 
 class ExecInRequestTest {
-    lateinit var channel: ByteChannel
-
-    @Before
-    fun prepare() {
-        channel = ByteChannel()
-    }
-
-    @After
-    fun teardown() {
-        channel.cancel()
-    }
-
     @Test
     fun testSerialize() {
-        assertThat(ExecInRequest("cmd package install", channel).serialize().toRequestString())
-            .isEqualTo("0018exec:cmd package install")
+        runBlocking {
+            val receiveChannel = produce<ByteArray> {}
+            assertThat(ExecInRequest("cmd package install", receiveChannel, Channel()).serialize().toRequestString())
+                .isEqualTo("0018exec:cmd package install")
+        }
     }
 }

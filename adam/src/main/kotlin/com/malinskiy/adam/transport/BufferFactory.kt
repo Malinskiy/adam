@@ -105,4 +105,3 @@ inline fun <R> withMaxFilePacketBuffer(block: ByteBuffer.() -> R): R {
         AdamMaxFilePacketPool.recycle(instance)
     }
 }
-
