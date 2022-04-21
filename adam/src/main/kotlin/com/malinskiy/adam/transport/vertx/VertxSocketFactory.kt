@@ -23,12 +23,16 @@ import io.vertx.core.net.NetClientOptions
 import io.vertx.core.net.SocketAddress
 import io.vertx.kotlin.coroutines.await
 import java.net.InetSocketAddress
+import java.util.concurrent.atomic.AtomicBoolean
 
 class VertxSocketFactory(
     private val connectTimeout: Long = 10_000,
     private val idleTimeout: Long = 30_000
 ) : SocketFactory {
-    private val vertx by lazy { Vertx.vertx() }
+    private val vertx by lazy {
+        Vertx.vertx().also { initialized.set(true) }
+    }
+    private val initialized = AtomicBoolean(false)
 
     override suspend fun tcp(socketAddress: InetSocketAddress, connectTimeout: Long?, idleTimeout: Long?): Socket {
         val vertxSocket = VertxSocket(SocketAddress.inetSocketAddress(socketAddress), NetClientOptions().apply {
@@ -41,7 +45,9 @@ class VertxSocketFactory(
     }
 
     override fun close() {
-        vertx.close()
+        if (initialized.get()) {
+            vertx.close()
+        }
     }
 
     private fun Long.toTimeoutInt(): Int {
