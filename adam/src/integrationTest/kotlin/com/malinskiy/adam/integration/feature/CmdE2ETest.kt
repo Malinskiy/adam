@@ -19,6 +19,7 @@ package com.malinskiy.adam.integration.feature
 import assertk.assertThat
 import assertk.assertions.contains
 import com.malinskiy.adam.exception.RequestRejectedException
+import com.malinskiy.adam.extension.sequentialRead
 import com.malinskiy.adam.request.Feature
 import com.malinskiy.adam.request.misc.ExecInRequest
 import com.malinskiy.adam.request.pkg.AtomicInstallPackageRequest
@@ -31,7 +32,8 @@ import com.malinskiy.adam.request.pkg.multi.ApkSplitInstallationPackage
 import com.malinskiy.adam.request.pkg.multi.SingleFileInstallationPackage
 import com.malinskiy.adam.rule.AdbDeviceRule
 import com.malinskiy.adam.rule.DeviceType
-import io.ktor.util.cio.readChannel
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -89,10 +91,14 @@ class CmdE2ETest {
     fun testExecIn() {
         runBlocking {
             val testFile = File(javaClass.getResource("/app-debug.apk").toURI())
+
+            val blockSizeChannel = Channel<Int>(capacity = 1)
+            val channel: ReceiveChannel<ByteArray> = sequentialRead(testFile, blockSizeChannel)
             val success = client.execute(
                 ExecInRequest(
                     "cmd package install -S ${testFile.length()}",
-                    testFile.readChannel()
+                    channel,
+                    blockSizeChannel
                 ),
                 adb.deviceSerial
             )

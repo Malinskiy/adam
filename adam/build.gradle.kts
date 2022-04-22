@@ -135,7 +135,6 @@ dependencies {
     implementation(Libraries.annotations)
     implementation(kotlin("stdlib-jdk8", version = Versions.kotlin))
     implementation(Libraries.coroutines)
-    implementation(Libraries.ktorNetwork)
     implementation(Libraries.logging)
     implementation(Libraries.javaxAnnotations)
     implementation(Libraries.vertxCore)

@@ -14,6 +14,22 @@
  * limitations under the License.
  */
 
-package com.malinskiy.adam.extension
+plugins {
+    kotlin("jvm")
+}
 
-fun List<String>.bashEscape() = "'" + joinToString(" ") { it.replace("'", "'\\''") } + "'"
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
+
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile::class) {
+    kotlinOptions.jvmTarget = "1.8"
+    kotlinOptions.apiVersion = "1.5"
+}
+
+dependencies {
+    implementation(project(":adam"))
+    implementation(Libraries.ktorNetwork)
+    implementation(Libraries.logging)
+}

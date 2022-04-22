@@ -91,6 +91,21 @@ class PushE2ETest {
         }
     }
 
+    @Test
+    fun testPushCreatingSubdir() {
+        val source = temp.newFolder("testdir with special 'chars()")
+        val x = File(source, "testfilex").apply { createNewFile(); writeText("Xcafebabe\n") }
+
+        runBlocking {
+            val execute =
+                adbRule.adb.execute(PushRequest(source, "/data/local/tmp", adbRule.supportedFeatures), adbRule.deviceSerial)
+
+            //Should create a subdir since dst already exists
+            assertThat(statFile("/data/local/tmp/testdir with special 'chars()").isDirectory()).isTrue()
+            assertThat(statFile("/data/local/tmp/testdir with special 'chars()/testfilex").isRegularFile()).isTrue()
+        }
+    }
+
     private suspend fun statFile(path: String) = adbRule.adb.execute(StatFileRequest(path), adbRule.deviceSerial)
 
     private suspend fun readFile(path: String) =
