@@ -27,7 +27,7 @@ import com.malinskiy.adam.request.sync.v2.PullFileRequest
 import com.malinskiy.adam.request.sync.v2.PushFileRequest
 import com.malinskiy.adam.rule.AdbDeviceRule
 import com.malinskiy.adam.rule.DeviceType
-import kotlinx.coroutines.channels.receiveOrNull
+import com.malinskiy.adam.rule.TestFixtures
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import org.junit.After
@@ -35,7 +35,6 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
-import java.io.File
 import kotlin.math.roundToInt
 
 class SendRecvV2E2ETest {
@@ -101,7 +100,7 @@ class SendRecvV2E2ETest {
 
     @Test
     fun testApkPushing() {
-        val testFile = File(javaClass.getResource("/app-debug.apk").toURI())
+        val testFile = TestFixtures.apk("/app-debug.apk")
         val fileName = testFile.name
         runBlocking {
             val channel =

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 Anton Malinskiy
+ * Copyright (C) 2022 Anton Malinskiy
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,21 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-rootProject.name = "adm"
-pluginManagement {
-    repositories {
-        gradlePluginPortal()
-        google()
+
+package com.malinskiy.adam.rule
+
+import java.io.File
+import java.nio.file.Files
+import kotlin.io.path.outputStream
+
+object TestFixtures {
+    fun apk(path: String): File {
+        return Files.createTempFile("fixture", ".apk").apply {
+            outputStream().use {
+                TestFixtures.javaClass.getResourceAsStream(path).use { inputStream ->
+                    inputStream.copyTo(it)
+                }
+            }
+        }.toFile()
     }
+
 }
-include(":adam")
-include(":transport-ktor")
-include(":android-junit4")
-include(":android-junit4-test-annotation-producer")
-include(":android-testrunner-contract")
-include(":emulator-proto")
-include(":instrumentation-proto")
-include(":server:server-stub")
-include(":server:server-stub-junit4")
-include(":server:server-stub-junit5")
-include(":testing")

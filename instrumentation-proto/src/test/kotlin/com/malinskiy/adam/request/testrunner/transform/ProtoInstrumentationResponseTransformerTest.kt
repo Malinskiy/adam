@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Anton Malinskiy
+ * Copyright (C) 2022 Anton Malinskiy
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ package com.malinskiy.adam.request.testrunner.transform
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import com.malinskiy.adam.request.testrunner.TestEvent
-import com.malinskiy.adam.request.transform.ProtoInstrumentationResponseTransformer
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 

@@ -28,6 +28,7 @@ import com.malinskiy.adam.request.pkg.multi.ApkSplitInstallationPackage
 import com.malinskiy.adam.request.shell.v1.ShellCommandRequest
 import com.malinskiy.adam.request.sync.v1.PushFileRequest
 import com.malinskiy.adam.rule.AdbDeviceRule
+import com.malinskiy.adam.rule.TestFixtures
 import kotlinx.coroutines.debug.junit4.CoroutinesTimeout
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
@@ -69,7 +70,7 @@ class ApkE2ETest {
     fun testScenario1() {
         runBlocking {
             measureTimeMillis {
-                val testFile = File(javaClass.getResource("/app-debug.apk").toURI())
+                val testFile = TestFixtures.apk("/app-debug.apk")
                 val fileName = testFile.name
                 val channel =
                     client.execute(

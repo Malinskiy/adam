@@ -19,7 +19,6 @@ package com.malinskiy.adam.request.testrunner
 import com.malinskiy.adam.request.AsyncChannelRequest
 import com.malinskiy.adam.request.transform.InstrumentationResponseTransformer
 import com.malinskiy.adam.request.transform.ProgressiveResponseTransformer
-import com.malinskiy.adam.request.transform.ProtoInstrumentationResponseTransformer
 import com.malinskiy.adam.transport.Socket
 import com.malinskiy.adam.transport.withMaxPacketBuffer
 import kotlinx.coroutines.channels.SendChannel
@@ -29,8 +28,6 @@ import kotlinx.coroutines.channels.SendChannel
  * readable). If path is not specified, default directory and file name will
  * be used: /sdcard/instrument-logs/log-yyyyMMdd-hhmmss-SSS.instrumentation_data_proto
  *
- * @param protobuf API 26+
- *
  * @param noIsolatedStorage don't use isolated storage sandbox and mount full external storage
  * @param noHiddenApiChecks disable restrictions on use of hidden API
  * @param noWindowAnimations turn off window animations while running
@@ -38,6 +35,10 @@ import kotlinx.coroutines.channels.SendChannel
  * @param abi Launch the instrumented process with the selected ABI. This assumes that the process supports the selected ABI.
  * @param profilingOutputPath write profiling data to <FILE>
  * @param socketIdleTimeout override for socket idle timeout. This should be longer than the longest test
+ *
+ * @param protobuf API 26+. has to be used with an appropriate responseTransformer
+ * @param transformer supply your own implementation of response transformer, e.g. proto serialisation. Default is
+ * InstrumentationResponseTransformer that is using stdout
  *
  * @see https://android.googlesource.com/platform/frameworks/base/+/master/cmds/am/src/com/android/commands/am/Am.java#155
  */
@@ -53,16 +54,9 @@ class TestRunnerRequest(
     private val profilingOutputPath: String? = null,
     private val outputLogPath: String? = null,
     private val protobuf: Boolean = false,
+    private val transformer: ProgressiveResponseTransformer<List<TestEvent>?> = InstrumentationResponseTransformer(),
     socketIdleTimeout: Long? = Long.MAX_VALUE
 ) : AsyncChannelRequest<List<TestEvent>, Unit>(socketIdleTimeout = socketIdleTimeout) {
-
-    private val transformer: ProgressiveResponseTransformer<List<TestEvent>?> by lazy {
-        if (protobuf) {
-            ProtoInstrumentationResponseTransformer()
-        } else {
-            InstrumentationResponseTransformer()
-        }
-    }
 
     override suspend fun readElement(socket: Socket, sendChannel: SendChannel<List<TestEvent>>): Boolean {
         withMaxPacketBuffer {

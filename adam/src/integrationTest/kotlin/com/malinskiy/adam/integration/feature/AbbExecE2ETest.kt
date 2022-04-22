@@ -29,6 +29,7 @@ import com.malinskiy.adam.request.pkg.multi.ApkSplitInstallationPackage
 import com.malinskiy.adam.request.pkg.multi.SingleFileInstallationPackage
 import com.malinskiy.adam.rule.AdbDeviceRule
 import com.malinskiy.adam.rule.DeviceType
+import com.malinskiy.adam.rule.TestFixtures
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -64,7 +65,7 @@ class AbbExecE2ETest {
     fun testStreamingInstallRequest() {
         runBlocking {
             measureTimeMillis {
-                val testFile = File(javaClass.getResource("/app-debug.apk").toURI())
+                val testFile = TestFixtures.apk("/app-debug.apk")
                 val success = adb.adb.execute(
                     StreamingPackageInstallRequest(
                         pkg = testFile,
@@ -84,8 +85,8 @@ class AbbExecE2ETest {
     @Test
     fun testInstallMultiplePackageRequest() {
         runBlocking {
-            val appFile = File(javaClass.getResource("/app-debug.apk").toURI())
-            val testFile = File(javaClass.getResource("/app-debug-androidTest.apk").toURI())
+            val appFile = TestFixtures.apk("/app-debug.apk")
+            val testFile = TestFixtures.apk("/app-debug-androidTest.apk")
             client.execute(
                 AtomicInstallPackageRequest(
                     listOf(

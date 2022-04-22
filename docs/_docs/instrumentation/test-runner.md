@@ -95,10 +95,26 @@ Loads and logs all specified tests, but does not run them.
 The test information appears in STDOUT. Use this to verify combinations of other filters and test specifications.
 
 ### emma
+
 Runs an EMMA code coverage analysis and writes the output to /data/<app_package>/coverage.ec on the device.
 
 To override the file location, use the [coverageFile] key that is described in the following entry.
 
 ### coverageFile
+
 Overrides the default location of the EMMA coverage file on the device.
 Specify this value as a path and filename in UNIX format. The default filename is described in the entry for the [emma] key.
+
+### protobuf
+
+`am instrument` supports outputting the testing results using protobuf as serialisation since API 26. If you use this option you also have
+to specify proto-aware `responseTransformer`.
+
+### responseTransformer
+
+Overrides the response transformer that transforms `am instrument` output into test events. Default implementation is parsing stdout.
+If you want to use proto parsing you have to override the appropriate option for `-m` for `am instrument`. This is only supported for
+devices with API 26+.
+
+Due to the amount of dependencies protobuf deserialisation brings in, the `ProtoInstrumentationResponseTransformer` has been extracted into
+a separate module instrumentation-proto.
