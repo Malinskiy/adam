@@ -18,6 +18,11 @@ package com.malinskiy.adam.request.logcat
 
 import com.malinskiy.adam.request.shell.v1.ChanneledShellCommandRequest
 import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+
+private val sinceFormatter = DateTimeFormatter.ofPattern("MM-dd HH:mm:ss.SSS")
+    .withZone(ZoneId.systemDefault())
 
 class ChanneledLogcatRequest(
     since: Instant? = null,
@@ -28,11 +33,9 @@ class ChanneledLogcatRequest(
     filters: List<LogcatFilterSpec> = emptyList()
 ) : ChanneledShellCommandRequest(
     cmd = "logcat" +
-            "${
-                since?.let {
-                    " -T ${since.toEpochMilli()}.0"
-                } ?: ""
-            }" +
+            (since?.let {
+                " -T '${sinceFormatter.format(since)}'"
+            } ?: "") +
             " ${modes.joinToString(separator = " ") { "-v $it" }}" +
             if (buffers.isNotEmpty()) {
                 " ${buffers.joinToString(separator = " ") { "-b $it" }}"

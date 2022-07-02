@@ -25,14 +25,16 @@ import java.time.Instant
 class SyncLogcatRequestTest {
     @Test
     fun testSinceNonBlocking() {
+        val instant = Instant.parse("2022-07-02T07:41:07Z")
+
         val cmd = SyncLogcatRequest(
-            since = Instant.ofEpochMilli(10),
+            since = instant,
             filters = listOf(LogcatFilterSpec("TAG", LogcatVerbosityLevel.E))
         ).serialize()
 
         val actual = String(cmd, Const.DEFAULT_TRANSPORT_ENCODING)
         assertThat(actual)
-            .isEqualTo("0039shell:logcat -d -t 10.0 -v long -b default TAG:E;echo x$?")
+            .isEqualTo("0049shell:logcat -d -t '07-02 16:41:07.000' -v long -b default TAG:E;echo x$?")
     }
 
     @Test

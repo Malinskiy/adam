@@ -53,10 +53,11 @@ class AsyncLogcatRequestTest {
 
     @Test
     fun testSinceContinuous() {
-        val cmd = ChanneledLogcatRequest(since = Instant.ofEpochMilli(10)).serialize()
+        val instant = Instant.parse("2022-07-02T07:41:07Z")
+        val cmd = ChanneledLogcatRequest(since = instant).serialize()
 
         assertThat(String(cmd, Const.DEFAULT_TRANSPORT_ENCODING))
-            .isEqualTo("001Cshell:logcat -T 10.0 -v long")
+            .isEqualTo("002Cshell:logcat -T '07-02 16:41:07.000' -v long")
     }
 
     @Test

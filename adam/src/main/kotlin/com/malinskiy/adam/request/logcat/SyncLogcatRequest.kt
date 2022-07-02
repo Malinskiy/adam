@@ -19,6 +19,11 @@ package com.malinskiy.adam.request.logcat
 import com.malinskiy.adam.request.shell.v1.ShellCommandResult
 import com.malinskiy.adam.request.shell.v1.SyncShellCommandRequest
 import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+
+private val sinceFormatter = DateTimeFormatter.ofPattern("MM-dd HH:mm:ss.SSS")
+    .withZone(ZoneId.systemDefault())
 
 class SyncLogcatRequest(
     since: Instant? = null,
@@ -31,7 +36,7 @@ class SyncLogcatRequest(
     cmd = "logcat" +
             " -d" +
             (since?.let {
-                " -t ${since.toEpochMilli()}.0"
+                " -t '${sinceFormatter.format(since)}'"
             } ?: "") +
             " ${modes.joinToString(separator = " ") { "-v $it" }}" +
             " ${buffers.joinToString(separator = " ") { "-b $it" }}" +
