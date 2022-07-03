@@ -19,26 +19,22 @@ package com.malinskiy.adam.request.logcat
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import java.util.*
 
 private val sinceFormatter = DateTimeFormatter.ofPattern("MM-dd HH:mm:ss.SSS")
-    .withZone(ZoneId.of("UTC"))
 
 private val sinceYearFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS")
-    .withZone(ZoneId.of("UTC"))
 
-enum class LogcatSinceFormat {
+sealed class LogcatSinceFormat(val text: String) {
     // It formats with 'MM-dd HH:mm:ss.SSS'
-    DATE_STRING,
+    class DateString(instant: Instant, timezone: String) :
+        LogcatSinceFormat("'${sinceFormatter.withZone(TimeZone.getTimeZone(timezone).toZoneId()).format(instant)}'")
 
     // It formats with 'yyyy-MM-dd HH:mm:ss.SSS'
-    DATE_STRING_YEAR,
+    class DateStringYear(instant: Instant, timezone: String) :
+        LogcatSinceFormat("'${sinceYearFormatter.withZone(TimeZone.getTimeZone(timezone).toZoneId()).format(instant)}'")
 
     // It formats with 'SSS.0'
-    TIMESTAMP;
-
-    fun format(instant: Instant) = when (this) {
-        DATE_STRING -> "'${sinceFormatter.format(instant)}'"
-        DATE_STRING_YEAR -> "'${sinceYearFormatter.format(instant)}'"
-        TIMESTAMP -> "${instant.toEpochMilli()}.0"
-    }
+    class TimeStamp(instant: Instant) :
+        LogcatSinceFormat("${instant.toEpochMilli()}.0")
 }

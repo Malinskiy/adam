@@ -54,27 +54,27 @@ class AsyncLogcatRequestTest {
     @Test
     fun testSinceContinuous() {
         val instant = Instant.parse("2022-07-02T07:41:07Z")
-        val cmd = ChanneledLogcatRequest(since = instant).serialize()
+        val actual = testLogcatSinceFormat(LogcatSinceFormat.DateString(instant, "America/New_York"))
 
-        assertThat(String(cmd, Const.DEFAULT_TRANSPORT_ENCODING))
-            .isEqualTo("002Cshell:logcat -T '07-02 07:41:07.000' -v long")
+        assertThat(actual)
+            .isEqualTo("002Cshell:logcat -T '07-02 03:41:07.000' -v long")
     }
 
     @Test
     fun testSinceYearContinuous() {
         val instant = Instant.parse("2022-07-02T07:41:07Z")
-        val cmd = ChanneledLogcatRequest(since = instant, format = LogcatSinceFormat.DATE_STRING_YEAR).serialize()
+        val actual = testLogcatSinceFormat(LogcatSinceFormat.DateStringYear(instant, "America/New_York"))
 
-        assertThat(String(cmd, Const.DEFAULT_TRANSPORT_ENCODING))
-            .isEqualTo("0031shell:logcat -T '2022-07-02 07:41:07.000' -v long")
+        assertThat(actual)
+            .isEqualTo("0031shell:logcat -T '2022-07-02 03:41:07.000' -v long")
     }
 
     @Test
     fun testSinceTimestampContinuous() {
         val instant = Instant.ofEpochMilli(10)
-        val cmd = ChanneledLogcatRequest(since = instant, format = LogcatSinceFormat.TIMESTAMP).serialize()
+        val actual = testLogcatSinceFormat(LogcatSinceFormat.TimeStamp(instant))
 
-        assertThat(String(cmd, Const.DEFAULT_TRANSPORT_ENCODING))
+        assertThat(actual)
             .isEqualTo("001Cshell:logcat -T 10.0 -v long")
     }
 
@@ -92,5 +92,10 @@ class AsyncLogcatRequestTest {
 
         assertThat(String(cmd, Const.DEFAULT_TRANSPORT_ENCODING))
             .isEqualTo("0022shell:logcat -v long *:S SOMETAG:E")
+    }
+
+    private fun testLogcatSinceFormat(format: LogcatSinceFormat): String {
+        val cmd = ChanneledLogcatRequest(since = format).serialize()
+        return String(cmd, Const.DEFAULT_TRANSPORT_ENCODING)
     }
 }
