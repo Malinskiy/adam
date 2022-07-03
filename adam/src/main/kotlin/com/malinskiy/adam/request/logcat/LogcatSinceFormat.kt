@@ -21,10 +21,10 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
 private val sinceFormatter = DateTimeFormatter.ofPattern("MM-dd HH:mm:ss.SSS")
-    .withZone(ZoneId.systemDefault())
+    .withZone(ZoneId.of("UTC"))
 
 private val sinceYearFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS")
-    .withZone(ZoneId.systemDefault())
+    .withZone(ZoneId.of("UTC"))
 
 enum class LogcatSinceFormat {
     // It formats with 'MM-dd HH:mm:ss.SSS'

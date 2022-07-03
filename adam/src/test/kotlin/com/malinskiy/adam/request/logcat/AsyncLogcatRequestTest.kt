@@ -57,7 +57,7 @@ class AsyncLogcatRequestTest {
         val cmd = ChanneledLogcatRequest(since = instant).serialize()
 
         assertThat(String(cmd, Const.DEFAULT_TRANSPORT_ENCODING))
-            .isEqualTo("002Cshell:logcat -T '07-02 16:41:07.000' -v long")
+            .isEqualTo("002Cshell:logcat -T '07-02 07:41:07.000' -v long")
     }
 
     @Test
@@ -66,7 +66,7 @@ class AsyncLogcatRequestTest {
         val cmd = ChanneledLogcatRequest(since = instant, format = LogcatSinceFormat.DATE_STRING_YEAR).serialize()
 
         assertThat(String(cmd, Const.DEFAULT_TRANSPORT_ENCODING))
-            .isEqualTo("0031shell:logcat -T '2022-07-02 16:41:07.000' -v long")
+            .isEqualTo("0031shell:logcat -T '2022-07-02 07:41:07.000' -v long")
     }
 
     @Test
