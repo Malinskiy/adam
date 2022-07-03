@@ -71,7 +71,7 @@ class LogcatE2ETest {
             println(content)
 
             // Check if only logs after a given time are included
-            val zonedInstant = nowInstant.atZone(deviceTimezone.toZoneId())
+            val zonedInstant = nowInstant.atZone(deviceTimezone.toZoneId()).minusSeconds(5)
             assertThat(content.all { it.instant.isAfter(zonedInstant) }, equalTo(true))
         }
     }
@@ -99,7 +99,7 @@ class LogcatE2ETest {
             }
             channel.cancel()
 
-            val zonedInstant = nowInstant.atZone(deviceTimezone.toZoneId())
+            val zonedInstant = nowInstant.atZone(deviceTimezone.toZoneId()).minusSeconds(5)
             assertThat(content.all { it.instant.isAfter(zonedInstant) }, equalTo(true))
         }
     }
