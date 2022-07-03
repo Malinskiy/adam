@@ -61,6 +61,24 @@ class AsyncLogcatRequestTest {
     }
 
     @Test
+    fun testSinceYearContinuous() {
+        val instant = Instant.parse("2022-07-02T07:41:07Z")
+        val cmd = ChanneledLogcatRequest(since = instant, format = LogcatSinceFormat.DATE_STRING_YEAR).serialize()
+
+        assertThat(String(cmd, Const.DEFAULT_TRANSPORT_ENCODING))
+            .isEqualTo("0031shell:logcat -T '2022-07-02 16:41:07.000' -v long")
+    }
+
+    @Test
+    fun testSinceTimestampContinuous() {
+        val instant = Instant.ofEpochMilli(10)
+        val cmd = ChanneledLogcatRequest(since = instant, format = LogcatSinceFormat.TIMESTAMP).serialize()
+
+        assertThat(String(cmd, Const.DEFAULT_TRANSPORT_ENCODING))
+            .isEqualTo("001Cshell:logcat -T 10.0 -v long")
+    }
+
+    @Test
     fun testFilterspec() {
         val cmd = ChanneledLogcatRequest(
             filters = listOf(
