@@ -31,7 +31,6 @@ import com.malinskiy.adam.request.sync.v1.PushFileRequest
 import com.malinskiy.adam.request.sync.v1.StatFileRequest
 import com.malinskiy.adam.rule.AdbDeviceRule
 import kotlinx.coroutines.async
-import kotlinx.coroutines.channels.receiveOrNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.supervisorScope

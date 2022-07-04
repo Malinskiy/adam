@@ -27,7 +27,6 @@ import com.malinskiy.adam.request.sync.v2.PullFileRequest
 import com.malinskiy.adam.request.sync.v2.PushFileRequest
 import com.malinskiy.adam.rule.AdbDeviceRule
 import com.malinskiy.adam.rule.DeviceType
-import kotlinx.coroutines.channels.receiveOrNull
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import org.junit.After
