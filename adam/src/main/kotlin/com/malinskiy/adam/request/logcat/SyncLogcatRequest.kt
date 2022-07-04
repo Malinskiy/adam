@@ -21,7 +21,7 @@ import com.malinskiy.adam.request.shell.v1.SyncShellCommandRequest
 import java.time.Instant
 
 class SyncLogcatRequest(
-    since: Instant? = null,
+    since: LogcatSinceFormat? = null,
     modes: List<LogcatReadMode> = listOf(LogcatReadMode.long),
     buffers: List<LogcatBuffer> = listOf(LogcatBuffer.default),
     pid: Long? = null,
@@ -31,7 +31,7 @@ class SyncLogcatRequest(
     cmd = "logcat" +
             " -d" +
             (since?.let {
-                " -t ${since.toEpochMilli()}.0"
+                " -t ${since.text}"
             } ?: "") +
             " ${modes.joinToString(separator = " ") { "-v $it" }}" +
             " ${buffers.joinToString(separator = " ") { "-b $it" }}" +

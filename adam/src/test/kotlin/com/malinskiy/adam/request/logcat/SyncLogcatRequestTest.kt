@@ -25,12 +25,26 @@ import java.time.Instant
 class SyncLogcatRequestTest {
     @Test
     fun testSinceNonBlocking() {
-        val cmd = SyncLogcatRequest(
-            since = Instant.ofEpochMilli(10),
-            filters = listOf(LogcatFilterSpec("TAG", LogcatVerbosityLevel.E))
-        ).serialize()
+        val instant = Instant.parse("2022-07-02T07:41:07Z")
 
-        val actual = String(cmd, Const.DEFAULT_TRANSPORT_ENCODING)
+        val actual = testLogcatSinceFormat(LogcatSinceFormat.DateString(instant, "America/New_York"))
+        assertThat(actual)
+            .isEqualTo("0049shell:logcat -d -t '07-02 03:41:07.000' -v long -b default TAG:E;echo x$?")
+    }
+
+    @Test
+    fun testSinceYearNonBlocking() {
+        val instant = Instant.parse("2022-07-02T07:41:07Z")
+        val actual = testLogcatSinceFormat(LogcatSinceFormat.DateStringYear(instant, "America/New_York"))
+        assertThat(actual)
+            .isEqualTo("004Eshell:logcat -d -t '2022-07-02 03:41:07.000' -v long -b default TAG:E;echo x$?")
+    }
+
+    @Test
+    fun testSinceTimeStampNonBlocking() {
+        val instant = Instant.ofEpochMilli(10)
+        val actual = testLogcatSinceFormat(LogcatSinceFormat.TimeStamp(instant))
+
         assertThat(actual)
             .isEqualTo("0039shell:logcat -d -t 10.0 -v long -b default TAG:E;echo x$?")
     }
@@ -42,5 +56,14 @@ class SyncLogcatRequestTest {
         val actual = String(cmd, Const.DEFAULT_TRANSPORT_ENCODING)
         assertThat(actual)
             .isEqualTo("002Bshell:logcat -d -v long -b default;echo x$?")
+    }
+
+    private fun testLogcatSinceFormat(format: LogcatSinceFormat): String {
+        val cmd = SyncLogcatRequest(
+            since = format,
+            filters = listOf(LogcatFilterSpec("TAG", LogcatVerbosityLevel.E)),
+        ).serialize()
+
+        return String(cmd, Const.DEFAULT_TRANSPORT_ENCODING)
     }
 }

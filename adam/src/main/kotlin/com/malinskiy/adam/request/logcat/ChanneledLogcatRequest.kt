@@ -17,10 +17,9 @@
 package com.malinskiy.adam.request.logcat
 
 import com.malinskiy.adam.request.shell.v1.ChanneledShellCommandRequest
-import java.time.Instant
 
 class ChanneledLogcatRequest(
-    since: Instant? = null,
+    since: LogcatSinceFormat? = null,
     modes: List<LogcatReadMode> = listOf(LogcatReadMode.long),
     buffers: List<LogcatBuffer> = emptyList(),
     pid: Long? = null,
@@ -28,11 +27,9 @@ class ChanneledLogcatRequest(
     filters: List<LogcatFilterSpec> = emptyList()
 ) : ChanneledShellCommandRequest(
     cmd = "logcat" +
-            "${
-                since?.let {
-                    " -T ${since.toEpochMilli()}.0"
-                } ?: ""
-            }" +
+            (since?.let {
+                " -T ${since.text}"
+            } ?: "") +
             " ${modes.joinToString(separator = " ") { "-v $it" }}" +
             if (buffers.isNotEmpty()) {
                 " ${buffers.joinToString(separator = " ") { "-b $it" }}"
