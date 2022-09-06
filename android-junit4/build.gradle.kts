@@ -59,6 +59,7 @@ dependencies {
     api(Libraries.coroutines)
     api(AndroidX.testMonitor)
     api(project(":android-testrunner-contract"))
+    api(project(":emulator-proto"))
 }
 
 afterEvaluate {
