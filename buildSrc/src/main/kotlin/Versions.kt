@@ -27,6 +27,7 @@ object Versions {
 
     val androidGradle = "7.1.1"
     val testMonitor = "1.5.0"
+    val testRunner = "1.4.0"
     val gradleVersionsPlugin = "0.42.0"
 }
 
@@ -54,6 +55,7 @@ object Libraries {
 
 object AndroidX {
     val testMonitor = "androidx.test:monitor:${Versions.testMonitor}@aar"
+    val androidXScreenshot = "androidx.test:runner:${Versions.testRunner}@aar"
 }
 
 object TestLibraries {
