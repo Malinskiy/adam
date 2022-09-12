@@ -21,6 +21,9 @@ import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
 
+/**
+ * JUnit4 rule that produces test events with screenshot paths
+ */
 class AdamScreenCaptureRule : TestRule {
     override fun apply(base: Statement, description: Description): Statement {
         return object : Statement() {

@@ -22,6 +22,26 @@ import androidx.test.runner.screenshot.BasicScreenCaptureProcessor
 import androidx.test.runner.screenshot.ScreenCapture
 import java.io.File
 
+/**
+ * ScreenCaptureProcessor that emits screen capture paths as test status, e.g. using am instrument:
+ * INSTRUMENTATION_STATUS_CODE: 0
+ * INSTRUMENTATION_STATUS: class=com.example.FailedAssumptionTest
+ * INSTRUMENTATION_STATUS: current=4
+ * INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+ * INSTRUMENTATION_STATUS: numtests=39
+ * INSTRUMENTATION_STATUS: stream=
+ * com.example.FailedAssumptionTest:
+ * INSTRUMENTATION_STATUS: test=ignoreTest
+ * INSTRUMENTATION_STATUS_CODE: 1
+ * INSTRUMENTATION_STATUS: com.malinskiy.adam.junit4.android.screencapture.AdamScreenCaptureProcessor.v1=/sdcard/images/screenshot/screenshot-1.png
+ * INSTRUMENTATION_STATUS_CODE: 2
+ * INSTRUMENTATION_STATUS: class=com.example.FailedAssumptionTest
+ * INSTRUMENTATION_STATUS: current=4
+ * INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+ * INSTRUMENTATION_STATUS: numtests=39
+ * INSTRUMENTATION_STATUS: stream=.
+ * INSTRUMENTATION_STATUS: test=ignoreTest
+ */
 class AdamScreenCaptureProcessor : BasicScreenCaptureProcessor() {
     override fun process(capture: ScreenCapture): String? {
         val filename = super.process(capture)
