@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 Anton Malinskiy
+ * Copyright (C) 2022 Anton Malinskiy
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,25 +14,35 @@
  * limitations under the License.
  */
 
-package com.malinskiy.adam.integration
+package com.malinskiy.adam.request.testrunner.transform
 
+import assertk.assertThat
+import assertk.assertions.contains
+import assertk.assertions.isTrue
 import com.malinskiy.adam.request.pkg.InstallRemotePackageRequest
 import com.malinskiy.adam.request.shell.v1.ShellCommandRequest
 import com.malinskiy.adam.request.sync.v1.PushFileRequest
 import com.malinskiy.adam.request.testrunner.InstrumentOptions
+import com.malinskiy.adam.request.testrunner.TestEnded
 import com.malinskiy.adam.request.testrunner.TestEvent
+import com.malinskiy.adam.request.testrunner.TestFailed
+import com.malinskiy.adam.request.testrunner.TestIdentifier
+import com.malinskiy.adam.request.testrunner.TestRunEnded
+import com.malinskiy.adam.request.testrunner.TestRunStartedEvent
 import com.malinskiy.adam.request.testrunner.TestRunnerRequest
+import com.malinskiy.adam.request.testrunner.TestStarted
 import com.malinskiy.adam.rule.AdbDeviceRule
 import com.malinskiy.adam.rule.TestFixtures
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.runBlocking
 import org.junit.After
+import org.junit.Assume
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import java.io.File
 
-class TestRunnerE2ETest {
+class ProtoTestRunnerE2ETest {
     @Rule
     @JvmField
     val rule = AdbDeviceRule()
@@ -54,22 +64,29 @@ class TestRunnerE2ETest {
     }
 
     @Test
-    fun test1() {
+    fun testProto() {
         val apk = TestFixtures.apk("/app-debug.apk")
         val testApk = TestFixtures.apk("/app-debug-androidTest.apk")
         val apkFileName = apk.name
         val testApkFileName = testApk.name
 
         runBlocking {
+            val output = rule.adb.execute(ShellCommandRequest("getprop ro.build.version.sdk"), rule.deviceSerial).output
+            val sdk = output.trim().toIntOrNull() ?: 0
+            Assume.assumeTrue("This device doesn't support proto output of am instrument", sdk >= 26)
+
             installApk(apk, apkFileName)
             installApk(testApk, testApkFileName)
 
             val channel = rule.adb.execute(
                 TestRunnerRequest(
                     "com.example.test",
+
                     InstrumentOptions(
                         clazz = listOf("com.example.AbstractFailingTest")
-                    )
+                    ),
+                    protobuf = true,
+                    transformer = com.malinskiy.adam.request.testrunner.transform.ProtoInstrumentationResponseTransformer()
                 ), serial = rule.deviceSerial,
                 scope = this
             )
@@ -79,7 +96,20 @@ class TestRunnerE2ETest {
                 events.addAll(list)
             }
 
-            println(events)
+            assertThat(events).contains(TestRunStartedEvent(1))
+            assertThat(events).contains(TestStarted(TestIdentifier("com.example.AbstractFailingTest", "testAlwaysFailing")))
+
+            assertThat(events.any {
+                it is TestFailed && it.id.className == "com.example.AbstractFailingTest" && it.id.testName == "testAlwaysFailing" && it.stackTrace.isNotEmpty()
+            }).isTrue()
+
+            assertThat(events.any {
+                it is TestEnded && it.id.className == "com.example.AbstractFailingTest" && it.id.testName == "testAlwaysFailing"
+            }).isTrue()
+
+            assertThat(events.any {
+                it is TestRunEnded && it.metrics.isEmpty() && it.elapsedTimeMillis > 0
+            })
         }
     }
 

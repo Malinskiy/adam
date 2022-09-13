@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 Anton Malinskiy
+ * Copyright (C) 2021 Anton Malinskiy
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,22 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-rootProject.name = "adm"
-pluginManagement {
-    repositories {
-        gradlePluginPortal()
-        google()
-    }
+
+plugins {
+    kotlin("jvm")
+    id("idea")
 }
-include(":adam")
-include(":transport-ktor")
-include(":android-junit4")
-include(":android-junit4-test-annotation-producer")
-include(":androidx-screencapture")
-include(":android-testrunner-contract")
-include(":emulator-proto")
-include(":instrumentation-proto")
-include(":server:server-stub")
-include(":server:server-stub-junit4")
-include(":server:server-stub-junit5")
-include(":testing")
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
+
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile::class) {
+    kotlinOptions.jvmTarget = "1.8"
+    kotlinOptions.apiVersion = "1.5"
+}
+
+dependencies {
+    implementation(project(":adam"))
+    implementation(Libraries.coroutines)
+    implementation(TestLibraries.junit4)
+}

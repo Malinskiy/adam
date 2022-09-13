@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Anton Malinskiy
+ * Copyright (C) 2022 Anton Malinskiy
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,32 @@
  * limitations under the License.
  */
 
-package com.malinskiy.adam.request.transform
+package com.malinskiy.adam.request.testrunner.transform
 
 import com.android.commands.am.InstrumentationData
 import com.google.protobuf.InvalidProtocolBufferException
 import com.malinskiy.adam.Const
-import com.malinskiy.adam.extension.*
-import com.malinskiy.adam.request.testrunner.*
-import com.malinskiy.adam.request.testrunner.model.*
+import com.malinskiy.adam.extension.compatLimit
+import com.malinskiy.adam.extension.compatPosition
+import com.malinskiy.adam.request.testrunner.TestAssumptionFailed
+import com.malinskiy.adam.request.testrunner.TestEnded
+import com.malinskiy.adam.request.testrunner.TestEvent
+import com.malinskiy.adam.request.testrunner.TestFailed
+import com.malinskiy.adam.request.testrunner.TestIdentifier
+import com.malinskiy.adam.request.testrunner.TestIgnored
+import com.malinskiy.adam.request.testrunner.TestRunEnded
+import com.malinskiy.adam.request.testrunner.TestRunFailed
+import com.malinskiy.adam.request.testrunner.TestRunStartedEvent
+import com.malinskiy.adam.request.testrunner.TestStarted
+import com.malinskiy.adam.request.testrunner.model.Finished
+import com.malinskiy.adam.request.testrunner.model.NotStarted
+import com.malinskiy.adam.request.testrunner.model.Running
+import com.malinskiy.adam.request.testrunner.model.SessionResultCode
+import com.malinskiy.adam.request.testrunner.model.State
+import com.malinskiy.adam.request.testrunner.model.Status
+import com.malinskiy.adam.request.testrunner.model.StatusKey
+import com.malinskiy.adam.request.testrunner.model.TestStatusAggregator
+import com.malinskiy.adam.request.transform.ProgressiveResponseTransformer
 import java.io.File
 import java.io.RandomAccessFile
 import java.nio.MappedByteBuffer

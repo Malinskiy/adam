@@ -14,15 +14,58 @@
  * limitations under the License.
  */
 
+import com.google.protobuf.gradle.builtins
+import com.google.protobuf.gradle.generateProtoTasks
+import com.google.protobuf.gradle.id
+import com.google.protobuf.gradle.plugins
+import com.google.protobuf.gradle.protobuf
+import com.google.protobuf.gradle.protoc
+import com.google.protobuf.gradle.remove
 
 plugins {
     kotlin("jvm")
     id("jacoco")
     id("org.jetbrains.dokka")
+    id("com.google.protobuf") version Versions.protobufGradle
     id("idea")
 }
 
 Deployment.initialize(project)
+
+protobuf {
+    protoc {
+        artifact = "com.google.protobuf:protoc:${Versions.protobuf}"
+    }
+    plugins {
+        id("java") {
+            artifact = "io.grpc:protoc-gen-grpc-java:${Versions.grpc}"
+        }
+        id("grpc") {
+            artifact = "io.grpc:protoc-gen-grpc-java:${Versions.grpc}"
+        }
+        id("grpckt") {
+            artifact = "io.grpc:protoc-gen-grpc-kotlin:${Versions.grpcKotlin}:jdk7@jar"
+        }
+    }
+    generateProtoTasks {
+        all().forEach {
+            it.builtins {
+                remove("java")
+            }
+            it.plugins {
+                id("java") {
+                    option("lite")
+                }
+                id("grpc") {
+                    option("lite")
+                }
+                id("grpckt") {
+                    option("lite")
+                }
+            }
+        }
+    }
+}
 
 sourceSets {
     create("integrationTest") {
@@ -109,7 +152,13 @@ dependencies {
     implementation(Libraries.annotations)
     implementation(kotlin("stdlib-jdk8", version = Versions.kotlin))
     implementation(Libraries.coroutines)
+    implementation(Libraries.ktorNetwork)
     implementation(Libraries.logging)
+    api(Libraries.protobufLite)
+    api(Libraries.grpcProtobufLite)
+    api(Libraries.grpcKotlinStub)
+    api(Libraries.grpcOkhttp)
+    api(Libraries.grpcStub)
     implementation(Libraries.javaxAnnotations)
     implementation(Libraries.vertxCore)
     implementation(Libraries.vertxKotlin)
@@ -128,5 +177,4 @@ dependencies {
     integrationTestImplementation(TestLibraries.junit4)
     integrationTestImplementation(kotlin("reflect", version = Versions.kotlin))
     integrationTestImplementation(project(":testing"))
-    integrationTestImplementation(project(":instrumentation-proto"))
 }

@@ -30,8 +30,8 @@ import com.malinskiy.adam.request.sync.v1.PullFileRequest
 import com.malinskiy.adam.request.sync.v1.PushFileRequest
 import com.malinskiy.adam.request.sync.v1.StatFileRequest
 import com.malinskiy.adam.rule.AdbDeviceRule
+import com.malinskiy.adam.rule.TestFixtures
 import kotlinx.coroutines.async
-import kotlinx.coroutines.channels.receiveOrNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.supervisorScope
@@ -87,25 +87,25 @@ class FileE2ETest {
 
     @Test
     fun testApkPushing() {
-        val testFile = File(javaClass.getResource("/app-debug.apk").toURI())
+        val testFile = TestFixtures.apk("/app-debug.apk")
         val fileName = testFile.name
         runBlocking {
             val channel =
                 adbRule.adb.execute(PushFileRequest(testFile, "/data/local/tmp/$fileName"), this, serial = adbRule.deviceSerial)
 
             var percentage = 0
-            for(percentageDouble in channel) {
+            for (percentageDouble in channel) {
                 val newPercentage = (percentageDouble * 100).roundToInt()
                 if (newPercentage != percentage) {
                     print('.')
                     percentage = newPercentage
                 }
             }
-            
-            val stats = adbRule.adb.execute(StatFileRequest("/data/local/tmp/app-debug.apk"), adbRule.deviceSerial)
+
+            val stats = adbRule.adb.execute(StatFileRequest("/data/local/tmp/$fileName"), adbRule.deviceSerial)
             assertThat(stats.size).isEqualTo(testFile.length().toUInt())
 
-            val sizeString = adbRule.adb.execute(ShellCommandRequest("${md5()} /data/local/tmp/app-debug.apk"), adbRule.deviceSerial)
+            val sizeString = adbRule.adb.execute(ShellCommandRequest("${md5()} /data/local/tmp/$fileName"), adbRule.deviceSerial)
             val split = sizeString.output.split(" ").filter { it != "" }
 
             /**
@@ -153,7 +153,7 @@ class FileE2ETest {
                 )
 
                 var percentage = 0
-                for(percentageDouble in channel) {
+                for (percentageDouble in channel) {
                     val newPercentage = (percentageDouble * 100).roundToInt()
                     if (newPercentage != percentage) {
                         print('.')
@@ -192,7 +192,7 @@ class FileE2ETest {
                     )
 
                     var percentage = 0
-                    for(percentageDouble in channel) {
+                    for (percentageDouble in channel) {
                         val newPercentage = (percentageDouble * 100).roundToInt()
                         if (newPercentage != percentage) {
                             print('.')

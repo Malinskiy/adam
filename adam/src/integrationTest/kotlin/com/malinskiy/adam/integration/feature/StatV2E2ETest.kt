@@ -24,20 +24,19 @@ import com.malinskiy.adam.request.sync.v1.PushFileRequest
 import com.malinskiy.adam.request.sync.v2.StatFileRequest
 import com.malinskiy.adam.rule.AdbDeviceRule
 import com.malinskiy.adam.rule.DeviceType
-import kotlinx.coroutines.channels.receiveOrNull
+import com.malinskiy.adam.rule.TestFixtures
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import java.io.File
 import kotlin.math.roundToInt
 
 class StatV2E2ETest {
     @Rule
     @JvmField
     val adbRule = AdbDeviceRule(DeviceType.ANY, Feature.LS_V2)
-    val testFile = File(javaClass.getResource("/app-debug.apk").toURI())
+    val testFile = TestFixtures.apk("/app-debug.apk")
 
     @Before
     fun setup() {
