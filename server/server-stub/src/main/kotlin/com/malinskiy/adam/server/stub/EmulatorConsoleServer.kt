@@ -19,11 +19,9 @@ package com.malinskiy.adam.server.stub
 import com.malinskiy.adam.AndroidDebugBridgeClient
 import com.malinskiy.adam.AndroidDebugBridgeClientFactory
 import io.ktor.network.selector.ActorSelectorManager
-import io.ktor.network.sockets.InetSocketAddress
 import io.ktor.network.sockets.aSocket
 import io.ktor.network.sockets.openReadChannel
 import io.ktor.network.sockets.openWriteChannel
-import io.ktor.network.sockets.toJavaAddress
 import io.ktor.util.network.port
 import io.ktor.utils.io.ByteReadChannel
 import io.ktor.utils.io.ByteWriteChannel
@@ -37,8 +35,8 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.newFixedThreadPoolContext
 import kotlinx.coroutines.runBlocking
 import java.io.Closeable
+import java.net.InetSocketAddress
 import kotlin.coroutines.CoroutineContext
-import java.net.InetSocketAddress as JavaInetSocketAddress
 
 class EmulatorConsoleServer : CoroutineScope, Closeable {
     private val executionDispatcher by lazy {
@@ -50,10 +48,10 @@ class EmulatorConsoleServer : CoroutineScope, Closeable {
     private val job = SupervisorJob()
     var port: Int = 0
 
-    suspend fun startAndListen(block: suspend (ConsoleReadChannel, ConsoleWriteChannel) -> Unit): Pair<AndroidDebugBridgeClient, JavaInetSocketAddress> {
+    suspend fun startAndListen(block: suspend (ConsoleReadChannel, ConsoleWriteChannel) -> Unit): Pair<AndroidDebugBridgeClient, InetSocketAddress> {
         val address = InetSocketAddress("127.0.0.1", port)
         val server = aSocket(ActorSelectorManager(Dispatchers.IO)).tcp().bind(address)
-        port = server.localAddress.toJavaAddress().port
+        port = server.localAddress.port
 
         async(context = job) {
             while (isActive) {
@@ -72,7 +70,7 @@ class EmulatorConsoleServer : CoroutineScope, Closeable {
             }
         }
 
-        return Pair(AndroidDebugBridgeClientFactory().build(), JavaInetSocketAddress(address.hostname, port))
+        return Pair(AndroidDebugBridgeClientFactory().build(), InetSocketAddress(address.address, port))
     }
 
     override fun close() = runBlocking {

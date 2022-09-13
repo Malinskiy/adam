@@ -44,7 +44,7 @@ protobuf {
             artifact = "io.grpc:protoc-gen-grpc-java:${Versions.grpc}"
         }
         id("grpckt") {
-            artifact = "io.grpc:protoc-gen-grpc-kotlin:${Versions.grpcKotlin}:jdk8@jar"
+            artifact = "io.grpc:protoc-gen-grpc-kotlin:${Versions.grpcKotlin}:jdk7@jar"
         }
     }
     generateProtoTasks {
@@ -145,8 +145,7 @@ java {
 
 tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile::class) {
     kotlinOptions.jvmTarget = "1.8"
-    kotlinOptions.apiVersion = "1.6"
-    kotlinOptions.languageVersion = "1.6"
+    kotlinOptions.apiVersion = "1.5"
 }
 
 dependencies {

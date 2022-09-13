@@ -22,15 +22,15 @@ import io.ktor.utils.io.ByteReadChannel
 import io.ktor.utils.io.ByteWriteChannel
 import io.ktor.utils.io.cancel
 import io.ktor.utils.io.close
-import io.ktor.utils.io.core.internal.ChunkBuffer
+import io.ktor.utils.io.core.IoBuffer
 import io.ktor.utils.io.readIntLittleEndian
 import io.ktor.utils.io.writeByte
 import io.ktor.utils.io.writeIntLittleEndian
 import java.nio.ByteBuffer
 
 class StubSocket(
-    val readChannel: ByteReadChannel = ByteChannelSequentialJVM(ChunkBuffer.Empty, false),
-    val writeChannel: ByteWriteChannel = ByteChannelSequentialJVM(ChunkBuffer.Empty, false)
+    val readChannel: ByteReadChannel = ByteChannelSequentialJVM(IoBuffer.Empty, false),
+    val writeChannel: ByteWriteChannel = ByteChannelSequentialJVM(IoBuffer.Empty, false)
 ) : Socket {
     override val isClosedForWrite: Boolean
         get() = writeChannel.isClosedForWrite

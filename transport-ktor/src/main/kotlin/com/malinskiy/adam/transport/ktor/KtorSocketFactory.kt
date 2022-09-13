@@ -23,7 +23,6 @@ import io.ktor.network.selector.SelectorManager
 import io.ktor.network.sockets.aSocket
 import java.net.InetSocketAddress
 import kotlin.coroutines.CoroutineContext
-import io.ktor.network.sockets.InetSocketAddress as KtorSocketAddress
 
 @Deprecated(message = "Deprecated due to stability and performance issues")
 class KtorSocketFactory(
@@ -34,13 +33,11 @@ class KtorSocketFactory(
     private val selectorManager: SelectorManager = ActorSelectorManager(coroutineContext)
 
     override suspend fun tcp(socketAddress: InetSocketAddress, connectTimeout: Long?, idleTimeout: Long?): Socket {
-        val ktorSocketAddress = KtorSocketAddress(socketAddress.hostName, socketAddress.port)
-        return KtorSocket(
-            aSocket(selectorManager)
-                .tcp()
-                .connect(ktorSocketAddress) {
-                    socketTimeout = idleTimeout ?: this@KtorSocketFactory.idleTimeout
-                })
+        return KtorSocket(aSocket(selectorManager)
+                              .tcp()
+                              .connect(socketAddress) {
+                                  socketTimeout = idleTimeout ?: this@KtorSocketFactory.idleTimeout
+                              })
     }
 
     override fun close() {

@@ -21,12 +21,10 @@ import com.malinskiy.adam.AndroidDebugBridgeClientFactory
 import com.malinskiy.adam.server.stub.dsl.Expectation
 import com.malinskiy.adam.server.stub.dsl.Session
 import io.ktor.network.selector.ActorSelectorManager
-import io.ktor.network.sockets.InetSocketAddress
 import io.ktor.network.sockets.ServerSocket
 import io.ktor.network.sockets.aSocket
 import io.ktor.network.sockets.openReadChannel
 import io.ktor.network.sockets.openWriteChannel
-import io.ktor.network.sockets.toJavaAddress
 import io.ktor.util.network.port
 import io.ktor.utils.io.ByteReadChannel
 import io.ktor.utils.io.ByteWriteChannel
@@ -38,6 +36,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.newFixedThreadPoolContext
+import java.net.InetSocketAddress
 import kotlin.coroutines.CoroutineContext
 
 
@@ -64,7 +63,7 @@ class AndroidDebugBridgeServer : CoroutineScope {
         val address = InetSocketAddress("127.0.0.1", port)
         selector = ActorSelectorManager(Dispatchers.IO)
         server = aSocket(selector).tcp().bind(address)
-        port = server.localAddress.toJavaAddress().port
+        port = server.localAddress.port
 
         return client
     }

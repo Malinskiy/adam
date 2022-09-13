@@ -20,9 +20,7 @@ import com.malinskiy.adam.request.logcat.ChanneledLogcatRequest
 import com.malinskiy.adam.request.logcat.LogcatSinceFormat
 import com.malinskiy.adam.request.logcat.SyncLogcatRequest
 import com.malinskiy.adam.request.prop.GetSinglePropRequest
-import com.malinskiy.adam.request.shell.v1.ShellCommandRequest
 import com.malinskiy.adam.rule.AdbDeviceRule
-import kotlinx.coroutines.async
 import kotlinx.coroutines.debug.junit4.CoroutinesTimeout
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
@@ -65,11 +63,6 @@ class LogcatE2ETest {
 
             val nowInstant = Instant.now()
             val request = SyncLogcatRequest(LogcatSinceFormat.DateString(nowInstant, deviceTimezoneString), modes = listOf())
-            async {
-                delay(100)
-                //Produce artificial message in logcat
-                adb.adb.execute(ShellCommandRequest("log -t TEST_TAG \"Test message\""), adb.deviceSerial)
-            }
 
             val content = adb.adb.execute(request, adb.deviceSerial)
                 .split("\n")
@@ -86,7 +79,8 @@ class LogcatE2ETest {
     @Test
     fun testChanneledRequest() {
         runBlocking {
-            val deviceTimezoneString = adb.adb.execute(GetSinglePropRequest("persist.sys.timezone"), adb.deviceSerial).trim()
+            val deviceTimezoneString = adb.adb.execute(GetSinglePropRequest("persist.sys.timezone"), adb.deviceSerial)
+                .replace("\n", "")
             val deviceTimezone = TimeZone.getTimeZone(deviceTimezoneString)
 
             val nowInstant = Instant.now()
@@ -94,14 +88,6 @@ class LogcatE2ETest {
 
             val content = mutableSetOf<LogLine.Log>()
             val channel = adb.adb.execute(request, this, adb.deviceSerial)
-            async {
-                delay(100)
-                for (i in 1..10) {
-                    //Produce artificial message in logcat
-                    adb.adb.execute(ShellCommandRequest("log -t TEST_TAG \"Test message\""), adb.deviceSerial)
-                }
-            }
-
             // Receive logcat for max 5 seconds
             for (i in 1..5) {
                 content += channel.receive()

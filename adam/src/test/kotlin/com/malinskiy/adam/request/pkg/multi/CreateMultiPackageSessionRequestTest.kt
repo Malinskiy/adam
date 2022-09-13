@@ -30,7 +30,7 @@ import com.malinskiy.adam.server.stub.StubSocket
 import com.malinskiy.adam.transport.use
 import io.ktor.utils.io.ByteChannelSequentialJVM
 import io.ktor.utils.io.ByteWriteChannel
-import io.ktor.utils.io.core.internal.ChunkBuffer
+import io.ktor.utils.io.core.IoBuffer
 import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
@@ -105,7 +105,7 @@ class CreateMultiPackageSessionRequestTest {
     fun testRead() {
         val request = stub()
         val response = "Success [my-session-id]".toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
-        val byteBufferChannel: ByteWriteChannel = ByteChannelSequentialJVM(ChunkBuffer.Empty, false)
+        val byteBufferChannel: ByteWriteChannel = ByteChannelSequentialJVM(IoBuffer.Empty, false)
         runBlocking {
             StubSocket(response).use { socket ->
                 val sessionId = request.readElement(socket)
@@ -118,7 +118,7 @@ class CreateMultiPackageSessionRequestTest {
     fun testReadException() {
         val request = stub()
         val response = "Failure".toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
-        val byteBufferChannel: ByteWriteChannel = ByteChannelSequentialJVM(ChunkBuffer.Empty, false)
+        val byteBufferChannel: ByteWriteChannel = ByteChannelSequentialJVM(IoBuffer.Empty, false)
         runBlocking {
             StubSocket(response).use { socket ->
                 request.readElement(socket)

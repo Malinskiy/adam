@@ -48,7 +48,7 @@ class AdbDeviceRule(val deviceType: DeviceType = DeviceType.ANY, vararg val requ
     lateinit var lineSeparator: String
 
     val adb = AndroidDebugBridgeClientFactory().build()
-    val initTimeout: Duration = Duration.ofSeconds(10)
+    val initTimeout = Duration.ofSeconds(10)
 
     override fun apply(base: Statement, description: Description): Statement {
         return object : Statement() {
