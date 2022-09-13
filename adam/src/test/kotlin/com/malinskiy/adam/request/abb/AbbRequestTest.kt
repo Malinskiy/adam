@@ -33,7 +33,7 @@ class AbbRequestTest {
         val array = AbbRequest(listOf("package", "install"), listOf(Feature.ABB)).serialize()
 
         assertThat(String(array, 0, 15, Const.DEFAULT_TRANSPORT_ENCODING)).isEqualTo("0013abb:package")
-        assertThat(array[15].toChar()).isEqualTo(AbbExecRequest.DELIMITER)
+        assertThat(array[15].toInt().toChar()).isEqualTo(AbbExecRequest.DELIMITER)
         assertThat(String(array, 16, 7, Const.DEFAULT_TRANSPORT_ENCODING)).isEqualTo("install")
     }
 

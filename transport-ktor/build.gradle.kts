@@ -25,7 +25,8 @@ java {
 
 tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile::class) {
     kotlinOptions.jvmTarget = "1.8"
-    kotlinOptions.apiVersion = "1.5"
+    kotlinOptions.apiVersion = "1.6"
+    kotlinOptions.languageVersion = "1.6"
 }
 
 dependencies {
