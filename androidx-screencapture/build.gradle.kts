@@ -15,7 +15,31 @@
  */
 
 plugins {
-    id("java")
+    id("com.android.library")
+    id("kotlin-android")
+    id("maven-publish")
+    id("org.jetbrains.dokka")
+}
+
+android {
+    compileSdk = 30
+
+    defaultConfig {
+        minSdk = 14
+        targetSdk = 30
+    }
+
+    sourceSets {
+        getByName("main") {
+            java.srcDir("src/main/kotlin")
+        }
+        getByName("test") {
+            java.srcDir("src/test/kotlin")
+        }
+        getByName("androidTest") {
+            java.srcDir("src/androidTest/kotlin")
+        }
+    }
 }
 
 java {
@@ -29,4 +53,13 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile::class) {
     kotlinOptions.languageVersion = "1.5"
 }
 
-Deployment.initialize(project)
+dependencies {
+    implementation(kotlin("stdlib-jdk8", version = Versions.kotlin))
+    api(AndroidX.androidXScreenshot)
+    api(AndroidX.testMonitor)
+    api(TestLibraries.junit4)
+}
+
+afterEvaluate {
+    Deployment.initialize(project)
+}

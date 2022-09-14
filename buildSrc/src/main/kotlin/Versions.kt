@@ -1,30 +1,30 @@
 object Versions {
     val adam = System.getenv("GIT_TAG_NAME") ?: "0.4.5"
     val kotlin = "1.6.21"
-    val coroutines = "1.6.3"
+    val coroutines = "1.6.4"
     val coroutinesDebug = coroutines
 
     val annotations = "23.0.0"
     val ktor = "2.0.3"
     val logging = "2.1.23"
-    val vertx = "4.3.1"
+    val vertx = "4.3.3"
     val apacheCommonsPool2 = "2.11.1"
 
     val assertk = "0.25"
     val junit4 = "4.13.2"
-    val junit5 = "5.8.2"
-    val junit5commons = "1.8.2"
+    val junit5 = "5.9.0"
+    val junit5commons = "1.9.0"
     val imageComparison = "4.4.0"
     val dokka = kotlin
 
-    val grpc = "1.47.0"
+    val grpc = "1.49.0"
     val grpcKotlin = "1.3.0"
-    val grpcOkhttp = "1.47.0"
+    val grpcOkhttp = "1.49.0"
     val protobufGradle = "0.8.19"
-    val protobuf = "3.21.2"
+    val protobuf = "3.21.5"
     val javax = "1.3.2"
 
-    val androidGradle = "7.2.1"
+    val androidGradle = "7.2.2"
     val testMonitor = "1.5.0"
     val testRunner = "1.4.0"
     val gradleVersionsPlugin = "0.42.0"
