@@ -77,8 +77,8 @@ class ApkE2ETest {
                         this,
                         serial = adb.deviceSerial
                     )
-                
-                for(result in channel) {
+
+                for (result in channel) {
                     //Do something with result
                 }
 
@@ -109,6 +109,36 @@ class ApkE2ETest {
                     ApkSplitInstallationPackage(appFile1, appFile2),
                     listOf(),
                     true
+                ),
+                adb.deviceSerial
+            )
+
+            //Takes some time until it shows in the pm list. Wait for 10 seconds max
+            var packages: List<Package> = emptyList()
+            for (i in 1..100) {
+                packages = client.execute(PmListRequest(), serial = adb.deviceSerial)
+                if (packages.contains(Package("com.example"))) {
+                    break
+                }
+                delay(100)
+            }
+
+            assertThat(packages)
+                .contains(Package("com.example"))
+        }
+    }
+
+    @Test
+    fun testApkSplitInstallWithExtraArgs() {
+        runBlocking {
+            val appFile1 = File(javaClass.getResource("/split/base-en.apk").toURI())
+            val appFile2 = File(javaClass.getResource("/split/standalone-hdpi.apk").toURI())
+            client.execute(
+                InstallSplitPackageRequest(
+                    ApkSplitInstallationPackage(appFile1, appFile2),
+                    listOf(),
+                    true,
+                    extraArgs = listOf("-g")
                 ),
                 adb.deviceSerial
             )

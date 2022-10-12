@@ -88,6 +88,28 @@ class CmdE2ETest {
     }
 
     @Test
+    fun testStreamingExtraArgs() {
+        runBlocking {
+            measureTimeMillis {
+                val testFile = File(javaClass.getResource("/app-debug.apk").toURI())
+                val success = client.execute(
+                    StreamingPackageInstallRequest(
+                        pkg = testFile,
+                        supportedFeatures = listOf(Feature.CMD),
+                        reinstall = false,
+                        extraArgs = listOf("-g", "-r"),
+                    ),
+                    adb.deviceSerial
+                )
+            }.let { println(it) }
+
+            var packages = client.execute(PmListRequest(), serial = adb.deviceSerial)
+            assertThat(packages)
+                .contains(Package("com.example"))
+        }
+    }
+
+    @Test
     fun testExecIn() {
         runBlocking {
             val testFile = File(javaClass.getResource("/app-debug.apk").toURI())
@@ -136,10 +158,57 @@ class CmdE2ETest {
                     adb.deviceSerial
                 )
             } catch (e: RequestRejectedException) {
-                Assume.assumeTrue(
-                    "Device doesn't support `--multi-package` option",
-                    e.message?.contains("Unknown option --multi-package") == true
+                if (e.message?.contains("Unknown option --multi-package") == true) {
+                    Assume.assumeTrue(
+                        "Device doesn't support `--multi-package` option",
+                        false
+                    )
+                }
+                throw e
+            }
+
+            //Takes some time until it shows in the pm list. Wait for 10 seconds max
+            var packages: List<Package> = emptyList()
+            for (i in 1..100) {
+                packages = client.execute(PmListRequest(), serial = adb.deviceSerial)
+                if (packages.contains(Package("com.example")) && packages.contains(Package("com.example.test"))) {
+                    break
+                }
+                delay(100)
+            }
+
+            assertThat(packages)
+                .contains(Package("com.example"))
+            assertThat(packages)
+                .contains(Package("com.example.test"))
+        }
+    }
+
+    @Test
+    fun testInstallMultiplePackageRequestWithExtraArgs() {
+        runBlocking {
+            val appFile = File(javaClass.getResource("/app-debug.apk").toURI())
+            val testFile = File(javaClass.getResource("/app-debug-androidTest.apk").toURI())
+            try {
+                val success = client.execute(
+                    AtomicInstallPackageRequest(
+                        listOf(
+                            SingleFileInstallationPackage(appFile),
+                            SingleFileInstallationPackage(testFile)
+                        ),
+                        listOf(Feature.CMD),
+                        true,
+                        extraArgs = listOf("-r", "-g")
+                    ),
+                    adb.deviceSerial
                 )
+            } catch (e: RequestRejectedException) {
+                if (e.message?.contains("Unknown option --multi-package") == true) {
+                    Assume.assumeTrue(
+                        "Device doesn't support `--multi-package` option",
+                        false
+                    )
+                }
                 throw e
             }
 
