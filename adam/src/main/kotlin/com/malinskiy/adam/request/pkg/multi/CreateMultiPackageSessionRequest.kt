@@ -122,12 +122,12 @@ class CreateMultiPackageSessionRequest(
     override suspend fun readElement(socket: Socket): String {
         val createSessionResponse = socket.readStatus()
         if (!createSessionResponse.contains("Success")) {
-            throw RequestRejectedException("Failed to create multi-package session")
+            throw RequestRejectedException("Failed to create multi-package session, cause: $createSessionResponse")
         }
 
         val sessionId = createSessionResponse.substringAfter('[', "").substringBefore(']', "")
         if (sessionId.isEmpty()) {
-            throw RequestRejectedException("Failed to create multi-package session")
+            throw RequestRejectedException("Failed to create multi-package session, cause: $createSessionResponse")
         }
 
         return sessionId
