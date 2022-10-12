@@ -138,7 +138,7 @@ class ApkE2ETest {
                     ApkSplitInstallationPackage(appFile1, appFile2),
                     listOf(),
                     true,
-                    extraArgs = listOf("-g")
+                    extraArgs = listOf("-t")
                 ),
                 adb.deviceSerial
             )
