@@ -27,7 +27,7 @@ class AddSessionRequest(
     private val childSessions: List<String>,
     private val parentSession: String,
     private val supportedFeatures: List<Feature>
-) : ComplexRequest<Unit>() {
+) : ComplexRequest<String>() {
     override fun serialize(): ByteArray {
         val hasAbbExec = supportedFeatures.contains(Feature.ABB_EXEC)
         val args = mutableListOf<String>().apply {
@@ -50,7 +50,7 @@ class AddSessionRequest(
         }
     }
 
-    override suspend fun readElement(socket: Socket) {
+    override suspend fun readElement(socket: Socket): String {
         val response = socket.readStatus()
         if (!response.contains("Success")) {
             throw RequestRejectedException(
@@ -58,5 +58,7 @@ class AddSessionRequest(
                         "$parentSession: $response"
             )
         }
+
+        return response
     }
 }

@@ -27,7 +27,7 @@ class InstallCommitRequest(
     private val parentSession: String,
     private val supportedFeatures: List<Feature>,
     private val abandon: Boolean = false
-) : ComplexRequest<Unit>() {
+) : ComplexRequest<String>() {
     override fun serialize(): ByteArray {
         val hasAbbExec = supportedFeatures.contains(Feature.ABB_EXEC)
         val args = mutableListOf<String>().apply {
@@ -56,12 +56,14 @@ class InstallCommitRequest(
         }
     }
 
-    override suspend fun readElement(socket: Socket) {
+    override suspend fun readElement(socket: Socket): String {
         val result = socket.readStatus()
         //Rather than checking for success, we check for Failure since some implementations of PackageManagerShellCommand ignore the
         //logSuccess=true in doCommitSession
         if (result.contains("Failure")) {
             throw RequestRejectedException("Failed to finalize session $parentSession: $result")
         }
+
+        return result
     }
 }

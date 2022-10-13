@@ -32,7 +32,7 @@ class WriteIndividualPackageRequest(
     private val supportedFeatures: List<Feature>,
     private val session: String,
     private val coroutineContext: CoroutineContext = Dispatchers.IO
-) : ComplexRequest<Unit>() {
+) : ComplexRequest<String>() {
     override fun serialize(): ByteArray {
         val hasAbbExec = supportedFeatures.contains(Feature.ABB_EXEC)
         val args = mutableListOf<String>().apply {
@@ -60,11 +60,13 @@ class WriteIndividualPackageRequest(
         }
     }
 
-    override suspend fun readElement(socket: Socket) {
+    override suspend fun readElement(socket: Socket): String {
         socket.writeFile(file, coroutineContext)
         val response = socket.readStatus()
         if (!response.contains("Success")) {
             throw RequestRejectedException("Failed to write package $file: $response")
         }
+
+        return response
     }
 }

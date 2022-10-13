@@ -30,7 +30,7 @@ class CreateIndividualPackageSessionRequest(
     private val supportedFeatures: List<Feature>,
     private val reinstall: Boolean,
     private val extraArgs: List<String> = emptyList()
-) : ComplexRequest<String>() {
+) : ComplexRequest<CreateSessionResponse>() {
 
     override fun serialize(): ByteArray {
         val hasAbbExec = supportedFeatures.contains(Feature.ABB_EXEC)
@@ -84,7 +84,7 @@ class CreateIndividualPackageSessionRequest(
         }
     }
 
-    override suspend fun readElement(socket: Socket): String {
+    override suspend fun readElement(socket: Socket): CreateSessionResponse {
         val response = socket.readStatus()
         if (!response.contains("Success")) {
             throw RequestRejectedException("Failed to create multi-package session: $response")
@@ -95,6 +95,6 @@ class CreateIndividualPackageSessionRequest(
             throw RequestRejectedException("Failed to create multi-package session")
         }
 
-        return sessionId
+        return CreateSessionResponse(sessionId, response)
     }
 }
