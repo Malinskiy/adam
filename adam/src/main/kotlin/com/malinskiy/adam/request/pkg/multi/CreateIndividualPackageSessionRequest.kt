@@ -49,7 +49,7 @@ class CreateIndividualPackageSessionRequest(
             if (hasAbbExec) {
                 addAll(extraArgs)
             } else if (extraArgs.isNotEmpty()) {
-                add(extraArgs.bashEscape())
+                addAll(extraArgs.map { it.bashEscape() }.toList())
             }
 
             if (reinstall) {
