@@ -103,8 +103,9 @@ class CreateIndividualPackageSessionRequestTest {
         val response = "Success [my-session-id]".toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
         runBlocking {
             StubSocket(response).use { socket ->
-                val sessionId = request.readElement(socket)
+                val (sessionId, output) = request.readElement(socket)
                 assertThat(sessionId).isEqualTo("my-session-id")
+                assertThat(output).isEqualTo("Success [my-session-id]")
             }
         }
     }

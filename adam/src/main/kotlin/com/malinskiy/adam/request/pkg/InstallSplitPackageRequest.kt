@@ -34,8 +34,8 @@ package com.malinskiy.adam.request.pkg
 
 import com.malinskiy.adam.AndroidDebugBridgeClient
 import com.malinskiy.adam.annotation.Features
+import com.malinskiy.adam.request.AccumulatingMultiRequest
 import com.malinskiy.adam.request.Feature
-import com.malinskiy.adam.request.MultiRequest
 import com.malinskiy.adam.request.ValidationResponse
 import com.malinskiy.adam.request.pkg.multi.ApkSplitInstallationPackage
 import com.malinskiy.adam.request.pkg.multi.CreateIndividualPackageSessionRequest
@@ -55,14 +55,14 @@ class InstallSplitPackageRequest(
     private val reinstall: Boolean,
     private val extraArgs: List<String> = emptyList(),
     val coroutineContext: CoroutineContext = Dispatchers.IO
-) : MultiRequest<Unit>() {
+) : AccumulatingMultiRequest<String>() {
 
     private val totalSize: Long by lazy {
-        pkg.fileList.map { it.length() }.sum()
+        pkg.fileList.sumOf { it.length() }
     }
 
     override suspend fun execute(androidDebugBridgeClient: AndroidDebugBridgeClient, serial: String?) = with(androidDebugBridgeClient) {
-        val sessionId = execute(
+        val (sessionId, output) = execute(
             CreateIndividualPackageSessionRequest(
                 pkg,
                 listOf(pkg),
@@ -72,11 +72,15 @@ class InstallSplitPackageRequest(
             ),
             serial
         )
+        output.addToResponse()
+
         try {
             for (file in pkg.fileList) {
-                execute(WriteIndividualPackageRequest(file, supportedFeatures, sessionId, coroutineContext), serial)
+                execute(WriteIndividualPackageRequest(file, supportedFeatures, sessionId, coroutineContext), serial).addToResponse()
             }
-            execute(InstallCommitRequest(sessionId, supportedFeatures), serial)
+            execute(InstallCommitRequest(sessionId, supportedFeatures), serial).addToResponse()
+
+            accumulatedResponse
         } catch (e: Exception) {
             try {
                 execute(InstallCommitRequest(sessionId, supportedFeatures, abandon = true), serial)

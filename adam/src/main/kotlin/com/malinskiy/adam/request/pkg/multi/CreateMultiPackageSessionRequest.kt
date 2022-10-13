@@ -33,7 +33,7 @@ class CreateMultiPackageSessionRequest(
     private val supportedFeatures: List<Feature>,
     private val reinstall: Boolean,
     private val extraArgs: List<String> = emptyList()
-) : ComplexRequest<String>() {
+) : ComplexRequest<CreateSessionResponse>() {
     override fun validate(): ValidationResponse {
         val response = super.validate()
         if (!response.success) {
@@ -46,6 +46,7 @@ class CreateMultiPackageSessionRequest(
                     val message = validateFile(installationPackage.file) ?: continue@loop
                     return ValidationResponse(false, message)
                 }
+
                 is ApkSplitInstallationPackage -> {
                     val fileList = installationPackage.fileList
                     splitLoop@ for (file in fileList) {
@@ -119,7 +120,7 @@ class CreateMultiPackageSessionRequest(
         }
     }
 
-    override suspend fun readElement(socket: Socket): String {
+    override suspend fun readElement(socket: Socket): CreateSessionResponse {
         val createSessionResponse = socket.readStatus()
         if (!createSessionResponse.contains("Success")) {
             throw RequestRejectedException("Failed to create multi-package session, cause: $createSessionResponse")
@@ -130,7 +131,7 @@ class CreateMultiPackageSessionRequest(
             throw RequestRejectedException("Failed to create multi-package session, cause: $createSessionResponse")
         }
 
-        return sessionId
+        return CreateSessionResponse(sessionId, createSessionResponse)
     }
 
     companion object {
