@@ -1,5 +1,5 @@
 object Versions {
-    val adam = System.getenv("GIT_TAG_NAME") ?: "0.4.5"
+    val adam = System.getenv("GIT_TAG_NAME") ?: "0.4.7"
     val kotlin = "1.6.21"
     val coroutines = "1.6.4"
     val coroutinesDebug = coroutines

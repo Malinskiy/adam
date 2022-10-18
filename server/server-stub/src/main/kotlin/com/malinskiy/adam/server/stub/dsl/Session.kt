@@ -39,6 +39,12 @@ class Session(val input: ServerReadChannel, val output: ServerWriteChannel) {
         return ShellV1SubSession(session = this)
     }
 
+    suspend fun expectExec(expected: () -> String): ExecSubSession {
+        val transportCmd = input.receiveCommand()
+        assertThat(transportCmd).isEqualTo("exec:${expected()}")
+        return ExecSubSession(session = this)
+    }
+
     suspend fun respondTransport(success: Boolean, message: String? = null) {
         output.respond(
             when (success) {
@@ -288,6 +294,11 @@ class Session(val input: ServerReadChannel, val output: ServerWriteChannel) {
 
     suspend fun receiveBytes(size: Int): ByteArray {
         return input.receiveBytes(size)
+    }
+
+    suspend fun expectBytesAsFile(expected: File) {
+        val actual = receiveBytes(expected.length().toInt())
+        assertThat(actual).isEqualTo(expected.readBytes())
     }
 
     suspend fun expectAdbServerVersion(): GetAdbServerSubSession {
