@@ -33,8 +33,9 @@ open class AdbBinaryInteractor {
         }?.let { File(it) }
 
         val os = System.getProperty("os.name").lowercase(Locale.ENGLISH)
+        val isWindows = os.contains("win")
         val adbBinaryName = when {
-            os.contains("win") -> {
+            isWindows -> {
                 "adb.exe"
             }
             else -> "adb"
@@ -44,7 +45,7 @@ open class AdbBinaryInteractor {
             adbBinary != null -> adbBinary
             androidHome != null -> File(androidHome, "platform-tools" + File.separator + adbBinaryName)
             androidEnvHome != null -> File(androidEnvHome, "platform-tools" + File.separator + adbBinaryName)
-            else -> discoverAdbBinary(os)
+            else -> discoverAdbBinary(isWindows)
         }
         if (adb?.isFile != true) return false
 
@@ -61,8 +62,8 @@ open class AdbBinaryInteractor {
         }
     }
 
-    private fun discoverAdbBinary(os: String): File? {
-        val discoverCommand = if (os == "win") "where" else "which"
+    private fun discoverAdbBinary(isWindows: Boolean): File? {
+        val discoverCommand = if (isWindows) "where" else "which"
         val builder = ProcessBuilder(discoverCommand, "adb").inheritIO()
         val process = builder.start()
         process.waitFor()
