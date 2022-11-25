@@ -64,7 +64,8 @@ open class AdbBinaryInteractor {
 
     private fun discoverAdbBinary(isWindows: Boolean): File? {
         val discoverCommand = if (isWindows) "where" else "which"
-        val builder = ProcessBuilder(discoverCommand, "adb")
+        val builder = ProcessBuilder(discoverCommand, "adb").inheritIO()
+            .redirectOutput(ProcessBuilder.Redirect.PIPE)
         val process = builder.start()
         process.waitFor()
 
