@@ -69,10 +69,14 @@ open class AdbBinaryInteractor {
         val process = builder.start()
         process.waitFor()
 
-        return process.takeIf { it.exitValue() == 0 }
-            ?.inputStream
-            ?.bufferedReader()
-            ?.readLine()
-            ?.let(::File)
+        return if (process.exitValue() == 0) {
+            process.inputStream
+                .bufferedReader()
+                .readLine()
+                .let(::File)
+        } else {
+            process.inputStream.close()
+            null
+        }
     }
 }
