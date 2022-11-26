@@ -18,8 +18,10 @@ package com.malinskiy.adam.interactor
 
 import kotlinx.coroutines.delay
 import java.io.File
+import java.lang.ProcessBuilder.Redirect
 import java.util.*
 
+@Suppress("NewApi")
 open class AdbBinaryInteractor {
     suspend fun execute(
         adbBinary: File?,
@@ -38,6 +40,7 @@ open class AdbBinaryInteractor {
             isWindows -> {
                 "adb.exe"
             }
+
             else -> "adb"
         }
 
@@ -50,7 +53,6 @@ open class AdbBinaryInteractor {
         if (adb?.isFile != true) return false
 
         val builder = ProcessBuilder(adb.absolutePath, *cmd).inheritIO()
-
         val process = builder.start()
         do {
             delay(16)
@@ -64,18 +66,23 @@ open class AdbBinaryInteractor {
 
     private fun discoverAdbBinary(isWindows: Boolean): File? {
         val discoverCommand = if (isWindows) "where" else "which"
-        val builder = ProcessBuilder(discoverCommand, "adb").inheritIO()
-            .redirectOutput(ProcessBuilder.Redirect.PIPE)
+
+        val builder = ProcessBuilder(discoverCommand, "adb")
+            .redirectInput(Redirect.INHERIT)
+            .redirectOutput(Redirect.PIPE)
+            .redirectError(Redirect.PIPE)
+
         val process = builder.start()
+
+        process.outputStream.close()
+        val stdout = process.inputStream.bufferedReader().use { it.readText() }
+        val stderr = process.errorStream.bufferedReader().use { it.readText() }
+
         process.waitFor()
 
         return if (process.exitValue() == 0) {
-            process.inputStream
-                .bufferedReader()
-                .readLine()
-                .let(::File)
+            stdout.lines().firstOrNull()?.let(::File)
         } else {
-            process.inputStream.close()
             null
         }
     }
