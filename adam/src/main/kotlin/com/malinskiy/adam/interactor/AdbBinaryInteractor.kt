@@ -18,8 +18,10 @@ package com.malinskiy.adam.interactor
 
 import kotlinx.coroutines.delay
 import java.io.File
+import java.lang.ProcessBuilder.Redirect
 import java.util.*
 
+@Suppress("NewApi")
 open class AdbBinaryInteractor {
     suspend fun execute(
         adbBinary: File?,
@@ -33,10 +35,12 @@ open class AdbBinaryInteractor {
         }?.let { File(it) }
 
         val os = System.getProperty("os.name").lowercase(Locale.ENGLISH)
+        val isWindows = os.contains("win")
         val adbBinaryName = when {
-            os.contains("win") -> {
+            isWindows -> {
                 "adb.exe"
             }
+
             else -> "adb"
         }
 
@@ -44,12 +48,11 @@ open class AdbBinaryInteractor {
             adbBinary != null -> adbBinary
             androidHome != null -> File(androidHome, "platform-tools" + File.separator + adbBinaryName)
             androidEnvHome != null -> File(androidEnvHome, "platform-tools" + File.separator + adbBinaryName)
-            else -> discoverAdbBinary(os)
+            else -> discoverAdbBinary(isWindows)
         }
         if (adb?.isFile != true) return false
 
         val builder = ProcessBuilder(adb.absolutePath, *cmd).inheritIO()
-
         val process = builder.start()
         do {
             delay(16)
@@ -61,16 +64,26 @@ open class AdbBinaryInteractor {
         }
     }
 
-    private fun discoverAdbBinary(os: String): File? {
-        val discoverCommand = if (os == "win") "where" else "which"
-        val builder = ProcessBuilder(discoverCommand, "adb").inheritIO()
+    private fun discoverAdbBinary(isWindows: Boolean): File? {
+        val discoverCommand = if (isWindows) "where" else "which"
+
+        val builder = ProcessBuilder(discoverCommand, "adb")
+            .redirectInput(Redirect.INHERIT)
+            .redirectOutput(Redirect.PIPE)
+            .redirectError(Redirect.PIPE)
+
         val process = builder.start()
+
+        process.outputStream.close()
+        val stdout = process.inputStream.bufferedReader().use { it.readText() }
+        val stderr = process.errorStream.bufferedReader().use { it.readText() }
+
         process.waitFor()
 
-        return process.takeIf { it.exitValue() == 0 }
-            ?.inputStream
-            ?.bufferedReader()
-            ?.readLine()
-            ?.let(::File)
+        return if (process.exitValue() == 0) {
+            stdout.lines().firstOrNull()?.let(::File)
+        } else {
+            null
+        }
     }
 }
