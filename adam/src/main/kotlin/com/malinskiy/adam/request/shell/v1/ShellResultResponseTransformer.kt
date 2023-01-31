@@ -16,20 +16,20 @@
 
 package com.malinskiy.adam.request.shell.v1
 
+import com.google.common.io.ByteStreams
 import com.malinskiy.adam.Const
 import com.malinskiy.adam.exception.RequestRejectedException
 import com.malinskiy.adam.request.transform.ResponseTransformer
 
 class ShellResultResponseTransformer : ResponseTransformer<ShellCommandResult> {
     override suspend fun process(bytes: ByteArray, offset: Int, limit: Int) {
-        val part = String(bytes, 0, limit, Const.DEFAULT_TRANSPORT_ENCODING)
-        builder.append(part)
+        builder.write(bytes, 0, limit)
     }
 
-    private val builder = StringBuilder()
+    private val builder = ByteStreams.newDataOutput()
 
     override fun transform(): ShellCommandResult {
-        val output = builder.toString()
+        val output = String(builder.toByteArray(), Const.DEFAULT_TRANSPORT_ENCODING)
         val indexOfDelimiter = output.lastIndexOf(SyncShellCommandRequest.EXIT_CODE_DELIMITER)
         if (indexOfDelimiter == -1) {
             throw RequestRejectedException("No exit code delimiter found in $output")
@@ -38,7 +38,7 @@ class ShellResultResponseTransformer : ResponseTransformer<ShellCommandResult> {
         val exitCodeString = output.substring(indexOfDelimiter + 1).trim()
         val exitCode = exitCodeString.toIntOrNull() ?: throw RequestRejectedException("Unexpected exit code value $exitCodeString")
         return ShellCommandResult(
-            output = stdout,
+            stdout = stdout.toByteArray(Const.DEFAULT_TRANSPORT_ENCODING),
             exitCode = exitCode
         )
     }

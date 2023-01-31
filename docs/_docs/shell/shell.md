@@ -29,10 +29,12 @@ appends `;echo $?` to the end of the command and parses it automatically.
 
 ```kotlin
 data class ShellCommandResult(
-    val output: String,
+    val stdout: ByteArray,
     val exitCode: Int
 )
 ```
+
+If the output is UTF-8 encoded then you can use lazy property `output` for conversion of bytes into a String, e.g. `result.output`.
 
 This request expects that the command returns immediately, or you don't want to stream the output.
 
