@@ -22,7 +22,6 @@ import com.malinskiy.adam.request.shell.v2.ShellCommandResultChunk
 import com.malinskiy.adam.request.transform.InstrumentationResponseTransformer
 import com.malinskiy.adam.request.transform.ProgressiveResponseTransformer
 import com.malinskiy.adam.request.transform.ProtoInstrumentationResponseTransformer
-import com.malinskiy.adam.transport.AdamMaxFilePacketPool
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.SendChannel
 
@@ -102,7 +101,6 @@ class TestRunnerRequest(
     coroutineScope = coroutineScope,
     socketIdleTimeout = socketIdleTimeout,
 ) {
-    private val buffer = AdamMaxFilePacketPool.borrow()
     private val transformer: ProgressiveResponseTransformer<List<TestEvent>?> by lazy {
         if (protobuf) {
             ProtoInstrumentationResponseTransformer()
@@ -116,7 +114,6 @@ class TestRunnerRequest(
             transformer.process(bytes, 0, bytes.size)
         }
     }
-
 
     override suspend fun close(channel: SendChannel<List<TestEvent>>) {
         transformer.transform()?.let { channel.send(it) }
