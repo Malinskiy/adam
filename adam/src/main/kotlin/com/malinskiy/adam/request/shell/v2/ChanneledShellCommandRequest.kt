@@ -20,7 +20,7 @@ import com.malinskiy.adam.request.AsyncChannelRequest
 import com.malinskiy.adam.request.NonSpecifiedTarget
 import com.malinskiy.adam.request.Target
 import com.malinskiy.adam.transport.Socket
-import com.malinskiy.adam.transport.withMaxFilePacketBuffer
+import com.malinskiy.adam.transport.withMaxPacketBuffer
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.channels.SendChannel
 
@@ -36,19 +36,27 @@ open class ChanneledShellCommandRequest(
 ) {
 
     override suspend fun readElement(socket: Socket, sendChannel: SendChannel<ShellCommandResultChunk>): Boolean {
-        withMaxFilePacketBuffer {
+        withMaxPacketBuffer {
             val data = array()
             when (MessageType.of(socket.readByte().toInt())) {
                 MessageType.STDOUT -> {
-                    val length = socket.readIntLittleEndian()
-                    socket.readFully(data, 0, length)
-                    sendChannel.send(ShellCommandResultChunk(stdout = data.copyOfRange(0, length)))
+                    var length = socket.readIntLittleEndian()
+                    while (length > 0) {
+                        val toRead = minOf(data.size, length)
+                        socket.readFully(data, 0, toRead)
+                        sendChannel.send(ShellCommandResultChunk(stdout = data.copyOfRange(0, toRead)))
+                        length -= toRead
+                    }
                 }
 
                 MessageType.STDERR -> {
-                    val length = socket.readIntLittleEndian()
-                    socket.readFully(data, 0, length)
-                    sendChannel.send(ShellCommandResultChunk(stderr = data.copyOfRange(0, length)))
+                    var length = socket.readIntLittleEndian()
+                    while (length > 0) {
+                        val toRead = minOf(data.size, length)
+                        socket.readFully(data, 0, toRead)
+                        sendChannel.send(ShellCommandResultChunk(stderr = data.copyOfRange(0, toRead)))
+                        length -= toRead
+                    }
                 }
 
                 MessageType.EXIT -> {

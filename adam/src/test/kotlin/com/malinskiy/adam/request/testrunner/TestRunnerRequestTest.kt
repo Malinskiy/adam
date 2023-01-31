@@ -285,7 +285,6 @@ class TestRunnerRequestTest {
         }
     }
 
-    @Ignore
     @Test
     fun testReturnsContentOnFailure() {
         runBlocking {
@@ -314,36 +313,6 @@ class TestRunnerRequestTest {
 
                 assertThat(events).containsOnly(TestRunFailed("No test results\nsomething-something"))
             }.join()
-        }
-    }
-
-    @Ignore
-    @Test
-    fun testChannelIsEmpty() {
-        runBlocking {
-            launch {
-                server.session {
-                    expectCmd { "host:transport:serial" }.accept()
-                    input.discard()
-                }
-
-                val request = TestRunnerRequest(
-                    testPackage = "com.example.test",
-                    instrumentOptions = InstrumentOptions(),
-                    supportedFeatures = emptyList(),
-                    coroutineScope = this
-                )
-                val execute = client.execute(request, "serial")
-
-                var events = mutableListOf<TestEvent>()
-                while (!execute.isClosedForReceive) {
-                    events.addAll(execute.receiveCatching().getOrNull() ?: break)
-                }
-
-                assertThat(events).isEqualTo(1.0)
-            }.join()
-
-//            assertThat(tempFile.readBytes()).isEqualTo(fixture.readBytes())
         }
     }
 }
