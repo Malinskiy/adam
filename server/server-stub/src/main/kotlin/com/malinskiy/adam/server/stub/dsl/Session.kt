@@ -39,6 +39,12 @@ class Session(val input: ServerReadChannel, val output: ServerWriteChannel) {
         return ShellV1SubSession(session = this)
     }
 
+    suspend fun expectShellV2(expected: () -> String): ShellV2SubSession {
+        val transportCmd = input.receiveCommand()
+        assertThat(transportCmd).isEqualTo("shell,v2,raw:${expected()}")
+        return ShellV2SubSession(session = this)
+    }
+
     suspend fun expectExec(expected: () -> String): ExecSubSession {
         val transportCmd = input.receiveCommand()
         assertThat(transportCmd).isEqualTo("exec:${expected()}")

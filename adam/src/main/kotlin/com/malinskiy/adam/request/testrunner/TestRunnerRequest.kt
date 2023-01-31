@@ -16,12 +16,14 @@
 
 package com.malinskiy.adam.request.testrunner
 
-import com.malinskiy.adam.request.AsyncChannelRequest
+import com.malinskiy.adam.request.Feature
+import com.malinskiy.adam.request.shell.AsyncCompatShellCommandRequest
+import com.malinskiy.adam.request.shell.v2.ShellCommandResultChunk
 import com.malinskiy.adam.request.transform.InstrumentationResponseTransformer
 import com.malinskiy.adam.request.transform.ProgressiveResponseTransformer
 import com.malinskiy.adam.request.transform.ProtoInstrumentationResponseTransformer
-import com.malinskiy.adam.transport.Socket
-import com.malinskiy.adam.transport.withMaxPacketBuffer
+import com.malinskiy.adam.transport.AdamMaxFilePacketPool
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.SendChannel
 
 /**
@@ -44,6 +46,8 @@ import kotlinx.coroutines.channels.SendChannel
 class TestRunnerRequest(
     private val testPackage: String,
     private val instrumentOptions: InstrumentOptions,
+    private val supportedFeatures: List<Feature>,
+    private val coroutineScope: CoroutineScope,
     private val runnerClass: String = "android.support.test.runner.AndroidJUnitRunner",
     private val noHiddenApiChecks: Boolean = false,
     private val noWindowAnimations: Boolean = false,
@@ -54,37 +58,8 @@ class TestRunnerRequest(
     private val outputLogPath: String? = null,
     private val protobuf: Boolean = false,
     socketIdleTimeout: Long? = Long.MAX_VALUE
-) : AsyncChannelRequest<List<TestEvent>, Unit>(socketIdleTimeout = socketIdleTimeout) {
-
-    private val transformer: ProgressiveResponseTransformer<List<TestEvent>?> by lazy {
-        if (protobuf) {
-            ProtoInstrumentationResponseTransformer()
-        } else {
-            InstrumentationResponseTransformer()
-        }
-    }
-
-    override suspend fun readElement(socket: Socket, sendChannel: SendChannel<List<TestEvent>>): Boolean {
-        withMaxPacketBuffer {
-            val buffer = array()
-            val available = socket.readAvailable(buffer, 0, buffer.size)
-
-            return when {
-                available > 0 -> {
-                    transformer.process(buffer, 0, available)?.let { sendChannel.send(it) }
-                    false
-                }
-                available < 0 -> {
-                    true
-                }
-                else -> false
-            }
-        }
-    }
-
-    override fun serialize() = createBaseRequest(StringBuilder().apply {
-        append("shell:")
-
+) : AsyncCompatShellCommandRequest<List<TestEvent>>(
+    cmd = StringBuilder().apply {
         append("am instrument -w -r")
 
         if (noHiddenApiChecks) {
@@ -122,11 +97,28 @@ class TestRunnerRequest(
         append(instrumentOptions.toString())
 
         append(" $testPackage/$runnerClass")
-    }.toString())
+    }.toString(),
+    supportedFeatures = supportedFeatures,
+    coroutineScope = coroutineScope,
+    socketIdleTimeout = socketIdleTimeout,
+) {
+    private val buffer = AdamMaxFilePacketPool.borrow()
+    private val transformer: ProgressiveResponseTransformer<List<TestEvent>?> by lazy {
+        if (protobuf) {
+            ProtoInstrumentationResponseTransformer()
+        } else {
+            InstrumentationResponseTransformer()
+        }
+    }
+
+    override suspend fun convertChunk(response: ShellCommandResultChunk): List<TestEvent>? {
+        return response.stdout?.let { bytes ->
+            transformer.process(bytes, 0, bytes.size)
+        }
+    }
+
 
     override suspend fun close(channel: SendChannel<List<TestEvent>>) {
         transformer.transform()?.let { channel.send(it) }
     }
-
-    override suspend fun writeElement(element: Unit, socket: Socket) = Unit
 }

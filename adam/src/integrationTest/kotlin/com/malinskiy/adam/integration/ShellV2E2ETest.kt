@@ -19,6 +19,7 @@ package com.malinskiy.adam.integration
 import assertk.assertThat
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
+import com.malinskiy.adam.Const
 import com.malinskiy.adam.request.Feature
 import com.malinskiy.adam.request.shell.v2.ChanneledShellCommandRequest
 import com.malinskiy.adam.request.shell.v2.ShellCommandInputChunk
@@ -53,7 +54,7 @@ class ShellV2E2ETest {
         val stdioJob = launch(Dispatchers.IO) {
             stdio.send(
                 ShellCommandInputChunk(
-                    stdin = "cafebabe"
+                    stdin = "cafebabe".toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
                 )
             )
 
