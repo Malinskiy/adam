@@ -19,6 +19,7 @@ package com.malinskiy.adam.integration
 import assertk.assertThat
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
+import com.malinskiy.adam.Const
 import com.malinskiy.adam.request.Feature
 import com.malinskiy.adam.request.shell.v2.ChanneledShellCommandRequest
 import com.malinskiy.adam.request.shell.v2.ShellCommandInputChunk
@@ -41,8 +42,8 @@ class ShellV2E2ETest {
     fun testDefault() = runBlocking {
         val result = adbRule.adb.execute(ShellCommandRequest("echo foo; echo bar >&2; exit 17"), adbRule.deviceSerial)
         assertThat(result.exitCode).isEqualTo(17)
-        assertThat(result.stdout).isEqualTo("foo\n")
-        assertThat(result.stderr).isEqualTo("bar\n")
+        assertThat(result.output).isEqualTo("foo\n")
+        assertThat(result.errorOutput).isEqualTo("bar\n")
     }
 
     @Test
@@ -53,7 +54,7 @@ class ShellV2E2ETest {
         val stdioJob = launch(Dispatchers.IO) {
             stdio.send(
                 ShellCommandInputChunk(
-                    stdin = "cafebabe"
+                    stdin = "cafebabe".toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
                 )
             )
 
@@ -68,8 +69,8 @@ class ShellV2E2ETest {
         val stderrBuilder = StringBuilder()
         var exitCode = 1
         for (i in receiveChannel) {
-            i.stdout?.let { stdoutBuilder.append(it) }
-            i.stderr?.let { stderrBuilder.append(it) }
+            i.stdout?.let { stdoutBuilder.append(String(it, Const.DEFAULT_TRANSPORT_ENCODING)) }
+            i.stderr?.let { stderrBuilder.append(String(it, Const.DEFAULT_TRANSPORT_ENCODING)) }
             i.exitCode?.let { exitCode = it }
         }
         stdioJob.join()

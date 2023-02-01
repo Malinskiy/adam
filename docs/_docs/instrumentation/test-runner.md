@@ -10,27 +10,34 @@ nav_order: 6
 1. TOC
 {:toc}
 
+Optionally uses Feature.SHELL_V2
+{: .label .label-blue }
 
 Executing tests can be done using the `TestRunnerRequest`:
 
 ```kotlin
 val channel: ReceiveChannel<List<TestEvents>> = adb.execute(
-                    request = TestRunnerRequest(
-                                  testPackage = "com.example.test",
-                                  instrumentOptions = InstrumentOptions(
-                                      clazz = listOf("com.example.MyTest")
-                                  )
-                              ),
-                    scope = GlobalScope,
-                    serial = "emulator-5554"
-                )
+ request = TestRunnerRequest(
+  testPackage = "com.example.test",
+  instrumentOptions = InstrumentOptions(
+   clazz = listOf("com.example.MyTest")
+  ),
+  supportedFeatures = emptyList(),
+  coroutineScope = GlobalScope,
+ ),
+ serial = "emulator-5554"
+)
 
 ```
 
 The result is a channel `ReadChannel<List<TestEvents>>` that contains parsed and converted output of the `am instrument` command.
 
 ### Required parameters
-To execute tests you have to provide the `testPackage` and default `InstrumentOptions()`
+
+To execute tests you have to provide the `testPackage`, default `InstrumentOptions()`, `coroutineScope` and `supportedFeatures` for the
+target device.
+Caution: you have to provide the `supportedFeatures` because newer Android devices write information into the stderr for some reason.
+The textual am instrument parser doesn't support this and needs to read only stdout.
 
 ### Runner class
 Default test runner class is `android.support.test.runner.AndroidJUnitRunner` but can be changed using the `runnerClass` option. 

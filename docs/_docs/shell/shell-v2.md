@@ -24,16 +24,20 @@ The response contains separate stdout and stderr as well as an exit code.
 
 ```kotlin
 data class ShellCommandResult(
-    val stdout: String,
-    val stderr: String,
+    val stdout: ByteArray,
+    val stderr: ByteArray,
     val exitCode: Int
 )
 ```
 
+If the output is UTF-8 encoded then you can use lazy properties `output` and `errorOutput` for conversion of bytes into a String,
+e.g. `result.output`.
+
 This request expects that the command returns immediately, or you don't want to stream the output.
 
 ## Streaming shell request
-Requires Feature.SHELL_V2 
+
+Requires Feature.SHELL_V2
 {: .label .label-yellow }
 
 You can execute arbitrary commands (`cat`, `tail -f`, etc) on the device using the `ChanneledShellCommandRequest`. Shell v2 brings in
@@ -47,7 +51,7 @@ launch {
     val stdioJob = launch(Dispatchers.IO) {
         stdio.send(
             ShellCommandInputChunk(
-                stdin = "cafebabe"
+                stdin = "cafebabe".toByteArray(Charsets.UTF_8)
             )
         )
 
@@ -62,8 +66,8 @@ launch {
     val stderrBuilder = StringBuilder()
     var exitCode = 1
     for (i in receiveChannel) {
-        i.stdout?.let { stdoutBuilder.append(it) }
-        i.stderr?.let { stderrBuilder.append(it) }
+        i.stdout?.let { stdoutBuilder.append(String(it, Charsets.UTF_8)) }
+        i.stderr?.let { stderrBuilder.append(String(it, Charsets.UTF_8)) }
         i.exitCode?.let { exitCode = it }
     }
     stdioJob.join()

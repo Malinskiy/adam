@@ -16,8 +16,38 @@
 
 package com.malinskiy.adam.request.shell.v2
 
+import com.malinskiy.adam.Const
+
 data class ShellCommandResult(
-    val stdout: String,
-    val stderr: String,
+    val stdout: ByteArray,
+    val stderr: ByteArray,
     val exitCode: Int
-)
+) {
+    val output: String by lazy {
+        String(stdout, Const.DEFAULT_TRANSPORT_ENCODING)
+    }
+
+    val errorOutput: String by lazy {
+        String(stderr, Const.DEFAULT_TRANSPORT_ENCODING)
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as ShellCommandResult
+
+        if (!stdout.contentEquals(other.stdout)) return false
+        if (!stderr.contentEquals(other.stderr)) return false
+        if (exitCode != other.exitCode) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = stdout.contentHashCode()
+        result = 31 * result + stderr.contentHashCode()
+        result = 31 * result + exitCode
+        return result
+    }
+}

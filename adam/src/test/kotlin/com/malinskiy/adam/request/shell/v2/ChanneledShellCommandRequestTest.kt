@@ -19,6 +19,7 @@ package com.malinskiy.adam.request.shell.v2
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import com.malinskiy.adam.AndroidDebugBridgeClient
+import com.malinskiy.adam.Const
 import com.malinskiy.adam.server.junit4.AdbServerRule
 import io.ktor.utils.io.discard
 import kotlinx.coroutines.Dispatchers
@@ -66,14 +67,14 @@ class ChanneledShellCommandRequestTest {
             var exitCode = -1
 
             withContext(Dispatchers.IO) {
-                stdio.send(ShellCommandInputChunk("cafebabe"))
+                stdio.send(ShellCommandInputChunk("cafebabe".toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)))
                 stdio.send(ShellCommandInputChunk(close = true))
             }
 
             for (msg in updates) {
-                if (msg.stdout != null) stdoutBuffer.append(msg.stdout)
-                if (msg.stderr != null) stderrBuffer.append(msg.stderr)
-                if (msg.exitCode != null) exitCode = msg.exitCode!!
+                msg.stdout?.let { stdoutBuffer.append(String(it, Const.DEFAULT_TRANSPORT_ENCODING)) }
+                msg.stderr?.let { stderrBuffer.append(String(it, Const.DEFAULT_TRANSPORT_ENCODING)) }
+                msg.exitCode?.let { exitCode = it }
             }
 
             assertThat(stdoutBuffer.toString()).isEqualTo("foo\n")

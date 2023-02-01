@@ -22,6 +22,7 @@ import assertk.assertions.hasSize
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotEqualTo
 import assertk.assertions.startsWith
+import com.malinskiy.adam.Const
 import com.malinskiy.adam.request.device.FetchDeviceFeaturesRequest
 import com.malinskiy.adam.request.device.ListDevicesRequest
 import com.malinskiy.adam.request.framebuffer.RawImageScreenCaptureAdapter
@@ -76,7 +77,12 @@ class E2ETest {
                 ShellCommandRequest("echo hello"),
                 adbRule.deviceSerial
             )
-            assertThat(response).isEqualTo(ShellCommandResult("hello${adbRule.lineSeparator}", 0))
+            assertThat(response).isEqualTo(
+                ShellCommandResult(
+                    "hello${adbRule.lineSeparator}".toByteArray(Const.DEFAULT_TRANSPORT_ENCODING),
+                    0
+                )
+            )
         }
     }
 

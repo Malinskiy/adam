@@ -78,9 +78,11 @@ class TestRunnerE2ETest {
                     "com.example.test",
                     InstrumentOptions(
                         clazz = listOf("com.example.AbstractFailingTest")
-                    )
-                ), serial = rule.deviceSerial,
-                scope = this
+                    ),
+                    rule.supportedFeatures,
+                    this
+                ),
+                serial = rule.deviceSerial,
             )
 
             val events = mutableListOf<TestEvent>()
@@ -113,9 +115,11 @@ class TestRunnerE2ETest {
                     InstrumentOptions(
                         clazz = listOf("com.example.AbstractFailingTest")
                     ),
-                    protobuf = true
-                ), serial = rule.deviceSerial,
-                scope = this
+                    rule.supportedFeatures,
+                    this,
+                    protobuf = true,
+                ),
+                serial = rule.deviceSerial,
             )
 
             val events = mutableListOf<TestEvent>()

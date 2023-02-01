@@ -16,7 +16,7 @@
 
 package com.malinskiy.adam.request.shell.v2
 
-import com.malinskiy.adam.Const
+import com.google.common.io.ByteStreams
 import com.malinskiy.adam.exception.RequestValidationException
 import com.malinskiy.adam.request.ComplexRequest
 import com.malinskiy.adam.request.NonSpecifiedTarget
@@ -30,8 +30,8 @@ import com.malinskiy.adam.transport.withMaxPacketBuffer
 abstract class SyncShellCommandRequest<T : Any?>(val cmd: String, target: Target = NonSpecifiedTarget, socketIdleTimeout: Long? = null) :
     ComplexRequest<T>(target, socketIdleTimeout) {
 
-    private val stdoutBuilder = StringBuilder()
-    private val stderrBuilder = StringBuilder()
+    private val stdoutBuilder = ByteStreams.newDataOutput()
+    private val stderrBuilder = ByteStreams.newDataOutput()
     private var exitCode: Int = -1
 
     /**
@@ -48,19 +48,22 @@ abstract class SyncShellCommandRequest<T : Any?>(val cmd: String, target: Target
                     MessageType.STDOUT -> {
                         val length = socket.readIntLittleEndian()
                         socket.readFully(data, 0, length)
-                        stdoutBuilder.append(String(data, 0, length, Const.DEFAULT_TRANSPORT_ENCODING))
+                        stdoutBuilder.write(data, 0, length)
                     }
+
                     MessageType.STDERR -> {
                         val length = socket.readIntLittleEndian()
                         socket.readFully(data, 0, length)
-                        stderrBuilder.append(String(data, 0, length, Const.DEFAULT_TRANSPORT_ENCODING))
+                        stderrBuilder.write(data, 0, length)
                     }
+
                     MessageType.EXIT -> {
                         //ignoredLength
                         socket.readIntLittleEndian()
                         exitCode = socket.readByte().toInt()
                         break@loop
                     }
+
                     MessageType.STDIN, MessageType.CLOSE_STDIN, MessageType.WINDOW_SIZE_CHANGE, MessageType.INVALID -> {
                         throw RequestValidationException("Unsupported message $messageType")
                     }
@@ -69,8 +72,8 @@ abstract class SyncShellCommandRequest<T : Any?>(val cmd: String, target: Target
         }
 
         val shellCommandResult = ShellCommandResult(
-            stdout = stdoutBuilder.toString(),
-            stderr = stderrBuilder.toString(),
+            stdout = stdoutBuilder.toByteArray(),
+            stderr = stderrBuilder.toByteArray(),
             exitCode = exitCode
         )
 
