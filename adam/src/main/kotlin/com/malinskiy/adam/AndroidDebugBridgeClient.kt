@@ -32,6 +32,7 @@ import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.channels.produce
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.Closeable
 import java.net.InetAddress
 import java.net.InetSocketAddress
 
@@ -39,7 +40,7 @@ class AndroidDebugBridgeClient(
     val port: Int,
     val host: InetAddress,
     val socketFactory: SocketFactory
-) {
+) : Closeable {
     private val socketAddress: InetSocketAddress = InetSocketAddress(host, port)
 
     suspend fun <T : Any?> execute(request: ComplexRequest<T>, serial: String? = null): T {
@@ -136,4 +137,9 @@ class AndroidDebugBridgeClient(
     companion object {
         private val log = AdamLogging.logger {}
     }
+
+    /**
+     * If you're reusing the socket factory across multiple clients then this will affect another client
+     */
+    override fun close() = socketFactory.close()
 }
