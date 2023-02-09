@@ -193,7 +193,9 @@ class VertxSocket(private val socketAddress: SocketAddress, private val options:
                 if (read == -1) break
             }
         }
-        id?.let { vertx.undeploy(it) }
+        id?.let {
+            vertx.undeploy(it).await()
+        }
     }
 }
 

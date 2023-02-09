@@ -16,9 +16,10 @@
 
 package com.malinskiy.adam.transport
 
+import java.io.Closeable
 import java.net.InetSocketAddress
 
-interface SocketFactory {
+interface SocketFactory : Closeable {
     suspend fun tcp(socketAddress: InetSocketAddress, connectTimeout: Long? = null, idleTimeout: Long? = null): Socket
-    fun close()
+    override fun close()
 }
