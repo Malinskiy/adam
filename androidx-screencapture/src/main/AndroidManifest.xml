@@ -15,7 +15,7 @@
   ~ limitations under the License.
   -->
 
-<manifest package="com.malinskiy.adam.junit4.android.screencapture">
+<manifest>
 
-  <application/>
+  <application />
 </manifest>
