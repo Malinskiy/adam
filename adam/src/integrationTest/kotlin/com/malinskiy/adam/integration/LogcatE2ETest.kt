@@ -22,9 +22,11 @@ import com.malinskiy.adam.request.logcat.SyncLogcatRequest
 import com.malinskiy.adam.request.prop.GetSinglePropRequest
 import com.malinskiy.adam.request.shell.v1.ShellCommandRequest
 import com.malinskiy.adam.rule.AdbDeviceRule
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.debug.junit4.CoroutinesTimeout
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.runBlocking
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
@@ -94,9 +96,10 @@ class LogcatE2ETest {
 
             val content = mutableSetOf<LogLine.Log>()
             val channel = adb.adb.execute(request, this, adb.deviceSerial)
-            async {
-                delay(100)
-                for (i in 1..10) {
+
+            val background: Deferred<Unit> = async {
+                while (isActive) {
+                    delay(100)
                     //Produce artificial message in logcat
                     adb.adb.execute(ShellCommandRequest("log -t TEST_TAG \"Test message\""), adb.deviceSerial)
                 }
@@ -112,6 +115,7 @@ class LogcatE2ETest {
                 delay(100)
             }
             channel.cancel()
+            background.cancel()
 
             val zonedInstant = nowInstant.atZone(deviceTimezone.toZoneId()).minusSeconds(5)
             assertThat(content.all { it.instant.isAfter(zonedInstant) }, equalTo(true))
