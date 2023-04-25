@@ -22,11 +22,13 @@ plugins {
 }
 
 android {
-    compileSdk = 30
+    namespace = "com.malinskiy.adam.junit4.android.listener"
+
+    compileSdk = 33
 
     defaultConfig {
         minSdk = 14
-        targetSdk = 30
+        targetSdk = 33
     }
 
     sourceSets {
@@ -50,7 +52,7 @@ java {
 tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile::class) {
     kotlinOptions.jvmTarget = "1.8"
     kotlinOptions.apiVersion = "1.5"
-    kotlinOptions.languageVersion = "1.5"
+    kotlinOptions.languageVersion = "1.8"
 }
 
 dependencies {

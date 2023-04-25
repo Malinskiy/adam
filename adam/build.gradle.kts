@@ -1,3 +1,6 @@
+import com.google.protobuf.gradle.id
+import com.google.protobuf.gradle.remove
+
 /*
  * Copyright (C) 2021 Anton Malinskiy
  *
@@ -13,14 +16,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-import com.google.protobuf.gradle.builtins
-import com.google.protobuf.gradle.generateProtoTasks
-import com.google.protobuf.gradle.id
-import com.google.protobuf.gradle.plugins
-import com.google.protobuf.gradle.protobuf
-import com.google.protobuf.gradle.protoc
-import com.google.protobuf.gradle.remove
 
 plugins {
     kotlin("jvm")
@@ -109,7 +104,7 @@ val jacocoIntegrationTestReport = task<JacocoReport>("jacocoIntegrationTestRepor
     description = "Generates code coverage report for integrationTest task"
     group = "verification"
     reports {
-        xml.isEnabled = true
+        xml.required.set(true)
     }
 
     executionData(integrationTest)
@@ -130,7 +125,7 @@ val jacocoCombinedTestReport = task<JacocoReport>("jacocoCombinedTestReport") {
 
 tasks.jacocoTestReport {
     reports {
-        xml.isEnabled = true
+        xml.required.set(true)
     }
 }
 
@@ -146,7 +141,7 @@ java {
 tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile::class) {
     kotlinOptions.jvmTarget = "1.8"
     kotlinOptions.apiVersion = "1.5"
-    kotlinOptions.languageVersion = "1.5"
+    kotlinOptions.languageVersion = "1.8"
 }
 
 dependencies {
