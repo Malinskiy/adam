@@ -1,33 +1,33 @@
 object Versions {
-    val adam = System.getenv("GIT_TAG_NAME") ?: "0.5.1"
-    val kotlin = "1.8.10"
-    val coroutines = "1.6.4"
+    val adam = System.getenv("GIT_TAG_NAME") ?: "0.5.2"
+    val kotlin = "1.9.10"
+    val coroutines = "1.7.3"
     val coroutinesDebug = coroutines
 
     val annotations = "24.0.1"
-    val ktor = "2.3.0"
+    val ktor = "2.3.6"
     val logging = "3.0.5"
-    val vertx = "4.4.1"
+    val vertx = "4.4.6"
     val apacheCommonsPool2 = "2.11.1"
 
-    val assertk = "0.25"
+    val assertk = "0.27.0"
     val junit4 = "4.13.2"
-    val junit5 = "5.9.2"
-    val junit5commons = "1.9.2"
+    val junit5 = "5.10.1"
+    val junit5commons = "1.10.1"
     val imageComparison = "4.4.0"
     val dokka = kotlin
 
-    val grpc = "1.54.1"
-    val grpcKotlin = "1.3.0"
-    val grpcOkhttp = "1.54.1"
-    val protobufGradle = "0.9.2"
-    val protobuf = "3.22.3"
+    val grpc = "1.59.0"
+    val grpcKotlin = "1.4.0"
+    val grpcOkhttp = "1.59.0"
+    val protobufGradle = "0.9.4"
+    val protobuf = "3.25.0"
     val javax = "1.3.2"
 
-    val androidGradle = "7.4.1"
+    val androidGradle = "8.1.3"
     val testMonitor = "1.6.1"
     val testRunner = "1.5.2"
-    val gradleVersionsPlugin = "0.46.0"
+    val gradleVersionsPlugin = "0.49.0"
 }
 
 object BuildPlugins {
