@@ -54,13 +54,14 @@ jobs:
       - uses: malinskiy/action-android/install-sdk@release/0.1.1
       - name: integration test
         uses: malinskiy/action-android/emulator-run-cmd@release/0.1.1
-        timeout-minutes: 20
+        timeout-minutes: 25
         with:
           cmd: ./gradlew :adam:integrationTest
           cmdOptions: -no-snapshot-save -noaudio -no-boot-anim -cores 2 -memory 3072 -no-window -gpu swiftshader_indirect
           api: ${{ matrix.api }}
           tag: google_apis
           abi: x86_64
+          bootTimeout: 1200
       - name: Publish Test Report
         uses: mikepenz/action-junit-report@v3
         if: always()
