@@ -20,6 +20,7 @@ import assertk.assertThat
 import assertk.assertions.isDirectory
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFile
+import assertk.assertions.isZero
 import com.malinskiy.adam.request.shell.v1.ShellCommandRequest
 import com.malinskiy.adam.request.sync.PullRequest
 import com.malinskiy.adam.rule.AdbDeviceRule
@@ -153,6 +154,32 @@ class PullE2ETest {
             assertThat(x).isFile()
 
             assertThat(x.readText()).isEqualTo("Xcafebabe\n")
+        }
+    }
+
+    @Test
+    fun testPullFolderWithEmptyFile() {
+        runBlocking {
+            adbRule.adb.execute(ShellCommandRequest("mkdir -p /data/local/tmp/testdir/X"), adbRule.deviceSerial)
+            adbRule.adb.execute(ShellCommandRequest("touch /data/local/tmp/testdir/X/testfilex"), adbRule.deviceSerial)
+            adbRule.adb.execute(ShellCommandRequest("echo Xcafebabe > /data/local/tmp/testdir/X/testfiley"), adbRule.deviceSerial)
+
+            val dst = temp.newFolder()
+            val execute =
+                adbRule.adb.execute(
+                    PullRequest("/data/local/tmp/testdir/X", dst, adbRule.supportedFeatures),
+                    adbRule.deviceSerial
+                )
+
+            val X = File(dst, "X")
+            val x = File(X, "testfilex")
+            val y = File(X, "testfiley")
+
+            assertThat(x).isFile()
+            assertThat(y).isFile()
+
+            assertThat(x.length()).isZero()
+            assertThat(y.readText()).isEqualTo("Xcafebabe\n")
         }
     }
 }
