@@ -2,7 +2,7 @@ name: ci
 on: [push, pull_request]
 jobs:
   test:
-    runs-on: macOS-10.15
+    runs-on: macos-12
     steps:
       - uses: actions/checkout@v1
       - name: Set up JDK 11
@@ -10,7 +10,7 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '11'
-      - uses: malinskiy/action-android/install-sdk@release/0.1.1
+      - uses: malinskiy/action-android/install-sdk@release/0.1.4
       - name: build & test
         run: ./gradlew assemble test jacocoTestReport
       - name: Publish Test Report
@@ -40,7 +40,7 @@ jobs:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
   integration-test:
     needs: test
-    runs-on: macOS-10.15
+    runs-on: macos-12
     strategy:
       matrix:
         api: [ 21, 22, 23, 24, 25, 26, 28, 29, 30, 31, 33 ]
@@ -51,16 +51,17 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '11'
-      - uses: malinskiy/action-android/install-sdk@release/0.1.1
+      - uses: malinskiy/action-android/install-sdk@release/0.1.4
       - name: integration test
-        uses: malinskiy/action-android/emulator-run-cmd@release/0.1.1
-        timeout-minutes: 20
+        uses: malinskiy/action-android/emulator-run-cmd@release/0.1.4
+        timeout-minutes: 25
         with:
           cmd: ./gradlew :adam:integrationTest
           cmdOptions: -no-snapshot-save -noaudio -no-boot-anim -cores 2 -memory 3072 -no-window -gpu swiftshader_indirect
           api: ${{ matrix.api }}
           tag: google_apis
           abi: x86_64
+          bootTimeout: 1200
       - name: Publish Test Report
         uses: mikepenz/action-junit-report@v3
         if: always()

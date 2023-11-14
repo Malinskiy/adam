@@ -201,7 +201,7 @@ class FileE2ETest {
                     println()
                 }
 
-                assertThat { async.await() }.isFailure().hasClass(PullFailedException::class)
+                assertThat(runCatching<Unit> { async.await() }).isFailure().hasClass(PullFailedException::class)
             }
 
             assertThat(testFile.exists()).isFalse()
