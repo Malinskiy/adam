@@ -67,11 +67,13 @@ class PullRequest(
                         remoteFileEntry.isDirectory() -> {
                             throw PullFailedException("Can't pull folder $source: target $destination is a file")
                         }
+
                         remoteFileEntry.isRegularFile() ||
                                 remoteFileEntry.isBlockDevice() ||
                                 remoteFileEntry.isCharDevice() -> {
                             doPullFile(source, destination, remoteFileEntry.size().toLong(), serial)
                         }
+
                         remoteFileEntry.exists() -> {
                             throw PushFailedException(
                                 "Source $source exists and is not a directory or a file: mode=${
@@ -81,6 +83,7 @@ class PullRequest(
                                 }"
                             )
                         }
+
                         !remoteFileEntry.exists() -> {
                             throw PushFailedException("Source $source doesn't exist")
                         }
@@ -88,6 +91,7 @@ class PullRequest(
                         else -> false
                     }
                 }
+
                 destination.isDirectory -> {
                     when {
                         remoteFileEntry.isDirectory() -> {
@@ -96,12 +100,14 @@ class PullRequest(
                                 .last()
                             pullFolder(File(destination, basename), serial)
                         }
+
                         remoteFileEntry.isRegularFile() ||
                                 remoteFileEntry.isBlockDevice() ||
                                 remoteFileEntry.isCharDevice() -> {
                             val name = source.substringAfterLast(Const.ANDROID_FILE_SEPARATOR)
                             doPullFile(source, File(destination, name), remoteFileEntry.size().toLong(), serial)
                         }
+
                         remoteFileEntry.exists() -> {
                             throw PushFailedException(
                                 "Source $source exists and is not a directory or a file: mode=${
@@ -111,6 +117,7 @@ class PullRequest(
                                 }"
                             )
                         }
+
                         !remoteFileEntry.exists() -> {
                             throw PushFailedException("Source $source doesn't exist")
                         }
@@ -118,9 +125,11 @@ class PullRequest(
                         else -> false
                     }
                 }
+
                 !destination.exists() -> {
                     pullFolder(destination, serial)
                 }
+
                 else -> {
                     throw PushFailedException("Destination $destination is not a directory or a file")
                 }
@@ -140,6 +149,15 @@ class PullRequest(
             for (file in ls.filterNot { Const.SYNC_IGNORED_FILES.contains(it.name) }) {
                 when {
                     file.isDirectory() -> newDirs.add(currentDir + Const.ANDROID_FILE_SEPARATOR + file.name)
+                    file.isRegularFile() && file.size() == 0L.toULong() -> {
+                        val remotePath = currentDir + Const.ANDROID_FILE_SEPARATOR + file.name
+                        val remoteRelativePath = remotePath.substringAfter(source)
+                        val localRelativePath = remoteRelativePath.replace(Const.ANDROID_FILE_SEPARATOR, File.separator)
+                        val local = File(destinationRoot.absolutePath, localRelativePath)
+                        local.parentFile.mkdirs()
+                        local.createNewFile()
+                    }
+
                     file.isRegularFile() || file.isCharDevice() || file.isBlockDevice() -> {
                         val remotePath = currentDir + Const.ANDROID_FILE_SEPARATOR + file.name
                         val remoteRelativePath = remotePath.substringAfter(source)
