@@ -56,7 +56,7 @@ abstract class SyncShellCommandRequest<T : Any?>(val cmd: String, target: Target
                         exitCode = socket.readByte().toInt()
                         break@loop
                     }
-                    
+
                     MessageType.STDIN, MessageType.CLOSE_STDIN, MessageType.WINDOW_SIZE_CHANGE, MessageType.INVALID -> {
                         throw RequestValidationException("Unsupported message $messageType")
                     }
