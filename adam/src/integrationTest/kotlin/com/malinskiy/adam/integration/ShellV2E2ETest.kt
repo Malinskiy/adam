@@ -52,18 +52,18 @@ class ShellV2E2ETest {
         val receiveChannel = adbRule.adb.execute(ChanneledShellCommandRequest("cat", stdio), this, adbRule.deviceSerial)
         //Sending commands requires additional pool, otherwise we might deadlock
         val stdioJob = launch(Dispatchers.IO) {
-            stdio.send(
-                ShellCommandInputChunk(
-                    stdin = "cafebabe".toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
-                )
-            )
+                    stdio.send(
+                            ShellCommandInputChunk(
+                                    stdin = "cafebabe".toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
+                            )
+                    )
 
-            stdio.send(
+                    stdio.send(
                 ShellCommandInputChunk(
                     close = true
                 )
             )
-        }
+                }
 
         val stdoutBuilder = StringBuilder()
         val stderrBuilder = StringBuilder()
@@ -78,6 +78,12 @@ class ShellV2E2ETest {
         assertThat(stdoutBuilder.toString()).isEqualTo("cafebabe")
         assertThat(stderrBuilder.toString()).isEmpty()
         assertThat(exitCode).isEqualTo(0)
+    }
 
+    @Test
+    fun testChanneled_largeSocketBuffer_noIndexOutOfBoundsExceptionThrown() = runBlocking {
+        repeat(10) {    // May not always occur the first time. Attempt several.
+            adbRule.adb.execute(ShellCommandRequest("dumpsys window windows"), adbRule.deviceSerial)
+        }
     }
 }
