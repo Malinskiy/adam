@@ -57,7 +57,7 @@ jobs:
         timeout-minutes: 25
         with:
           cmd: ./gradlew :adam:integrationTest
-          cmdOptions: -no-snapshot-save -noaudio -no-boot-anim -cores 2 -memory 3072 -no-window -gpu swiftshader_indirect
+          cmdOptions: -no-snapshot-save -noaudio -no-boot-anim -cores 2 -memory 3072 -no-window -gpu swiftshader_indirect -grpc 8554
           api: ${{ matrix.api }}
           tag: google_apis
           abi: x86_64
