@@ -46,15 +46,23 @@ abstract class SyncShellCommandRequest<T : Any?>(val cmd: String, target: Target
             loop@ while (true) {
                 when (val messageType = MessageType.of(socket.readByte().toInt())) {
                     MessageType.STDOUT -> {
-                        val length = socket.readIntLittleEndian()
-                        socket.readFully(data, 0, length)
-                        stdoutBuilder.write(data, 0, length)
+                        var length = socket.readIntLittleEndian()
+                        while (length > 0) {
+                            val toRead = minOf(data.size, length)
+                            socket.readFully(data, 0, toRead)
+                            stdoutBuilder.write(data.copyOfRange(0, toRead))
+                            length -= toRead
+                        }
                     }
 
                     MessageType.STDERR -> {
-                        val length = socket.readIntLittleEndian()
-                        socket.readFully(data, 0, length)
-                        stderrBuilder.write(data, 0, length)
+                        var length = socket.readIntLittleEndian()
+                        while (length > 0) {
+                            val toRead = minOf(data.size, length)
+                            socket.readFully(data, 0, toRead)
+                            stderrBuilder.write(data.copyOfRange(0, toRead))
+                            length -= toRead
+                        }
                     }
 
                     MessageType.EXIT -> {
