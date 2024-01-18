@@ -306,4 +306,20 @@ class InstrumentationResponseTransformerTest {
         assertThat(events.map { it.toString() }.reduce { acc, s -> acc + "\n" + s })
             .isEqualTo(javaClass.getResourceAsStream("/instrumentation/log_12.expected").reader().readText().trimEnd())
     }
+
+    @Test
+    fun missingListenerTest() = runBlocking {
+        val transformer = InstrumentationResponseTransformer()
+        val lines = javaClass.getResourceAsStream("/instrumentation/log_13.input").reader().readText()
+
+        val events = mutableListOf<TestEvent>()
+        val bytes = (lines).toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
+        transformer.process(bytes, 0, bytes.size)?.let {
+            events.addAll(it)
+        }
+        transformer.transform()?.let { events.addAll(it) }
+
+        assertThat(events.map { it.toString() }.reduce { acc, s -> acc + "\n" + s })
+            .isEqualTo(javaClass.getResourceAsStream("/instrumentation/log_13.expected").reader().readText().trimEnd())
+    }
 }

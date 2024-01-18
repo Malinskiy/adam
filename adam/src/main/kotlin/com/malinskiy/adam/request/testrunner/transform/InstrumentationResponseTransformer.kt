@@ -25,6 +25,7 @@ import com.malinskiy.adam.request.testrunner.TestIdentifier
 import com.malinskiy.adam.request.testrunner.TestIgnored
 import com.malinskiy.adam.request.testrunner.TestRunEnded
 import com.malinskiy.adam.request.testrunner.TestRunFailed
+import com.malinskiy.adam.request.testrunner.TestRunFailing
 import com.malinskiy.adam.request.testrunner.TestRunStartedEvent
 import com.malinskiy.adam.request.testrunner.TestStarted
 import com.malinskiy.adam.request.testrunner.model.Status
@@ -163,11 +164,16 @@ class InstrumentationResponseTransformer : ProgressiveResponseTransformer<List<T
                 val className = parameters["class"]
                 val testName = parameters["test"]
                 val stack = parameters["stack"]
-                if (className != null && testName != null && stack != null) {
-                    val id = TestIdentifier(className, testName)
-                    events.add(TestFailed(id, stack))
-                    events.add(TestEnded(id, testMetrics))
-                    testMetrics = linkedMapOf()
+                val stream = parameters["stream"]
+                if (stack != null) {
+                    if (className != null && testName != null) {
+                        val id = TestIdentifier(className, testName)
+                        events.add(TestFailed(id, stack))
+                        events.add(TestEnded(id, testMetrics))
+                        testMetrics = linkedMapOf()
+                    } else {
+                        events.add(TestRunFailing(error = stream ?: "Unexpected failure during execution", stack))
+                    }
                 }
                 testsExecuted += 1
             }
