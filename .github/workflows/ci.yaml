@@ -57,7 +57,7 @@ jobs:
         timeout-minutes: 25
         with:
           cmd: ./gradlew :adam:integrationTest
-          cmdOptions: -no-snapshot-save -noaudio -no-boot-anim -cores 2 -memory 3072 -no-window -gpu swiftshader_indirect
+          cmdOptions: -no-snapshot-save -noaudio -no-boot-anim -cores 2 -memory 3072 -no-window -gpu swiftshader_indirect -grpc 8554
           api: ${{ matrix.api }}
           tag: google_apis
           abi: x86_64
@@ -77,19 +77,19 @@ jobs:
         if: failure()
         with:
           name: integration-test-result
-          path: integration-test-result.zip
+          path: integration-test-${{ matrix.api }}-result.zip
       - name: archive test coverage
         run: (cd adam/build/reports/jacoco/jacocoIntegrationTestReport/html; zip -r -X ../../../../../../integration-test-coverage.zip .)
       - name: Save coverage output
         uses: actions/upload-artifact@master
         with:
-          name: integration-test-coverage
+          name: integration-test-${{ matrix.api }}-coverage
           path: integration-test-coverage.zip
       - name: Save logcat output
         uses: actions/upload-artifact@master
         if: failure()
         with:
-          name: logcat
+          name: logcat-${{ matrix.api }}
           path: artifacts/logcat.log
       - name: codecov integartion tests
         run: bash <(curl -s https://codecov.io/bash) -f ./adam/build/reports/jacoco/jacocoIntegrationTestReport/jacocoIntegrationTestReport.xml -F integration
