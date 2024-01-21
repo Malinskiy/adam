@@ -1,0 +1,38 @@
+TestRunFailing(error=
+Process crashed before executing the test(s):
+java.lang.RuntimeException: Exception thrown in onCreate() of ComponentInfo{com.example.test/androidx.test.runner.AndroidJUnitRunner}: java.lang.IllegalArgumentException: Could not find extra class com.malinskiy.adam.junit4.android.listener.TestAnnotationProducer
+        at android.app.ActivityThread.handleBindApplication(ActivityThread.java:6709)
+        at android.app.ActivityThread.access$1300(ActivityThread.java:237)
+        at android.app.ActivityThread$H.handleMessage(ActivityThread.java:1913)
+        at android.os.Handler.dispatchMessage(Handler.java:106)
+        at android.os.Looper.loop(Looper.java:223)
+        at android.app.ActivityThread.main(ActivityThread.java:7656)
+        at java.lang.reflect.Method.invoke(Native Method)
+        at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:592)
+        at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:947)
+Caused by: java.lang.IllegalArgumentException: Could not find extra class com.malinskiy.adam.junit4.android.listener.TestAnnotationProducer
+        at androidx.test.internal.runner.RunnerArgs$Builder.loadClassByNameInstantiateAndAdd(RunnerArgs.java:620)
+        at androidx.test.internal.runner.RunnerArgs$Builder.parseLoadAndInstantiateClasses(RunnerArgs.java:547)
+        at androidx.test.internal.runner.RunnerArgs$Builder.fromBundle(RunnerArgs.java:282)
+        at androidx.test.runner.AndroidJUnitRunner.parseRunnerArgs(AndroidJUnitRunner.java:393)
+        at androidx.test.runner.AndroidJUnitRunner.onCreate(AndroidJUnitRunner.java:302)
+        at android.app.ActivityThread.handleBindApplication(ActivityThread.java:6704)
+        ... 8 more, stackTrace=java.lang.RuntimeException: Exception thrown in onCreate() of ComponentInfo{com.example.test/androidx.test.runner.AndroidJUnitRunner}: java.lang.IllegalArgumentException: Could not find extra class com.malinskiy.adam.junit4.android.listener.TestAnnotationProducer
+        at android.app.ActivityThread.handleBindApplication(ActivityThread.java:6709)
+        at android.app.ActivityThread.access$1300(ActivityThread.java:237)
+        at android.app.ActivityThread$H.handleMessage(ActivityThread.java:1913)
+        at android.os.Handler.dispatchMessage(Handler.java:106)
+        at android.os.Looper.loop(Looper.java:223)
+        at android.app.ActivityThread.main(ActivityThread.java:7656)
+        at java.lang.reflect.Method.invoke(Native Method)
+        at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:592)
+        at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:947)
+Caused by: java.lang.IllegalArgumentException: Could not find extra class com.malinskiy.adam.junit4.android.listener.TestAnnotationProducer
+        at androidx.test.internal.runner.RunnerArgs$Builder.loadClassByNameInstantiateAndAdd(RunnerArgs.java:620)
+        at androidx.test.internal.runner.RunnerArgs$Builder.parseLoadAndInstantiateClasses(RunnerArgs.java:547)
+        at androidx.test.internal.runner.RunnerArgs$Builder.fromBundle(RunnerArgs.java:282)
+        at androidx.test.runner.AndroidJUnitRunner.parseRunnerArgs(AndroidJUnitRunner.java:393)
+        at androidx.test.runner.AndroidJUnitRunner.onCreate(AndroidJUnitRunner.java:302)
+        at android.app.ActivityThread.handleBindApplication(ActivityThread.java:6704)
+        ... 8 more)
+TestRunEnded(elapsedTimeMillis=0, metrics={})
