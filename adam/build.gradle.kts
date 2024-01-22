@@ -93,6 +93,13 @@ val integrationTest = task<Test>("integrationTest") {
 }
 integrationTest.outputs.upToDateWhen { false }
 
+// See https://github.com/jacoco/jacoco/issues/1357
+tasks.withType<Test> {
+    extensions.configure<JacocoTaskExtension> {
+        includes = listOf("com.malinskiy.adam.*")
+    }
+}
+
 val connectedAndroidTest = task<Test>("connectedAndroidTest") {
     description = "Runs integration tests"
     group = "verification"
