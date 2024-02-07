@@ -33,7 +33,7 @@ import kotlin.reflect.full.memberProperties
  * com.example.FailedAssumptionTest:
  * INSTRUMENTATION_STATUS: test=ignoreTest
  * INSTRUMENTATION_STATUS_CODE: 1
- * INSTRUMENTATION_STATUS: com.malinskiy.adam.junit4.android.listener.TestAnnotationProducer.v2=[androidx.test.filters.SmallTest(), io.qameta.allure.kotlin.Severity(value=critical), io.qameta.allure.kotlin.Story(value=Slow), org.junit.Test(expected=class org.junit.Test$None:timeout=0), io.qameta.allure.kotlin.Owner(value=user2), io.qameta.allure.kotlin.Feature(value=Text on main screen), io.qameta.allure.kotlin.Epic(value=General), org.junit.runner.RunWith(value=class io.qameta.allure.android.runners.AllureAndroidJUnit4), kotlin.Metadata(bytecodeVersion=[I@bdf6b25:data1=[Ljava.lang.String;@46414fa:data2=[Ljava.lang.String;@5d4aab:extraInt=0:extraString=:kind=1:metadataVersion=[I@fbb1508:packageName=), io.qameta.allure.kotlin.Severity(value=critical), io.qameta.allure.kotlin.Story(value=Slow)]
+ * INSTRUMENTATION_STATUS: com.malinskiy.adam.junit4.android.listener.TestAnnotationProducer.v3=[io.qameta.allure.kotlin.TmsLink(29Lvalue=https://marathonlabs.io), org.junit.Test(34Lexpected=class org.junit.Test$None, 9Ltimeout=0), io.qameta.allure.kotlin.Story(10Lvalue=Slow), org.junit.runner.RunWith(64Lvalue=class io.qameta.allure.android.runners.AllureAndroidJUnit4), io.qameta.allure.kotlin.Owner(11Lvalue=user2), kotlin.Metadata(26LbytecodeVersion=[I@7817b26, 33Ldata1=[Ljava.lang.String;@b0b3367, 33Ldata2=[Ljava.lang.String;@6187514, 11LextraInt=48, 12LextraString=, 6Lkind=1, 26LmetadataVersion=[I@d8e21bd, 12LpackageName=), io.qameta.allure.kotlin.Epic(13Lvalue=General), io.qameta.allure.kotlin.Feature(25Lvalue=Text on main screen), io.qameta.allure.kotlin.Severity(14Lvalue=critical)]
  * INSTRUMENTATION_STATUS_CODE: 2
  * INSTRUMENTATION_STATUS: class=com.example.FailedAssumptionTest
  * INSTRUMENTATION_STATUS: current=4
@@ -50,12 +50,15 @@ class TestAnnotationProducer : RunListener() {
                 (description.annotations.toList() + description.testClass.annotations.toList()).mapNotNull { annotation ->
                     val fqn = annotation.annotationClass.qualifiedName
                     val parameters =
-                        annotation.annotationClass.memberProperties.joinToString(separator = ":") { "${it.name}=${it.getter.call(annotation)}" }
+                        annotation.annotationClass.memberProperties.joinToString("") {
+                            val serialized = "${it.name}=${it.getter.call(annotation)}"
+                            "${serialized.length}L$serialized"
+                        }
                     "$fqn($parameters)"
                 }.toSet()
             val bundle = Bundle(1)
             bundle.putStringArrayList(
-                "com.malinskiy.adam.junit4.android.listener.TestAnnotationProducer.v2",
+                "com.malinskiy.adam.junit4.android.listener.TestAnnotationProducer.v3",
                 ArrayList(annotations)
             )
             InstrumentationRegistry.getInstrumentation().sendStatus(2, bundle)
