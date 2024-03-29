@@ -33,7 +33,7 @@ import kotlin.reflect.full.memberProperties
  * com.example.FailedAssumptionTest:
  * INSTRUMENTATION_STATUS: test=ignoreTest
  * INSTRUMENTATION_STATUS_CODE: 1
- * INSTRUMENTATION_STATUS: com.malinskiy.adam.junit4.android.listener.TestAnnotationProducer.v3=[io.qameta.allure.kotlin.TmsLink(29Lvalue=https://marathonlabs.io), org.junit.Test(34Lexpected=class org.junit.Test$None, 9Ltimeout=0), io.qameta.allure.kotlin.Story(10Lvalue=Slow), org.junit.runner.RunWith(64Lvalue=class io.qameta.allure.android.runners.AllureAndroidJUnit4), io.qameta.allure.kotlin.Owner(11Lvalue=user2), kotlin.Metadata(26LbytecodeVersion=[I@7817b26, 33Ldata1=[Ljava.lang.String;@b0b3367, 33Ldata2=[Ljava.lang.String;@6187514, 11LextraInt=48, 12LextraString=, 6Lkind=1, 26LmetadataVersion=[I@d8e21bd, 12LpackageName=), io.qameta.allure.kotlin.Epic(13Lvalue=General), io.qameta.allure.kotlin.Feature(25Lvalue=Text on main screen), io.qameta.allure.kotlin.Severity(14Lvalue=critical)]
+ * INSTRUMENTATION_STATUS: com.malinskiy.adam.junit4.android.listener.TestAnnotationProducer.v4=[64Lorg.junit.Test(34Lexpected=class org.junit.Test$None9Ltimeout=0), 46Lio.qameta.allure.kotlin.Epic(13Lvalue=General), 93Lorg.junit.runner.RunWith(64Lvalue=class io.qameta.allure.android.runners.AllureAndroidJUnit4), 65Lio.qameta.allure.kotlin.Feature(29Lvalue=Graphics on main screen), 45Lio.qameta.allure.kotlin.Owner(11Lvalue=user2), 44Lio.qameta.allure.kotlin.Story(10Lvalue=Slow), 51Lio.qameta.allure.kotlin.Severity(14Lvalue=critical), 197Lkotlin.Metadata(26LbytecodeVersion=[I@199c8a631Ldata1=[Ljava.lang.String;@132e733Ldata2=[Ljava.lang.String;@3af3e9411LextraInt=4812LextraString=6Lkind=126LmetadataVersion=[I@126ed3d12LpackageName=)]
  * INSTRUMENTATION_STATUS_CODE: 2
  * INSTRUMENTATION_STATUS: class=com.example.FailedAssumptionTest
  * INSTRUMENTATION_STATUS: current=4
@@ -54,11 +54,12 @@ class TestAnnotationProducer : RunListener() {
                             val serialized = "${it.name}=${it.getter.call(annotation)}"
                             "${serialized.length}L$serialized"
                         }
-                    "$fqn($parameters)"
+                    val annotation = "$fqn($parameters)"
+                    "${annotation.length}L$annotation"
                 }.toSet()
             val bundle = Bundle(1)
             bundle.putStringArrayList(
-                "com.malinskiy.adam.junit4.android.listener.TestAnnotationProducer.v3",
+                "com.malinskiy.adam.junit4.android.listener.TestAnnotationProducer.v4",
                 ArrayList(annotations)
             )
             InstrumentationRegistry.getInstrumentation().sendStatus(2, bundle)
