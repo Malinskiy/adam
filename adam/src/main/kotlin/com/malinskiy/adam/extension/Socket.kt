@@ -26,6 +26,7 @@ import com.malinskiy.adam.transport.Socket
 import com.malinskiy.adam.transport.TransportResponse
 import com.malinskiy.adam.transport.use
 import com.malinskiy.adam.transport.withDefaultBuffer
+import com.malinskiy.adam.transport.withMaxPacketBuffer
 import kotlinx.coroutines.yield
 import java.io.File
 import java.nio.ByteBuffer
@@ -41,6 +42,7 @@ suspend fun <T> Socket.copyTo(transformer: ResponseTransformer<T>, buffer: ByteA
             limit == null || (limit - processed) > buffer.size -> {
                 buffer.size
             }
+
             else -> {
                 (limit - processed).toInt()
             }
@@ -54,11 +56,13 @@ suspend fun <T> Socket.copyTo(transformer: ResponseTransformer<T>, buffer: ByteA
             available < 0 -> {
                 break@loop
             }
+
             available > 0 -> {
                 transformer.process(buffer, 0, available)
                 processed += available
                 yield()
             }
+
             else -> {
                 yield()
                 continue@loop
@@ -98,7 +102,7 @@ suspend fun Socket.readOptionalProtocolString(): String? {
  * @throws RequestRejectedException
  */
 suspend fun Socket.readProtocolString(): String {
-    withDefaultBuffer {
+    withMaxPacketBuffer {
         val transformer = StringResponseTransformer()
         val copied = copyTo(transformer, this, limit = 4L)
         val length = transformer.transform()
