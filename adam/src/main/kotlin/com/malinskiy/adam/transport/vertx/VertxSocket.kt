@@ -130,6 +130,7 @@ class VertxSocket(private val socketAddress: SocketAddress, private val options:
             val read = readAvailable(buffer.array(), offset + total, limit - total)
             if (read == -1) {
                 assert(!buffer.hasRemaining()) { "Expected $limit bytes, received $total" }
+                break
             } else {
                 total += read
             }
