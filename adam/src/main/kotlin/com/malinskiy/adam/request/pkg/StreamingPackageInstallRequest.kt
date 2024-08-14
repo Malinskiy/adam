@@ -46,7 +46,7 @@ class StreamingPackageInstallRequest(
     private val reinstall: Boolean,
     private val extraArgs: List<String> = emptyList(),
     val coroutineContext: CoroutineContext = Dispatchers.IO
-) : ComplexRequest<Boolean>() {
+) : ComplexRequest<StreamingPackageInstallResult>() {
     private val transformer = StringResponseTransformer()
 
     override fun validate(): ValidationResponse {
@@ -110,7 +110,7 @@ class StreamingPackageInstallRequest(
         }
     }
 
-    override suspend fun readElement(socket: Socket): Boolean {
+    override suspend fun readElement(socket: Socket): StreamingPackageInstallResult {
         AsyncFileReader(pkg, coroutineContext = coroutineContext).use { reader ->
             reader.start()
             reader.copyTo(socket)
@@ -119,10 +119,14 @@ class StreamingPackageInstallRequest(
         withDefaultBuffer {
             socket.copyTo(transformer, this)
         }
-        return transformer.transform().startsWith("Success")
+        val output = transformer.transform()
+        val success = output.startsWith("Success")
+        return StreamingPackageInstallResult(output, success)
     }
 
     companion object {
         val SUPPORTED_EXTENSIONS = setOf("apk", "apex")
     }
 }
+
+data class StreamingPackageInstallResult(val output: String, val success: Boolean)
