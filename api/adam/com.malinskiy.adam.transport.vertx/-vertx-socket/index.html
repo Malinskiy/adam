@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
+    <title>VertxSocket</title>
+    <link href="../../../images/logo-icon.svg" rel="icon" type="image/svg">
+    <script>var pathToRoot = "../../../";</script>
+    <script>const storage = localStorage.getItem("dokka-dark-mode")
+    if (storage == null) {
+        const osDarkSchemePreferred = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+        if (osDarkSchemePreferred === true) {
+            document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+    } else {
+        const savedDarkMode = JSON.parse(storage)
+        if(savedDarkMode === true) {
+            document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+    }
+    </script>
+<script type="text/javascript" src="../../../scripts/sourceset_dependencies.js" async="async"></script>
+<link href="../../../styles/style.css" rel="Stylesheet">
+<link href="../../../styles/jetbrains-mono.css" rel="Stylesheet">
+<link href="../../../styles/main.css" rel="Stylesheet">
+<link href="../../../styles/prism.css" rel="Stylesheet">
+<link href="../../../styles/logo-styles.css" rel="Stylesheet">
+<script type="text/javascript" src="../../../scripts/clipboard.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/navigation-loader.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/platform-content-handler.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/main.js" defer="defer"></script>
+<script type="text/javascript" src="../../../scripts/prism.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/symbol-parameters-wrapper_deferred.js" defer="defer"></script>
+</head>
+<body>
+<div class="navigation-wrapper" id="navigation-wrapper">
+    <div id="leftToggler"><span class="icon-toggler"></span></div>
+    <div class="library-name">
+            <a href="../../../index.html">
+                    <span>adam</span>
+            </a>
+    </div>
+    <div>
+0.5.7-SNAPSHOT    </div>
+    <div class="pull-right d-flex">
+        <div class="filter-section" id="filter-section">
+                <button class="platform-tag platform-selector jvm-like" data-active="" data-filter=":adam:dokkaHtml/main">jvm</button>
+        </div>
+        <button id="theme-toggle-button"><span id="theme-toggle"></span></button>
+        <div id="searchBar"></div>
+    </div>
+</div>
+<div id="container">
+    <div id="leftColumn">
+        <div id="sideMenu"></div>
+    </div>
+    <div id="main">
+<div class="main-content" data-page-type="classlike" id="content" pageIds="adam::com.malinskiy.adam.transport.vertx/VertxSocket///PointingToDeclaration//423898102">
+  <div class="breadcrumbs"><a href="../../../index.html">adam</a><span class="delimiter">/</span><a href="../index.html">com.malinskiy.adam.transport.vertx</a><span class="delimiter">/</span><span class="current">VertxSocket</span></div>
+  <div class="cover ">
+    <h1 class="cover"><span>Vertx</span><wbr></wbr><span><span>Socket</span></span></h1>
+    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":adam:dokkaHtml/main"><div class="symbol monospace"><span class="token keyword">class </span><a href="index.html">VertxSocket</a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">socketAddress<span class="token operator">: </span><span data-unresolved-link="io.vertx.core.net/SocketAddress///PointingToDeclaration/">SocketAddress</span><span class="token punctuation">, </span></span><span class="parameter ">options<span class="token operator">: </span><span data-unresolved-link="io.vertx.core.net/NetClientOptions///PointingToDeclaration/">NetClientOptions</span></span></span><span class="token punctuation">)</span> : <span data-unresolved-link="io.vertx.kotlin.coroutines/CoroutineVerticle///PointingToDeclaration/">CoroutineVerticle</span>, <a href="../../com.malinskiy.adam.transport/-socket/index.html">Socket</a></div></div></div>
+  </div>
+  <div class="tabbedcontent">
+    <div class="tabs-section" tabs-section="tabs-section"><button class="section-tab" data-active="" data-togglable="CONSTRUCTOR,TYPE,FUNCTION,PROPERTY">Members</button><button class="section-tab" data-togglable="CONSTRUCTOR,TYPE,FUNCTION,PROPERTY,EXTENSION_PROPERTY,EXTENSION_FUNCTION">Members &amp; Extensions</button></div>
+    <div class="tabs-section-body">
+      <div data-togglable="CONSTRUCTOR">
+        <h2 class="">Constructors</h2>
+        <div class="table"><a data-name="-175354668%2FConstructors%2F423898102" anchor-label="VertxSocket" id="-175354668%2FConstructors%2F423898102" data-filterable-set=":adam:dokkaHtml/main"></a>
+          <div class="table-row" data-togglable="CONSTRUCTOR" data-filterable-current=":adam:dokkaHtml/main" data-filterable-set=":adam:dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-vertx-socket.html"><span>Vertx</span><wbr></wbr><span><span>Socket</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-175354668%2FConstructors%2F423898102"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":adam:dokkaHtml/main"><div class="symbol monospace"><span class="token keyword">constructor</span><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">socketAddress<span class="token operator">: </span><span data-unresolved-link="io.vertx.core.net/SocketAddress///PointingToDeclaration/">SocketAddress</span><span class="token punctuation">, </span></span><span class="parameter ">options<span class="token operator">: </span><span data-unresolved-link="io.vertx.core.net/NetClientOptions///PointingToDeclaration/">NetClientOptions</span></span></span><span class="token punctuation">)</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div data-togglable="FUNCTION">
+        <h2 class="">Functions</h2>
+        <div class="table"><a data-name="-1003558192%2FFunctions%2F423898102" anchor-label="close" id="-1003558192%2FFunctions%2F423898102" data-filterable-set=":adam:dokkaHtml/main"></a>
+          <div class="table-row" data-filterable-current=":adam:dokkaHtml/main" data-filterable-set=":adam:dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="close.html"><span><span>close</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1003558192%2FFunctions%2F423898102"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":adam:dokkaHtml/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">suspend override </span><span class="token keyword">fun </span><a href="close.html"><span class="token function">close</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-654157737%2FFunctions%2F423898102" anchor-label="copyTo" id="-654157737%2FFunctions%2F423898102" data-filterable-set=":adam:dokkaHtml/main"></a>
+          <div class="table-row" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":adam:dokkaHtml/main" data-filterable-set=":adam:dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../../com.malinskiy.adam.extension/copy-to.html"><span>copy</span><wbr></wbr><span><span>To</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-654157737%2FFunctions%2F423898102"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":adam:dokkaHtml/main"><div class="symbol monospace"><span class="token keyword">suspend </span><span class="token keyword">fun </span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="../../com.malinskiy.adam.extension/copy-to.html">T</a><span class="token operator">&gt; </span><a href="../../com.malinskiy.adam.transport/-socket/index.html">Socket</a><span class="token punctuation">.</span><a href="../../com.malinskiy.adam.extension/copy-to.html"><span class="token function">copyTo</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">transformer<span class="token operator">: </span><a href="../../com.malinskiy.adam.request.transform/-response-transformer/index.html">ResponseTransformer</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="../../com.malinskiy.adam.extension/copy-to.html">T</a><span class="token operator">&gt;</span><span class="token punctuation">, </span></span><span class="parameter ">buffer<span class="token operator">: </span><a href="https://docs.oracle.com/javase/8/docs/api/java/nio/ByteBuffer.html">ByteBuffer</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin-stdlib/kotlin/-long/index.html">Long</a></div><div class="brief "><p class="paragraph">TODO: rewrite Assumes buffer hasArray == true</p></div><div class="symbol monospace"><span class="token keyword">suspend </span><span class="token keyword">fun </span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="../../com.malinskiy.adam.extension/copy-to.html">T</a><span class="token operator">&gt; </span><a href="../../com.malinskiy.adam.transport/-socket/index.html">Socket</a><span class="token punctuation">.</span><a href="../../com.malinskiy.adam.extension/copy-to.html"><span class="token function">copyTo</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">transformer<span class="token operator">: </span><a href="../../com.malinskiy.adam.request.transform/-response-transformer/index.html">ResponseTransformer</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="../../com.malinskiy.adam.extension/copy-to.html">T</a><span class="token operator">&gt;</span><span class="token punctuation">, </span></span><span class="parameter ">buffer<span class="token operator">: </span><a href="https://docs.oracle.com/javase/8/docs/api/java/nio/ByteBuffer.html">ByteBuffer</a><span class="token punctuation">, </span></span><span class="parameter ">limit<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin-stdlib/kotlin/-long/index.html">Long</a><span class="token operator">?</span><span class="token operator"> = </span>null</span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin-stdlib/kotlin/-long/index.html">Long</a></div><br><div class="symbol monospace"><span class="token keyword">suspend </span><span class="token keyword">fun </span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="../../com.malinskiy.adam.extension/copy-to.html">T</a><span class="token operator">&gt; </span><a href="../../com.malinskiy.adam.transport/-socket/index.html">Socket</a><span class="token punctuation">.</span><a href="../../com.malinskiy.adam.extension/copy-to.html"><span class="token function">copyTo</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">transformer<span class="token operator">: </span><a href="../../com.malinskiy.adam.request.transform/-response-transformer/index.html">ResponseTransformer</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="../../com.malinskiy.adam.extension/copy-to.html">T</a><span class="token operator">&gt;</span><span class="token punctuation">, </span></span><span class="parameter ">buffer<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin-stdlib/kotlin/-byte-array/index.html">ByteArray</a><span class="token punctuation">, </span></span><span class="parameter ">limit<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin-stdlib/kotlin/-long/index.html">Long</a><span class="token operator">?</span><span class="token operator"> = </span>null</span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin-stdlib/kotlin/-long/index.html">Long</a></div><div class="brief "><p class="paragraph">Copies up to limit bytes into transformer using buffer. If limit is null - copy until EOF</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-944105853%2FFunctions%2F423898102" anchor-label="getVertx" id="-944105853%2FFunctions%2F423898102" data-filterable-set=":adam:dokkaHtml/main"></a>
+          <div class="table-row" data-filterable-current=":adam:dokkaHtml/main" data-filterable-set=":adam:dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="index.html#-944105853%2FFunctions%2F423898102"><span>get</span><wbr></wbr><span><span>Vertx</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-944105853%2FFunctions%2F423898102"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":adam:dokkaHtml/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><a href="index.html#-944105853%2FFunctions%2F423898102"><span class="token function">getVertx</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><span data-unresolved-link="io.vertx.core/Vertx///PointingToDeclaration/">Vertx</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1500745717%2FFunctions%2F423898102" anchor-label="init" id="-1500745717%2FFunctions%2F423898102" data-filterable-set=":adam:dokkaHtml/main"></a>
+          <div class="table-row" data-filterable-current=":adam:dokkaHtml/main" data-filterable-set=":adam:dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="index.html#-1500745717%2FFunctions%2F423898102"><span><span>init</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1500745717%2FFunctions%2F423898102"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":adam:dokkaHtml/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><a href="index.html#-1500745717%2FFunctions%2F423898102"><span class="token function">init</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">vertx<span class="token operator">: </span><span data-unresolved-link="io.vertx.core/Vertx///PointingToDeclaration/">Vertx</span><span class="token punctuation">, </span></span><span class="parameter ">context<span class="token operator">: </span><span data-unresolved-link="io.vertx.core/Context///PointingToDeclaration/">Context</span></span></span><span class="token punctuation">)</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1284705169%2FFunctions%2F423898102" anchor-label="readAvailable" id="1284705169%2FFunctions%2F423898102" data-filterable-set=":adam:dokkaHtml/main"></a>
+          <div class="table-row" data-filterable-current=":adam:dokkaHtml/main" data-filterable-set=":adam:dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="read-available.html"><span>read</span><wbr></wbr><span><span>Available</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1284705169%2FFunctions%2F423898102"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":adam:dokkaHtml/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">suspend override </span><span class="token keyword">fun </span><a href="read-available.html"><span class="token function">readAvailable</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">buffer<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin-stdlib/kotlin/-byte-array/index.html">ByteArray</a><span class="token punctuation">, </span></span><span class="parameter ">offset<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin-stdlib/kotlin/-int/index.html">Int</a><span class="token punctuation">, </span></span><span class="parameter ">limit<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin-stdlib/kotlin/-int/index.html">Int</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin-stdlib/kotlin/-int/index.html">Int</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1002273836%2FFunctions%2F423898102" anchor-label="readByte" id="-1002273836%2FFunctions%2F423898102" data-filterable-set=":adam:dokkaHtml/main"></a>
+          <div class="table-row" data-filterable-current=":adam:dokkaHtml/main" data-filterable-set=":adam:dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="read-byte.html"><span>read</span><wbr></wbr><span><span>Byte</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1002273836%2FFunctions%2F423898102"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":adam:dokkaHtml/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">suspend override </span><span class="token keyword">fun </span><a href="read-byte.html"><span class="token function">readByte</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin-stdlib/kotlin/-byte/index.html">Byte</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1601341604%2FFunctions%2F423898102" anchor-label="readFully" id="-1601341604%2FFunctions%2F423898102" data-filterable-set=":adam:dokkaHtml/main"></a>
+          <div class="table-row" data-filterable-current=":adam:dokkaHtml/main" data-filterable-set=":adam:dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="read-fully.html"><span>read</span><wbr></wbr><span><span>Fully</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1601341604%2FFunctions%2F423898102"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":adam:dokkaHtml/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">suspend override </span><span class="token keyword">fun </span><a href="read-fully.html"><span class="token function">readFully</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">buffer<span class="token operator">: </span><a href="https://docs.oracle.com/javase/8/docs/api/java/nio/ByteBuffer.html">ByteBuffer</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin-stdlib/kotlin/-int/index.html">Int</a></div><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">suspend override </span><span class="token keyword">fun </span><a href="read-fully.html"><span class="token function">readFully</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">buffer<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin-stdlib/kotlin/-byte-array/index.html">ByteArray</a><span class="token punctuation">, </span></span><span class="parameter ">offset<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin-stdlib/kotlin/-int/index.html">Int</a><span class="token punctuation">, </span></span><span class="parameter ">limit<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin-stdlib/kotlin/-int/index.html">Int</a></span></span><span class="token punctuation">)</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1405772414%2FFunctions%2F423898102" anchor-label="readIntLittleEndian" id="1405772414%2FFunctions%2F423898102" data-filterable-set=":adam:dokkaHtml/main"></a>
+          <div class="table-row" data-filterable-current=":adam:dokkaHtml/main" data-filterable-set=":adam:dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="read-int-little-endian.html"><span>read</span><wbr></wbr><span>Int</span><wbr></wbr><span>Little</span><wbr></wbr><span><span>Endian</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1405772414%2FFunctions%2F423898102"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":adam:dokkaHtml/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">suspend override </span><span class="token keyword">fun </span><a href="read-int-little-endian.html"><span class="token function">readIntLittleEndian</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin-stdlib/kotlin/-int/index.html">Int</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1284230347%2FFunctions%2F423898102" anchor-label="readOptionalProtocolString" id="-1284230347%2FFunctions%2F423898102" data-filterable-set=":adam:dokkaHtml/main"></a>
+          <div class="table-row" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":adam:dokkaHtml/main" data-filterable-set=":adam:dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../../com.malinskiy.adam.extension/read-optional-protocol-string.html"><span>read</span><wbr></wbr><span>Optional</span><wbr></wbr><span>Protocol</span><wbr></wbr><span><span>String</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1284230347%2FFunctions%2F423898102"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":adam:dokkaHtml/main"><div class="symbol monospace"><span class="token keyword">suspend </span><span class="token keyword">fun </span><a href="../../com.malinskiy.adam.transport/-socket/index.html">Socket</a><span class="token punctuation">.</span><a href="../../com.malinskiy.adam.extension/read-optional-protocol-string.html"><span class="token function">readOptionalProtocolString</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token operator">?</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="287281077%2FFunctions%2F423898102" anchor-label="readProtocolString" id="287281077%2FFunctions%2F423898102" data-filterable-set=":adam:dokkaHtml/main"></a>
+          <div class="table-row" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":adam:dokkaHtml/main" data-filterable-set=":adam:dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../../com.malinskiy.adam.extension/read-protocol-string.html"><span>read</span><wbr></wbr><span>Protocol</span><wbr></wbr><span><span>String</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="287281077%2FFunctions%2F423898102"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":adam:dokkaHtml/main"><div class="symbol monospace"><span class="token keyword">suspend </span><span class="token keyword">fun </span><a href="../../com.malinskiy.adam.transport/-socket/index.html">Socket</a><span class="token punctuation">.</span><a href="../../com.malinskiy.adam.extension/read-protocol-string.html"><span class="token function">readProtocolString</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin-stdlib/kotlin/-string/index.html">String</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-894773410%2FFunctions%2F423898102" anchor-label="readStatus" id="-894773410%2FFunctions%2F423898102" data-filterable-set=":adam:dokkaHtml/main"></a>
+          <div class="table-row" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":adam:dokkaHtml/main" data-filterable-set=":adam:dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../../com.malinskiy.adam.extension/read-status.html"><span>read</span><wbr></wbr><span><span>Status</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-894773410%2FFunctions%2F423898102"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":adam:dokkaHtml/main"><div class="symbol monospace"><span class="token keyword">suspend </span><span class="token keyword">fun </span><a href="../../com.malinskiy.adam.transport/-socket/index.html">Socket</a><span class="token punctuation">.</span><a href="../../com.malinskiy.adam.extension/read-status.html"><span class="token function">readStatus</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin-stdlib/kotlin/-string/index.html">String</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1485532766%2FFunctions%2F423898102" anchor-label="readTransportResponse" id="1485532766%2FFunctions%2F423898102" data-filterable-set=":adam:dokkaHtml/main"></a>
+          <div class="table-row" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":adam:dokkaHtml/main" data-filterable-set=":adam:dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../../com.malinskiy.adam.extension/read-transport-response.html"><span>read</span><wbr></wbr><span>Transport</span><wbr></wbr><span><span>Response</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1485532766%2FFunctions%2F423898102"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":adam:dokkaHtml/main"><div class="symbol monospace"><span class="token keyword">suspend </span><span class="token keyword">fun </span><a href="../../com.malinskiy.adam.transport/-socket/index.html">Socket</a><span class="token punctuation">.</span><a href="../../com.malinskiy.adam.extension/read-transport-response.html"><span class="token function">readTransportResponse</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../../com.malinskiy.adam.transport/-transport-response/index.html">TransportResponse</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1456954214%2FFunctions%2F423898102" anchor-label="start" id="-1456954214%2FFunctions%2F423898102" data-filterable-set=":adam:dokkaHtml/main"></a>
+          <div class="table-row" data-filterable-current=":adam:dokkaHtml/main" data-filterable-set=":adam:dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="index.html#-1456954214%2FFunctions%2F423898102"><span><span>start</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1456954214%2FFunctions%2F423898102"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":adam:dokkaHtml/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><a href="index.html#-1456954214%2FFunctions%2F423898102"><span class="token function">start</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">startFuture<span class="token operator">: </span><span data-unresolved-link="io.vertx.core/Promise///PointingToDeclaration/">Promise</span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html">Void</a><span class="token operator">&gt;</span><span class="token operator">?</span></span></span><span class="token punctuation">)</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="300630344%2FFunctions%2F423898102" anchor-label="stop" id="300630344%2FFunctions%2F423898102" data-filterable-set=":adam:dokkaHtml/main"></a>
+          <div class="table-row" data-filterable-current=":adam:dokkaHtml/main" data-filterable-set=":adam:dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="index.html#300630344%2FFunctions%2F423898102"><span><span>stop</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="300630344%2FFunctions%2F423898102"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":adam:dokkaHtml/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><a href="index.html#300630344%2FFunctions%2F423898102"><span class="token function">stop</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">stopFuture<span class="token operator">: </span><span data-unresolved-link="io.vertx.core/Promise///PointingToDeclaration/">Promise</span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="https://docs.oracle.com/javase/8/docs/api/java/lang/Void.html">Void</a><span class="token operator">&gt;</span><span class="token operator">?</span></span></span><span class="token punctuation">)</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1846836245%2FFunctions%2F423898102" anchor-label="write" id="-1846836245%2FFunctions%2F423898102" data-filterable-set=":adam:dokkaHtml/main"></a>
+          <div class="table-row" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":adam:dokkaHtml/main" data-filterable-set=":adam:dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../../com.malinskiy.adam.extension/write.html"><span><span>write</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1846836245%2FFunctions%2F423898102"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":adam:dokkaHtml/main"><div class="symbol monospace"><span class="token keyword">suspend </span><span class="token keyword">fun </span><a href="../../com.malinskiy.adam.transport/-socket/index.html">Socket</a><span class="token punctuation">.</span><a href="../../com.malinskiy.adam.extension/write.html"><span class="token function">write</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">request<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin-stdlib/kotlin/-byte-array/index.html">ByteArray</a><span class="token punctuation">, </span></span><span class="parameter ">length<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin-stdlib/kotlin/-int/index.html">Int</a><span class="token operator">?</span><span class="token operator"> = </span>null</span></span><span class="token punctuation">)</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1605871361%2FFunctions%2F423898102" anchor-label="writeByte" id="-1605871361%2FFunctions%2F423898102" data-filterable-set=":adam:dokkaHtml/main"></a>
+          <div class="table-row" data-filterable-current=":adam:dokkaHtml/main" data-filterable-set=":adam:dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="write-byte.html"><span>write</span><wbr></wbr><span><span>Byte</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1605871361%2FFunctions%2F423898102"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":adam:dokkaHtml/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">suspend override </span><span class="token keyword">fun </span><a href="write-byte.html"><span class="token function">writeByte</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">value<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin-stdlib/kotlin/-int/index.html">Int</a></span></span><span class="token punctuation">)</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1843120437%2FFunctions%2F423898102" anchor-label="writeFile" id="1843120437%2FFunctions%2F423898102" data-filterable-set=":adam:dokkaHtml/main"></a>
+          <div class="table-row" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":adam:dokkaHtml/main" data-filterable-set=":adam:dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../../com.malinskiy.adam.extension/write-file.html"><span>write</span><wbr></wbr><span><span>File</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1843120437%2FFunctions%2F423898102"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":adam:dokkaHtml/main"><div class="symbol monospace"><span class="token keyword">suspend </span><span class="token keyword">fun </span><a href="../../com.malinskiy.adam.transport/-socket/index.html">Socket</a><span class="token punctuation">.</span><a href="../../com.malinskiy.adam.extension/write-file.html"><span class="token function">writeFile</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">file<span class="token operator">: </span><a href="https://docs.oracle.com/javase/8/docs/api/java/io/File.html">File</a><span class="token punctuation">, </span></span><span class="parameter ">coroutineContext<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin-stdlib/kotlin.coroutines/-coroutine-context/index.html">CoroutineContext</a></span></span><span class="token punctuation">)</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1587323478%2FFunctions%2F423898102" anchor-label="writeFully" id="-1587323478%2FFunctions%2F423898102" data-filterable-set=":adam:dokkaHtml/main"></a>
+          <div class="table-row" data-filterable-current=":adam:dokkaHtml/main" data-filterable-set=":adam:dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../../com.malinskiy.adam.transport/-socket/write-fully.html"><span>write</span><wbr></wbr><span><span>Fully</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1587323478%2FFunctions%2F423898102"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":adam:dokkaHtml/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">suspend </span><span class="token keyword">fun </span><a href="../../com.malinskiy.adam.transport/-socket/write-fully.html"><span class="token function">writeFully</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">byteArray<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin-stdlib/kotlin/-byte-array/index.html">ByteArray</a></span></span><span class="token punctuation">)</span></div><div class="symbol monospace"><span class="token keyword">suspend </span><span class="token keyword">fun </span><a href="write-fully.html"><span class="token function">writeFully</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">buffer<span class="token operator">: </span><span data-unresolved-link="io.vertx.core.buffer/Buffer///PointingToDeclaration/">Buffer</span></span></span><span class="token punctuation">)</span></div><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">suspend override </span><span class="token keyword">fun </span><a href="write-fully.html"><span class="token function">writeFully</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">byteBuffer<span class="token operator">: </span><a href="https://docs.oracle.com/javase/8/docs/api/java/nio/ByteBuffer.html">ByteBuffer</a></span></span><span class="token punctuation">)</span></div><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">suspend override </span><span class="token keyword">fun </span><a href="write-fully.html"><span class="token function">writeFully</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">byteArray<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin-stdlib/kotlin/-byte-array/index.html">ByteArray</a><span class="token punctuation">, </span></span><span class="parameter ">offset<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin-stdlib/kotlin/-int/index.html">Int</a><span class="token punctuation">, </span></span><span class="parameter ">limit<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin-stdlib/kotlin/-int/index.html">Int</a></span></span><span class="token punctuation">)</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-780281873%2FFunctions%2F423898102" anchor-label="writeIntLittleEndian" id="-780281873%2FFunctions%2F423898102" data-filterable-set=":adam:dokkaHtml/main"></a>
+          <div class="table-row" data-filterable-current=":adam:dokkaHtml/main" data-filterable-set=":adam:dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="write-int-little-endian.html"><span>write</span><wbr></wbr><span>Int</span><wbr></wbr><span>Little</span><wbr></wbr><span><span>Endian</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-780281873%2FFunctions%2F423898102"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":adam:dokkaHtml/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">suspend override </span><span class="token keyword">fun </span><a href="write-int-little-endian.html"><span class="token function">writeIntLittleEndian</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">value<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin-stdlib/kotlin/-int/index.html">Int</a></span></span><span class="token punctuation">)</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="817142028%2FFunctions%2F423898102" anchor-label="writeSyncRequest" id="817142028%2FFunctions%2F423898102" data-filterable-set=":adam:dokkaHtml/main"></a>
+          <div class="table-row" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":adam:dokkaHtml/main" data-filterable-set=":adam:dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../../com.malinskiy.adam.extension/write-sync-request.html"><span>write</span><wbr></wbr><span>Sync</span><wbr></wbr><span><span>Request</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="817142028%2FFunctions%2F423898102"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":adam:dokkaHtml/main"><div class="symbol monospace"><span class="token keyword">suspend </span><span class="token keyword">fun </span><a href="../../com.malinskiy.adam.transport/-socket/index.html">Socket</a><span class="token punctuation">.</span><a href="../../com.malinskiy.adam.extension/write-sync-request.html"><span class="token function">writeSyncRequest</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">type<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin-stdlib/kotlin/-byte-array/index.html">ByteArray</a><span class="token punctuation">, </span></span><span class="parameter ">remotePath<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin-stdlib/kotlin/-string/index.html">String</a></span></span><span class="token punctuation">)</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="683535891%2FFunctions%2F423898102" anchor-label="writeSyncV2Request" id="683535891%2FFunctions%2F423898102" data-filterable-set=":adam:dokkaHtml/main"></a>
+          <div class="table-row" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":adam:dokkaHtml/main" data-filterable-set=":adam:dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../../com.malinskiy.adam.extension/write-sync-v2-request.html"><span>write</span><wbr></wbr><span>Sync</span><wbr></wbr><span><span>V2Request</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="683535891%2FFunctions%2F423898102"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":adam:dokkaHtml/main"><div class="symbol monospace"><span class="token keyword">suspend </span><span class="token keyword">fun </span><a href="../../com.malinskiy.adam.transport/-socket/index.html">Socket</a><span class="token punctuation">.</span><a href="../../com.malinskiy.adam.extension/write-sync-v2-request.html"><span class="token function">writeSyncV2Request</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">type<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin-stdlib/kotlin/-byte-array/index.html">ByteArray</a><span class="token punctuation">, </span></span><span class="parameter ">remotePath<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">flags<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin-stdlib/kotlin/-int/index.html">Int</a><span class="token punctuation">, </span></span><span class="parameter ">mode<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin-stdlib/kotlin/-int/index.html">Int</a><span class="token operator">?</span><span class="token operator"> = </span>null</span></span><span class="token punctuation">)</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div data-togglable="PROPERTY">
+        <h2 class="">Properties</h2>
+        <div class="table"><a data-name="2034317885%2FProperties%2F423898102" anchor-label="coroutineContext" id="2034317885%2FProperties%2F423898102" data-filterable-set=":adam:dokkaHtml/main"></a>
+          <div class="table-row" data-filterable-current=":adam:dokkaHtml/main" data-filterable-set=":adam:dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="index.html#2034317885%2FProperties%2F423898102"><span>coroutine</span><wbr></wbr><span><span>Context</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="2034317885%2FProperties%2F423898102"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":adam:dokkaHtml/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">val </span><a href="index.html#2034317885%2FProperties%2F423898102">coroutineContext</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin-stdlib/kotlin.coroutines/-coroutine-context/index.html">CoroutineContext</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1255321815%2FProperties%2F423898102" anchor-label="id" id="1255321815%2FProperties%2F423898102" data-filterable-set=":adam:dokkaHtml/main"></a>
+          <div class="table-row" data-filterable-current=":adam:dokkaHtml/main" data-filterable-set=":adam:dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="id.html"><span><span>id</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1255321815%2FProperties%2F423898102"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":adam:dokkaHtml/main"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">var </span><a href="id.html">id</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token operator">?</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="289402431%2FProperties%2F423898102" anchor-label="isClosedForRead" id="289402431%2FProperties%2F423898102" data-filterable-set=":adam:dokkaHtml/main"></a>
+          <div class="table-row" data-filterable-current=":adam:dokkaHtml/main" data-filterable-set=":adam:dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="is-closed-for-read.html"><span>is</span><wbr></wbr><span>Closed</span><wbr></wbr><span>For</span><wbr></wbr><span><span>Read</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="289402431%2FProperties%2F423898102"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":adam:dokkaHtml/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">val </span><a href="is-closed-for-read.html">isClosedForRead</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1841450906%2FProperties%2F423898102" anchor-label="isClosedForWrite" id="-1841450906%2FProperties%2F423898102" data-filterable-set=":adam:dokkaHtml/main"></a>
+          <div class="table-row" data-filterable-current=":adam:dokkaHtml/main" data-filterable-set=":adam:dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="is-closed-for-write.html"><span>is</span><wbr></wbr><span>Closed</span><wbr></wbr><span>For</span><wbr></wbr><span><span>Write</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1841450906%2FProperties%2F423898102"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":adam:dokkaHtml/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">val </span><a href="is-closed-for-write.html">isClosedForWrite</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="122049920%2FProperties%2F423898102" anchor-label="netClient" id="122049920%2FProperties%2F423898102" data-filterable-set=":adam:dokkaHtml/main"></a>
+          <div class="table-row" data-filterable-current=":adam:dokkaHtml/main" data-filterable-set=":adam:dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="net-client.html"><span>net</span><wbr></wbr><span><span>Client</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="122049920%2FProperties%2F423898102"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":adam:dokkaHtml/main"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">var </span><a href="net-client.html">netClient</a><span class="token operator">: </span><span data-unresolved-link="io.vertx.core.net/NetClient///PointingToDeclaration/">NetClient</span><span class="token operator">?</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      <div class="footer">
+        <span class="go-to-top-icon"><a href="#content" id="go-to-top-link"></a></span><span>© 2025 Copyright</span><span
+                class="pull-right"><span>Generated by </span><a
+                href="https://github.com/Kotlin/dokka"><span>dokka</span><span class="padded-icon"></span></a></span>
+      </div>
+    </div>
+</div>
+</body>
+</html>

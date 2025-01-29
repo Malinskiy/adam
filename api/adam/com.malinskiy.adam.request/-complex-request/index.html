@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
+    <title>ComplexRequest</title>
+    <link href="../../../images/logo-icon.svg" rel="icon" type="image/svg">
+    <script>var pathToRoot = "../../../";</script>
+    <script>const storage = localStorage.getItem("dokka-dark-mode")
+    if (storage == null) {
+        const osDarkSchemePreferred = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+        if (osDarkSchemePreferred === true) {
+            document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+    } else {
+        const savedDarkMode = JSON.parse(storage)
+        if(savedDarkMode === true) {
+            document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+    }
+    </script>
+<script type="text/javascript" src="../../../scripts/sourceset_dependencies.js" async="async"></script>
+<link href="../../../styles/style.css" rel="Stylesheet">
+<link href="../../../styles/jetbrains-mono.css" rel="Stylesheet">
+<link href="../../../styles/main.css" rel="Stylesheet">
+<link href="../../../styles/prism.css" rel="Stylesheet">
+<link href="../../../styles/logo-styles.css" rel="Stylesheet">
+<script type="text/javascript" src="../../../scripts/clipboard.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/navigation-loader.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/platform-content-handler.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/main.js" defer="defer"></script>
+<script type="text/javascript" src="../../../scripts/prism.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/symbol-parameters-wrapper_deferred.js" defer="defer"></script>
+</head>
+<body>
+<div class="navigation-wrapper" id="navigation-wrapper">
+    <div id="leftToggler"><span class="icon-toggler"></span></div>
+    <div class="library-name">
+            <a href="../../../index.html">
+                    <span>adam</span>
+            </a>
+    </div>
+    <div>
+0.5.7-SNAPSHOT    </div>
+    <div class="pull-right d-flex">
+        <div class="filter-section" id="filter-section">
+                <button class="platform-tag platform-selector jvm-like" data-active="" data-filter=":adam:dokkaHtml/main">jvm</button>
+        </div>
+        <button id="theme-toggle-button"><span id="theme-toggle"></span></button>
+        <div id="searchBar"></div>
+    </div>
+</div>
+<div id="container">
+    <div id="leftColumn">
+        <div id="sideMenu"></div>
+    </div>
+    <div id="main">
+<div class="main-content" data-page-type="classlike" id="content" pageIds="adam::com.malinskiy.adam.request/ComplexRequest///PointingToDeclaration//423898102">
+  <div class="breadcrumbs"><a href="../../../index.html">adam</a><span class="delimiter">/</span><a href="../index.html">com.malinskiy.adam.request</a><span class="delimiter">/</span><span class="current">ComplexRequest</span></div>
+  <div class="cover ">
+    <h1 class="cover"><span>Complex</span><wbr></wbr><span><span>Request</span></span></h1>
+    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":adam:dokkaHtml/main"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">class </span><a href="index.html">ComplexRequest</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="index.html">T</a><span class="token operator">&gt;</span><span class="token punctuation">(</span><span class="parameters "><span class="parameter "><span class="token keyword">val </span>target<span class="token operator">: </span><a href="../-target/index.html">Target</a><span class="token operator"> = </span>NonSpecifiedTarget<span class="token punctuation">, </span></span><span class="parameter "><span class="token keyword">val </span>socketIdleTimeout<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin-stdlib/kotlin/-long/index.html">Long</a><span class="token operator">?</span><span class="token operator"> = </span>null</span></span><span class="token punctuation">)</span> : <a href="../-request/index.html">Request</a></div><p class="paragraph">This type of request starts with single serialized request and then proceed to do several reads and writes that have dynamic size</p><h4 class="">Inheritors</h4><div class="table"><div class="table-row" data-filterable-current=":adam:dokkaHtml/main" data-filterable-set=":adam:dokkaHtml/main"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><a href="../-synchronous-request/index.html">SynchronousRequest</a></div></span></div><div></div></div></div><div class="table-row" data-filterable-current=":adam:dokkaHtml/main" data-filterable-set=":adam:dokkaHtml/main"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><a href="../../com.malinskiy.adam.request.abb/-abb-exec-request/index.html">AbbExecRequest</a></div></span></div><div></div></div></div><div class="table-row" data-filterable-current=":adam:dokkaHtml/main" data-filterable-set=":adam:dokkaHtml/main"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><a href="../../com.malinskiy.adam.request.device/-fetch-device-features-request/index.html">FetchDeviceFeaturesRequest</a></div></span></div><div></div></div></div><div class="table-row" data-filterable-current=":adam:dokkaHtml/main" data-filterable-set=":adam:dokkaHtml/main"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><a href="../../com.malinskiy.adam.request.device/-list-devices-request/index.html">ListDevicesRequest</a></div></span></div><div></div></div></div><div class="table-row" data-filterable-current=":adam:dokkaHtml/main" data-filterable-set=":adam:dokkaHtml/main"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><a href="../../com.malinskiy.adam.request.forwarding/-list-port-forwards-request/index.html">ListPortForwardsRequest</a></div></span></div><div></div></div></div><div class="table-row" data-filterable-current=":adam:dokkaHtml/main" data-filterable-set=":adam:dokkaHtml/main"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><a href="../../com.malinskiy.adam.request.forwarding/-port-forward-request/index.html">PortForwardRequest</a></div></span></div><div></div></div></div><div class="table-row" data-filterable-current=":adam:dokkaHtml/main" data-filterable-set=":adam:dokkaHtml/main"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><a href="../../com.malinskiy.adam.request.framebuffer/-screen-capture-request/index.html">ScreenCaptureRequest</a></div></span></div><div></div></div></div><div class="table-row" data-filterable-current=":adam:dokkaHtml/main" data-filterable-set=":adam:dokkaHtml/main"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><a href="../../com.malinskiy.adam.request.mdns/-list-mdns-services-request/index.html">ListMdnsServicesRequest</a></div></span></div><div></div></div></div><div class="table-row" data-filterable-current=":adam:dokkaHtml/main" data-filterable-set=":adam:dokkaHtml/main"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><a href="../../com.malinskiy.adam.request.mdns/-mdns-check-request/index.html">MdnsCheckRequest</a></div></span></div><div></div></div></div><div class="table-row" data-filterable-current=":adam:dokkaHtml/main" data-filterable-set=":adam:dokkaHtml/main"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><a href="../../com.malinskiy.adam.request.misc/-connect-device-request/index.html">ConnectDeviceRequest</a></div></span></div><div></div></div></div><div class="table-row" data-filterable-current=":adam:dokkaHtml/main" data-filterable-set=":adam:dokkaHtml/main"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><a href="../../com.malinskiy.adam.request.misc/-disconnect-device-request/index.html">DisconnectDeviceRequest</a></div></span></div><div></div></div></div><div class="table-row" data-filterable-current=":adam:dokkaHtml/main" data-filterable-set=":adam:dokkaHtml/main"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><a href="../../com.malinskiy.adam.request.misc/-exec-in-request/index.html">ExecInRequest</a></div></span></div><div></div></div></div><div class="table-row" data-filterable-current=":adam:dokkaHtml/main" data-filterable-set=":adam:dokkaHtml/main"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><a href="../../com.malinskiy.adam.request.misc/-fetch-host-features-request/index.html">FetchHostFeaturesRequest</a></div></span></div><div></div></div></div><div class="table-row" data-filterable-current=":adam:dokkaHtml/main" data-filterable-set=":adam:dokkaHtml/main"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><a href="../../com.malinskiy.adam.request.misc/-get-adb-server-version-request/index.html">GetAdbServerVersionRequest</a></div></span></div><div></div></div></div><div class="table-row" data-filterable-current=":adam:dokkaHtml/main" data-filterable-set=":adam:dokkaHtml/main"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><a href="../../com.malinskiy.adam.request.misc/-pair-device-request/index.html">PairDeviceRequest</a></div></span></div><div></div></div></div><div class="table-row" data-filterable-current=":adam:dokkaHtml/main" data-filterable-set=":adam:dokkaHtml/main"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><a href="../../com.malinskiy.adam.request.misc/-reconnect-request/index.html">ReconnectRequest</a></div></span></div><div></div></div></div><div class="table-row" data-filterable-current=":adam:dokkaHtml/main" data-filterable-set=":adam:dokkaHtml/main"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><a href="../../com.malinskiy.adam.request.pkg/-legacy-sideload-request/index.html">LegacySideloadRequest</a></div></span></div><div></div></div></div><div class="table-row" data-filterable-current=":adam:dokkaHtml/main" data-filterable-set=":adam:dokkaHtml/main"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><a href="../../com.malinskiy.adam.request.pkg/-sideload-request/index.html">SideloadRequest</a></div></span></div><div></div></div></div><div class="table-row" data-filterable-current=":adam:dokkaHtml/main" data-filterable-set=":adam:dokkaHtml/main"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><a href="../../com.malinskiy.adam.request.pkg/-streaming-package-install-request/index.html">StreamingPackageInstallRequest</a></div></span></div><div></div></div></div><div class="table-row" data-filterable-current=":adam:dokkaHtml/main" data-filterable-set=":adam:dokkaHtml/main"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><a href="../../com.malinskiy.adam.request.pkg.multi/-add-session-request/index.html">AddSessionRequest</a></div></span></div><div></div></div></div><div class="table-row" data-filterable-current=":adam:dokkaHtml/main" data-filterable-set=":adam:dokkaHtml/main"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><a href="../../com.malinskiy.adam.request.pkg.multi/-create-individual-package-session-request/index.html">CreateIndividualPackageSessionRequest</a></div></span></div><div></div></div></div><div class="table-row" data-filterable-current=":adam:dokkaHtml/main" data-filterable-set=":adam:dokkaHtml/main"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><a href="../../com.malinskiy.adam.request.pkg.multi/-create-multi-package-session-request/index.html">CreateMultiPackageSessionRequest</a></div></span></div><div></div></div></div><div class="table-row" data-filterable-current=":adam:dokkaHtml/main" data-filterable-set=":adam:dokkaHtml/main"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><a href="../../com.malinskiy.adam.request.pkg.multi/-install-commit-request/index.html">InstallCommitRequest</a></div></span></div><div></div></div></div><div class="table-row" data-filterable-current=":adam:dokkaHtml/main" data-filterable-set=":adam:dokkaHtml/main"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><a href="../../com.malinskiy.adam.request.pkg.multi/-write-individual-package-request/index.html">WriteIndividualPackageRequest</a></div></span></div><div></div></div></div><div class="table-row" data-filterable-current=":adam:dokkaHtml/main" data-filterable-set=":adam:dokkaHtml/main"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><a href="../../com.malinskiy.adam.request.reverse/-list-reverse-port-forwards-request/index.html">ListReversePortForwardsRequest</a></div></span></div><div></div></div></div><div class="table-row" data-filterable-current=":adam:dokkaHtml/main" data-filterable-set=":adam:dokkaHtml/main"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><a href="../../com.malinskiy.adam.request.reverse/-reverse-port-forward-request/index.html">ReversePortForwardRequest</a></div></span></div><div></div></div></div><div class="table-row" data-filterable-current=":adam:dokkaHtml/main" data-filterable-set=":adam:dokkaHtml/main"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><a href="../../com.malinskiy.adam.request.shell.v2/-sync-shell-command-request/index.html">SyncShellCommandRequest</a></div></span></div><div></div></div></div><div class="table-row" data-filterable-current=":adam:dokkaHtml/main" data-filterable-set=":adam:dokkaHtml/main"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><a href="../../com.malinskiy.adam.request.sync.v1/-list-file-request/index.html">ListFileRequest</a></div></span></div><div></div></div></div><div class="table-row" data-filterable-current=":adam:dokkaHtml/main" data-filterable-set=":adam:dokkaHtml/main"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><a href="../../com.malinskiy.adam.request.sync.v1/-stat-file-request/index.html">StatFileRequest</a></div></span></div><div></div></div></div><div class="table-row" data-filterable-current=":adam:dokkaHtml/main" data-filterable-set=":adam:dokkaHtml/main"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><a href="../../com.malinskiy.adam.request.sync.v2/-list-file-request/index.html">ListFileRequest</a></div></span></div><div></div></div></div><div class="table-row" data-filterable-current=":adam:dokkaHtml/main" data-filterable-set=":adam:dokkaHtml/main"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><a href="../../com.malinskiy.adam.request.sync.v2/-stat-file-request/index.html">StatFileRequest</a></div></span></div><div></div></div></div></div></div></div>
+  </div>
+  <div class="tabbedcontent">
+    <div class="tabs-section" tabs-section="tabs-section"><button class="section-tab" data-active="" data-togglable="CONSTRUCTOR,TYPE,FUNCTION,PROPERTY">Members</button></div>
+    <div class="tabs-section-body">
+      <div data-togglable="CONSTRUCTOR">
+        <h2 class="">Constructors</h2>
+        <div class="table"><a data-name="1311330967%2FConstructors%2F423898102" anchor-label="ComplexRequest" id="1311330967%2FConstructors%2F423898102" data-filterable-set=":adam:dokkaHtml/main"></a>
+          <div class="table-row" data-togglable="CONSTRUCTOR" data-filterable-current=":adam:dokkaHtml/main" data-filterable-set=":adam:dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-complex-request.html"><span>Complex</span><wbr></wbr><span><span>Request</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1311330967%2FConstructors%2F423898102"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":adam:dokkaHtml/main"><div class="symbol monospace"><span class="token keyword">constructor</span><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">target<span class="token operator">: </span><a href="../-target/index.html">Target</a><span class="token operator"> = </span>NonSpecifiedTarget<span class="token punctuation">, </span></span><span class="parameter ">socketIdleTimeout<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin-stdlib/kotlin/-long/index.html">Long</a><span class="token operator">?</span><span class="token operator"> = </span>null</span></span><span class="token punctuation">)</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div data-togglable="FUNCTION">
+        <h2 class="">Functions</h2>
+        <div class="table"><a data-name="636652274%2FFunctions%2F423898102" anchor-label="handshake" id="636652274%2FFunctions%2F423898102" data-filterable-set=":adam:dokkaHtml/main"></a>
+          <div class="table-row" data-filterable-current=":adam:dokkaHtml/main" data-filterable-set=":adam:dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../-request/handshake.html"><span><span>handshake</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="636652274%2FFunctions%2F423898102"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":adam:dokkaHtml/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">suspend </span><span class="token keyword">fun </span><a href="../-request/handshake.html"><span class="token function">handshake</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">socket<span class="token operator">: </span><a href="../../com.malinskiy.adam.transport/-socket/index.html">Socket</a></span></span><span class="token punctuation">)</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1086604748%2FFunctions%2F423898102" anchor-label="process" id="1086604748%2FFunctions%2F423898102" data-filterable-set=":adam:dokkaHtml/main"></a>
+          <div class="table-row" data-filterable-current=":adam:dokkaHtml/main" data-filterable-set=":adam:dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="process.html"><span><span>process</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1086604748%2FFunctions%2F423898102"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":adam:dokkaHtml/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">suspend </span><span class="token keyword">fun </span><a href="process.html"><span class="token function">process</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">socket<span class="token operator">: </span><a href="../../com.malinskiy.adam.transport/-socket/index.html">Socket</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="index.html">T</a></div><div class="brief "><p class="paragraph">Some requests ignore the initial OKAY/FAIL response and instead stream the actual response To implement these we allow overriding this method</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="808007395%2FFunctions%2F423898102" anchor-label="readElement" id="808007395%2FFunctions%2F423898102" data-filterable-set=":adam:dokkaHtml/main"></a>
+          <div class="table-row" data-filterable-current=":adam:dokkaHtml/main" data-filterable-set=":adam:dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="read-element.html"><span>read</span><wbr></wbr><span><span>Element</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="808007395%2FFunctions%2F423898102"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":adam:dokkaHtml/main"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">suspend </span><span class="token keyword">fun </span><a href="read-element.html"><span class="token function">readElement</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">socket<span class="token operator">: </span><a href="../../com.malinskiy.adam.transport/-socket/index.html">Socket</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="index.html">T</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-843879386%2FFunctions%2F423898102" anchor-label="serialize" id="-843879386%2FFunctions%2F423898102" data-filterable-set=":adam:dokkaHtml/main"></a>
+          <div class="table-row" data-filterable-current=":adam:dokkaHtml/main" data-filterable-set=":adam:dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../-request/serialize.html"><span><span>serialize</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-843879386%2FFunctions%2F423898102"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":adam:dokkaHtml/main"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword"></span><span class="token keyword">fun </span><a href="../-request/serialize.html"><span class="token function">serialize</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin-stdlib/kotlin/-byte-array/index.html">ByteArray</a></div><div class="brief "><p class="paragraph">Some requests require a device serial to be passed to the request itself by means of </p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1250160898%2FFunctions%2F423898102" anchor-label="validate" id="-1250160898%2FFunctions%2F423898102" data-filterable-set=":adam:dokkaHtml/main"></a>
+          <div class="table-row" data-filterable-current=":adam:dokkaHtml/main" data-filterable-set=":adam:dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../-request/validate.html"><span><span>validate</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1250160898%2FFunctions%2F423898102"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":adam:dokkaHtml/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword"></span><span class="token keyword">fun </span><a href="../-request/validate.html"><span class="token function">validate</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-validation-response/index.html">ValidationResponse</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div data-togglable="PROPERTY">
+        <h2 class="">Properties</h2>
+        <div class="table"><a data-name="1635670476%2FProperties%2F423898102" anchor-label="socketIdleTimeout" id="1635670476%2FProperties%2F423898102" data-filterable-set=":adam:dokkaHtml/main"></a>
+          <div class="table-row" data-filterable-current=":adam:dokkaHtml/main" data-filterable-set=":adam:dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../-request/socket-idle-timeout.html"><span>socket</span><wbr></wbr><span>Idle</span><wbr></wbr><span><span>Timeout</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1635670476%2FProperties%2F423898102"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":adam:dokkaHtml/main"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="../-request/socket-idle-timeout.html">socketIdleTimeout</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin-stdlib/kotlin/-long/index.html">Long</a><span class="token operator">?</span><span class="token operator"> = </span>null</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1892524195%2FProperties%2F423898102" anchor-label="target" id="1892524195%2FProperties%2F423898102" data-filterable-set=":adam:dokkaHtml/main"></a>
+          <div class="table-row" data-filterable-current=":adam:dokkaHtml/main" data-filterable-set=":adam:dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../-request/target.html"><span><span>target</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1892524195%2FProperties%2F423898102"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":adam:dokkaHtml/main"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="../-request/target.html">target</a><span class="token operator">: </span><a href="../-target/index.html">Target</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      <div class="footer">
+        <span class="go-to-top-icon"><a href="#content" id="go-to-top-link"></a></span><span>© 2025 Copyright</span><span
+                class="pull-right"><span>Generated by </span><a
+                href="https://github.com/Kotlin/dokka"><span>dokka</span><span class="padded-icon"></span></a></span>
+      </div>
+    </div>
+</div>
+</body>
+</html>

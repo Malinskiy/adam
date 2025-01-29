@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
+    <title>EmulatorCommandRequest</title>
+    <link href="../../../images/logo-icon.svg" rel="icon" type="image/svg">
+    <script>var pathToRoot = "../../../";</script>
+    <script>const storage = localStorage.getItem("dokka-dark-mode")
+    if (storage == null) {
+        const osDarkSchemePreferred = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+        if (osDarkSchemePreferred === true) {
+            document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+    } else {
+        const savedDarkMode = JSON.parse(storage)
+        if(savedDarkMode === true) {
+            document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+    }
+    </script>
+<script type="text/javascript" src="../../../scripts/sourceset_dependencies.js" async="async"></script>
+<link href="../../../styles/style.css" rel="Stylesheet">
+<link href="../../../styles/jetbrains-mono.css" rel="Stylesheet">
+<link href="../../../styles/main.css" rel="Stylesheet">
+<link href="../../../styles/prism.css" rel="Stylesheet">
+<link href="../../../styles/logo-styles.css" rel="Stylesheet">
+<script type="text/javascript" src="../../../scripts/clipboard.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/navigation-loader.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/platform-content-handler.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/main.js" defer="defer"></script>
+<script type="text/javascript" src="../../../scripts/prism.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/symbol-parameters-wrapper_deferred.js" defer="defer"></script>
+</head>
+<body>
+<div class="navigation-wrapper" id="navigation-wrapper">
+    <div id="leftToggler"><span class="icon-toggler"></span></div>
+    <div class="library-name">
+            <a href="../../../index.html">
+                    <span>adam</span>
+            </a>
+    </div>
+    <div>
+0.5.7-SNAPSHOT    </div>
+    <div class="pull-right d-flex">
+        <div class="filter-section" id="filter-section">
+                <button class="platform-tag platform-selector jvm-like" data-active="" data-filter=":adam:dokkaHtml/main">jvm</button>
+        </div>
+        <button id="theme-toggle-button"><span id="theme-toggle"></span></button>
+        <div id="searchBar"></div>
+    </div>
+</div>
+<div id="container">
+    <div id="leftColumn">
+        <div id="sideMenu"></div>
+    </div>
+    <div id="main">
+<div class="main-content" data-page-type="member" id="content" pageIds="adam::com.malinskiy.adam.request.emu/EmulatorCommandRequest/EmulatorCommandRequest/#kotlin.String#java.net.InetSocketAddress#kotlin.String?#kotlin.Boolean#kotlin.Long?/PointingToDeclaration//423898102">
+  <div class="breadcrumbs"><a href="../../../index.html">adam</a><span class="delimiter">/</span><a href="../index.html">com.malinskiy.adam.request.emu</a><span class="delimiter">/</span><a href="index.html">EmulatorCommandRequest</a><span class="delimiter">/</span><span class="current">EmulatorCommandRequest</span></div>
+  <div class="cover ">
+    <h1 class="cover"><span>Emulator</span><wbr></wbr><span>Command</span><wbr></wbr><span><span>Request</span></span></h1>
+  </div>
+  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":adam:dokkaHtml/main"><div class="symbol monospace"><span class="token keyword">constructor</span><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">cmd<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">address<span class="token operator">: </span><a href="https://docs.oracle.com/javase/8/docs/api/java/net/InetSocketAddress.html">InetSocketAddress</a><span class="token punctuation">, </span></span><span class="parameter ">authToken<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin-stdlib/kotlin/-string/index.html">String</a><span class="token operator">?</span><span class="token operator"> = </span>null<span class="token punctuation">, </span></span><span class="parameter ">cleanResponse<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a><span class="token operator"> = </span><span class="token boolean">true</span><span class="token punctuation">, </span></span><span class="parameter ">idleTimeoutOverride<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin-stdlib/kotlin/-long/index.html">Long</a><span class="token operator">?</span><span class="token operator"> = </span>null</span></span><span class="token punctuation">)</span></div><h4 class="">Parameters</h4><div class="table"><div class="table-row" data-filterable-current=":adam:dokkaHtml/main" data-filterable-set=":adam:dokkaHtml/main"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><u><span><span>cmd</span></span></u></div></span></div><div><div class="title"><p class="paragraph">use <code class="lang-kotlin">help</code> to list all available commands, may be emulator-dependant</p></div></div></div></div><div class="table-row" data-filterable-current=":adam:dokkaHtml/main" data-filterable-set=":adam:dokkaHtml/main"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><u><span><span>hostname</span></span></u></div></span></div><div><div class="title"><p class="paragraph">usually localhost since emulator port is binded to the loopback interface only</p></div></div></div></div><div class="table-row" data-filterable-current=":adam:dokkaHtml/main" data-filterable-set=":adam:dokkaHtml/main"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><u><span><span>port</span></span></u></div></span></div><div><div class="title"><p class="paragraph">console port of the emulator. if your device is emulator-5554, port is 5554, emulator-5556 - 5556 and so on</p></div></div></div></div><div class="table-row" data-filterable-current=":adam:dokkaHtml/main" data-filterable-set=":adam:dokkaHtml/main"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><u><span>auth</span><wbr></wbr><span><span>Token</span></span></u></div></span></div><div><div class="title"><p class="paragraph">authentication token is required for connecting to emulator. If null, will be read from $HOME/.emulator_console_auth_token. If you want to remove the auth completely - $HOME/.emulator_console_auth_token file should be empty</p></div></div></div></div><div class="table-row" data-filterable-current=":adam:dokkaHtml/main" data-filterable-set=":adam:dokkaHtml/main"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><u><span>clean</span><wbr></wbr><span><span>Response</span></span></u></div></span></div><div><div class="title"><p class="paragraph">by default all responses contain the emulator auth output that is unnecessary. If you want  the output to include everything the emulator returns - set this to false</p></div></div></div></div></div></div></div>
+</div>
+      <div class="footer">
+        <span class="go-to-top-icon"><a href="#content" id="go-to-top-link"></a></span><span>© 2025 Copyright</span><span
+                class="pull-right"><span>Generated by </span><a
+                href="https://github.com/Kotlin/dokka"><span>dokka</span><span class="padded-icon"></span></a></span>
+      </div>
+    </div>
+</div>
+</body>
+</html>
