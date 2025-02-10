@@ -43,7 +43,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        api: [ 21, 22, 23, 24, 25, 26, 28, 29, 30, 31, 33, 34 ]
+        api: [ 21, 22, 23, 24, 25, 26, 28, 29, 30, 31, 33, 34, 35 ]
     steps:
       - uses: actions/checkout@v1
       - name: Set up JDK 17

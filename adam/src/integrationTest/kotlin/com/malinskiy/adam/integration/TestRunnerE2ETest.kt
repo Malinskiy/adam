@@ -80,7 +80,8 @@ class TestRunnerE2ETest {
                         clazz = listOf("com.example.AbstractFailingTest")
                     ),
                     rule.supportedFeatures,
-                    this
+                    dumpFile = File("/tmp/am-instrument.log"),
+                    coroutineScope = this
                 ),
                 serial = rule.deviceSerial,
             )
