@@ -19,11 +19,13 @@ package com.malinskiy.adam.request.testrunner
 import com.malinskiy.adam.request.Feature
 import com.malinskiy.adam.request.shell.AsyncCompatShellCommandRequest
 import com.malinskiy.adam.request.shell.v2.ShellCommandResultChunk
+import com.malinskiy.adam.request.transform.DumpResponseTransformer
 import com.malinskiy.adam.request.transform.InstrumentationResponseTransformer
 import com.malinskiy.adam.request.transform.ProgressiveResponseTransformer
 import com.malinskiy.adam.request.transform.ProtoInstrumentationResponseTransformer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.SendChannel
+import java.io.File
 
 /**
  * @param outputLogPath if specified with protobuf then write output as protobuf to a file (machine
@@ -56,6 +58,7 @@ class TestRunnerRequest(
     private val profilingOutputPath: String? = null,
     private val outputLogPath: String? = null,
     private val protobuf: Boolean = false,
+    private val dumpFile: File? = null,
     socketIdleTimeout: Long? = Long.MAX_VALUE
 ) : AsyncCompatShellCommandRequest<List<TestEvent>>(
     cmd = StringBuilder().apply {
@@ -102,10 +105,19 @@ class TestRunnerRequest(
     socketIdleTimeout = socketIdleTimeout,
 ) {
     private val transformer: ProgressiveResponseTransformer<List<TestEvent>?> by lazy {
-        if (protobuf) {
+        val raw = if (protobuf) {
             ProtoInstrumentationResponseTransformer()
         } else {
             InstrumentationResponseTransformer()
+        }
+
+        if (dumpFile != null) {
+            if (dumpFile.exists()) {
+                dumpFile.delete()
+            }
+            DumpResponseTransformer(dumpFile, raw)
+        } else {
+            raw
         }
     }
 
